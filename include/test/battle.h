@@ -577,7 +577,9 @@ enum {
     BATTLE_TEST_AI_DOUBLES,
     BATTLE_TEST_AI_MULTI,
     BATTLE_TEST_AI_TWO_VS_ONE,
-    BATTLE_TEST_AI_ONE_VS_TWO
+    BATTLE_TEST_AI_ONE_VS_TWO,
+    BATTLE_TEST_TRIPLES,
+    BATTLE_TEST_AI_TRIPLES,
 };
 
 typedef void (*SingleBattleTestFunction)(void *, const u32, struct BattlePokemon *, struct BattlePokemon *);
@@ -585,6 +587,7 @@ typedef void (*DoubleBattleTestFunction)(void *, const u32, struct BattlePokemon
 typedef void (*MultiBattleTestFunction)(void *, const u32, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *);
 typedef void (*TwoVsOneBattleTestFunction)(void *, const u32, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *);
 typedef void (*OneVsTwoBattleTestFunction)(void *, const u32, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *);
+typedef void (*TripleBattleTestFunction)(void *, const u32, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *);
 
 struct BattleTest
 {
@@ -596,6 +599,7 @@ struct BattleTest
         MultiBattleTestFunction multi;
         TwoVsOneBattleTestFunction two_vs_one;
         OneVsTwoBattleTestFunction one_vs_two;
+        TripleBattleTestFunction triples;
     } function;
     size_t resultsSize;
 };
@@ -973,6 +977,23 @@ bool32 IsAITest(void);
     }; \
     static void CAT(Test, __LINE__)(struct CAT(Result, __LINE__) *results, const u32 i, struct BattlePokemon *playerLeft, struct BattlePokemon *opponentLeft, struct BattlePokemon *playerRight, struct BattlePokemon *opponentRight)
 
+#define BATTLE_TEST_ARGS_TRIPLE(_name, _type, ...) \
+    struct CAT(Result, __LINE__) { RECURSIVELY(R_FOR_EACH(APPEND_SEMICOLON, __VA_ARGS__)) }; \
+    static void CAT(Test, __LINE__)(struct CAT(Result, __LINE__) *, const u32, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *); \
+    __attribute__((section(".tests"), used)) static const struct Test CAT(sTest, __LINE__) = \
+    { \
+        .name = _name, \
+        .filename = __FILE__, \
+        .runner = &gBattleTestRunner, \
+        .sourceLine = __LINE__, \
+        .data = (void *)&(const struct BattleTest) \
+        { \
+            .type = _type, \
+            .function = { .triples = (TripleBattleTestFunction)CAT(Test, __LINE__) }, \
+            .resultsSize = sizeof(struct CAT(Result, __LINE__)), \
+        }, \
+    }; \
+    static void CAT(Test, __LINE__)(struct CAT(Result, __LINE__) *results, const u32 i, struct BattlePokemon *playerLeft, struct BattlePokemon *opponentLeft, struct BattlePokemon *playerRight, struct BattlePokemon *opponentRight, struct BattlePokemon *playerMiddle, struct BattlePokemon *opponentMiddle)
 
 #define SINGLE_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_SINGLE(_name, BATTLE_TEST_SINGLES, __VA_ARGS__)
 #define WILD_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_SINGLE(_name, BATTLE_TEST_WILD, __VA_ARGS__)
@@ -990,6 +1011,10 @@ bool32 IsAITest(void);
 
 #define ONE_VS_TWO_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_ONE_VS_TWO(_name, BATTLE_TEST_ONE_VS_TWO, __VA_ARGS__)
 #define AI_ONE_VS_TWO_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_ONE_VS_TWO(_name, BATTLE_TEST_AI_ONE_VS_TWO, __VA_ARGS__)
+
+// 3v3, one acting battler per side per turn. See docs/hack/triple_battles.md
+#define TRIPLE_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_TRIPLE(_name, BATTLE_TEST_TRIPLES, __VA_ARGS__)
+#define AI_TRIPLE_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_TRIPLE(_name, BATTLE_TEST_AI_TRIPLES, __VA_ARGS__)
 
 /* Parametrize */
 

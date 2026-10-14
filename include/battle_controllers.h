@@ -396,6 +396,12 @@ void BtlController_HandleFaintingCry(enum BattlerId battler);
 void BtlController_HandleIntroSlide(enum BattlerId battler);
 void BtlController_HandleSpriteInvisibility(enum BattlerId battler);
 bool32 TwoPlayerIntroMons(enum BattlerId battlerId); // Double battle with both player Pokémon active.
+enum BattlerId GetIntroThirdBattler(enum BattlerId battler);
+bool32 IsIntroThirdBattlerBallAnimActive(enum BattlerId battler);
+bool32 IsIntroThirdBattlerWaitingForCry(enum BattlerId battler);
+bool32 IsIntroThirdBattlerHealthboxDone(enum BattlerId battler);
+void IntroThirdBattlerShowHealthbox(enum BattlerId battler);
+void IntroThirdBattlerDestroyBallSprite(enum BattlerId battler);
 bool32 TwoOpponentIntroMons(enum BattlerId battlerId); // Double battle with both opponent Pokémon active.
 void BtlController_HandleIntroTrainerBallThrow(enum BattlerId battler, u16 tagTrainerPal, const u16 *trainerPal, s16 framesToWait, void (*controllerCallback)(enum BattlerId battler));
 void BtlController_HandleDrawPartyStatusSummary(enum BattlerId battler, enum BattleSide side, bool32 considerDelay);

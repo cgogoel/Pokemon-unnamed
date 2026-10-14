@@ -244,6 +244,11 @@ static void InitBtlControllersInternal(void)
             gBattlerPositions[B_BATTLER_2] = isPlayerPrimary ? B_POSITION_PLAYER_RIGHT : B_POSITION_OPPONENT_RIGHT;
             gBattlerPositions[B_BATTLER_3] = isPlayerPrimary ? B_POSITION_OPPONENT_RIGHT : B_POSITION_PLAYER_RIGHT;
         }
+        if (IsTripleBattle())
+        {
+            gBattlerPositions[B_BATTLER_4] = isPlayerPrimary ? B_POSITION_PLAYER_MIDDLE : B_POSITION_OPPONENT_MIDDLE;
+            gBattlerPositions[B_BATTLER_5] = isPlayerPrimary ? B_POSITION_OPPONENT_MIDDLE : B_POSITION_PLAYER_MIDDLE;
+        }
 
         if (isLink)
         {
@@ -350,6 +355,13 @@ static void InitBtlControllersInternal(void)
                     SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_3), SetControllerToOpponent);
                 else
                     SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_3), SetControllerToRecordedOpponent);
+            }
+
+            // The middle battlers are controlled the same way as the right flank of their side.
+            if (IsTripleBattle())
+            {
+                SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_4), gBattlerControllerFuncs[GetBattlerPosition(B_BATTLER_2)]);
+                SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_5), gBattlerControllerFuncs[GetBattlerPosition(B_BATTLER_3)]);
             }
         }
 
@@ -490,6 +502,17 @@ bool32 ShouldUpdateTvData(enum BattlerId battler)
          || IsControllerLinkOpponent(battler));
 }
 
+// Whether an earlier battler on the same side (and sharing the party) already starts with partyId.
+static bool32 IsPartySlotTakenByEarlierBattler(enum BattlerId battler, u32 partyId)
+{
+    for (enum BattlerId i = battler & BIT_SIDE; i < battler; i += 2)
+    {
+        if (gBattlerPartyIndexes[i] == partyId && BattlersShareParty(i, battler))
+            return TRUE;
+    }
+    return FALSE;
+}
+
 static void SetBattlePartyIds(void)
 {
     if (!(gBattleTypeFlags & BATTLE_TYPE_MULTI))
@@ -508,7 +531,7 @@ static void SetBattlePartyIds(void)
                 }
                 else
                 {
-                    if (gBattlerPartyIndexes[i - 2] == j && BattlersShareParty(i - 2, i))
+                    if (IsPartySlotTakenByEarlierBattler(i, j))
                     {
                         // Exclude already assigned Pokémon;
                     }
@@ -525,11 +548,15 @@ static void SetBattlePartyIds(void)
 
                     if (gBattlerPartyIndexes[i] >= PARTY_SIZE)
                         continue;
-                    // No valid mons were found. Add the empty slot.
-                    if (gBattlerPartyIndexes[i - 2] == 0)
-                        gBattlerPartyIndexes[i] = 1;
-                    else
-                        gBattlerPartyIndexes[i] = 0;
+                    // No valid mons were found. Add the first empty slot.
+                    for (u32 k = 0; k < PARTY_SIZE; k++)
+                    {
+                        if (!IsPartySlotTakenByEarlierBattler(i, k))
+                        {
+                            gBattlerPartyIndexes[i] = k;
+                            break;
+                        }
+                    }
                 }
             }
             if (gBattlerPartyIndexes[i] >= PARTY_SIZE)
@@ -2854,6 +2881,55 @@ void BtlController_HandleSpriteInvisibility(enum BattlerId battler)
     BtlController_Complete(battler);
 }
 
+// Triple battles: the middle battler sent out together with the left battler at the start of battle.
+// Returns MAX_BATTLERS_COUNT if there is none.
+enum BattlerId GetIntroThirdBattler(enum BattlerId battler)
+{
+    enum BattlerId third;
+
+    if (!IsTripleBattle() || GetBattlerPosition(battler) >= B_POSITION_PLAYER_RIGHT)
+        return MAX_BATTLERS_COUNT;
+    third = GetSecondAllyBattler(battler);
+    if (third >= gBattlersCount || !IsValidForBattle(GetBattlerMon(third)))
+        return MAX_BATTLERS_COUNT;
+    return third;
+}
+
+bool32 IsIntroThirdBattlerBallAnimActive(enum BattlerId battler)
+{
+    enum BattlerId third = GetIntroThirdBattler(battler);
+    return third != MAX_BATTLERS_COUNT && gBattleSpritesDataPtr->healthBoxesData[third].ballAnimActive;
+}
+
+bool32 IsIntroThirdBattlerWaitingForCry(enum BattlerId battler)
+{
+    enum BattlerId third = GetIntroThirdBattler(battler);
+    return third != MAX_BATTLERS_COUNT && gBattleSpritesDataPtr->healthBoxesData[third].waitForCry;
+}
+
+bool32 IsIntroThirdBattlerHealthboxDone(enum BattlerId battler)
+{
+    enum BattlerId third = GetIntroThirdBattler(battler);
+    return third == MAX_BATTLERS_COUNT || gSprites[gHealthboxSpriteIds[third]].callback == SpriteCallbackDummy;
+}
+
+void IntroThirdBattlerShowHealthbox(enum BattlerId battler)
+{
+    enum BattlerId third = GetIntroThirdBattler(battler);
+    if (third == MAX_BATTLERS_COUNT)
+        return;
+    UpdateHealthboxAttribute(gHealthboxSpriteIds[third], GetBattlerMon(third), HEALTHBOX_ALL);
+    StartHealthboxSlideIn(third);
+    SetHealthboxSpriteVisible(gHealthboxSpriteIds[third]);
+}
+
+void IntroThirdBattlerDestroyBallSprite(enum BattlerId battler)
+{
+    enum BattlerId third = GetIntroThirdBattler(battler);
+    if (third != MAX_BATTLERS_COUNT)
+        DestroySprite(&gSprites[gBattleControllerData[third]]);
+}
+
 bool32 TwoPlayerIntroMons(enum BattlerId battler) // Double battle with both player Pokémon active.
 {
     return (IsDoubleBattle() && IsValidForBattle(GetBattlerMon(battler ^ BIT_FLANK)));
@@ -2961,6 +3037,14 @@ static void Task_StartSendOutAnim(u8 taskId)
             gBattleResources->bufferA[battlerPartner][1] = gBattlerPartyIndexes[battlerPartner];
             BattleLoadMonSpriteGfx(GetBattlerMon(battlerPartner), battlerPartner);
             StartSendOutAnim(battlerPartner, FALSE, FALSE, ShouldDoSlideInAnim(battler));
+
+            enum BattlerId battlerThird = GetIntroThirdBattler(battler);
+            if (battlerThird != MAX_BATTLERS_COUNT)
+            {
+                gBattleResources->bufferA[battlerThird][1] = gBattlerPartyIndexes[battlerThird];
+                BattleLoadMonSpriteGfx(GetBattlerMon(battlerThird), battlerThird);
+                StartSendOutAnim(battlerThird, FALSE, FALSE, ShouldDoSlideInAnim(battler));
+            }
         }
         else
         {

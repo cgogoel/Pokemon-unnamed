@@ -143,7 +143,7 @@ void CreateGimmickTriggerSprite(enum BattlerId battler)
 
     if (gBattleStruct->gimmick.triggerSpriteId == 0xFF)
     {
-        if (GetBattlerCoordsIndex(battler) == BATTLE_COORDS_DOUBLES)
+        if (GetBattlerCoordsIndex(battler) != BATTLE_COORDS_SINGLES)
             gBattleStruct->gimmick.triggerSpriteId = CreateSprite(gimmick->triggerTemplate,
                                                                   gSprites[gHealthboxSpriteIds[battler]].x - DOUBLES_GIMMICK_TRIGGER_POS_X_SLIDE,
                                                                   gSprites[gHealthboxSpriteIds[battler]].y - DOUBLES_GIMMICK_TRIGGER_POS_Y_DIFF, 0);
@@ -202,7 +202,7 @@ static void SpriteCb_GimmickTrigger(struct Sprite *sprite)
     s32 yDiff;
     s32 xHealthbox = gSprites[gHealthboxSpriteIds[sprite->tBattler]].x;
 
-    if (GetBattlerCoordsIndex(sprite->tBattler) == BATTLE_COORDS_DOUBLES)
+    if (GetBattlerCoordsIndex(sprite->tBattler) != BATTLE_COORDS_SINGLES)
     {
         xSlide = DOUBLES_GIMMICK_TRIGGER_POS_X_SLIDE;
         xPriority = DOUBLES_GIMMICK_TRIGGER_POS_X_PRIORITY;
@@ -364,12 +364,14 @@ void UpdateIndicatorLevelData(u32 healthboxId, u32 level)
     gSprites[GetIndicatorSpriteId(healthboxId)].tLevelXDelta = xDelta;
 }
 
-static const s8 sIndicatorPositions[][2] =
+static const s8 sIndicatorPositions[MAX_POSITION_COUNT][2] =
 {
     [B_POSITION_PLAYER_LEFT] = {49, -9},
     [B_POSITION_OPPONENT_LEFT] = {40, -9},
     [B_POSITION_PLAYER_RIGHT] = {48, -9},
     [B_POSITION_OPPONENT_RIGHT] = {40, -9},
+    [B_POSITION_PLAYER_MIDDLE] = {48, -9},
+    [B_POSITION_OPPONENT_MIDDLE] = {40, -9},
 };
 
 void CreateIndicatorSprite(enum BattlerId battler)

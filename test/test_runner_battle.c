@@ -191,6 +191,35 @@ NAKED static void InvokeOneVsTwoTestFunctionWithStack(void *results, u32 i, stru
         .pool");
 }
 
+// Same as the double version, with playerMiddle and opponentMiddle as two more stack arguments.
+NAKED static void InvokeTripleTestFunctionWithStack(void *results, u32 i, struct BattlePokemon *playerLeft, struct BattlePokemon *opponentLeft, struct BattlePokemon *playerRight, struct BattlePokemon *opponentRight, struct BattlePokemon *playerMiddle, struct BattlePokemon *opponentMiddle, TripleBattleTestFunction function, void *stack)
+{
+    asm("push {r4-r7,lr}\n\
+         ldr r4, [sp, #36] @ function\n\
+         ldr r5, [sp, #40] @ stack\n\
+         mov r6, sp\n\
+         mov sp, r5\n\
+         push {r6}\n\
+         add r6, #20\n\
+         ldr r5, [r6, #8] @ playerMiddle\n\
+         ldr r7, [r6, #12] @ opponentMiddle\n\
+         push {r5, r7}\n\
+         ldr r5, [r6, #0] @ playerRight\n\
+         ldr r7, [r6, #4] @ opponentRight\n\
+         push {r5, r7}\n\
+         ldr r6, =TripleRestoreSP + 1\n\
+         mov lr, r6\n\
+         bx r4\n\
+    TripleRestoreSP:\n\
+         add sp, #16\n\
+         pop {r0}\n\
+         mov sp, r0\n\
+         pop {r4-r7}\n\
+         pop {r0}\n\
+         bx r0\n\
+        .pool");
+}
+
 // Calls test->function, but pointing its stack at DATA.stack so that
 // local variables are live after the function returns (and so can be
 // referenced by HP_BAR, or the next call, etc).
@@ -225,6 +254,11 @@ static void InvokeTestFunction(const struct BattleTest *test)
         DATA.battlerTrainers |= (B_TRAINER_PARTNER << 4 | B_TRAINER_OPPONENT_A << 6);
         InvokeTwoVsOneTestFunctionWithStack(STATE->results, STATE->runParameter, &gBattleMons[B_POSITION_PLAYER_LEFT], &gBattleMons[B_POSITION_OPPONENT_LEFT], &gBattleMons[B_POSITION_PLAYER_RIGHT], &gBattleMons[B_POSITION_OPPONENT_RIGHT], test->function.two_vs_one, &DATA.stack[BATTLE_TEST_STACK_SIZE]);
         break;
+    case BATTLE_TEST_TRIPLES:
+    case BATTLE_TEST_AI_TRIPLES:
+        DATA.battlerTrainers |= B_TRAINER_OPPONENT_A << 6 | B_TRAINER_PLAYER << 8 | B_TRAINER_OPPONENT_A << 10;
+        InvokeTripleTestFunctionWithStack(STATE->results, STATE->runParameter, &gBattleMons[B_POSITION_PLAYER_LEFT], &gBattleMons[B_POSITION_OPPONENT_LEFT], &gBattleMons[B_POSITION_PLAYER_RIGHT], &gBattleMons[B_POSITION_OPPONENT_RIGHT], &gBattleMons[B_POSITION_PLAYER_MIDDLE], &gBattleMons[B_POSITION_OPPONENT_MIDDLE], test->function.triples, &DATA.stack[BATTLE_TEST_STACK_SIZE]);
+        break;
     case BATTLE_TEST_ONE_VS_TWO:
     case BATTLE_TEST_AI_ONE_VS_TWO:
         DATA.battlerTrainers |= B_TRAINER_OPPONENT_B << 6;
@@ -248,6 +282,7 @@ bool32 IsAITest(void)
     case BATTLE_TEST_AI_MULTI:
     case BATTLE_TEST_AI_TWO_VS_ONE:
     case BATTLE_TEST_AI_ONE_VS_TWO:
+    case BATTLE_TEST_AI_TRIPLES:
         return TRUE;
     }
     return FALSE;
@@ -287,6 +322,10 @@ static void InitTestBattlers(const struct BattleTest *test)
     case BATTLE_TEST_ONE_VS_TWO:
     case BATTLE_TEST_AI_ONE_VS_TWO:
         STATE->battlersCount = 4;
+        break;
+    case BATTLE_TEST_TRIPLES:
+    case BATTLE_TEST_AI_TRIPLES:
+        STATE->battlersCount = MAX_BATTLERS_COUNT;
         break;
     }
 
@@ -491,6 +530,21 @@ static void BattleTest_Run(void *data)
     case BATTLE_TEST_SINGLES:
         DATA.recordedBattle.battleFlags = BATTLE_TYPE_IS_MASTER | BATTLE_TYPE_RECORDED_IS_MASTER | BATTLE_TYPE_RECORDED_LINK | BATTLE_TYPE_TRAINER;
         DATA.recordedBattle.opponentA = TRAINER_LINK_OPPONENT;
+        for (i = 0; i < STATE->battlersCount; i++)
+            DATA.currentMonIndexes[i] = i / 2;
+        break;
+    case BATTLE_TEST_TRIPLES:
+        DATA.recordedBattle.battleFlags = BATTLE_TYPE_IS_MASTER | BATTLE_TYPE_RECORDED_IS_MASTER | BATTLE_TYPE_RECORDED_LINK | BATTLE_TYPE_TRAINER | BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE;
+        DATA.recordedBattle.opponentA = TRAINER_LINK_OPPONENT;
+        DATA.recordedBattle.opponentB = TRAINER_NONE;
+        for (i = 0; i < STATE->battlersCount; i++)
+            DATA.currentMonIndexes[i] = i / 2;
+        break;
+    case BATTLE_TEST_AI_TRIPLES:
+        DATA.recordedBattle.battleFlags = BATTLE_TYPE_IS_MASTER | BATTLE_TYPE_TRAINER | BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE;
+        DATA.recordedBattle.opponentA = TRAINER_LEAF_TEST;
+        DATA.recordedBattle.opponentB = TRAINER_NONE;
+        DATA.hasAI = TRUE;
         for (i = 0; i < STATE->battlersCount; i++)
             DATA.currentMonIndexes[i] = i / 2;
         break;
@@ -2780,6 +2834,16 @@ static const char *const sBattlerIdentifiersDoubles[] =
     "opponentRight",
 };
 
+static const char *const sBattlerIdentifiersTriples[] =
+{
+    "playerLeft",
+    "opponentLeft",
+    "playerRight",
+    "opponentRight",
+    "playerMiddle",
+    "opponentMiddle",
+};
+
 static const char *BattlerIdentifier(enum BattlerId battlerId)
 {
     const struct BattleTest *test = GetBattleTest();
@@ -2799,6 +2863,9 @@ static const char *BattlerIdentifier(enum BattlerId battlerId)
     case BATTLE_TEST_ONE_VS_TWO:
     case BATTLE_TEST_AI_ONE_VS_TWO:
         return sBattlerIdentifiersDoubles[battlerId];
+    case BATTLE_TEST_TRIPLES:
+    case BATTLE_TEST_AI_TRIPLES:
+        return sBattlerIdentifiersTriples[battlerId];
     }
     return "<unknown>";
 }

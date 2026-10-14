@@ -17,7 +17,10 @@ Custom battle mode for Act 2 onward. Not the Gen 5 Triple Battle: **only one Pok
   - `ANY`: the attack can come from any direction, so any foe can be picked: Psychic, Electric, Flying and Ghost moves,
     sound moves, attacks from the sky or from under the target, homing moves that never miss, most status moves,
     and fast contact moves that dart around the front (Quick Attack, Extreme Speed, Aerial Ace...).
-- Changing formation order during battle is still to be designed (proposal: a "Shift" command that uses the side's turn).
+- **Reordering is free:** each turn, before choosing its action, a side may rearrange its 3 on-field Pokémon
+  (near/middle/far) without giving up its attack. The new order applies before any moves that turn resolve.
+- **Switching in from the bench costs the turn:** sending in a party Pokémon that isn't on the field is the side's one action.
+- Starting order follows party order; a fainted Pokémon's replacement takes its spot.
 
 ### Area of effect
 - Each move hits **1**, **2** or **3** foes.
@@ -68,7 +71,7 @@ Shown with each move in the battle move menu (next to type/PP) and in the summar
    optional wild triples, Act gating (triples only from Act 2).
 
 ## Status
-- [ ] Phase 1
+- [x] Phase 1 (engine supports 6 battlers; all existing tests pass)
 - [ ] Phase 2
 - [ ] Phase 3
 - [ ] Phase 4

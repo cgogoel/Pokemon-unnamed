@@ -9331,7 +9331,9 @@ void SetItemsToRestoreAfterBattle(enum BattleTrainer trainer, u32 partySlot)
 
 void TryRestoreHeldItems(void)
 {
-    for (enum BattleTrainer trainer = 0; trainer < gBattlersCount; trainer++)
+    // Triple battles have more battlers than trainers.
+    u32 trainerCount = gBattlersCount < MAX_BATTLE_TRAINERS ? gBattlersCount : MAX_BATTLE_TRAINERS;
+    for (enum BattleTrainer trainer = 0; trainer < trainerCount; trainer++)
     {
         for (u32 partySlot = 0; partySlot < PARTY_SIZE; partySlot++)
         {

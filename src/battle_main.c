@@ -2734,7 +2734,9 @@ static void BattleMainCB1(void)
 {
     gBattleMainFunc();
     for (enum BattlerId battler = 0; battler < gBattlersCount; battler++)
+    {
         gBattlerControllerFuncs[battler](battler);
+    }
 }
 
 static void ClearSetBScriptingStruct(void)
@@ -3793,7 +3795,8 @@ static void HandleTurnActionSelectionState(void)
     gBattleCommunication[ACTIONS_CONFIRMED_COUNT] = 0;
     for (enum BattlerId battlerIndex = 0; battlerIndex < gBattlersCount; battlerIndex++)
     {
-        enum BattlerId battler = gAiLogicData->reverseBattlerLogicOrder ? GetPartnerBattler(battlerIndex) : battlerIndex;
+        // Partner swapping only makes sense with two battlers per side.
+        enum BattlerId battler = (gAiLogicData->reverseBattlerLogicOrder && !IsTripleBattle()) ? GetPartnerBattler(battlerIndex) : battlerIndex;
         enum BattlerPosition position = GetBattlerPosition(battler);
         switch (gBattleCommunication[battler])
         {

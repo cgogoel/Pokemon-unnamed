@@ -56,16 +56,19 @@ static const struct CompressedSpriteSheet sSpriteSheet_SinglesOpponentLargeHealt
     gHealthboxSinglesOpponentLargeGfx, 0x1000, TAG_HEALTHBOX_OPPONENT1_TILE
 };
 
-static const struct CompressedSpriteSheet sSpriteSheets_DoublesPlayerHealthbox[2] =
+// The third entry is the middle battler in triple battles.
+static const struct CompressedSpriteSheet sSpriteSheets_DoublesPlayerHealthbox[3] =
 {
     {gHealthboxDoublesPlayerGfx, 0x800, TAG_HEALTHBOX_PLAYER1_TILE},
-    {gHealthboxDoublesPlayerGfx, 0x800, TAG_HEALTHBOX_PLAYER2_TILE}
+    {gHealthboxDoublesPlayerGfx, 0x800, TAG_HEALTHBOX_PLAYER2_TILE},
+    {gHealthboxDoublesPlayerGfx, 0x800, TAG_HEALTHBOX_PLAYER3_TILE},
 };
 
-static const struct CompressedSpriteSheet sSpriteSheets_DoublesOpponentHealthbox[2] =
+static const struct CompressedSpriteSheet sSpriteSheets_DoublesOpponentHealthbox[3] =
 {
     {gHealthboxDoublesOpponentGfx, 0x800, TAG_HEALTHBOX_OPPONENT1_TILE},
-    {gHealthboxDoublesOpponentGfx, 0x800, TAG_HEALTHBOX_OPPONENT2_TILE}
+    {gHealthboxDoublesOpponentGfx, 0x800, TAG_HEALTHBOX_OPPONENT2_TILE},
+    {gHealthboxDoublesOpponentGfx, 0x800, TAG_HEALTHBOX_OPPONENT3_TILE},
 };
 
 static const struct CompressedSpriteSheet sSpriteSheet_SafariHealthbox =
@@ -78,7 +81,9 @@ static const struct CompressedSpriteSheet sSpriteSheets_HealthBar[MAX_BATTLERS_C
     {gBlankGfxCompressed, 0x0100, TAG_HEALTHBAR_PLAYER1_TILE},
     {gBlankGfxCompressed, 0x0120, TAG_HEALTHBAR_OPPONENT1_TILE},
     {gBlankGfxCompressed, 0x0100, TAG_HEALTHBAR_PLAYER2_TILE},
-    {gBlankGfxCompressed, 0x0120, TAG_HEALTHBAR_OPPONENT2_TILE}
+    {gBlankGfxCompressed, 0x0120, TAG_HEALTHBAR_OPPONENT2_TILE},
+    {gBlankGfxCompressed, 0x0100, TAG_HEALTHBAR_PLAYER3_TILE},
+    {gBlankGfxCompressed, 0x0120, TAG_HEALTHBAR_OPPONENT3_TILE},
 };
 
 const struct SpritePalette sSpritePalettes_HealthBoxHealthBar[2] =
@@ -725,7 +730,24 @@ bool8 BattleLoadAllHealthBoxesGfx(u8 state)
 
     const struct CompressedSpriteSheet *spriteSheet = NULL;
 
-    if (IsDoubleBattle())
+    if (IsTripleBattle())
+    {
+        switch (state)
+        {
+        case 2 ... 4:
+            spriteSheet = &sSpriteSheets_DoublesPlayerHealthbox[state - 2];
+            break;
+        case 5 ... 7:
+            spriteSheet = &sSpriteSheets_DoublesOpponentHealthbox[state - 5];
+            break;
+        case 8 ... 13:
+            spriteSheet = &sSpriteSheets_HealthBar[GetBattlerPosition((enum BattlerId)(state - 8))];
+            break;
+        default:
+            return TRUE;
+        }
+    }
+    else if (IsDoubleBattle())
     {
         switch (state)
         {
@@ -1218,6 +1240,12 @@ void LoadAndCreateEnemyShadowSprites(void)
         battler = GetBattlerAtPosition(B_POSITION_OPPONENT_RIGHT);
         CreateEnemyShadowSprite(battler);
     }
+
+    if (IsTripleBattle())
+    {
+        battler = GetBattlerAtPosition(B_POSITION_OPPONENT_MIDDLE);
+        CreateEnemyShadowSprite(battler);
+    }
 }
 
 void SpriteCB_EnemyShadow(struct Sprite *shadowSprite)
@@ -1413,6 +1441,8 @@ void FreeMonSpritesGfx(void)
     gMonSpritesGfxPtr->spritesGfx[B_POSITION_OPPONENT_LEFT] = NULL;
     gMonSpritesGfxPtr->spritesGfx[B_POSITION_PLAYER_RIGHT] = NULL;
     gMonSpritesGfxPtr->spritesGfx[B_POSITION_OPPONENT_RIGHT] = NULL;
+    gMonSpritesGfxPtr->spritesGfx[B_POSITION_PLAYER_MIDDLE] = NULL;
+    gMonSpritesGfxPtr->spritesGfx[B_POSITION_OPPONENT_MIDDLE] = NULL;
     FREE_AND_SET_NULL(gMonSpritesGfxPtr);
 }
 

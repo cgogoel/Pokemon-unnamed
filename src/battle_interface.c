@@ -224,7 +224,8 @@ static const struct OamData sOamData_64x32 =
     .affineParam = 0,
 };
 
-static const struct SpriteTemplate sHealthboxPlayerSpriteTemplates[2] =
+// Indexed by position / 2: left, right, then middle (triple battles).
+static const struct SpriteTemplate sHealthboxPlayerSpriteTemplates[3] =
 {
     {
         .tileTag = TAG_HEALTHBOX_PLAYER1_TILE,
@@ -235,10 +236,15 @@ static const struct SpriteTemplate sHealthboxPlayerSpriteTemplates[2] =
         .tileTag = TAG_HEALTHBOX_PLAYER2_TILE,
         .paletteTag = TAG_HEALTHBOX_PAL,
         .oam = &sOamData_64x32,
+    },
+    {
+        .tileTag = TAG_HEALTHBOX_PLAYER3_TILE,
+        .paletteTag = TAG_HEALTHBOX_PAL,
+        .oam = &sOamData_64x32,
     }
 };
 
-static const struct SpriteTemplate sHealthboxOpponentSpriteTemplates[2] =
+static const struct SpriteTemplate sHealthboxOpponentSpriteTemplates[3] =
 {
     {
         .tileTag = TAG_HEALTHBOX_OPPONENT1_TILE,
@@ -247,6 +253,11 @@ static const struct SpriteTemplate sHealthboxOpponentSpriteTemplates[2] =
     },
     {
         .tileTag = TAG_HEALTHBOX_OPPONENT2_TILE,
+        .paletteTag = TAG_HEALTHBOX_PAL,
+        .oam = &sOamData_64x32,
+    },
+    {
+        .tileTag = TAG_HEALTHBOX_OPPONENT3_TILE,
         .paletteTag = TAG_HEALTHBOX_PAL,
         .oam = &sOamData_64x32,
     }
@@ -298,6 +309,18 @@ static const struct SpriteTemplate sHealthbarSpriteTemplates[MAX_BATTLERS_COUNT]
     },
     {
         .tileTag = TAG_HEALTHBAR_OPPONENT2_TILE,
+        .paletteTag = TAG_HEALTHBAR_PAL,
+        .oam = &sOamData_Healthbar,
+        .callback = SpriteCB_HealthBar
+    },
+    {
+        .tileTag = TAG_HEALTHBAR_PLAYER3_TILE,
+        .paletteTag = TAG_HEALTHBAR_PAL,
+        .oam = &sOamData_Healthbar,
+        .callback = SpriteCB_HealthBar
+    },
+    {
+        .tileTag = TAG_HEALTHBAR_OPPONENT3_TILE,
         .paletteTag = TAG_HEALTHBAR_PAL,
         .oam = &sOamData_Healthbar,
         .callback = SpriteCB_HealthBar
@@ -599,7 +622,9 @@ static const union TextColor sHealthBoxTextColor =
 // The same goes for a 2 vs 1 where opponent has only one Pokémon.
 enum BattleCoordTypes GetBattlerCoordsIndex(enum BattlerId battler)
 {
-    if (GetBattlerPosition(battler) == B_POSITION_PLAYER_LEFT && gPartiesCount[B_TRAINER_PLAYER] == 1 && !(gBattleTypeFlags & BATTLE_TYPE_MULTI))
+    if (IsTripleBattle())
+        return BATTLE_COORDS_TRIPLES;
+    else if (GetBattlerPosition(battler) == B_POSITION_PLAYER_LEFT && gPartiesCount[B_TRAINER_PLAYER] == 1 && !(gBattleTypeFlags & BATTLE_TYPE_MULTI))
         return BATTLE_COORDS_SINGLES;
     else if (GetBattlerPosition(battler) == B_POSITION_OPPONENT_LEFT && gPartiesCount[B_TRAINER_OPPONENT_A] == 1 && !(gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS))
         return BATTLE_COORDS_SINGLES;
@@ -655,6 +680,7 @@ u8 CreateBattlerHealthboxSprites(enum BattlerId battler)
         break;
     }
     case BATTLE_COORDS_DOUBLES:
+    case BATTLE_COORDS_TRIPLES:
     {
         if (IsOnPlayerSide(battler))
         {
@@ -851,6 +877,16 @@ static const s16 sBattlerHealthboxCoords[BATTLE_COORDS_COUNT][MAX_BATTLERS_COUNT
         [B_POSITION_PLAYER_RIGHT]   = { 171, 101 },
         [B_POSITION_OPPONENT_LEFT]  = { 44,  19 },
         [B_POSITION_OPPONENT_RIGHT] = { 32,  44 },
+    },
+    // Placeholder layout until compact triple healthboxes exist.
+    [BATTLE_COORDS_TRIPLES] =
+    {
+        [B_POSITION_PLAYER_LEFT]     = { 159, 64 },
+        [B_POSITION_PLAYER_MIDDLE]   = { 165, 84 },
+        [B_POSITION_PLAYER_RIGHT]    = { 171, 104 },
+        [B_POSITION_OPPONENT_LEFT]   = { 44,  12 },
+        [B_POSITION_OPPONENT_MIDDLE] = { 38,  32 },
+        [B_POSITION_OPPONENT_RIGHT]  = { 32,  52 },
     },
 };
 
@@ -1345,7 +1381,7 @@ u8 CreatePartyStatusSummarySprites(enum BattlerId battler, struct HpAndStatus *p
     {
         isOpponent = TRUE;
         bar_X = 104, bar_Y = 40;
-        if (GetBattlerCoordsIndex(battler) == BATTLE_COORDS_DOUBLES && GetBattlerPosition(battler) == B_POSITION_OPPONENT_LEFT)
+        if (GetBattlerCoordsIndex(battler) != BATTLE_COORDS_SINGLES && GetBattlerPosition(battler) == B_POSITION_OPPONENT_LEFT)
             bar_Y = 24;
         bar_pos2_X = -100;
         bar_data0 = 5;
@@ -1944,7 +1980,7 @@ static void UpdateStatusIconInHealthbox(u8 healthboxSpriteId)
     FillPalette(sStatusIconColors[statusPalId], OBJ_PLTT_OFFSET + pltAdder, PLTT_SIZEOF(1));
     CpuCopy16(&gPlttBufferUnfaded[OBJ_PLTT_OFFSET + pltAdder], (u16 *)OBJ_PLTT + pltAdder, PLTT_SIZEOF(1));
     CpuCopy32(statusGfxPtr, (void *)(OBJ_VRAM0 + (gSprites[healthboxSpriteId].oam.tileNum + tileNumAdder) * TILE_SIZE_4BPP), 96);
-    if ((!B_HP_PERCENTAGE_DISPLAY && !IsOnPlayerSide(battler)) || GetBattlerCoordsIndex(battler) == BATTLE_COORDS_DOUBLES)
+    if ((!B_HP_PERCENTAGE_DISPLAY && !IsOnPlayerSide(battler)) || GetBattlerCoordsIndex(battler) != BATTLE_COORDS_SINGLES)
     {
         if (!gBattleSpritesDataPtr->battlerData[battler].hpNumbersNoBars)
         {
@@ -2071,7 +2107,7 @@ void UpdateHealthboxAttribute(u8 healthboxSpriteId, struct Pokemon *mon, u8 elem
 
     if (IsOnPlayerSide(battler))
     {
-        u8 isDoubles = GetBattlerCoordsIndex(battler) == BATTLE_COORDS_DOUBLES;
+        u8 isDoubles = GetBattlerCoordsIndex(battler) != BATTLE_COORDS_SINGLES;
 
         if (elementId == HEALTHBOX_LEVEL || elementId == HEALTHBOX_ALL)
             UpdateLvlInHealthbox(healthboxSpriteId, GetMonData(mon, MON_DATA_LEVEL));
@@ -2499,6 +2535,8 @@ enum
     TAG_ABILITY_POP_UP_OPPONENT1,
     TAG_ABILITY_POP_UP_PLAYER2,
     TAG_ABILITY_POP_UP_OPPONENT2,
+    TAG_ABILITY_POP_UP_PLAYER3,   // Triple battles only
+    TAG_ABILITY_POP_UP_OPPONENT3, // Triple battles only
     TAG_LAST_BALL_WINDOW,
 };
 
@@ -2538,6 +2576,9 @@ static const s16 sAbilityPopUpCoordsDoubles[MAX_BATTLERS_COUNT][2] =
     {178, 19}, // Opponent left
     { 24, 97}, // Player right
     {178, 36}, // Opponent right
+    // Triple battles: the middle battlers. The flanks reuse the doubles coords for now.
+    { 24, 63}, // Player middle
+    {178, 53}, // Opponent middle
 };
 
 static const s16 sAbilityPopUpCoordsSingles[MAX_BATTLERS_COUNT][2] =

@@ -50,6 +50,16 @@ const struct UCoords8 sBattlerCoords[BATTLE_COORDS_COUNT][MAX_BATTLERS_COUNT] =
         [B_POSITION_PLAYER_RIGHT]   = { 90, 84 },
         [B_POSITION_OPPONENT_RIGHT] = { 152, 32 },
     },
+    // Placeholder layout, to be tuned with screenshots.
+    [BATTLE_COORDS_TRIPLES] =
+    {
+        [B_POSITION_PLAYER_LEFT]     = { 24, 80 },
+        [B_POSITION_PLAYER_MIDDLE]   = { 64, 84 },
+        [B_POSITION_PLAYER_RIGHT]    = { 104, 88 },
+        [B_POSITION_OPPONENT_LEFT]   = { 216, 40 },
+        [B_POSITION_OPPONENT_MIDDLE] = { 176, 36 },
+        [B_POSITION_OPPONENT_RIGHT]  = { 136, 32 },
+    },
 };
 
 // Placeholders for Pokémon sprites to be created for a move animation effect (e.g. Role Play / Snatch)
@@ -1995,8 +2005,12 @@ u8 GetBattlerSpriteSubpriority(enum BattlerId battler)
             subpriority = 30;
         else if (position == B_POSITION_PLAYER_RIGHT)
             subpriority = 20;
+        else if (position == B_POSITION_PLAYER_MIDDLE)
+            subpriority = 25;
         else if (position == B_POSITION_OPPONENT_LEFT)
             subpriority = 40;
+        else if (position == B_POSITION_OPPONENT_MIDDLE)
+            subpriority = 45;
         else
             subpriority = 50;
     }

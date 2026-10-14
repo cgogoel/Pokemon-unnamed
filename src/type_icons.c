@@ -35,7 +35,7 @@ static s32 GetTypeIconHideMovement(bool32, u32);
 static s32 GetTypeIconSlideMovement(bool32, u32, s32);
 static s32 GetTypeIconBounceMovement(s32, u32);
 
-const struct Coords16 sTypeIconPositions[][2] =
+const struct Coords16 sTypeIconPositions[MAX_POSITION_COUNT][2] =
 {
     [B_POSITION_PLAYER_LEFT] =
     {
@@ -54,6 +54,15 @@ const struct Coords16 sTypeIconPositions[][2] =
     [B_POSITION_OPPONENT_RIGHT] =
     {
         [TRUE] = {85, 39},
+    },
+    // Triple battles; placeholders until the triple healthbox layout is final.
+    [B_POSITION_PLAYER_MIDDLE] =
+    {
+        [TRUE] = {150, 79},
+    },
+    [B_POSITION_OPPONENT_MIDDLE] =
+    {
+        [TRUE] = {91, 27},
     },
 };
 

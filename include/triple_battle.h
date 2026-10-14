@@ -45,6 +45,9 @@ enum MoveTarget GetTripleMoveTargetType(enum Move move, enum MoveTarget canonTar
 enum BattlerId SetTripleMoveTargets(enum BattlerId battlerAtk, enum Move move, enum BattlerId battlerDef);
 void MarkTripleExcludedTargets(enum BattlerId battlerAtk, enum Move move);
 u32 CountTripleSpreadTargets(enum BattlerId battlerAtk);
+void ChooseTripleAiActor(enum BattlerId battler, bool32 (*isAiBattler)(enum BattlerId));
+bool32 IsTripleAiPassing(enum BattlerId battler);
+void RemoveUnreachableTripleMoveScores(enum BattlerId battlerAtk, enum BattlerId battlerDef, s32 *scores);
 uq4_12_t GetTripleTargetDamageModifier(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, u32 targetCount);
 
 #endif // GUARD_TRIPLE_BATTLE_H

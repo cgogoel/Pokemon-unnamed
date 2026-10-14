@@ -3837,6 +3837,11 @@ static bool32 CanBattlerStartChoosingAction(enum BattlerId battler)
         || gBattleCommunication[GetBattlerAtPosition(GetPartnerPosition(position))] == STATE_WAIT_ACTION_CONFIRMED;
 }
 
+static bool32 IsAiBattlerForActionSelection(enum BattlerId battler)
+{
+    return (gBattleTypeFlags & BATTLE_TYPE_HAS_AI || IsWildMonSmart()) && (BattlerHasAi(battler) && !(gBattleTypeFlags & BATTLE_TYPE_PALACE));
+}
+
 // In triple battles the target byte also carries the second target of 2-target moves.
 static void SetChosenMoveTarget(enum BattlerId battler, u8 targetByte)
 {
@@ -3866,17 +3871,20 @@ static void HandleTurnActionSelectionState(void)
         case STATE_TURN_START_RECORD: // Recorded battle related action on start of every turn.
             RecordedBattle_CopyBattlerMoves(battler);
             gBattleCommunication[battler] = STATE_BEFORE_ACTION_CHOSEN;
-            bool32 isAiBattler = (gBattleTypeFlags & BATTLE_TYPE_HAS_AI || IsWildMonSmart()) && (BattlerHasAi(battler) && !(gBattleTypeFlags & BATTLE_TYPE_PALACE));
-            if (isAiBattler)
+            if (IsAiBattlerForActionSelection(battler))
             {
-                ComputeAiBattlerDecisions(battler); // Do AI score computations here so we can use them in AI_TrySwitchOrUseItem
+                if (IsTripleBattle())
+                    ChooseTripleAiActor(battler, IsAiBattlerForActionSelection); // Scores the whole side and picks who acts
+                else
+                    ComputeAiBattlerDecisions(battler); // Do AI score computations here so we can use them in AI_TrySwitchOrUseItem
             }
             // fallthrough
         case STATE_BEFORE_ACTION_CHOSEN: // Choose an action.
             gBattleStruct->monToSwitchIntoId[battler] = PARTY_SIZE;
             if (CanBattlerStartChoosingAction(battler))
             {
-                if (IsTripleBattle() && !(gAbsentBattlerFlags & 1u << battler) && DoesTripleSideAlreadyHaveActor(battler))
+                if (IsTripleBattle() && !(gAbsentBattlerFlags & 1u << battler)
+                 && (DoesTripleSideAlreadyHaveActor(battler) || (IsAiBattlerForActionSelection(battler) && IsTripleAiPassing(battler))))
                 {
                     gChosenActionByBattler[battler] = B_ACTION_PASS;
                     gBattleCommunication[battler] = STATE_WAIT_ACTION_CONFIRMED;

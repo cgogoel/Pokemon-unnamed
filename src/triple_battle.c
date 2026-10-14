@@ -1,7 +1,10 @@
 #include "global.h"
 #include "battle.h"
 #include "battle_util.h"
+#include "battle_ai_main.h"
+#include "battle_ai_util.h"
 #include "triple_battle.h"
+#include "constants/battle_ai.h"
 #include "constants/moves.h"
 
 // 3v3 battles with one acting battler per side per turn. See docs/hack/triple_battles.md
@@ -184,6 +187,76 @@ u32 CountTripleSpreadTargets(enum BattlerId battlerAtk)
             count++;
     }
     return count;
+}
+
+// AI: scores every AI battler on the side once per turn and picks the one with the best move to act.
+// If the best move is weak and a battler wants to switch out, that battler acts (by switching) instead.
+void ChooseTripleAiActor(enum BattlerId battler, bool32 (*isAiBattler)(enum BattlerId))
+{
+    enum BattleSide side = GetBattlerSide(battler);
+    enum BattlerId actor = battler, switcher = MAX_BATTLERS_COUNT;
+    s32 bestScore = -1;
+
+    if (gBattleStruct->tripleAiDecidedTurn[side] == gBattleTurnCounter + 1)
+        return;
+    gBattleStruct->tripleAiDecidedTurn[side] = gBattleTurnCounter + 1;
+
+    // A battler locked into a move or recharging acts no matter what.
+    for (enum BattlerId i = 0; i < gBattlersCount; i++)
+    {
+        if (GetBattlerSide(i) == side && IsBattlerAlive(i)
+         && (gBattleMons[i].volatiles.multipleTurns || gBattleMons[i].volatiles.rechargeTimer > 0))
+        {
+            gBattleStruct->tripleAiActor[side] = i;
+            return;
+        }
+    }
+
+    for (enum BattlerId i = 0; i < gBattlersCount; i++)
+    {
+        if (GetBattlerSide(i) != side || !IsBattlerAlive(i) || gAbsentBattlerFlags & (1u << i) || !isAiBattler(i))
+            continue;
+
+        ComputeAiBattlerDecisions(i);
+        u32 target = gAiBattleData->chosenTarget[i];
+        u32 moveIndex = gAiBattleData->chosenMoveIndex[i];
+        s32 score = (target < gBattlersCount && moveIndex < MAX_MON_MOVES) ? gAiBattleData->finalScore[i][target][moveIndex] : 0;
+
+        if (score > bestScore)
+        {
+            bestScore = score;
+            actor = i;
+        }
+        if (switcher == MAX_BATTLERS_COUNT && gAiLogicData->shouldSwitch & (1u << i))
+            switcher = i;
+    }
+
+    if (switcher != MAX_BATTLERS_COUNT && bestScore < AI_SCORE_DEFAULT)
+        actor = switcher;
+    gBattleStruct->tripleAiActor[side] = actor;
+
+    // The AI's shared working data now belongs to the last battler scored; redo the actor so its action uses its own.
+    ComputeAiBattlerDecisions(actor);
+}
+
+bool32 IsTripleAiPassing(enum BattlerId battler)
+{
+    enum BattleSide side = GetBattlerSide(battler);
+    return gBattleStruct->tripleAiDecidedTurn[side] == gBattleTurnCounter + 1 && gBattleStruct->tripleAiActor[side] != battler;
+}
+
+// AI: a FRONT move aimed at a foe that isn't in front would hit the front foe instead, so it's worthless against that foe.
+void RemoveUnreachableTripleMoveScores(enum BattlerId battlerAtk, enum BattlerId battlerDef, s32 *scores)
+{
+    if (IsBattlerAlly(battlerAtk, battlerDef) || battlerDef == GetTripleFoeAtRank(battlerAtk, 0))
+        return;
+
+    for (u32 i = 0; i < MAX_MON_MOVES; i++)
+    {
+        const struct TripleMoveInfo *info = GetTripleMoveInfo(gBattleMons[battlerAtk].moves[i]);
+        if (info->aoe != 0 && info->aoe != 3 && info->reach == TRIPLE_REACH_FRONT)
+            scores[i] = 0;
+    }
 }
 
 // 2-target moves: the main target takes full damage and the second takes half. 3-target moves: 75% each.

@@ -371,3 +371,39 @@ TRIPLE_BATTLE_TEST("Triple battles: switching in a benched Pokémon uses the sid
         EXPECT_EQ(playerMiddle->species, SPECIES_PIKACHU);
     }
 }
+
+AI_TRIPLE_BATTLE_TEST("Triple battles: the AI acts with the battler that has the best move")
+{
+    GIVEN {
+        AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT);
+        PLAYER(SPECIES_WOBBUFFET) { HP(20); }
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+        OPPONENT(SPECIES_PIKACHU) { Moves(MOVE_THUNDERBOLT); }
+    } WHEN {
+        TURN { EXPECT_MOVE(opponentMiddle, MOVE_THUNDERBOLT, target: playerLeft); }
+    } SCENE {
+        NONE_OF {
+            ANIMATION(ANIM_TYPE_MOVE, MOVE_CELEBRATE, opponentLeft);
+            ANIMATION(ANIM_TYPE_MOVE, MOVE_CELEBRATE, opponentRight);
+        }
+    }
+}
+
+AI_TRIPLE_BATTLE_TEST("Triple battles: the AI doesn't aim FRONT moves past the front foe")
+{
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_TACKLE)->reach == TRIPLE_REACH_FRONT);
+        AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET) { HP(1); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_TACKLE); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+    } WHEN {
+        TURN { EXPECT_MOVE(opponentLeft, MOVE_TACKLE, target: playerLeft); }
+    }
+}

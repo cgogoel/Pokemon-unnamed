@@ -45,6 +45,23 @@ Shown with each move in the battle move menu (next to type/PP) and in the summar
   - `ANY`: every square has a red outline.
 - **Ally marker:** a small extra icon (e.g. red "!") when the move also hits the user's own allies (`hits_allies = Y`).
 
+### Player controls (action menu)
+- **R**: this Pokémon passes; the next one (left → middle → right) chooses.
+- **L**: move this Pokémon one spot forward in the formation (front wraps to back). Free.
+- **B** (middle/right): go back to the previous Pokémon.
+- Moves: FRONT and 3-target moves skip target selection; 2-target ANY moves pick two different foes.
+
+### Trying it
+- Debug menu (hold R + START in the overworld) → Party → *Start Debug Battle* starts a 3v3 against `DEBUG_TRAINER_AI`
+  (`src/data/debug_trainers.party`).
+- Trainers: `Battle Type: Triples` in `src/data/trainers.party`.
+
+### Development aids
+- Tests: `TRIPLE_BATTLE_TEST`, `AI_TRIPLE_BATTLE_TEST`, `MOVE(..., secondTarget: x)`, `FORMATION(near, middle, far)`
+  (see `test/battle/triple_battle.c`).
+- Screenshots without an emulator window: `SCREEN_DUMP(turn)` or `UI_PREVIEW("A.D>D")` in a scratch test, then
+  `python3 tools/screen_dump/render_screen_dump.py <make check log> <out dir>`.
+
 ## Engine approach
 - New flag `BATTLE_TYPE_TRIPLE` (reuses the free bit 14) with `IsTripleBattle()`. It is included in
   `BATTLE_TYPE_MORE_THAN_TWO_BATTLERS`, so `IsDoubleBattle()` is also true and the multi-target code paths stay on.
@@ -74,5 +91,6 @@ Shown with each move in the battle move menu (next to type/PP) and in the summar
 - [x] Phase 1 (engine supports 6 battlers; all existing tests pass)
 - [x] Phase 2 (engine rules, covered by test/battle/triple_battle.c)
 - [x] Phase 3 (AI picks its best actor; respects FRONT reach)
-- [ ] Phase 4
-- [ ] Phase 5
+- [ ] Phase 4 (in progress: layout by formation, controls, target selection and move indicator done; still to do:
+  compact healthboxes / layout polish, party menu for 3 active, animation check with middle battlers)
+- [ ] Phase 5 (in progress: `Battle Type: Triples` and the debug battle work; Act gating still to do)

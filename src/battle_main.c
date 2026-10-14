@@ -433,6 +433,7 @@ static void (*const sTurnActionsFuncsTable[])(void) =
     [B_ACTION_TRY_FINISH]             = HandleAction_TryFinish,
     [B_ACTION_FINISHED]               = HandleAction_ActionFinished,
     [B_ACTION_NOTHING_FAINTED]        = HandleAction_NothingIsFainted,
+    [B_ACTION_PASS]                   = HandleAction_NothingIsFainted,
     [B_ACTION_THROW_BALL]             = HandleAction_ThrowBall,
 };
 
@@ -3788,6 +3789,55 @@ enum
     STATE_SELECTION_SCRIPT_MAY_RUN
 };
 
+// Triple battles: each side chooses left, middle, right. Returns the battler choosing before this one, or MAX_BATTLERS_COUNT.
+static enum BattlerId GetTriplePreviousChoosingBattler(enum BattlerId battler)
+{
+    enum BattlerPosition position = GetBattlerPosition(battler);
+    enum BattleSide side = GetBattlerSide(battler);
+
+    if (position == (B_POSITION_PLAYER_MIDDLE | side))
+        return GetBattlerAtPosition(B_POSITION_PLAYER_LEFT | side);
+    if (position == (B_POSITION_PLAYER_RIGHT | side))
+        return GetBattlerAtPosition(B_POSITION_PLAYER_MIDDLE | side);
+    return MAX_BATTLERS_COUNT;
+}
+
+// Triple battles: whether another battler on the side already acts this turn, or is locked into acting.
+static bool32 DoesTripleSideAlreadyHaveActor(enum BattlerId battler)
+{
+    for (enum BattlerId i = 0; i < gBattlersCount; i++)
+    {
+        if (i == battler || !IsBattlerAlly(i, battler) || gAbsentBattlerFlags & (1u << i))
+            continue;
+        if (gBattleMons[i].volatiles.multipleTurns || gBattleMons[i].volatiles.rechargeTimer > 0)
+            return TRUE;
+        if (gBattleCommunication[i] >= STATE_WAIT_ACTION_CASE_CHOSEN
+         && gChosenActionByBattler[i] != B_ACTION_PASS
+         && gChosenActionByBattler[i] != B_ACTION_NOTHING_FAINTED
+         && gChosenActionByBattler[i] != B_ACTION_NONE)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+static bool32 CanBattlerStartChoosingAction(enum BattlerId battler)
+{
+    enum BattlerPosition position = GetBattlerPosition(battler);
+
+    if (IsTripleBattle())
+    {
+        enum BattlerId previous = GetTriplePreviousChoosingBattler(battler);
+        return previous >= gBattlersCount
+            || gAbsentBattlerFlags & (1u << previous)
+            || gBattleCommunication[previous] == STATE_WAIT_ACTION_CONFIRMED;
+    }
+
+    return gBattleTypeFlags & BATTLE_TYPE_MULTI
+        || (position & BIT_FLANK) == B_FLANK_LEFT
+        || gAbsentBattlerFlags & 1u << GetBattlerAtPosition(GetPartnerPosition(position))
+        || gBattleCommunication[GetBattlerAtPosition(GetPartnerPosition(position))] == STATE_WAIT_ACTION_CONFIRMED;
+}
+
 static void HandleTurnActionSelectionState(void)
 {
     s32 i;
@@ -3811,12 +3861,14 @@ static void HandleTurnActionSelectionState(void)
             // fallthrough
         case STATE_BEFORE_ACTION_CHOSEN: // Choose an action.
             gBattleStruct->monToSwitchIntoId[battler] = PARTY_SIZE;
-            if (gBattleTypeFlags & BATTLE_TYPE_MULTI
-                || (position & BIT_FLANK) == B_FLANK_LEFT
-                || gAbsentBattlerFlags & 1u << GetBattlerAtPosition(GetPartnerPosition(position))
-                || gBattleCommunication[GetBattlerAtPosition(GetPartnerPosition(position))] == STATE_WAIT_ACTION_CONFIRMED)
+            if (CanBattlerStartChoosingAction(battler))
             {
-                if (gAbsentBattlerFlags & 1u << battler || gBattleStruct->battlerState[battler].commandingDondozo)
+                if (IsTripleBattle() && !(gAbsentBattlerFlags & 1u << battler) && DoesTripleSideAlreadyHaveActor(battler))
+                {
+                    gChosenActionByBattler[battler] = B_ACTION_PASS;
+                    gBattleCommunication[battler] = STATE_WAIT_ACTION_CONFIRMED;
+                }
+                else if (gAbsentBattlerFlags & 1u << battler || gBattleStruct->battlerState[battler].commandingDondozo)
                 {
                     gChosenActionByBattler[battler] = B_ACTION_NOTHING_FAINTED;
                     if (!(gBattleTypeFlags & BATTLE_TYPE_MULTI))
@@ -4211,6 +4263,9 @@ static void HandleTurnActionSelectionState(void)
                     gBattleCommunication[battler]++;
                     break;
                 case B_ACTION_WALLY_THROW:
+                    gBattleCommunication[battler]++;
+                    break;
+                case B_ACTION_PASS:
                     gBattleCommunication[battler]++;
                     break;
                 case B_ACTION_DEBUG:

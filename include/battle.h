@@ -55,7 +55,7 @@ enum BattleAction
     B_ACTION_CANCEL_PARTNER = B_ACTION_FINISHED, // when choosing an action
     B_ACTION_NOTHING_FAINTED, // when choosing an action
     B_ACTION_UNK_14,
-    B_ACTION_UNK_15,
+    B_ACTION_PASS, // Triple battles: this battler doesn't act this turn
     B_ACTION_DEBUG = 20,
     B_ACTION_THROW_BALL, // R to throw last used ball
     B_ACTION_NONE = 0xFF

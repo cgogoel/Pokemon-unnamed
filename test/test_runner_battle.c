@@ -288,6 +288,11 @@ bool32 IsAITest(void)
     return FALSE;
 }
 
+static bool32 IsTripleTest(void)
+{
+    return GetBattleTest()->type == BATTLE_TEST_TRIPLES || GetBattleTest()->type == BATTLE_TEST_AI_TRIPLES;
+}
+
 static bool32 IsAIDoublesTest(void)
 {
     return (IsAITest() && (GetBattleTest()->type != BATTLE_TEST_AI_SINGLES));
@@ -1390,6 +1395,7 @@ static const char *const sBattleActionNames[] =
     [B_ACTION_USE_MOVE] = "MOVE",
     [B_ACTION_USE_ITEM] = "USE_ITEM",
     [B_ACTION_SWITCH] = "SWITCH",
+    [B_ACTION_PASS] = "PASS",
 };
 
 static const char *const sGimmickIdentifiers[GIMMICKS_COUNT] =
@@ -2994,11 +3000,53 @@ static void SetAiActionToPass(u32 sourceLine, enum BattlerId battlerId)
     DATA.expectedAiActionIndex[battlerId]++;
 }
 
+// Triple battles: only one battler per side acts. Each side chooses left, middle, right, and the engine
+// passes automatically for everyone after the actor, so only the battlers before it record a pass.
+static void CloseTripleTurn(u32 sourceLine)
+{
+    for (enum BattleSide side = B_SIDE_PLAYER; side < NUM_BATTLE_SIDES; side++)
+    {
+        const enum BattlerId order[] = { B_POSITION_PLAYER_LEFT | side, B_POSITION_PLAYER_MIDDLE | side, B_POSITION_PLAYER_RIGHT | side };
+        s32 actorIndex = -1;
+
+        for (u32 j = 0; j < ARRAY_COUNT(order); j++)
+        {
+            if (DATA.actionBattlers & (1 << order[j]))
+            {
+                INVALID_IF(actorIndex != -1, "Only one battler per side can act in a triple battle turn");
+                actorIndex = j;
+            }
+        }
+
+        if (actorIndex == -1)
+        {
+            if (IsAITest() && side == B_SIDE_OPPONENT)
+                continue; // The AI picks its actor.
+            actorIndex = 0;
+            Move(sourceLine, &gBattleMons[order[0]], (struct MoveContext) { move: MOVE_CELEBRATE, explicitMove: TRUE });
+        }
+
+        for (s32 j = 0; j < actorIndex; j++)
+        {
+            PushBattlerAction(sourceLine, order[j], RECORDED_ACTION_TYPE, B_ACTION_PASS);
+            DATA.actionBattlers |= 1 << order[j];
+        }
+    }
+}
+
 void CloseTurn(u32 sourceLine)
 {
     s32 i;
     INVALID_IF(DATA.turnState != TURN_OPEN, "Nested TURN");
     DATA.turnState = TURN_CLOSING;
+
+    if (IsTripleTest())
+    {
+        CloseTripleTurn(sourceLine);
+        DATA.turnState = TURN_CLOSED;
+        DATA.turns++;
+        return;
+    }
 
     // If Move was not specified always use Celebrate. In AI Tests allow any taken action.
     for (i = 0; i < STATE->battlersCount; i++)

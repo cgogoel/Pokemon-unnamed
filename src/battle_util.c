@@ -1943,6 +1943,26 @@ bool32 HasNoMonsToSwitch(enum BattlerId battler, u8 partyIdBattlerOn1, u8 partyI
 
     bool32 isPlayerSide = IsOnPlayerSide(battler);
 
+    if (IsTripleBattle())
+    {
+        // A replacement is any healthy party member that isn't on the field or already being sent in by an ally slot.
+        for (i = 0; i < lastId; i++)
+        {
+            bool32 taken = (i == partyIdBattlerOn1 || i == partyIdBattlerOn2);
+            for (enum BattlerId ally = 0; ally < gBattlersCount && !taken; ally++)
+            {
+                if (!IsBattlerAlly(ally, battler))
+                    continue;
+                if ((gBattlerPartyIndexes[ally] == i && !(gAbsentBattlerFlags & (1u << ally)))
+                 || gBattleStruct->monToSwitchIntoId[ally] == i)
+                    taken = TRUE;
+            }
+            if (!taken && IsValidForBattle(&party[i]))
+                return FALSE;
+        }
+        return TRUE;
+    }
+
     if (BATTLE_TWO_VS_ONE_OPPONENT && !isPlayerSide)
     {
         flankId = GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT);

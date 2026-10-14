@@ -340,6 +340,7 @@ enum BattleScriptOpcode
 #define BS_OPPONENT2                14
 #define BS_ABILITY_BATTLER          15
 #define BS_ATTACKER_PARTNER         16
+#define BS_FAINTED_MULTIPLE_3       17 // for openpartyscreen, triple battles only
 
 // compare operands
 #define CMP_EQUAL               0

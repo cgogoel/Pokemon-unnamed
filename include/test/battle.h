@@ -791,6 +791,7 @@ struct BattleTestData
     u32 slowerThan[MAX_BATTLE_TRAINERS][PARTY_SIZE];
     enum BattleTrainer battlerParty;
     u16 battlerTrainers; // 2 bits per battler
+    u8 tripleDeferredSendOut[MAX_BATTLERS_COUNT]; // Triple battles: party index + 1 of a SEND_OUT recorded after the turn's passes
     u8 currentPartyIndex;
     struct Pokemon *currentMon;
     u8 gender;

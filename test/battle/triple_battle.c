@@ -72,6 +72,7 @@ TRIPLE_BATTLE_TEST("Triple battles: the left battler acts by default")
     }
 }
 
+// In triple tests a side with no MOVE uses Celebrate with its left battler, so name the actor once that battler has fainted.
 // Formation starts in party order: party slot 0 (left) is near, slot 1 (right) is middle, slot 2 (middle position) is far.
 #define TRIPLE_PARTIES                          \
     PLAYER(SPECIES_WOBBUFFET);                  \
@@ -186,5 +187,134 @@ TRIPLE_BATTLE_TEST("Triple battles: 3-target moves that hit allies hit every oth
         HP_BAR(opponentRight);
         HP_BAR(playerMiddle);
         HP_BAR(opponentMiddle);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: 3-target moves deal 75% damage only when hitting more than one foe")
+{
+    s16 spreadDamage, singleDamage;
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_HYPER_VOICE)->aoe == 3);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET) { HP(1); }
+        OPPONENT(SPECIES_WOBBUFFET) { HP(1); }
+    } WHEN {
+        TURN { MOVE(playerLeft, MOVE_HYPER_VOICE); }
+        TURN { MOVE(playerLeft, MOVE_HYPER_VOICE); }
+    } SCENE {
+        HP_BAR(opponentLeft, captureDamage: &spreadDamage);
+        MESSAGE("The opposing Wobbuffet fainted!");
+        MESSAGE("The opposing Wobbuffet fainted!");
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_HYPER_VOICE, playerLeft);
+        HP_BAR(opponentLeft, captureDamage: &singleDamage);
+    } THEN {
+        EXPECT_MUL_EQ(singleDamage, UQ_4_12(0.75), spreadDamage);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: a fainted battler's replacement takes its place in the formation")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET) { HP(1); }
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WYNAUT);
+    } WHEN {
+        TURN { MOVE(playerLeft, MOVE_POUND, target: opponentLeft); SEND_OUT(opponentLeft, 3); }
+        TURN { MOVE(playerLeft, MOVE_POUND, target: opponentMiddle); }
+    } SCENE {
+        HP_BAR(opponentLeft);
+        MESSAGE("The opposing Wobbuffet fainted!");
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_POUND, playerLeft);
+        HP_BAR(opponentLeft);
+    } THEN {
+        EXPECT_EQ(opponentLeft->species, SPECIES_WYNAUT);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: FRONT moves hit the next foe in line once the near foe is gone")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET) { HP(1); }
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { MOVE(playerLeft, MOVE_POUND, target: opponentLeft); }
+        TURN { MOVE(playerLeft, MOVE_POUND, target: opponentMiddle); MOVE(opponentRight, MOVE_CELEBRATE); }
+    } SCENE {
+        MESSAGE("The opposing Wobbuffet fainted!");
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_POUND, playerLeft);
+        HP_BAR(opponentRight);
+        NOT HP_BAR(opponentMiddle);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: several battlers fainting at once are each replaced")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET) { HP(1); }
+        OPPONENT(SPECIES_WOBBUFFET) { HP(1); }
+        OPPONENT(SPECIES_WOBBUFFET) { HP(1); }
+        OPPONENT(SPECIES_WYNAUT);
+        OPPONENT(SPECIES_WYNAUT);
+        OPPONENT(SPECIES_WYNAUT);
+    } WHEN {
+        TURN { MOVE(playerLeft, MOVE_HYPER_VOICE); SEND_OUT(opponentLeft, 3); SEND_OUT(opponentRight, 4); SEND_OUT(opponentMiddle, 5); }
+    } THEN {
+        EXPECT_EQ(opponentLeft->species, SPECIES_WYNAUT);
+        EXPECT_EQ(opponentRight->species, SPECIES_WYNAUT);
+        EXPECT_EQ(opponentMiddle->species, SPECIES_WYNAUT);
+        EXPECT_GT(opponentLeft->hp, 0);
+        EXPECT_GT(opponentRight->hp, 0);
+        EXPECT_GT(opponentMiddle->hp, 0);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: the battle is won once all three foes faint")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET) { HP(1); }
+        OPPONENT(SPECIES_WOBBUFFET) { HP(1); }
+        OPPONENT(SPECIES_WOBBUFFET) { HP(1); }
+    } WHEN {
+        TURN { MOVE(playerLeft, MOVE_HYPER_VOICE); }
+    } SCENE {
+        MESSAGE("The opposing Wobbuffet fainted!");
+        MESSAGE("The opposing Wobbuffet fainted!");
+        MESSAGE("The opposing Wobbuffet fainted!");
+    } THEN {
+        EXPECT_EQ(gBattleOutcome, B_OUTCOME_WON);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: the player sends out a replacement for a fainted Pokémon")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET) { HP(1); }
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_PIKACHU);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { MOVE(opponentLeft, MOVE_THUNDERBOLT, target: playerRight); SEND_OUT(playerRight, 3); }
+    } THEN {
+        EXPECT_EQ(playerRight->species, SPECIES_PIKACHU);
     }
 }

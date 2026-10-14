@@ -2736,9 +2736,7 @@ static void BattleMainCB1(void)
 {
     gBattleMainFunc();
     for (enum BattlerId battler = 0; battler < gBattlersCount; battler++)
-    {
         gBattlerControllerFuncs[battler](battler);
-    }
 }
 
 static void ClearSetBScriptingStruct(void)

@@ -3364,6 +3364,43 @@ static void ChooseMonToSendOut(enum BattlerId battler, u8 slotId)
     MarkBattlerForControllerExec(battler);
 }
 
+// Triple battles: each pass opens the party screen for at most one fainted battler per side (left, middle, right),
+// so a side's replacements are chosen one after another and never collide.
+static void OpenTriplePartyScreensForFainted(void)
+{
+    for (enum BattleSide side = B_SIDE_PLAYER; side < NUM_BATTLE_SIDES; side++)
+    {
+        const enum BattlerPosition order[] = { B_POSITION_PLAYER_LEFT | side, B_POSITION_PLAYER_MIDDLE | side, B_POSITION_PLAYER_RIGHT | side };
+
+        for (u32 j = 0; j < ARRAY_COUNT(order); j++)
+        {
+            enum BattlerId battler = GetBattlerAtPosition(order[j]);
+            u32 excludedSlot = PARTY_SIZE;
+
+            if (battler >= gBattlersCount || !(gHitMarker & HITMARKER_FAINTED(battler)) || gSpecialStatuses[battler].faintedHasReplacement)
+                continue;
+
+            if (HasNoMonsToSwitch(battler, PARTY_SIZE, PARTY_SIZE))
+            {
+                gAbsentBattlerFlags |= 1u << battler;
+                gHitMarker &= ~HITMARKER_FAINTED(battler);
+                BtlController_EmitCantSwitch(battler, B_COMM_TO_CONTROLLER);
+                MarkBattlerForControllerExec(battler);
+                continue;
+            }
+
+            for (enum BattlerId ally = 0; ally < gBattlersCount; ally++)
+            {
+                if (ally != battler && IsBattlerAlly(ally, battler) && gSpecialStatuses[ally].faintedHasReplacement)
+                    excludedSlot = gBattleStruct->monToSwitchIntoId[ally];
+            }
+            ChooseMonToSendOut(battler, excludedSlot);
+            gSpecialStatuses[battler].faintedHasReplacement = TRUE;
+            break;
+        }
+    }
+}
+
 static void Cmd_openpartyscreen(void)
 {
     CMD_ARGS(u8 battler:7, u8 partyScreenOptional:1, const u8 *failInstr);
@@ -3372,6 +3409,30 @@ static void Cmd_openpartyscreen(void)
     u8 hitmarkerFaintBits = 0;
     enum BattlerId battler = 0;
     const u8 *failInstr = cmd->failInstr;
+
+    if (cmd->battler == BS_FAINTED_MULTIPLE_3 && !IsTripleBattle())
+    {
+        gBattlescriptCurrInstr = failInstr;
+        return;
+    }
+
+    if (IsTripleBattle()
+     && (cmd->battler == BS_FAINTED_MULTIPLE_1 || cmd->battler == BS_FAINTED_MULTIPLE_2 || cmd->battler == BS_FAINTED_MULTIPLE_3))
+    {
+        OpenTriplePartyScreensForFainted();
+        gBattlescriptCurrInstr = cmd->nextInstr;
+        if (cmd->battler != BS_FAINTED_MULTIPLE_1)
+        {
+            u32 fainted = 0;
+            while (fainted < gBattlersCount && !(gHitMarker & HITMARKER_FAINTED(fainted)))
+                fainted++;
+            if (fainted == gBattlersCount)
+                gBattlescriptCurrInstr = failInstr;
+            else
+                gBattlerFainted = fainted;
+        }
+        return;
+    }
 
     if (cmd->battler == BS_FAINTED_MULTIPLE_1)
     {
@@ -11402,13 +11463,21 @@ void BS_HandleTrainerSlideMsg(void)
     gBattlescriptCurrInstr = cmd->nextInstr;
 }
 
+// Triple battles: the middle battlers belong to the same trainer as the left ones.
+static enum BattlerId GetTrainerSlideBattlerSlot(enum BattlerId battler)
+{
+    if (battler >= B_BATTLER_4)
+        return battler - B_BATTLER_4;
+    return battler;
+}
+
 void BS_TryTrainerSlideMsgFirstOff(void)
 {
     NATIVE_ARGS(u8 battler);
     enum BattlerId battler = GetBattlerForBattleScript(cmd->battler);
     enum BattlerId tempBattler = gBattleScripting.battler;
 
-    switch (gBattlerFainted)
+    switch (GetTrainerSlideBattlerSlot(gBattlerFainted))
     {
     case B_BATTLER_0:
         if ((ShouldDoTrainerSlide(B_BATTLER_1, TRAINER_SLIDE_ATTACKER_LANDS_FIRST_DOWN)))
@@ -11533,7 +11602,7 @@ void BS_TryTrainerSlideMsgLastOn(void)
     enum BattlerId battler = GetBattlerForBattleScript(cmd->battler);
     enum BattlerId tempBattler = gBattleScripting.battler;
 
-    switch (gBattleScripting.battler)
+    switch (GetTrainerSlideBattlerSlot(gBattleScripting.battler))
     {
     case B_BATTLER_0:
         if ((ShouldDoTrainerSlide(B_BATTLER_1, TRAINER_SLIDE_OPPONENT_LAST_SWITCHIN)))

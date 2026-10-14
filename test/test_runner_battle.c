@@ -3033,6 +3033,16 @@ static void CloseTripleTurn(u32 sourceLine)
             DATA.actionBattlers |= 1 << order[j];
         }
     }
+
+    for (enum BattlerId battler = 0; battler < MAX_BATTLERS_COUNT; battler++)
+    {
+        if (DATA.tripleDeferredSendOut[battler] != 0)
+        {
+            PushBattlerAction(sourceLine, battler, RECORDED_PARTY_INDEX, DATA.tripleDeferredSendOut[battler] - 1);
+            DATA.currentMonIndexes[battler] = DATA.tripleDeferredSendOut[battler] - 1;
+            DATA.tripleDeferredSendOut[battler] = 0;
+        }
+    }
 }
 
 void CloseTurn(u32 sourceLine)
@@ -3522,6 +3532,12 @@ void SendOut(u32 sourceLine, struct BattlePokemon *battler, u32 partyIndex)
     {
         if (battlerId != i && (battlerId & BIT_SIDE) == (i & BIT_SIDE))
             INVALID_IF((DATA.currentMonIndexes[i] == partyIndex) && Test_BattlersShareParty(battlerId, i), "SEND_OUT to battler");
+    }
+    if (IsTripleTest() && !(DATA.actionBattlers & (1 << battlerId)))
+    {
+        // The battler may only pass this turn; its pass is recorded when the turn closes, so the send out has to wait.
+        DATA.tripleDeferredSendOut[battlerId] = partyIndex + 1;
+        return;
     }
     if (!(DATA.actionBattlers & (1 << battlerId)))
         Move(sourceLine, battler, (struct MoveContext) { move: MOVE_CELEBRATE, explicitMove: TRUE });

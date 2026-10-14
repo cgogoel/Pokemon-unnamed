@@ -696,7 +696,7 @@ static bool32 IsSmartTarget(enum BattlerId battlerAtk, enum BattlerId battlerDef
 
 static bool32 IsTargetingBothFoes(enum BattlerId battlerAtk, enum BattlerId battlerDef)
 {
-    if (battlerDef == GetPartnerBattler(battlerAtk) || battlerAtk == battlerDef)
+    if (IsBattlerAlly(battlerAtk, battlerDef)) // The user and every ally (two in triple battles)
     {
         gBattleStruct->moveResultFlags[battlerDef] = MOVE_RESULT_DOESNT_AFFECT_FOE;
         return skipFailure;

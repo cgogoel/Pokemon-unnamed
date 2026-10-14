@@ -360,6 +360,14 @@ static void InitBtlControllersInternal(void)
                     SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_3), SetControllerToRecordedOpponent);
             }
 
+            // Development aid: the player's battlers take scripted input in UI preview tests.
+            if (TESTING && TestRunner_Battle_IsUiPreview())
+            {
+                SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_0), SetControllerToPlayer);
+                if (isDouble)
+                    SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_2), SetControllerToPlayer);
+            }
+
             // The middle battlers are controlled the same way as the right flank of their side.
             if (IsTripleBattle())
             {

@@ -2735,6 +2735,7 @@ void BeginBattleIntro(void)
 
 static void BattleMainCB1(void)
 {
+    TestRunner_Battle_UiPreviewKeys(gBattleMainFunc == HandleTurnActionSelectionState);
     gBattleMainFunc();
     for (enum BattlerId battler = 0; battler < gBattlersCount; battler++)
         gBattlerControllerFuncs[battler](battler);
@@ -3789,19 +3790,6 @@ enum
     STATE_SELECTION_SCRIPT_MAY_RUN
 };
 
-// Triple battles: each side chooses left, middle, right. Returns the battler choosing before this one, or MAX_BATTLERS_COUNT.
-static enum BattlerId GetTriplePreviousChoosingBattler(enum BattlerId battler)
-{
-    enum BattlerPosition position = GetBattlerPosition(battler);
-    enum BattleSide side = GetBattlerSide(battler);
-
-    if (position == (B_POSITION_PLAYER_MIDDLE | side))
-        return GetBattlerAtPosition(B_POSITION_PLAYER_LEFT | side);
-    if (position == (B_POSITION_PLAYER_RIGHT | side))
-        return GetBattlerAtPosition(B_POSITION_PLAYER_MIDDLE | side);
-    return MAX_BATTLERS_COUNT;
-}
-
 // Triple battles: whether another battler on the side already acts this turn, or is locked into acting.
 static bool32 DoesTripleSideAlreadyHaveActor(enum BattlerId battler)
 {
@@ -4071,45 +4059,53 @@ static void HandleTurnActionSelectionState(void)
                     }
                     break;
                 case B_ACTION_CANCEL_PARTNER:
+                {
+                    // Goes back to the battler that chose before this one; in triple battles that isn't always the partner.
+                    enum BattlerId previous = IsTripleBattle() ? GetTriplePreviousChoosingBattler(battler) : GetPartnerBattler(battler);
                     gBattleCommunication[battler] = STATE_WAIT_SET_BEFORE_ACTION;
-                    gBattleCommunication[GetPartnerBattler(battler)] = STATE_BEFORE_ACTION_CHOSEN;
+                    gBattleCommunication[previous] = STATE_BEFORE_ACTION_CHOSEN;
                     RecordedBattle_ClearBattlerAction(battler, 1);
-                    if (gBattleMons[GetPartnerBattler(battler)].volatiles.multipleTurns
-                        || gBattleMons[GetPartnerBattler(battler)].volatiles.rechargeTimer > 0)
+                    if (gBattleMons[previous].volatiles.multipleTurns
+                        || gBattleMons[previous].volatiles.rechargeTimer > 0)
                     {
                         BtlController_EmitEndBounceEffect(battler, B_COMM_TO_CONTROLLER);
                         MarkBattlerForControllerExec(battler);
                         return;
                     }
-                    else if (gChosenActionByBattler[GetPartnerBattler(battler)] == B_ACTION_SWITCH)
+                    else if (gChosenActionByBattler[previous] == B_ACTION_SWITCH)
                     {
-                        RecordedBattle_ClearBattlerAction(GetPartnerBattler(battler), 2);
+                        RecordedBattle_ClearBattlerAction(previous, 2);
                     }
-                    else if (gChosenActionByBattler[GetPartnerBattler(battler)] == B_ACTION_RUN)
+                    else if (gChosenActionByBattler[previous] == B_ACTION_RUN)
                     {
-                        RecordedBattle_ClearBattlerAction(GetPartnerBattler(battler), 1);
+                        RecordedBattle_ClearBattlerAction(previous, 1);
                     }
-                    else if (gChosenActionByBattler[GetPartnerBattler(battler)] == B_ACTION_USE_MOVE
-                             && (gProtectStructs[GetPartnerBattler(battler)].noValidMoves
-                                || gBattleMons[GetPartnerBattler(battler)].volatiles.encoredMove))
+                    else if (gChosenActionByBattler[previous] == B_ACTION_USE_MOVE
+                             && (gProtectStructs[previous].noValidMoves
+                                || gBattleMons[previous].volatiles.encoredMove))
                     {
-                        RecordedBattle_ClearBattlerAction(GetPartnerBattler(battler), 1);
+                        RecordedBattle_ClearBattlerAction(previous, 1);
                     }
                     else if (gBattleTypeFlags & BATTLE_TYPE_PALACE
-                             && gChosenActionByBattler[GetPartnerBattler(battler)] == B_ACTION_USE_MOVE)
+                             && gChosenActionByBattler[previous] == B_ACTION_USE_MOVE)
                     {
                         gRngValue = gBattlePalaceMoveSelectionRngValue;
-                        RecordedBattle_ClearBattlerAction(GetPartnerBattler(battler), 1);
+                        RecordedBattle_ClearBattlerAction(previous, 1);
+                    }
+                    else if (gChosenActionByBattler[previous] == B_ACTION_PASS)
+                    {
+                        RecordedBattle_ClearBattlerAction(previous, 1);
                     }
                     else
                     {
-                        RecordedBattle_ClearBattlerAction(GetPartnerBattler(battler), 3);
+                        RecordedBattle_ClearBattlerAction(previous, 3);
                     }
 
-                    gBattleStruct->gimmick.toActivate &= ~((1u << GetPartnerPosition(GetBattlerPosition(battler))));
+                    gBattleStruct->gimmick.toActivate &= ~(1u << previous);
                     BtlController_EmitEndBounceEffect(battler, B_COMM_TO_CONTROLLER);
                     MarkBattlerForControllerExec(battler);
                     return;
+                }
                 case B_ACTION_DEBUG:
                     BtlController_EmitDebugMenu(battler, B_COMM_TO_CONTROLLER);
                     MarkBattlerForControllerExec(battler);

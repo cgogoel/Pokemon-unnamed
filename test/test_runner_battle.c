@@ -3024,6 +3024,8 @@ static void CloseTripleTurn(u32 sourceLine)
         {
             if (IsAITest() && side == B_SIDE_OPPONENT)
                 continue; // The AI picks its actor.
+            if (DATA.uiPreview && side == B_SIDE_PLAYER)
+                continue; // The player's input is scripted.
             actorIndex = 0;
             Move(sourceLine, &gBattleMons[order[0]], (struct MoveContext) { move: MOVE_CELEBRATE, explicitMove: TRUE });
         }
@@ -3545,6 +3547,13 @@ static void DumpMemoryRegion(char tag, const u8 *base, u32 size)
     for (u32 offset = 0; offset < size; offset += 64)
     {
         char *p = line;
+        bool32 allZero = TRUE;
+
+        for (u32 i = 0; i < 64 && allZero; i++)
+            allZero = (base[offset + i] == 0);
+        if (allZero)
+            continue; // The renderer starts from zeroed memory.
+
         *p++ = tag;
         *p++ = ' ';
         p = AppendHex(p, offset, 5);
@@ -3571,11 +3580,68 @@ static void DumpRegisters(char tag, const u16 *values, u32 count)
     Test_MgbaPrintf("SCRDUMP %s", line);
 }
 
+static void DumpScreen(void);
+
 void TestRunner_Battle_TryDumpScreen(bool32 atActionSelection)
 {
     if (DATA.screenDumpTurn == 0 || DATA.screenDumpDone || !atActionSelection || gBattleTurnCounter + 1 != DATA.screenDumpTurn)
         return;
+    DATA.screenDumpDone = TRUE;
+    DumpScreen();
+}
 
+void UiPreview_(u32 sourceLine, const char *script)
+{
+    u32 i;
+    for (i = 0; script[i] != '\0' && i < ARRAY_COUNT(DATA.uiPreviewScript) - 1; i++)
+        DATA.uiPreviewScript[i] = script[i];
+    DATA.uiPreviewScript[i] = '\0';
+    DATA.uiPreview = TRUE;
+}
+
+bool32 TestRunner_Battle_IsUiPreview(void)
+{
+    return DATA.uiPreview;
+}
+
+#define UI_PREVIEW_START_FRAMES 30
+#define UI_PREVIEW_STEP_FRAMES 12
+
+void TestRunner_Battle_UiPreviewKeys(bool32 inBattleTurn)
+{
+    u32 keys = 0;
+    char c;
+
+    if (!DATA.uiPreview || (!inBattleTurn && DATA.uiPreviewFrame == 0))
+        return;
+    if (++DATA.uiPreviewFrame < UI_PREVIEW_START_FRAMES || (DATA.uiPreviewFrame - UI_PREVIEW_START_FRAMES) % UI_PREVIEW_STEP_FRAMES != 0)
+        return;
+
+    c = DATA.uiPreviewScript[DATA.uiPreviewPos];
+    if (c == '\0')
+        Test_ExitWithResult(TEST_RESULT_PASS, SourceLine(0), "UI preview done");
+    DATA.uiPreviewPos++;
+
+    switch (c)
+    {
+    case 'A': keys = A_BUTTON; break;
+    case 'B': keys = B_BUTTON; break;
+    case 'L': keys = L_BUTTON; break;
+    case 'R': keys = R_BUTTON; break;
+    case 'S': keys = SELECT_BUTTON; break;
+    case 'T': keys = START_BUTTON; break;
+    case '<': keys = DPAD_LEFT; break;
+    case '>': keys = DPAD_RIGHT; break;
+    case '^': keys = DPAD_UP; break;
+    case 'v': keys = DPAD_DOWN; break;
+    case 'D': DumpScreen(); break;
+    }
+    gMain.newKeys = gMain.newAndRepeatedKeys = keys;
+    gMain.heldKeys = keys & ~B_BUTTON; // Holding B quits recorded battles, which tests are.
+}
+
+static void DumpScreen(void)
+{
     const u16 regs[] = { GetGpuReg(REG_OFFSET_DISPCNT), GetGpuReg(REG_OFFSET_BG0CNT), GetGpuReg(REG_OFFSET_BG1CNT), GetGpuReg(REG_OFFSET_BG2CNT), GetGpuReg(REG_OFFSET_BG3CNT) };
     const u16 scroll[] =
     {
@@ -3583,8 +3649,7 @@ void TestRunner_Battle_TryDumpScreen(bool32 atActionSelection)
         GetGpuReg(REG_OFFSET_BG2HOFS), GetGpuReg(REG_OFFSET_BG2VOFS), GetGpuReg(REG_OFFSET_BG3HOFS), GetGpuReg(REG_OFFSET_BG3VOFS),
     };
 
-    DATA.screenDumpDone = TRUE;
-    Test_MgbaPrintf("SCRDUMP BEGIN %s", gTestRunnerState.test->name);
+    Test_MgbaPrintf("SCRDUMP BEGIN %s %d", gTestRunnerState.test->name, DATA.uiPreviewDumps++);
     DumpRegisters('R', regs, ARRAY_COUNT(regs));
     DumpRegisters('S', scroll, ARRAY_COUNT(scroll));
     DumpMemoryRegion('V', (const u8 *)VRAM, VRAM_SIZE);

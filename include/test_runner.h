@@ -37,6 +37,8 @@ u32 TestRunner_Battle_GetChosenGimmick(enum BattleTrainer trainer, u32 partyInde
 u32 TestRunner_Battle_GetForcedEnvironment(void);
 void TestRunner_Battle_RecordEffectivenessSound(u32 battlerId, u32 soundId);
 void TestRunner_Battle_TryDumpScreen(bool32 atActionSelection);
+bool32 TestRunner_Battle_IsUiPreview(void);
+void TestRunner_Battle_UiPreviewKeys(bool32 inBattleTurn);
 
 #else
 
@@ -60,6 +62,8 @@ void TestRunner_Battle_TryDumpScreen(bool32 atActionSelection);
 #define TestRunner_Battle_GetChosenGimmick(...) (u32)0
 #define TestRunner_Battle_RecordEffectivenessSound(...) (u32)0
 #define TestRunner_Battle_TryDumpScreen(...) (void)0
+#define TestRunner_Battle_IsUiPreview(...) FALSE
+#define TestRunner_Battle_UiPreviewKeys(...) (void)0
 
 #define TestRunner_Battle_GetForcedEnvironment(...) (u8)0
 

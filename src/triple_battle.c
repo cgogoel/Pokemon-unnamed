@@ -14,6 +14,8 @@
 
 #include "data/triple_battle_moves.h"
 
+static bool32 IsFoeTargetingType(enum MoveTarget moveTarget);
+
 static const struct TripleMoveInfo sUnlistedMoveInfo = {0};
 
 const struct TripleMoveInfo *GetTripleMoveInfo(enum Move move)
@@ -26,6 +28,8 @@ const struct TripleMoveInfo *GetTripleMoveInfo(enum Move move)
 // The starting formation follows party order: the lowest party slot on the field is near, the highest is far.
 void InitTripleFormation(void)
 {
+    ResetTripleMoveIndicator();
+
     for (enum BattleSide side = B_SIDE_PLAYER; side < NUM_BATTLE_SIDES; side++)
     {
         enum BattlerId battlers[TRIPLE_RANK_COUNT] =
@@ -83,6 +87,80 @@ enum BattlerPosition GetBattlerLayoutPosition(enum BattlerId battler)
     if (!IsTripleBattle() || gBattleStruct == NULL)
         return GetBattlerPosition(battler);
     return sRankLayout[GetTripleFormationRank(battler)] | GetBattlerSide(battler);
+}
+
+enum BattlerId GetBattlerAtLayoutPosition(enum BattlerPosition layoutPosition)
+{
+    for (enum BattlerId battler = 0; battler < gBattlersCount; battler++)
+    {
+        if (GetBattlerLayoutPosition(battler) == layoutPosition)
+            return battler;
+    }
+    return gBattlersCount;
+}
+
+// 2-target moves that can come from any direction: the player picks both targets.
+bool32 IsTripleTwoTargetChoiceMove(enum Move move)
+{
+    const struct TripleMoveInfo *info = GetTripleMoveInfo(move);
+    return info->aoe == 2 && info->reach == TRIPLE_REACH_ANY;
+}
+
+enum TripleTargetChoice GetTripleTargetChoice(enum Move move, enum MoveTarget canonTarget)
+{
+    const struct TripleMoveInfo *info = GetTripleMoveInfo(move);
+
+    if (info->aoe == 0 || !IsFoeTargetingType(canonTarget))
+        return TRIPLE_TARGET_CHOICE_CANON;
+    if (IsTripleTwoTargetChoiceMove(move))
+        return TRIPLE_TARGET_CHOICE_TWO;
+    if (info->aoe == 1 && info->reach == TRIPLE_REACH_ANY)
+        return TRIPLE_TARGET_CHOICE_ONE;
+    return TRIPLE_TARGET_CHOICE_NONE;
+}
+
+// Each side chooses its action left, middle, right. Returns the battler choosing before this one (skipping absent
+// battlers), or MAX_BATTLERS_COUNT.
+enum BattlerId GetTriplePreviousChoosingBattler(enum BattlerId battler)
+{
+    enum BattleSide side = GetBattlerSide(battler);
+    const enum BattlerPosition order[] = { B_POSITION_PLAYER_LEFT | side, B_POSITION_PLAYER_MIDDLE | side, B_POSITION_PLAYER_RIGHT | side };
+    s32 index = ARRAY_COUNT(order) - 1;
+
+    while (index >= 0 && GetBattlerAtPosition(order[index]) != battler)
+        index--;
+    for (index--; index >= 0; index--)
+    {
+        enum BattlerId previous = GetBattlerAtPosition(order[index]);
+        if (previous < gBattlersCount && !(gAbsentBattlerFlags & (1u << previous)))
+            return previous;
+    }
+    return MAX_BATTLERS_COUNT;
+}
+
+// The formation after moving a battler one spot forward (the near battler wraps around to the far spot).
+u8 GetTripleFormationMovingUp(enum BattlerId battler)
+{
+    enum BattleSide side = GetBattlerSide(battler);
+    enum BattlerId battlers[TRIPLE_RANK_COUNT] =
+    {
+        GetBattlerAtPosition(B_POSITION_PLAYER_LEFT | side),
+        GetBattlerAtPosition(B_POSITION_PLAYER_RIGHT | side),
+        GetBattlerAtPosition(B_POSITION_PLAYER_MIDDLE | side),
+    };
+    u32 ranks[TRIPLE_RANK_COUNT];
+    u32 rank = GetTripleFormationRank(battler);
+    u32 aheadRank = (rank + TRIPLE_RANK_COUNT - 1) % TRIPLE_RANK_COUNT;
+
+    for (u32 i = 0; i < TRIPLE_RANK_COUNT; i++)
+    {
+        ranks[i] = GetTripleFormationRank(battlers[i]);
+        if (ranks[i] == aheadRank)
+            ranks[i] = rank;
+        else if (battlers[i] == battler)
+            ranks[i] = aheadRank;
+    }
+    return TRIPLE_FORMATION_PACK(ranks[0], ranks[1], ranks[2]);
 }
 
 // Moves a side's sprites and healthboxes to match a new formation.

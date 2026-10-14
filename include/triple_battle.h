@@ -34,6 +34,15 @@ struct TripleMoveInfo
 // A formation is packed into one byte: 2 bits of rank for the left, right and middle battler, in that order.
 #define TRIPLE_FORMATION_PACK(leftRank, rightRank, middleRank) ((leftRank) | ((rightRank) << 2) | ((middleRank) << 4))
 
+// How the player picks targets for a move in a triple battle.
+enum TripleTargetChoice
+{
+    TRIPLE_TARGET_CHOICE_CANON,  // Not listed in the move table, or doesn't target foes: normal targeting
+    TRIPLE_TARGET_CHOICE_NONE,   // The targets follow from the formation (FRONT moves, 3-target moves)
+    TRIPLE_TARGET_CHOICE_ONE,    // Pick one target
+    TRIPLE_TARGET_CHOICE_TWO,    // Pick two foes
+};
+
 extern const struct TripleMoveInfo gTripleMoveInfo[];
 
 const struct TripleMoveInfo *GetTripleMoveInfo(enum Move move);
@@ -41,6 +50,11 @@ void InitTripleFormation(void);
 bool32 TrySetTripleFormation(enum BattleSide side, u8 packedRanks);
 enum TripleFormationRank GetTripleFormationRank(enum BattlerId battler);
 enum BattlerPosition GetBattlerLayoutPosition(enum BattlerId battler);
+enum BattlerId GetBattlerAtLayoutPosition(enum BattlerPosition layoutPosition);
+bool32 IsTripleTwoTargetChoiceMove(enum Move move);
+enum TripleTargetChoice GetTripleTargetChoice(enum Move move, enum MoveTarget canonTarget);
+enum BattlerId GetTriplePreviousChoosingBattler(enum BattlerId battler);
+u8 GetTripleFormationMovingUp(enum BattlerId battler);
 void UpdateTripleFormationGraphics(enum BattleSide side);
 enum BattlerId GetTripleFoeAtRank(enum BattlerId battlerAtk, u32 aliveIndex);
 enum MoveTarget GetTripleMoveTargetType(enum Move move, enum MoveTarget canonTarget);
@@ -50,6 +64,12 @@ u32 CountTripleSpreadTargets(enum BattlerId battlerAtk);
 void ChooseTripleAiActor(enum BattlerId battler, bool32 (*isAiBattler)(enum BattlerId));
 bool32 IsTripleAiPassing(enum BattlerId battler);
 void RemoveUnreachableTripleMoveScores(enum BattlerId battlerAtk, enum BattlerId battlerDef, s32 *scores);
+// triple_battle_ui.c
+#define TRIPLE_INDICATOR_TEXT_X 30 // Pixels before the move type name when the area of effect indicator is shown
+void ResetTripleMoveIndicator(void);
+void HideTripleMoveIndicator(void);
+bool32 ShowTripleMoveIndicator(enum Move move);
+
 uq4_12_t GetTripleTargetDamageModifier(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, u32 targetCount);
 
 #endif // GUARD_TRIPLE_BATTLE_H

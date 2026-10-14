@@ -318,3 +318,56 @@ TRIPLE_BATTLE_TEST("Triple battles: the player sends out a replacement for a fai
         EXPECT_EQ(playerRight->species, SPECIES_PIKACHU);
     }
 }
+
+TRIPLE_BATTLE_TEST("Triple battles: FORMATION changes which foe is in front")
+{
+    GIVEN {
+        TRIPLE_PARTIES
+    } WHEN {
+        TURN { FORMATION(opponentMiddle, opponentLeft, opponentRight); MOVE(playerLeft, MOVE_POUND, target: opponentLeft); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_POUND, playerLeft);
+        HP_BAR(opponentMiddle);
+        NONE_OF {
+            HP_BAR(opponentLeft);
+            HP_BAR(opponentRight);
+        }
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: rearranging the formation doesn't use up the side's action")
+{
+    GIVEN {
+        TRIPLE_PARTIES
+    } WHEN {
+        TURN { FORMATION(playerRight, playerMiddle, playerLeft); MOVE(playerLeft, MOVE_CELEBRATE); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_CELEBRATE, playerLeft);
+    } THEN {
+        EXPECT_EQ(GetTripleFormationRank(playerRight - gBattleMons), TRIPLE_RANK_NEAR);
+        EXPECT_EQ(GetTripleFormationRank(playerMiddle - gBattleMons), TRIPLE_RANK_MIDDLE);
+        EXPECT_EQ(GetTripleFormationRank(playerLeft - gBattleMons), TRIPLE_RANK_FAR);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: switching in a benched Pokémon uses the side's action")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_PIKACHU);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { SWITCH(playerMiddle, 3); }
+    } SCENE {
+        NONE_OF {
+            ANIMATION(ANIM_TYPE_MOVE, MOVE_CELEBRATE, playerLeft);
+            ANIMATION(ANIM_TYPE_MOVE, MOVE_CELEBRATE, playerRight);
+        }
+    } THEN {
+        EXPECT_EQ(playerMiddle->species, SPECIES_PIKACHU);
+    }
+}

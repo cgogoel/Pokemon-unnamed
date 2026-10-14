@@ -72,7 +72,7 @@ Shown with each move in the battle move menu (next to type/PP) and in the summar
 
 ## Status
 - [x] Phase 1 (engine supports 6 battlers; all existing tests pass)
-- [ ] Phase 2
+- [x] Phase 2 (engine rules, covered by test/battle/triple_battle.c)
 - [ ] Phase 3
 - [ ] Phase 4
 - [ ] Phase 5

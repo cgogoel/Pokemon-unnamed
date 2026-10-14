@@ -3521,6 +3521,25 @@ void SkipTurn(u32 sourceLine, struct BattlePokemon *battler)
     DATA.actionBattlers |= 1 << battlerId;
 }
 
+void Formation(u32 sourceLine, struct BattlePokemon *near, struct BattlePokemon *middle, struct BattlePokemon *far)
+{
+    enum BattlerId battlers[TRIPLE_RANK_COUNT] = { near - gBattleMons, middle - gBattleMons, far - gBattleMons };
+    enum BattleSide side = battlers[0] & BIT_SIDE;
+    enum BattlerId left = B_POSITION_PLAYER_LEFT | side;
+    u8 ranks[MAX_BATTLERS_COUNT] = {0};
+
+    INVALID_IF(!IsTripleTest(), "FORMATION is only used in triple battles");
+    INVALID_IF(DATA.turnState == TURN_CLOSED, "FORMATION outside TURN");
+    INVALID_IF((battlers[1] & BIT_SIDE) != side || (battlers[2] & BIT_SIDE) != side, "FORMATION battlers must be on the same side");
+    INVALID_IF(battlers[0] == battlers[1] || battlers[0] == battlers[2] || battlers[1] == battlers[2], "FORMATION battlers must be different");
+    INVALID_IF(DATA.actionBattlers & (1 << left), "FORMATION must come before the side's MOVE, SWITCH or USE_ITEM");
+
+    for (enum TripleFormationRank rank = TRIPLE_RANK_NEAR; rank < TRIPLE_RANK_COUNT; rank++)
+        ranks[battlers[rank]] = rank;
+    PushBattlerAction(sourceLine, left, RECORDED_ACTION_TYPE, B_ACTION_TRIPLE_FORMATION);
+    PushBattlerAction(sourceLine, left, RECORDED_TRIPLE_FORMATION, TRIPLE_FORMATION_PACK(ranks[left], ranks[B_POSITION_PLAYER_RIGHT | side], ranks[B_POSITION_PLAYER_MIDDLE | side]));
+}
+
 void SendOut(u32 sourceLine, struct BattlePokemon *battler, u32 partyIndex)
 {
     s32 i;

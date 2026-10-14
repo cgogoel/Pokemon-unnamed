@@ -31,10 +31,14 @@ struct TripleMoveInfo
 #define TRIPLE_TARGET_HAS_SECOND(targetByte)    (((targetByte) >> 4) & 0xF)
 #define TRIPLE_TARGET_ENCODE_SECOND(battler)    (((battler) + 1) << 4)
 
+// A formation is packed into one byte: 2 bits of rank for the left, right and middle battler, in that order.
+#define TRIPLE_FORMATION_PACK(leftRank, rightRank, middleRank) ((leftRank) | ((rightRank) << 2) | ((middleRank) << 4))
+
 extern const struct TripleMoveInfo gTripleMoveInfo[];
 
 const struct TripleMoveInfo *GetTripleMoveInfo(enum Move move);
 void InitTripleFormation(void);
+bool32 TrySetTripleFormation(enum BattleSide side, u8 packedRanks);
 enum TripleFormationRank GetTripleFormationRank(enum BattlerId battler);
 enum BattlerId GetTripleFoeAtRank(enum BattlerId battlerAtk, u32 aliveIndex);
 enum MoveTarget GetTripleMoveTargetType(enum Move move, enum MoveTarget canonTarget);

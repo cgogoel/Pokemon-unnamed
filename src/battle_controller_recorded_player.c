@@ -358,7 +358,10 @@ static void RecordedPlayerHandleChooseAction(enum BattlerId battler)
     }
     else
     {
-        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, RecordedBattle_GetBattlerAction(RECORDED_ACTION_TYPE, battler), 0);
+        u32 action = RecordedBattle_GetBattlerAction(RECORDED_ACTION_TYPE, battler);
+        // Triple battles: a formation change carries the new formation.
+        u32 data = (action == B_ACTION_TRIPLE_FORMATION) ? RecordedBattle_GetBattlerAction(RECORDED_TRIPLE_FORMATION, battler) : 0;
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, action, data);
         BtlController_Complete(battler);
     }
 }

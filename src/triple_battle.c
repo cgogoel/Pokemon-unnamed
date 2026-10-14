@@ -42,6 +42,22 @@ void InitTripleFormation(void)
     }
 }
 
+// Applies a new formation for a side. Fails (and changes nothing) unless the ranks are a permutation of near/middle/far.
+bool32 TrySetTripleFormation(enum BattleSide side, u8 packedRanks)
+{
+    const enum BattlerPosition positions[TRIPLE_RANK_COUNT] = { B_POSITION_PLAYER_LEFT | side, B_POSITION_PLAYER_RIGHT | side, B_POSITION_PLAYER_MIDDLE | side };
+    u32 seenRanks = 0;
+
+    for (u32 i = 0; i < TRIPLE_RANK_COUNT; i++)
+        seenRanks |= 1u << ((packedRanks >> (2 * i)) & 3);
+    if (seenRanks != (1u << TRIPLE_RANK_COUNT) - 1)
+        return FALSE;
+
+    for (u32 i = 0; i < TRIPLE_RANK_COUNT; i++)
+        gBattleStruct->tripleRank[GetBattlerAtPosition(positions[i])] = (packedRanks >> (2 * i)) & 3;
+    return TRUE;
+}
+
 enum TripleFormationRank GetTripleFormationRank(enum BattlerId battler)
 {
     return gBattleStruct->tripleRank[battler];

@@ -3933,6 +3933,14 @@ static void HandleTurnActionSelectionState(void)
 
                 switch (gBattleResources->bufferB[battler][1])
                 {
+                case B_ACTION_TRIPLE_FORMATION:
+                    // Rearranging is free: apply it and ask the same battler for its real action.
+                    RecordedBattle_SetBattlerAction(battler, gBattleResources->bufferB[battler][2]);
+                    if (IsTripleBattle())
+                        TrySetTripleFormation(GetBattlerSide(battler), gBattleResources->bufferB[battler][2]);
+                    gChosenActionByBattler[battler] = B_ACTION_NONE;
+                    gBattleCommunication[battler] = STATE_BEFORE_ACTION_CHOSEN;
+                    return;
                 case B_ACTION_USE_MOVE:
                     if (AreAllMovesUnusable(battler))
                     {

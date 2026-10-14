@@ -1,0 +1,702 @@
+move,name,type,category,power,contact,canon_target,aoe,hits_allies,reach,reason
+MOVE_POUND,Pound,NORMAL,Physical,40,Y,SELECTED,1,N,FRONT,contact move
+MOVE_KARATE_CHOP,Karate Chop,FIGHTING,Physical,50,Y,SELECTED,1,N,FRONT,contact move
+MOVE_DOUBLE_SLAP,Double Slap,NORMAL,Physical,15,Y,SELECTED,1,N,FRONT,contact move
+MOVE_COMET_PUNCH,Comet Punch,NORMAL,Physical,18,Y,SELECTED,1,N,FRONT,contact move
+MOVE_MEGA_PUNCH,Mega Punch,NORMAL,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_PAY_DAY,Pay Day,NORMAL,Physical,40,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FIRE_PUNCH,Fire Punch,FIRE,Physical,75,Y,SELECTED,1,N,FRONT,contact move
+MOVE_ICE_PUNCH,Ice Punch,ICE,Physical,75,Y,SELECTED,1,N,FRONT,contact move
+MOVE_THUNDER_PUNCH,Thunder Punch,ELECTRIC,Physical,75,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SCRATCH,Scratch,NORMAL,Physical,40,Y,SELECTED,1,N,FRONT,contact move
+MOVE_VISE_GRIP,Vise Grip,NORMAL,Physical,55,Y,SELECTED,1,N,FRONT,contact move
+MOVE_GUILLOTINE,Guillotine,NORMAL,Physical,1,Y,SELECTED,1,N,FRONT,contact move
+MOVE_RAZOR_WIND,Razor Wind,NORMAL,Special,80,N,BOTH,2,N,ANY,"a single blade of wind; wind can curve around, so you pick both targets"
+MOVE_CUT,Cut,NORMAL,Physical,50,Y,SELECTED,1,N,FRONT,contact move
+MOVE_GUST,Gust,FLYING,Special,40,N,SELECTED,2,N,ANY,"a gust of wind; wind (Flying), so you pick both targets"
+MOVE_WING_ATTACK,Wing Attack,FLYING,Physical,60,Y,SELECTED,1,N,ANY,attacks from the air
+MOVE_WHIRLWIND,Whirlwind,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_FLY,Fly,FLYING,Physical,90,Y,SELECTED,1,N,ANY,attacks from the sky
+MOVE_BIND,Bind,NORMAL,Physical,15,Y,SELECTED,1,N,ANY,long body reaches past the front
+MOVE_SLAM,Slam,NORMAL,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_VINE_WHIP,Vine Whip,GRASS,Physical,45,Y,SELECTED,1,N,ANY,long vines reach past the front
+MOVE_STOMP,Stomp,NORMAL,Physical,65,Y,SELECTED,1,N,FRONT,contact move
+MOVE_DOUBLE_KICK,Double Kick,FIGHTING,Physical,30,Y,SELECTED,1,N,FRONT,contact move
+MOVE_MEGA_KICK,Mega Kick,NORMAL,Physical,120,Y,SELECTED,1,N,FRONT,contact move
+MOVE_JUMP_KICK,Jump Kick,FIGHTING,Physical,100,Y,SELECTED,1,N,FRONT,contact move
+MOVE_ROLLING_KICK,Rolling Kick,FIGHTING,Physical,60,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SAND_ATTACK,Sand Attack,GROUND,Status,,N,SELECTED,1,N,FRONT,sent out from the user
+MOVE_HEADBUTT,Headbutt,NORMAL,Physical,70,Y,SELECTED,1,N,FRONT,contact move
+MOVE_HORN_ATTACK,Horn Attack,NORMAL,Physical,65,Y,SELECTED,1,N,FRONT,contact move
+MOVE_FURY_ATTACK,Fury Attack,NORMAL,Physical,15,Y,SELECTED,1,N,FRONT,contact move
+MOVE_HORN_DRILL,Horn Drill,NORMAL,Physical,1,Y,SELECTED,1,N,FRONT,contact move
+MOVE_TACKLE,Tackle,NORMAL,Physical,40,Y,SELECTED,1,N,FRONT,contact move
+MOVE_BODY_SLAM,Body Slam,NORMAL,Physical,85,Y,SELECTED,1,N,FRONT,contact move
+MOVE_WRAP,Wrap,NORMAL,Physical,15,Y,SELECTED,1,N,ANY,long body reaches past the front
+MOVE_TAKE_DOWN,Take Down,NORMAL,Physical,90,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_THRASH,Thrash,NORMAL,Physical,120,Y,RANDOM,1,N,ANY,rampage hits a random foe
+MOVE_DOUBLE_EDGE,Double-Edge,NORMAL,Physical,120,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_TAIL_WHIP,Tail Whip,NORMAL,Status,,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_POISON_STING,Poison Sting,POISON,Physical,15,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_TWINEEDLE,Twineedle,BUG,Physical,25,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_PIN_MISSILE,Pin Missile,BUG,Physical,25,N,SELECTED,2,N,FRONT,"a volley of pins; travels out from the user, so it hits front + middle"
+MOVE_LEER,Leer,NORMAL,Status,,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_BITE,Bite,DARK,Physical,60,Y,SELECTED,1,N,FRONT,contact move
+MOVE_GROWL,Growl,NORMAL,Status,,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_ROAR,Roar,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_SING,Sing,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_SUPERSONIC,Supersonic,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_SONIC_BOOM,Sonic Boom,NORMAL,Special,1,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_DISABLE,Disable,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_ACID,Acid,POISON,Special,40,N,BOTH,2,N,FRONT,"a spray, not a flood; travels out from the user, so it hits front + middle"
+MOVE_EMBER,Ember,FIRE,Special,40,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FLAMETHROWER,Flamethrower,FIRE,Special,90,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_WATER_GUN,Water Gun,WATER,Special,40,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_HYDRO_PUMP,Hydro Pump,WATER,Special,110,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_SURF,Surf,WATER,Special,90,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_ICE_BEAM,Ice Beam,ICE,Special,90,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_BLIZZARD,Blizzard,ICE,Special,110,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_PSYBEAM,Psybeam,PSYCHIC,Special,65,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_BUBBLE_BEAM,Bubble Beam,WATER,Special,65,N,SELECTED,2,N,FRONT,"a spray of bubbles; travels out from the user, so it hits front + middle"
+MOVE_AURORA_BEAM,Aurora Beam,ICE,Special,65,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_HYPER_BEAM,Hyper Beam,NORMAL,Special,150,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_PECK,Peck,FLYING,Physical,35,Y,SELECTED,1,N,ANY,attacks from the air
+MOVE_DRILL_PECK,Drill Peck,FLYING,Physical,80,Y,SELECTED,1,N,ANY,attacks from the air
+MOVE_SUBMISSION,Submission,FIGHTING,Physical,80,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_LOW_KICK,Low Kick,FIGHTING,Physical,1,Y,SELECTED,1,N,FRONT,contact move
+MOVE_COUNTER,Counter,FIGHTING,Physical,1,Y,DEPENDS,1,N,ANY,automatically targets whoever hit the user
+MOVE_SEISMIC_TOSS,Seismic Toss,FIGHTING,Physical,1,Y,SELECTED,1,N,FRONT,contact move
+MOVE_STRENGTH,Strength,NORMAL,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_ABSORB,Absorb,GRASS,Special,20,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_MEGA_DRAIN,Mega Drain,GRASS,Special,40,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_LEECH_SEED,Leech Seed,GRASS,Status,,N,SELECTED,1,N,FRONT,sent out from the user
+MOVE_RAZOR_LEAF,Razor Leaf,GRASS,Physical,55,N,BOTH,2,N,FRONT,"a volley of leaves; travels out from the user, so it hits front + middle"
+MOVE_SOLAR_BEAM,Solar Beam,GRASS,Special,120,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_POISON_POWDER,Poison Powder,POISON,Status,,N,SELECTED,1,N,FRONT,sent out from the user
+MOVE_STUN_SPORE,Stun Spore,GRASS,Status,,N,SELECTED,1,N,FRONT,sent out from the user
+MOVE_SLEEP_POWDER,Sleep Powder,GRASS,Status,,N,SELECTED,1,N,FRONT,sent out from the user
+MOVE_PETAL_DANCE,Petal Dance,GRASS,Special,120,Y,RANDOM,1,N,ANY,rampage hits a random foe
+MOVE_STRING_SHOT,String Shot,BUG,Status,,N,BOTH,2,N,FRONT,"a few strands of string; travels out from the user, so it hits front + middle"
+MOVE_DRAGON_RAGE,Dragon Rage,DRAGON,Special,1,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FIRE_SPIN,Fire Spin,FIRE,Special,35,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_THUNDER_SHOCK,Thunder Shock,ELECTRIC,Special,40,N,SELECTED,1,N,ANY,electricity arcs to any foe
+MOVE_THUNDERBOLT,Thunderbolt,ELECTRIC,Special,90,N,SELECTED,1,N,ANY,electricity arcs to any foe
+MOVE_THUNDER_WAVE,Thunder Wave,ELECTRIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_THUNDER,Thunder,ELECTRIC,Special,110,N,SELECTED,1,N,ANY,electricity arcs to any foe
+MOVE_ROCK_THROW,Rock Throw,ROCK,Physical,50,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_EARTHQUAKE,Earthquake,GROUND,Physical,100,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_FISSURE,Fissure,GROUND,Physical,1,N,SELECTED,1,N,ANY,the ground opens under the foe
+MOVE_DIG,Dig,GROUND,Physical,80,Y,SELECTED,1,N,ANY,attacks from underground
+MOVE_TOXIC,Toxic,POISON,Status,,N,SELECTED,1,N,FRONT,sent out from the user
+MOVE_CONFUSION,Confusion,PSYCHIC,Special,50,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_PSYCHIC,Psychic,PSYCHIC,Special,90,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_HYPNOSIS,Hypnosis,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_QUICK_ATTACK,Quick Attack,NORMAL,Physical,40,Y,SELECTED,1,N,ANY,darts around the front Pokémon
+MOVE_RAGE,Rage,NORMAL,Physical,20,Y,SELECTED,1,N,FRONT,contact move
+MOVE_NIGHT_SHADE,Night Shade,GHOST,Special,1,N,SELECTED,1,N,ANY,ghostly attacks phase past the front
+MOVE_MIMIC,Mimic,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_SCREECH,Screech,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_SMOKESCREEN,Smokescreen,NORMAL,Status,,N,SELECTED,1,N,FRONT,sent out from the user
+MOVE_CONFUSE_RAY,Confuse Ray,GHOST,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_METRONOME,Metronome,NORMAL,Status,,N,DEPENDS,1,N,ANY,automatically targets whoever hit the user
+MOVE_MIRROR_MOVE,Mirror Move,FLYING,Status,,N,DEPENDS,1,N,ANY,automatically targets whoever hit the user
+MOVE_SELF_DESTRUCT,Self-Destruct,NORMAL,Physical,200,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_EGG_BOMB,Egg Bomb,NORMAL,Physical,100,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_LICK,Lick,GHOST,Physical,30,Y,SELECTED,1,N,ANY,ghostly attacks phase past the front
+MOVE_SMOG,Smog,POISON,Special,30,N,SELECTED,2,N,FRONT,"a cloud of exhaust gas; travels out from the user, so it hits front + middle"
+MOVE_SLUDGE,Sludge,POISON,Special,65,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_BONE_CLUB,Bone Club,GROUND,Physical,65,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FIRE_BLAST,Fire Blast,FIRE,Special,110,N,SELECTED,2,N,FRONT,"a huge blast of fire; travels out from the user, so it hits front + middle"
+MOVE_WATERFALL,Waterfall,WATER,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_CLAMP,Clamp,WATER,Physical,35,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SWIFT,Swift,NORMAL,Special,60,N,BOTH,2,N,ANY,"a spray of stars; homing stars that never miss, so you pick both targets"
+MOVE_SKULL_BASH,Skull Bash,NORMAL,Physical,130,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SPIKE_CANNON,Spike Cannon,NORMAL,Physical,20,N,SELECTED,2,N,FRONT,"a volley of spikes; travels out from the user, so it hits front + middle"
+MOVE_CONSTRICT,Constrict,NORMAL,Physical,10,Y,SELECTED,1,N,FRONT,contact move
+MOVE_KINESIS,Kinesis,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_HIGH_JUMP_KICK,High Jump Kick,FIGHTING,Physical,130,Y,SELECTED,1,N,FRONT,contact move
+MOVE_GLARE,Glare,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_DREAM_EATER,Dream Eater,PSYCHIC,Special,100,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_POISON_GAS,Poison Gas,POISON,Status,,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_BARRAGE,Barrage,NORMAL,Physical,15,N,SELECTED,2,N,FRONT,"several thrown objects; travels out from the user, so it hits front + middle"
+MOVE_LEECH_LIFE,Leech Life,BUG,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_LOVELY_KISS,Lovely Kiss,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_SKY_ATTACK,Sky Attack,FLYING,Physical,140,N,SELECTED,1,N,ANY,attacks from the air
+MOVE_TRANSFORM,Transform,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_BUBBLE,Bubble,WATER,Special,40,N,BOTH,2,N,FRONT,"a stream of bubbles; travels out from the user, so it hits front + middle"
+MOVE_DIZZY_PUNCH,Dizzy Punch,NORMAL,Physical,70,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SPORE,Spore,GRASS,Status,,N,SELECTED,1,N,FRONT,sent out from the user
+MOVE_FLASH,Flash,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_PSYWAVE,Psywave,PSYCHIC,Special,1,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_CRABHAMMER,Crabhammer,WATER,Physical,100,Y,SELECTED,1,N,FRONT,contact move
+MOVE_EXPLOSION,Explosion,NORMAL,Physical,250,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_FURY_SWIPES,Fury Swipes,NORMAL,Physical,18,Y,SELECTED,1,N,FRONT,contact move
+MOVE_BONEMERANG,Bonemerang,GROUND,Physical,50,N,SELECTED,1,N,ANY,the bone curves around
+MOVE_ROCK_SLIDE,Rock Slide,ROCK,Physical,75,N,BOTH,2,N,ANY,"a few boulders; boulders fall from above, so you pick both targets"
+MOVE_HYPER_FANG,Hyper Fang,NORMAL,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_TRI_ATTACK,Tri Attack,NORMAL,Special,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_SUPER_FANG,Super Fang,NORMAL,Physical,1,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SLASH,Slash,NORMAL,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_STRUGGLE,Struggle,MYSTERY,Physical,50,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SKETCH,Sketch,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_TRIPLE_KICK,Triple Kick,FIGHTING,Physical,10,Y,SELECTED,1,N,FRONT,contact move
+MOVE_THIEF,Thief,DARK,Physical,60,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SPIDER_WEB,Spider Web,BUG,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_MIND_READER,Mind Reader,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_NIGHTMARE,Nightmare,GHOST,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_FLAME_WHEEL,Flame Wheel,FIRE,Physical,60,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SNORE,Snore,NORMAL,Special,50,N,SELECTED,1,N,ANY,sound spreads in every direction
+MOVE_CURSE,Curse,GHOST,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_FLAIL,Flail,NORMAL,Physical,1,Y,SELECTED,1,N,FRONT,contact move
+MOVE_CONVERSION_2,Conversion 2,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_AEROBLAST,Aeroblast,FLYING,Special,100,N,SELECTED,1,N,ANY,attacks from the air
+MOVE_COTTON_SPORE,Cotton Spore,GRASS,Status,,N,BOTH,2,N,FRONT,"a cloud of spores; travels out from the user, so it hits front + middle"
+MOVE_REVERSAL,Reversal,FIGHTING,Physical,1,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SPITE,Spite,GHOST,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_POWDER_SNOW,Powder Snow,ICE,Special,40,N,BOTH,2,N,FRONT,"a light gust of snow; travels out from the user, so it hits front + middle"
+MOVE_MACH_PUNCH,Mach Punch,FIGHTING,Physical,40,Y,SELECTED,1,N,ANY,darts around the front Pokémon
+MOVE_SCARY_FACE,Scary Face,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_FEINT_ATTACK,Feint Attack,DARK,Physical,60,N,SELECTED,1,N,ANY,comes from above/below or homes in
+MOVE_SWEET_KISS,Sweet Kiss,FAIRY,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_SLUDGE_BOMB,Sludge Bomb,POISON,Special,90,N,SELECTED,2,N,FRONT,"sludge splashes on impact; travels out from the user, so it hits front + middle"
+MOVE_MUD_SLAP,Mud-Slap,GROUND,Special,20,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_OCTAZOOKA,Octazooka,WATER,Special,65,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_ZAP_CANNON,Zap Cannon,ELECTRIC,Special,120,N,SELECTED,1,N,ANY,electricity arcs to any foe
+MOVE_FORESIGHT,Foresight,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_ICY_WIND,Icy Wind,ICE,Special,55,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_BONE_RUSH,Bone Rush,GROUND,Physical,30,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_LOCK_ON,Lock-On,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_OUTRAGE,Outrage,DRAGON,Physical,120,Y,RANDOM,1,N,ANY,rampage hits a random foe
+MOVE_GIGA_DRAIN,Giga Drain,GRASS,Special,75,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_CHARM,Charm,FAIRY,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_ROLLOUT,Rollout,ROCK,Physical,30,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_FALSE_SWIPE,False Swipe,NORMAL,Physical,40,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SWAGGER,Swagger,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_SPARK,Spark,ELECTRIC,Physical,65,Y,SELECTED,1,N,FRONT,contact move
+MOVE_FURY_CUTTER,Fury Cutter,BUG,Physical,40,Y,SELECTED,1,N,FRONT,contact move
+MOVE_STEEL_WING,Steel Wing,STEEL,Physical,70,Y,SELECTED,1,N,FRONT,contact move
+MOVE_MEAN_LOOK,Mean Look,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_ATTRACT,Attract,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_SLEEP_TALK,Sleep Talk,NORMAL,Status,,N,DEPENDS,1,N,ANY,automatically targets whoever hit the user
+MOVE_RETURN,Return,NORMAL,Physical,1,Y,SELECTED,1,N,FRONT,contact move
+MOVE_PRESENT,Present,NORMAL,Physical,1,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FRUSTRATION,Frustration,NORMAL,Physical,1,Y,SELECTED,1,N,FRONT,contact move
+MOVE_PAIN_SPLIT,Pain Split,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_SACRED_FIRE,Sacred Fire,FIRE,Physical,100,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_MAGNITUDE,Magnitude,GROUND,Physical,1,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_DYNAMIC_PUNCH,Dynamic Punch,FIGHTING,Physical,100,Y,SELECTED,1,N,FRONT,contact move
+MOVE_MEGAHORN,Megahorn,BUG,Physical,120,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_DRAGON_BREATH,Dragon Breath,DRAGON,Special,60,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_ENCORE,Encore,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_PURSUIT,Pursuit,DARK,Physical,40,Y,SELECTED,1,N,ANY,chases down any foe
+MOVE_RAPID_SPIN,Rapid Spin,NORMAL,Physical,50,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SWEET_SCENT,Sweet Scent,NORMAL,Status,,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_IRON_TAIL,Iron Tail,STEEL,Physical,100,Y,SELECTED,1,N,FRONT,contact move
+MOVE_METAL_CLAW,Metal Claw,STEEL,Physical,50,Y,SELECTED,1,N,FRONT,contact move
+MOVE_VITAL_THROW,Vital Throw,FIGHTING,Physical,70,Y,SELECTED,1,N,FRONT,contact move
+MOVE_HIDDEN_POWER,Hidden Power,NORMAL,Special,60,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_CROSS_CHOP,Cross Chop,FIGHTING,Physical,100,Y,SELECTED,1,N,FRONT,contact move
+MOVE_TWISTER,Twister,DRAGON,Special,40,N,BOTH,2,N,ANY,"one twister; a twister roams the field, so you pick both targets"
+MOVE_CRUNCH,Crunch,DARK,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_MIRROR_COAT,Mirror Coat,PSYCHIC,Special,1,N,DEPENDS,1,N,ANY,automatically targets whoever hit the user
+MOVE_PSYCH_UP,Psych Up,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_EXTREME_SPEED,Extreme Speed,NORMAL,Physical,80,Y,SELECTED,1,N,ANY,darts around the front Pokémon
+MOVE_ANCIENT_POWER,Ancient Power,ROCK,Special,60,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_SHADOW_BALL,Shadow Ball,GHOST,Special,80,N,SELECTED,1,N,ANY,ghostly attacks phase past the front
+MOVE_FUTURE_SIGHT,Future Sight,PSYCHIC,Special,120,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_ROCK_SMASH,Rock Smash,FIGHTING,Physical,40,Y,SELECTED,1,N,FRONT,contact move
+MOVE_WHIRLPOOL,Whirlpool,WATER,Special,35,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_BEAT_UP,Beat Up,DARK,Physical,1,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FAKE_OUT,Fake Out,NORMAL,Physical,40,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_UPROAR,Uproar,NORMAL,Special,90,N,RANDOM,1,N,ANY,rampage hits a random foe
+MOVE_SPIT_UP,Spit Up,NORMAL,Special,1,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_HEAT_WAVE,Heat Wave,FIRE,Special,95,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_TORMENT,Torment,DARK,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_FLATTER,Flatter,DARK,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_WILL_O_WISP,Will-O-Wisp,FIRE,Status,,N,SELECTED,1,N,ANY,floating wisps drift to any foe
+MOVE_MEMENTO,Memento,DARK,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_FACADE,Facade,NORMAL,Physical,70,Y,SELECTED,1,N,FRONT,contact move
+MOVE_FOCUS_PUNCH,Focus Punch,FIGHTING,Physical,150,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SMELLING_SALTS,Smelling Salts,NORMAL,Physical,70,Y,SELECTED,1,N,FRONT,contact move
+MOVE_NATURE_POWER,Nature Power,NORMAL,Status,1,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_TAUNT,Taunt,DARK,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_TRICK,Trick,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_ROLE_PLAY,Role Play,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_ASSIST,Assist,NORMAL,Status,,N,DEPENDS,1,N,ANY,automatically targets whoever hit the user
+MOVE_SUPERPOWER,Superpower,FIGHTING,Physical,120,Y,SELECTED,1,N,FRONT,contact move
+MOVE_MAGIC_COAT,Magic Coat,PSYCHIC,Status,,N,DEPENDS,1,N,ANY,automatically targets whoever hit the user
+MOVE_REVENGE,Revenge,FIGHTING,Physical,60,Y,SELECTED,1,N,FRONT,contact move
+MOVE_BRICK_BREAK,Brick Break,FIGHTING,Physical,75,Y,SELECTED,1,N,FRONT,contact move
+MOVE_YAWN,Yawn,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_KNOCK_OFF,Knock Off,DARK,Physical,65,Y,SELECTED,1,N,FRONT,contact move
+MOVE_ENDEAVOR,Endeavor,NORMAL,Physical,1,Y,SELECTED,1,N,FRONT,contact move
+MOVE_ERUPTION,Eruption,FIRE,Special,150,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_SKILL_SWAP,Skill Swap,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_SNATCH,Snatch,DARK,Status,,N,DEPENDS,1,N,ANY,automatically targets whoever hit the user
+MOVE_SECRET_POWER,Secret Power,NORMAL,Physical,70,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_DIVE,Dive,WATER,Physical,80,Y,SELECTED,1,N,ANY,attacks from underwater
+MOVE_ARM_THRUST,Arm Thrust,FIGHTING,Physical,15,Y,SELECTED,1,N,FRONT,contact move
+MOVE_LUSTER_PURGE,Luster Purge,PSYCHIC,Special,95,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_MIST_BALL,Mist Ball,PSYCHIC,Special,95,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_FEATHER_DANCE,Feather Dance,FLYING,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_TEETER_DANCE,Teeter Dance,NORMAL,Status,,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_BLAZE_KICK,Blaze Kick,FIRE,Physical,85,Y,SELECTED,1,N,FRONT,contact move
+MOVE_ICE_BALL,Ice Ball,ICE,Physical,30,Y,SELECTED,1,N,FRONT,contact move
+MOVE_NEEDLE_ARM,Needle Arm,GRASS,Physical,60,Y,SELECTED,1,N,FRONT,contact move
+MOVE_HYPER_VOICE,Hyper Voice,NORMAL,Special,90,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_POISON_FANG,Poison Fang,POISON,Physical,50,Y,SELECTED,1,N,FRONT,contact move
+MOVE_CRUSH_CLAW,Crush Claw,NORMAL,Physical,75,Y,SELECTED,1,N,FRONT,contact move
+MOVE_BLAST_BURN,Blast Burn,FIRE,Special,150,N,SELECTED,2,N,FRONT,"an explosion; travels out from the user, so it hits front + middle"
+MOVE_HYDRO_CANNON,Hydro Cannon,WATER,Special,150,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_METEOR_MASH,Meteor Mash,STEEL,Physical,90,Y,SELECTED,1,N,FRONT,contact move
+MOVE_ASTONISH,Astonish,GHOST,Physical,30,Y,SELECTED,1,N,ANY,ghostly attacks phase past the front
+MOVE_WEATHER_BALL,Weather Ball,NORMAL,Special,50,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FAKE_TEARS,Fake Tears,DARK,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_AIR_CUTTER,Air Cutter,FLYING,Special,60,N,BOTH,2,N,ANY,"blades of wind; wind (Flying), so you pick both targets"
+MOVE_OVERHEAT,Overheat,FIRE,Special,130,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_ODOR_SLEUTH,Odor Sleuth,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_ROCK_TOMB,Rock Tomb,ROCK,Physical,60,N,SELECTED,2,N,ANY,"several rocks; rocks fall from above, so you pick both targets"
+MOVE_SILVER_WIND,Silver Wind,BUG,Special,60,N,SELECTED,2,N,ANY,"a powdery wind; wind can curve around, so you pick both targets"
+MOVE_METAL_SOUND,Metal Sound,STEEL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_GRASS_WHISTLE,Grass Whistle,GRASS,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_TICKLE,Tickle,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_WATER_SPOUT,Water Spout,WATER,Special,150,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_SIGNAL_BEAM,Signal Beam,BUG,Special,75,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_SHADOW_PUNCH,Shadow Punch,GHOST,Physical,60,Y,SELECTED,1,N,ANY,ghostly attacks phase past the front
+MOVE_EXTRASENSORY,Extrasensory,PSYCHIC,Special,80,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_SKY_UPPERCUT,Sky Uppercut,FIGHTING,Physical,85,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SAND_TOMB,Sand Tomb,GROUND,Physical,35,N,SELECTED,1,N,ANY,quicksand opens under the foe
+MOVE_SHEER_COLD,Sheer Cold,ICE,Special,1,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_MUDDY_WATER,Muddy Water,WATER,Special,90,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_BULLET_SEED,Bullet Seed,GRASS,Physical,25,N,SELECTED,2,N,FRONT,"a scatter of seeds; travels out from the user, so it hits front + middle"
+MOVE_AERIAL_ACE,Aerial Ace,FLYING,Physical,60,Y,SELECTED,1,N,ANY,darts around the front Pokémon
+MOVE_ICICLE_SPEAR,Icicle Spear,ICE,Physical,25,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_BLOCK,Block,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_DRAGON_CLAW,Dragon Claw,DRAGON,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_FRENZY_PLANT,Frenzy Plant,GRASS,Special,150,N,SELECTED,2,N,FRONT,"roots erupt across the ground; travels out from the user, so it hits front + middle"
+MOVE_BOUNCE,Bounce,FLYING,Physical,85,Y,SELECTED,1,N,ANY,attacks from the sky
+MOVE_MUD_SHOT,Mud Shot,GROUND,Special,55,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_POISON_TAIL,Poison Tail,POISON,Physical,50,Y,SELECTED,1,N,FRONT,contact move
+MOVE_COVET,Covet,NORMAL,Physical,60,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_VOLT_TACKLE,Volt Tackle,ELECTRIC,Physical,120,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_MAGICAL_LEAF,Magical Leaf,GRASS,Special,60,N,SELECTED,1,N,ANY,homing leaf that never misses
+MOVE_LEAF_BLADE,Leaf Blade,GRASS,Physical,90,Y,SELECTED,1,N,FRONT,contact move
+MOVE_ROCK_BLAST,Rock Blast,ROCK,Physical,25,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_SHOCK_WAVE,Shock Wave,ELECTRIC,Special,60,N,SELECTED,1,N,ANY,homing electricity
+MOVE_WATER_PULSE,Water Pulse,WATER,Special,60,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_DOOM_DESIRE,Doom Desire,STEEL,Special,140,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_PSYCHO_BOOST,Psycho Boost,PSYCHIC,Special,140,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_MIRACLE_EYE,Miracle Eye,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_WAKE_UP_SLAP,Wake-Up Slap,FIGHTING,Physical,70,Y,SELECTED,1,N,FRONT,contact move
+MOVE_HAMMER_ARM,Hammer Arm,FIGHTING,Physical,100,Y,SELECTED,1,N,FRONT,contact move
+MOVE_GYRO_BALL,Gyro Ball,STEEL,Physical,1,Y,SELECTED,1,N,FRONT,contact move
+MOVE_BRINE,Brine,WATER,Special,65,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_NATURAL_GIFT,Natural Gift,NORMAL,Physical,1,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FEINT,Feint,NORMAL,Physical,30,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_PLUCK,Pluck,FLYING,Physical,60,Y,SELECTED,1,N,ANY,attacks from the air
+MOVE_METAL_BURST,Metal Burst,STEEL,Physical,1,N,DEPENDS,1,N,ANY,automatically targets whoever hit the user
+MOVE_U_TURN,U-turn,BUG,Physical,70,Y,SELECTED,1,N,ANY,"hits and retreats, can pick any foe"
+MOVE_CLOSE_COMBAT,Close Combat,FIGHTING,Physical,120,Y,SELECTED,1,N,FRONT,contact move
+MOVE_PAYBACK,Payback,DARK,Physical,50,Y,SELECTED,1,N,FRONT,contact move
+MOVE_ASSURANCE,Assurance,DARK,Physical,60,Y,SELECTED,1,N,FRONT,contact move
+MOVE_EMBARGO,Embargo,DARK,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_FLING,Fling,DARK,Physical,1,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_PSYCHO_SHIFT,Psycho Shift,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_TRUMP_CARD,Trump Card,NORMAL,Special,1,Y,SELECTED,1,N,FRONT,contact move
+MOVE_HEAL_BLOCK,Heal Block,PSYCHIC,Status,,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_WRING_OUT,Wring Out,NORMAL,Special,120,Y,SELECTED,1,N,FRONT,contact move
+MOVE_GASTRO_ACID,Gastro Acid,POISON,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_COPYCAT,Copycat,NORMAL,Status,,N,DEPENDS,1,N,ANY,automatically targets whoever hit the user
+MOVE_POWER_SWAP,Power Swap,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_GUARD_SWAP,Guard Swap,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_PUNISHMENT,Punishment,DARK,Physical,60,Y,SELECTED,1,N,FRONT,contact move
+MOVE_LAST_RESORT,Last Resort,NORMAL,Physical,140,Y,SELECTED,1,N,FRONT,contact move
+MOVE_WORRY_SEED,Worry Seed,GRASS,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_SUCKER_PUNCH,Sucker Punch,DARK,Physical,70,Y,SELECTED,1,N,ANY,sneaks up on any foe
+MOVE_HEART_SWAP,Heart Swap,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_FLARE_BLITZ,Flare Blitz,FIRE,Physical,120,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_FORCE_PALM,Force Palm,FIGHTING,Physical,60,Y,SELECTED,1,N,FRONT,contact move
+MOVE_AURA_SPHERE,Aura Sphere,FIGHTING,Special,80,N,SELECTED,1,N,ANY,homing aura that never misses
+MOVE_POISON_JAB,Poison Jab,POISON,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_DARK_PULSE,Dark Pulse,DARK,Special,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_NIGHT_SLASH,Night Slash,DARK,Physical,70,Y,SELECTED,1,N,FRONT,contact move
+MOVE_AQUA_TAIL,Aqua Tail,WATER,Physical,90,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SEED_BOMB,Seed Bomb,GRASS,Physical,80,N,SELECTED,2,N,FRONT,"a barrage of seeds; travels out from the user, so it hits front + middle"
+MOVE_AIR_SLASH,Air Slash,FLYING,Special,75,N,SELECTED,1,N,ANY,attacks from the air
+MOVE_X_SCISSOR,X-Scissor,BUG,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_BUG_BUZZ,Bug Buzz,BUG,Special,90,N,SELECTED,2,N,ANY,"a sound wave; sound spreads in every direction, so you pick both targets"
+MOVE_DRAGON_PULSE,Dragon Pulse,DRAGON,Special,85,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_DRAGON_RUSH,Dragon Rush,DRAGON,Physical,100,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_POWER_GEM,Power Gem,ROCK,Special,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_DRAIN_PUNCH,Drain Punch,FIGHTING,Physical,75,Y,SELECTED,1,N,FRONT,contact move
+MOVE_VACUUM_WAVE,Vacuum Wave,FIGHTING,Special,40,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FOCUS_BLAST,Focus Blast,FIGHTING,Special,120,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_ENERGY_BALL,Energy Ball,GRASS,Special,90,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_BRAVE_BIRD,Brave Bird,FLYING,Physical,120,Y,SELECTED,2,N,ANY,"a diving charge from the air, so you pick both targets"
+MOVE_EARTH_POWER,Earth Power,GROUND,Special,90,N,SELECTED,1,N,ANY,the ground beneath the foe erupts
+MOVE_SWITCHEROO,Switcheroo,DARK,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_GIGA_IMPACT,Giga Impact,NORMAL,Physical,150,Y,SELECTED,3,N,ANY,so dramatic it plows through the whole line
+MOVE_BULLET_PUNCH,Bullet Punch,STEEL,Physical,40,Y,SELECTED,1,N,FRONT,contact move
+MOVE_AVALANCHE,Avalanche,ICE,Physical,60,Y,SELECTED,1,N,FRONT,contact move
+MOVE_ICE_SHARD,Ice Shard,ICE,Physical,40,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_SHADOW_CLAW,Shadow Claw,GHOST,Physical,70,Y,SELECTED,1,N,ANY,ghostly attacks phase past the front
+MOVE_THUNDER_FANG,Thunder Fang,ELECTRIC,Physical,65,Y,SELECTED,1,N,FRONT,contact move
+MOVE_ICE_FANG,Ice Fang,ICE,Physical,65,Y,SELECTED,1,N,FRONT,contact move
+MOVE_FIRE_FANG,Fire Fang,FIRE,Physical,65,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SHADOW_SNEAK,Shadow Sneak,GHOST,Physical,40,Y,SELECTED,1,N,ANY,the shadow can travel anywhere
+MOVE_MUD_BOMB,Mud Bomb,GROUND,Special,65,N,SELECTED,2,N,FRONT,"mud splashes on impact; travels out from the user, so it hits front + middle"
+MOVE_PSYCHO_CUT,Psycho Cut,PSYCHIC,Physical,70,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_ZEN_HEADBUTT,Zen Headbutt,PSYCHIC,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_MIRROR_SHOT,Mirror Shot,STEEL,Special,65,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FLASH_CANNON,Flash Cannon,STEEL,Special,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_ROCK_CLIMB,Rock Climb,NORMAL,Physical,90,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_DEFOG,Defog,FLYING,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_DRACO_METEOR,Draco Meteor,DRAGON,Special,130,N,SELECTED,3,N,ANY,comets rain from the sky
+MOVE_DISCHARGE,Discharge,ELECTRIC,Special,80,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_LAVA_PLUME,Lava Plume,FIRE,Special,80,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_LEAF_STORM,Leaf Storm,GRASS,Special,130,N,SELECTED,3,N,ANY,a storm of leaves
+MOVE_POWER_WHIP,Power Whip,GRASS,Physical,120,Y,SELECTED,1,N,ANY,long vines/tentacles reach past the front
+MOVE_ROCK_WRECKER,Rock Wrecker,ROCK,Physical,150,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_CROSS_POISON,Cross Poison,POISON,Physical,70,Y,SELECTED,1,N,FRONT,contact move
+MOVE_GUNK_SHOT,Gunk Shot,POISON,Physical,120,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_IRON_HEAD,Iron Head,STEEL,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_MAGNET_BOMB,Magnet Bomb,STEEL,Physical,60,N,SELECTED,1,N,ANY,homing magnet
+MOVE_STONE_EDGE,Stone Edge,ROCK,Physical,100,N,SELECTED,1,N,ANY,stones burst up from the ground
+MOVE_CAPTIVATE,Captivate,NORMAL,Status,,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_GRASS_KNOT,Grass Knot,GRASS,Special,1,Y,SELECTED,1,N,FRONT,contact move
+MOVE_CHATTER,Chatter,FLYING,Special,65,N,SELECTED,2,N,ANY,"a sound wave; sound spreads in every direction, so you pick both targets"
+MOVE_JUDGMENT,Judgment,NORMAL,Special,100,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_BUG_BITE,Bug Bite,BUG,Physical,60,Y,SELECTED,1,N,FRONT,contact move
+MOVE_CHARGE_BEAM,Charge Beam,ELECTRIC,Special,50,N,SELECTED,1,N,ANY,electricity arcs to any foe
+MOVE_WOOD_HAMMER,Wood Hammer,GRASS,Physical,120,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_AQUA_JET,Aqua Jet,WATER,Physical,40,Y,SELECTED,1,N,ANY,darts around the front Pokémon
+MOVE_ATTACK_ORDER,Attack Order,BUG,Physical,90,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_HEAD_SMASH,Head Smash,ROCK,Physical,150,Y,SELECTED,3,N,ANY,so dramatic it plows through the whole line
+MOVE_DOUBLE_HIT,Double Hit,NORMAL,Physical,35,Y,SELECTED,1,N,FRONT,contact move
+MOVE_ROAR_OF_TIME,Roar of Time,DRAGON,Special,150,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_SPACIAL_REND,Spacial Rend,DRAGON,Special,100,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_CRUSH_GRIP,Crush Grip,NORMAL,Physical,120,Y,SELECTED,1,N,FRONT,contact move
+MOVE_MAGMA_STORM,Magma Storm,FIRE,Special,100,N,SELECTED,2,N,ANY,"a vortex of fire; the vortex forms around the targets, so you pick both targets"
+MOVE_DARK_VOID,Dark Void,DARK,Status,,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_SEED_FLARE,Seed Flare,GRASS,Special,120,N,SELECTED,2,N,FRONT,"a shock wave; travels out from the user, so it hits front + middle"
+MOVE_OMINOUS_WIND,Ominous Wind,GHOST,Special,60,N,SELECTED,2,N,ANY,"a gust of wind; wind can curve around, so you pick both targets"
+MOVE_SHADOW_FORCE,Shadow Force,GHOST,Physical,120,Y,SELECTED,1,N,ANY,vanishes and reappears anywhere
+MOVE_GUARD_SPLIT,Guard Split,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_POWER_SPLIT,Power Split,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_PSYSHOCK,Psyshock,PSYCHIC,Special,80,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_VENOSHOCK,Venoshock,POISON,Special,65,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_TELEKINESIS,Telekinesis,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_SMACK_DOWN,Smack Down,ROCK,Physical,50,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_STORM_THROW,Storm Throw,FIGHTING,Physical,60,Y,SELECTED,1,N,FRONT,contact move
+MOVE_FLAME_BURST,Flame Burst,FIRE,Special,70,N,SELECTED,2,N,FRONT,"the flame bursts onto a neighbor (canon splash damage); travels out from the user, so it hits front + middle"
+MOVE_SLUDGE_WAVE,Sludge Wave,POISON,Special,95,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_HEAVY_SLAM,Heavy Slam,STEEL,Physical,1,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SYNCHRONOISE,Synchronoise,PSYCHIC,Special,120,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_ELECTRO_BALL,Electro Ball,ELECTRIC,Special,1,N,SELECTED,1,N,ANY,electricity arcs to any foe
+MOVE_SOAK,Soak,WATER,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_FLAME_CHARGE,Flame Charge,FIRE,Physical,50,Y,SELECTED,1,N,FRONT,contact move
+MOVE_LOW_SWEEP,Low Sweep,FIGHTING,Physical,65,Y,SELECTED,1,N,FRONT,contact move
+MOVE_ACID_SPRAY,Acid Spray,POISON,Special,40,N,SELECTED,2,N,FRONT,"a spray of acid; travels out from the user, so it hits front + middle"
+MOVE_FOUL_PLAY,Foul Play,DARK,Physical,95,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SIMPLE_BEAM,Simple Beam,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_ENTRAINMENT,Entrainment,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_AFTER_YOU,After You,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_ROUND,Round,NORMAL,Special,60,N,SELECTED,2,N,ANY,"a song; sound spreads in every direction, so you pick both targets"
+MOVE_ECHOED_VOICE,Echoed Voice,NORMAL,Special,40,N,SELECTED,2,N,ANY,"a sound wave; sound spreads in every direction, so you pick both targets"
+MOVE_CHIP_AWAY,Chip Away,NORMAL,Physical,70,Y,SELECTED,1,N,FRONT,contact move
+MOVE_CLEAR_SMOG,Clear Smog,POISON,Special,50,N,SELECTED,2,N,FRONT,"a cloud of haze; travels out from the user, so it hits front + middle"
+MOVE_STORED_POWER,Stored Power,PSYCHIC,Special,20,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_SCALD,Scald,WATER,Special,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_HEAL_PULSE,Heal Pulse,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_HEX,Hex,GHOST,Special,65,N,SELECTED,1,N,ANY,ghostly attacks phase past the front
+MOVE_SKY_DROP,Sky Drop,FLYING,Physical,60,Y,SELECTED,1,N,ANY,attacks from the sky
+MOVE_CIRCLE_THROW,Circle Throw,FIGHTING,Physical,60,Y,SELECTED,1,N,FRONT,contact move
+MOVE_INCINERATE,Incinerate,FIRE,Special,60,N,BOTH,2,N,FRONT,"a burst of flame; travels out from the user, so it hits front + middle"
+MOVE_QUASH,Quash,DARK,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_ACROBATICS,Acrobatics,FLYING,Physical,55,Y,SELECTED,1,N,ANY,darts around the front Pokémon
+MOVE_REFLECT_TYPE,Reflect Type,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_RETALIATE,Retaliate,NORMAL,Physical,70,Y,SELECTED,1,N,FRONT,contact move
+MOVE_FINAL_GAMBIT,Final Gambit,FIGHTING,Special,1,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_BESTOW,Bestow,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_INFERNO,Inferno,FIRE,Special,100,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_WATER_PLEDGE,Water Pledge,WATER,Special,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FIRE_PLEDGE,Fire Pledge,FIRE,Special,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_GRASS_PLEDGE,Grass Pledge,GRASS,Special,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_VOLT_SWITCH,Volt Switch,ELECTRIC,Special,70,N,SELECTED,1,N,ANY,electricity arcs to any foe
+MOVE_STRUGGLE_BUG,Struggle Bug,BUG,Special,50,N,BOTH,2,N,FRONT,"a flailing attack; travels out from the user, so it hits front + middle"
+MOVE_BULLDOZE,Bulldoze,GROUND,Physical,60,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_FROST_BREATH,Frost Breath,ICE,Special,60,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_DRAGON_TAIL,Dragon Tail,DRAGON,Physical,60,Y,SELECTED,2,N,FRONT,knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_ELECTROWEB,Electroweb,ELECTRIC,Special,55,N,BOTH,2,N,ANY,"one net; electricity arcs to any target, so you pick both targets"
+MOVE_WILD_CHARGE,Wild Charge,ELECTRIC,Physical,90,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_DRILL_RUN,Drill Run,GROUND,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_DUAL_CHOP,Dual Chop,DRAGON,Physical,40,Y,SELECTED,1,N,FRONT,contact move
+MOVE_HEART_STAMP,Heart Stamp,PSYCHIC,Physical,60,Y,SELECTED,1,N,FRONT,contact move
+MOVE_HORN_LEECH,Horn Leech,GRASS,Physical,75,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SACRED_SWORD,Sacred Sword,FIGHTING,Physical,90,Y,SELECTED,1,N,FRONT,contact move
+MOVE_RAZOR_SHELL,Razor Shell,WATER,Physical,75,Y,SELECTED,1,N,FRONT,contact move
+MOVE_HEAT_CRASH,Heat Crash,FIRE,Physical,1,Y,SELECTED,1,N,FRONT,contact move
+MOVE_LEAF_TORNADO,Leaf Tornado,GRASS,Special,65,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_STEAMROLLER,Steamroller,BUG,Physical,65,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_NIGHT_DAZE,Night Daze,DARK,Special,90,N,SELECTED,2,N,FRONT,"a shock wave; travels out from the user, so it hits front + middle"
+MOVE_PSYSTRIKE,Psystrike,PSYCHIC,Special,100,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_TAIL_SLAP,Tail Slap,NORMAL,Physical,25,Y,SELECTED,1,N,FRONT,contact move
+MOVE_HURRICANE,Hurricane,FLYING,Special,110,N,SELECTED,3,N,ANY,a hurricane engulfs the field
+MOVE_HEAD_CHARGE,Head Charge,NORMAL,Physical,120,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_GEAR_GRIND,Gear Grind,STEEL,Physical,60,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SEARING_SHOT,Searing Shot,FIRE,Special,100,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_TECHNO_BLAST,Techno Blast,NORMAL,Special,120,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_RELIC_SONG,Relic Song,NORMAL,Special,75,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_SECRET_SWORD,Secret Sword,FIGHTING,Special,85,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_GLACIATE,Glaciate,ICE,Special,65,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_BOLT_STRIKE,Bolt Strike,ELECTRIC,Physical,130,Y,SELECTED,1,N,FRONT,contact move
+MOVE_BLUE_FLARE,Blue Flare,FIRE,Special,130,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FIERY_DANCE,Fiery Dance,FIRE,Special,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FREEZE_SHOCK,Freeze Shock,ICE,Physical,140,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_ICE_BURN,Ice Burn,ICE,Special,140,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_SNARL,Snarl,DARK,Special,55,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_ICICLE_CRASH,Icicle Crash,ICE,Physical,85,N,SELECTED,2,N,ANY,"several falling icicles; icicles fall from above, so you pick both targets"
+MOVE_V_CREATE,V-create,FIRE,Physical,180,Y,SELECTED,1,N,FRONT,contact move
+MOVE_FUSION_FLARE,Fusion Flare,FIRE,Special,100,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FUSION_BOLT,Fusion Bolt,ELECTRIC,Physical,100,N,SELECTED,1,N,ANY,electricity arcs to any foe
+MOVE_FLYING_PRESS,Flying Press,FIGHTING,Physical,100,Y,SELECTED,1,N,FRONT,contact move
+MOVE_BELCH,Belch,POISON,Special,120,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FELL_STINGER,Fell Stinger,BUG,Physical,50,Y,SELECTED,1,N,FRONT,contact move
+MOVE_PHANTOM_FORCE,Phantom Force,GHOST,Physical,90,Y,SELECTED,1,N,ANY,vanishes and reappears anywhere
+MOVE_TRICK_OR_TREAT,Trick-or-Treat,GHOST,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_NOBLE_ROAR,Noble Roar,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_PARABOLIC_CHARGE,Parabolic Charge,ELECTRIC,Special,65,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_FORESTS_CURSE,Forest's Curse,GRASS,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_PETAL_BLIZZARD,Petal Blizzard,GRASS,Physical,90,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_FREEZE_DRY,Freeze-Dry,ICE,Special,70,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_DISARMING_VOICE,Disarming Voice,FAIRY,Special,40,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_PARTING_SHOT,Parting Shot,DARK,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_TOPSY_TURVY,Topsy-Turvy,DARK,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_DRAINING_KISS,Draining Kiss,FAIRY,Special,50,Y,SELECTED,1,N,FRONT,contact move
+MOVE_ELECTRIFY,Electrify,ELECTRIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_PLAY_ROUGH,Play Rough,FAIRY,Physical,90,Y,SELECTED,1,N,FRONT,contact move
+MOVE_FAIRY_WIND,Fairy Wind,FAIRY,Special,40,N,SELECTED,2,N,ANY,"a gust of wind; wind can curve around, so you pick both targets"
+MOVE_MOONBLAST,Moonblast,FAIRY,Special,95,N,SELECTED,1,N,ANY,moonlight from the sky
+MOVE_BOOMBURST,Boomburst,NORMAL,Special,140,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_PLAY_NICE,Play Nice,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_CONFIDE,Confide,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_DIAMOND_STORM,Diamond Storm,ROCK,Physical,100,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_STEAM_ERUPTION,Steam Eruption,WATER,Special,110,N,SELECTED,2,N,FRONT,"a cloud of steam; travels out from the user, so it hits front + middle"
+MOVE_HYPERSPACE_HOLE,Hyperspace Hole,PSYCHIC,Special,80,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_WATER_SHURIKEN,Water Shuriken,WATER,Physical,15,N,SELECTED,2,N,ANY,"several throwing stars; throwing stars can curve, so you pick both targets"
+MOVE_MYSTICAL_FIRE,Mystical Fire,FIRE,Special,75,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_EERIE_IMPULSE,Eerie Impulse,ELECTRIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_VENOM_DRENCH,Venom Drench,POISON,Status,,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_POWDER,Powder,BUG,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_DAZZLING_GLEAM,Dazzling Gleam,FAIRY,Special,80,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_BABY_DOLL_EYES,Baby-Doll Eyes,FAIRY,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_NUZZLE,Nuzzle,ELECTRIC,Physical,20,Y,SELECTED,1,N,FRONT,contact move
+MOVE_HOLD_BACK,Hold Back,NORMAL,Physical,40,Y,SELECTED,1,N,FRONT,contact move
+MOVE_INFESTATION,Infestation,BUG,Special,20,Y,SELECTED,1,N,FRONT,contact move
+MOVE_POWER_UP_PUNCH,Power-Up Punch,FIGHTING,Physical,40,Y,SELECTED,1,N,FRONT,contact move
+MOVE_OBLIVION_WING,Oblivion Wing,FLYING,Special,80,N,SELECTED,1,N,ANY,attacks from the air
+MOVE_THOUSAND_ARROWS,Thousand Arrows,GROUND,Physical,90,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_THOUSAND_WAVES,Thousand Waves,GROUND,Physical,90,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_LANDS_WRATH,Land's Wrath,GROUND,Physical,90,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_LIGHT_OF_RUIN,Light Of Ruin,FAIRY,Special,140,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_ORIGIN_PULSE,Origin Pulse,WATER,Special,110,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_PRECIPICE_BLADES,Precipice Blades,GROUND,Physical,120,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_DRAGON_ASCENT,Dragon Ascent,FLYING,Physical,120,Y,SELECTED,1,N,ANY,attacks from the air
+MOVE_HYPERSPACE_FURY,Hyperspace Fury,DARK,Physical,100,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FIRST_IMPRESSION,First Impression,BUG,Physical,100,Y,SELECTED,1,N,ANY,darts around the front Pokémon
+MOVE_SPIRIT_SHACKLE,Spirit Shackle,GHOST,Physical,90,N,SELECTED,1,N,ANY,ghostly attacks phase past the front
+MOVE_DARKEST_LARIAT,Darkest Lariat,DARK,Physical,85,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SPARKLING_ARIA,Sparkling Aria,WATER,Special,90,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_ICE_HAMMER,Ice Hammer,ICE,Physical,100,Y,SELECTED,1,N,FRONT,contact move
+MOVE_FLORAL_HEALING,Floral Healing,FAIRY,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_HIGH_HORSEPOWER,High Horsepower,GROUND,Physical,95,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_STRENGTH_SAP,Strength Sap,GRASS,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_SOLAR_BLADE,Solar Blade,GRASS,Physical,125,Y,SELECTED,1,N,FRONT,contact move
+MOVE_LEAFAGE,Leafage,GRASS,Physical,40,N,SELECTED,2,N,FRONT,"a flurry of leaves; travels out from the user, so it hits front + middle"
+MOVE_SPOTLIGHT,Spotlight,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_TOXIC_THREAD,Toxic Thread,POISON,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_THROAT_CHOP,Throat Chop,DARK,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_POLLEN_PUFF,Pollen Puff,BUG,Special,90,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_ANCHOR_SHOT,Anchor Shot,STEEL,Physical,90,Y,SELECTED,1,N,FRONT,contact move
+MOVE_LUNGE,Lunge,BUG,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_FIRE_LASH,Fire Lash,FIRE,Physical,90,Y,SELECTED,1,N,FRONT,contact move
+MOVE_POWER_TRIP,Power Trip,DARK,Physical,20,Y,SELECTED,1,N,FRONT,contact move
+MOVE_BURN_UP,Burn Up,FIRE,Special,130,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_SPEED_SWAP,Speed Swap,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_SMART_STRIKE,Smart Strike,STEEL,Physical,70,Y,SELECTED,1,N,FRONT,contact move
+MOVE_PURIFY,Purify,POISON,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_REVELATION_DANCE,Revelation Dance,NORMAL,Special,100,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_CORE_ENFORCER,Core Enforcer,DRAGON,Special,100,N,BOTH,2,N,FRONT,"a sweeping ray; travels out from the user, so it hits front + middle"
+MOVE_TROP_KICK,Trop Kick,GRASS,Physical,85,Y,SELECTED,1,N,FRONT,contact move
+MOVE_INSTRUCT,Instruct,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_BEAK_BLAST,Beak Blast,FLYING,Physical,120,N,SELECTED,1,N,ANY,attacks from the air
+MOVE_CLANGING_SCALES,Clanging Scales,DRAGON,Special,110,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_DRAGON_HAMMER,Dragon Hammer,DRAGON,Physical,100,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_BRUTAL_SWING,Brutal Swing,DARK,Physical,60,Y,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_SHELL_TRAP,Shell Trap,FIRE,Special,150,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_FLEUR_CANNON,Fleur Cannon,FAIRY,Special,130,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_PSYCHIC_FANGS,Psychic Fangs,PSYCHIC,Physical,85,Y,SELECTED,1,N,FRONT,contact move
+MOVE_STOMPING_TANTRUM,Stomping Tantrum,GROUND,Physical,75,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SHADOW_BONE,Shadow Bone,GHOST,Physical,85,N,SELECTED,1,N,ANY,ghostly attacks phase past the front
+MOVE_ACCELEROCK,Accelerock,ROCK,Physical,40,Y,SELECTED,1,N,ANY,darts around the front Pokémon
+MOVE_LIQUIDATION,Liquidation,WATER,Physical,85,Y,SELECTED,1,N,FRONT,contact move
+MOVE_PRISMATIC_LASER,Prismatic Laser,PSYCHIC,Special,160,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_SPECTRAL_THIEF,Spectral Thief,GHOST,Physical,90,Y,SELECTED,1,N,ANY,ghostly attacks phase past the front
+MOVE_SUNSTEEL_STRIKE,Sunsteel Strike,STEEL,Physical,100,Y,SELECTED,1,N,FRONT,contact move
+MOVE_MOONGEIST_BEAM,Moongeist Beam,GHOST,Special,100,N,SELECTED,1,N,ANY,ghostly attacks phase past the front
+MOVE_TEARFUL_LOOK,Tearful Look,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_ZING_ZAP,Zing Zap,ELECTRIC,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_NATURES_MADNESS,Nature's Madness,FAIRY,Special,1,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_MULTI_ATTACK,Multi-Attack,NORMAL,Physical,120,Y,SELECTED,1,N,FRONT,contact move
+MOVE_MIND_BLOWN,Mind Blown,FIRE,Special,150,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_PLASMA_FISTS,Plasma Fists,ELECTRIC,Physical,100,Y,SELECTED,1,N,FRONT,contact move
+MOVE_PHOTON_GEYSER,Photon Geyser,PSYCHIC,Special,100,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_ZIPPY_ZAP,Zippy Zap,ELECTRIC,Physical,80,Y,SELECTED,1,N,ANY,darts around the front Pokémon
+MOVE_SPLISHY_SPLASH,Splishy Splash,WATER,Special,90,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_FLOATY_FALL,Floaty Fall,FLYING,Physical,90,Y,SELECTED,1,N,ANY,attacks from the air
+MOVE_PIKA_PAPOW,Pika Papow,ELECTRIC,Special,1,N,SELECTED,1,N,ANY,electricity arcs to any foe
+MOVE_BOUNCY_BUBBLE,Bouncy Bubble,WATER,Special,60,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_BUZZY_BUZZ,Buzzy Buzz,ELECTRIC,Special,60,N,SELECTED,1,N,ANY,electricity arcs to any foe
+MOVE_SIZZLY_SLIDE,Sizzly Slide,FIRE,Physical,60,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_GLITZY_GLOW,Glitzy Glow,PSYCHIC,Special,80,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_BADDY_BAD,Baddy Bad,DARK,Special,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_SAPPY_SEED,Sappy Seed,GRASS,Physical,100,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FREEZY_FROST,Freezy Frost,ICE,Special,100,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_SPARKLY_SWIRL,Sparkly Swirl,FAIRY,Special,120,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_VEEVEE_VOLLEY,Veevee Volley,NORMAL,Physical,1,Y,SELECTED,1,N,FRONT,contact move
+MOVE_DOUBLE_IRON_BASH,Double Iron Bash,STEEL,Physical,60,Y,SELECTED,1,N,FRONT,contact move
+MOVE_DYNAMAX_CANNON,Dynamax Cannon,DRAGON,Special,100,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_SNIPE_SHOT,Snipe Shot,WATER,Special,85,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_JAW_LOCK,Jaw Lock,DARK,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_TAR_SHOT,Tar Shot,ROCK,Status,,N,SELECTED,1,N,FRONT,sent out from the user
+MOVE_MAGIC_POWDER,Magic Powder,PSYCHIC,Status,,N,SELECTED,1,N,FRONT,sent out from the user
+MOVE_DRAGON_DARTS,Dragon Darts,DRAGON,Physical,50,N,SMART,2,N,ANY,"two darts, one per target (canon); homing darts, so you pick both targets"
+MOVE_OCTOLOCK,Octolock,FIGHTING,Status,,N,SELECTED,1,N,FRONT,sent out from the user
+MOVE_BOLT_BEAK,Bolt Beak,ELECTRIC,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_FISHIOUS_REND,Fishious Rend,WATER,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_BODY_PRESS,Body Press,FIGHTING,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_DECORATE,Decorate,FAIRY,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_DRUM_BEATING,Drum Beating,GRASS,Physical,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_SNAP_TRAP,Snap Trap,STEEL,Physical,35,Y,SELECTED,1,N,FRONT,contact move
+MOVE_PYRO_BALL,Pyro Ball,FIRE,Physical,120,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_BEHEMOTH_BLADE,Behemoth Blade,STEEL,Physical,100,Y,SELECTED,1,N,FRONT,contact move
+MOVE_BEHEMOTH_BASH,Behemoth Bash,STEEL,Physical,100,Y,SELECTED,1,N,FRONT,contact move
+MOVE_AURA_WHEEL,Aura Wheel,ELECTRIC,Physical,110,N,SELECTED,1,N,ANY,electricity arcs to any foe
+MOVE_BREAKING_SWIPE,Breaking Swipe,DRAGON,Physical,60,Y,BOTH,2,N,FRONT,"a tail swing; travels out from the user, so it hits front + middle"
+MOVE_BRANCH_POKE,Branch Poke,GRASS,Physical,40,Y,SELECTED,1,N,FRONT,contact move
+MOVE_OVERDRIVE,Overdrive,ELECTRIC,Special,80,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_APPLE_ACID,Apple Acid,GRASS,Special,90,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_GRAV_APPLE,Grav Apple,GRASS,Physical,90,N,SELECTED,1,N,ANY,comes from above/below or homes in
+MOVE_SPIRIT_BREAK,Spirit Break,FAIRY,Physical,75,Y,SELECTED,1,N,FRONT,contact move
+MOVE_STRANGE_STEAM,Strange Steam,FAIRY,Special,90,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FALSE_SURRENDER,False Surrender,DARK,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_METEOR_ASSAULT,Meteor Assault,FIGHTING,Physical,170,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_ETERNABEAM,Eternabeam,DRAGON,Special,160,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_STEEL_BEAM,Steel Beam,STEEL,Special,140,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_EXPANDING_FORCE,Expanding Force,PSYCHIC,Special,80,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_STEEL_ROLLER,Steel Roller,STEEL,Physical,130,Y,SELECTED,3,N,ANY,so dramatic it plows through the whole line
+MOVE_SCALE_SHOT,Scale Shot,DRAGON,Physical,25,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_METEOR_BEAM,Meteor Beam,ROCK,Special,120,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_SHELL_SIDE_ARM,Shell Side Arm,POISON,Special,90,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_MISTY_EXPLOSION,Misty Explosion,FAIRY,Special,100,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_GRASSY_GLIDE,Grassy Glide,GRASS,Physical,55,Y,SELECTED,1,N,FRONT,contact move
+MOVE_RISING_VOLTAGE,Rising Voltage,ELECTRIC,Special,70,N,SELECTED,1,N,ANY,electricity arcs to any foe
+MOVE_TERRAIN_PULSE,Terrain Pulse,NORMAL,Special,50,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_SKITTER_SMACK,Skitter Smack,BUG,Physical,70,Y,SELECTED,1,N,FRONT,contact move
+MOVE_BURNING_JEALOUSY,Burning Jealousy,FIRE,Special,70,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_LASH_OUT,Lash Out,DARK,Physical,75,Y,SELECTED,1,N,FRONT,contact move
+MOVE_POLTERGEIST,Poltergeist,GHOST,Physical,110,N,SELECTED,1,N,ANY,ghostly attacks phase past the front
+MOVE_CORROSIVE_GAS,Corrosive Gas,POISON,Status,,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_FLIP_TURN,Flip Turn,WATER,Physical,60,Y,SELECTED,1,N,ANY,"hits and retreats, can pick any foe"
+MOVE_TRIPLE_AXEL,Triple Axel,ICE,Physical,20,Y,SELECTED,1,N,FRONT,contact move
+MOVE_DUAL_WINGBEAT,Dual Wingbeat,FLYING,Physical,40,Y,SELECTED,1,N,ANY,attacks from the air
+MOVE_SCORCHING_SANDS,Scorching Sands,GROUND,Special,70,N,SELECTED,2,N,FRONT,"a spray of sand; travels out from the user, so it hits front + middle"
+MOVE_WICKED_BLOW,Wicked Blow,DARK,Physical,75,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SURGING_STRIKES,Surging Strikes,WATER,Physical,25,Y,SELECTED,1,N,FRONT,contact move
+MOVE_THUNDER_CAGE,Thunder Cage,ELECTRIC,Special,80,N,SELECTED,1,N,ANY,electricity arcs to any foe
+MOVE_DRAGON_ENERGY,Dragon Energy,DRAGON,Special,150,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_FREEZING_GLARE,Freezing Glare,PSYCHIC,Special,90,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_FIERY_WRATH,Fiery Wrath,DARK,Special,90,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_THUNDEROUS_KICK,Thunderous Kick,FIGHTING,Physical,90,Y,SELECTED,1,N,FRONT,contact move
+MOVE_GLACIAL_LANCE,Glacial Lance,ICE,Physical,120,N,BOTH,2,N,FRONT,"one lance; travels out from the user, so it hits front + middle"
+MOVE_ASTRAL_BARRAGE,Astral Barrage,GHOST,Special,110,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_EERIE_SPELL,Eerie Spell,PSYCHIC,Special,80,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_DIRE_CLAW,Dire Claw,POISON,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_PSYSHIELD_BASH,Psyshield Bash,PSYCHIC,Physical,90,Y,SELECTED,1,N,FRONT,contact move
+MOVE_STONE_AXE,Stone Axe,ROCK,Physical,65,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SPRINGTIDE_STORM,Springtide Storm,FAIRY,Special,100,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_MYSTICAL_POWER,Mystical Power,PSYCHIC,Special,70,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_RAGING_FURY,Raging Fury,FIRE,Physical,120,N,RANDOM,1,N,ANY,rampage hits a random foe
+MOVE_WAVE_CRASH,Wave Crash,WATER,Physical,120,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_CHLOROBLAST,Chloroblast,GRASS,Special,150,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_MOUNTAIN_GALE,Mountain Gale,ICE,Physical,120,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_HEADLONG_RUSH,Headlong Rush,GROUND,Physical,120,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_BARB_BARRAGE,Barb Barrage,POISON,Physical,60,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_ESPER_WING,Esper Wing,PSYCHIC,Special,80,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_BITTER_MALICE,Bitter Malice,GHOST,Special,75,N,SELECTED,1,N,ANY,ghostly attacks phase past the front
+MOVE_TRIPLE_ARROWS,Triple Arrows,FIGHTING,Physical,90,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_INFERNAL_PARADE,Infernal Parade,GHOST,Special,65,N,SELECTED,1,N,ANY,ghostly attacks phase past the front
+MOVE_CEASELESS_EDGE,Ceaseless Edge,DARK,Physical,65,Y,SELECTED,1,N,FRONT,contact move
+MOVE_BLEAKWIND_STORM,Bleakwind Storm,FLYING,Special,100,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_WILDBOLT_STORM,Wildbolt Storm,ELECTRIC,Special,100,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_SANDSEAR_STORM,Sandsear Storm,GROUND,Special,100,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_TERA_BLAST,Tera Blast,NORMAL,Special,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_AXE_KICK,Axe Kick,FIGHTING,Physical,120,Y,SELECTED,1,N,FRONT,contact move
+MOVE_LAST_RESPECTS,Last Respects,GHOST,Physical,50,N,SELECTED,1,N,ANY,ghostly attacks phase past the front
+MOVE_LUMINA_CRASH,Lumina Crash,PSYCHIC,Special,80,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_ORDER_UP,Order Up,DRAGON,Physical,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_JET_PUNCH,Jet Punch,WATER,Physical,60,Y,SELECTED,1,N,ANY,darts around the front Pokémon
+MOVE_SPICY_EXTRACT,Spicy Extract,GRASS,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_SPIN_OUT,Spin Out,STEEL,Physical,100,Y,SELECTED,1,N,FRONT,contact move
+MOVE_POPULATION_BOMB,Population Bomb,NORMAL,Physical,20,Y,SELECTED,1,N,FRONT,contact move
+MOVE_ICE_SPINNER,Ice Spinner,ICE,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_GLAIVE_RUSH,Glaive Rush,DRAGON,Physical,120,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_SALT_CURE,Salt Cure,ROCK,Physical,40,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_TRIPLE_DIVE,Triple Dive,WATER,Physical,35,Y,SELECTED,1,N,FRONT,contact move
+MOVE_MORTAL_SPIN,Mortal Spin,POISON,Physical,30,Y,BOTH,2,N,FRONT,"a spin into nearby foes; travels out from the user, so it hits front + middle"
+MOVE_DOODLE,Doodle,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
+MOVE_KOWTOW_CLEAVE,Kowtow Cleave,DARK,Physical,85,Y,SELECTED,1,N,FRONT,contact move
+MOVE_FLOWER_TRICK,Flower Trick,GRASS,Physical,70,N,SELECTED,1,N,ANY,comes from above/below or homes in
+MOVE_TORCH_SONG,Torch Song,FIRE,Special,80,N,SELECTED,1,N,ANY,sound spreads in every direction
+MOVE_AQUA_STEP,Aqua Step,WATER,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_RAGING_BULL,Raging Bull,NORMAL,Physical,90,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_MAKE_IT_RAIN,Make It Rain,STEEL,Special,120,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
+MOVE_RUINATION,Ruination,DARK,Special,1,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_COLLISION_COURSE,Collision Course,FIGHTING,Physical,100,Y,SELECTED,3,N,ANY,so dramatic it plows through the whole line
+MOVE_ELECTRO_DRIFT,Electro Drift,ELECTRIC,Special,100,Y,SELECTED,1,N,FRONT,contact move
+MOVE_POUNCE,Pounce,BUG,Physical,50,Y,SELECTED,1,N,FRONT,contact move
+MOVE_TRAILBLAZE,Trailblaze,GRASS,Physical,50,Y,SELECTED,1,N,FRONT,contact move
+MOVE_CHILLING_WATER,Chilling Water,WATER,Special,50,N,SELECTED,2,N,ANY,"a shower of water; a shower falls from above, so you pick both targets"
+MOVE_HYPER_DRILL,Hyper Drill,NORMAL,Physical,120,Y,SELECTED,1,N,FRONT,contact move
+MOVE_TWIN_BEAM,Twin Beam,PSYCHIC,Special,40,N,SELECTED,1,N,ANY,psychic power reaches any foe
+MOVE_RAGE_FIST,Rage Fist,GHOST,Physical,50,Y,SELECTED,1,N,ANY,ghostly attacks phase past the front
+MOVE_ARMOR_CANNON,Armor Cannon,FIRE,Special,120,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_BITTER_BLADE,Bitter Blade,FIRE,Physical,90,Y,SELECTED,1,N,FRONT,contact move
+MOVE_DOUBLE_SHOCK,Double Shock,ELECTRIC,Physical,120,Y,SELECTED,1,N,FRONT,contact move
+MOVE_GIGATON_HAMMER,Gigaton Hammer,STEEL,Physical,160,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_COMEUPPANCE,Comeuppance,DARK,Physical,1,Y,DEPENDS,1,N,ANY,automatically targets whoever hit the user
+MOVE_AQUA_CUTTER,Aqua Cutter,WATER,Physical,70,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_BLAZING_TORQUE,Blazing Torque,FIRE,Physical,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_WICKED_TORQUE,Wicked Torque,DARK,Physical,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_NOXIOUS_TORQUE,Noxious Torque,POISON,Physical,100,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_COMBAT_TORQUE,Combat Torque,FIGHTING,Physical,100,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_MAGICAL_TORQUE,Magical Torque,FAIRY,Physical,100,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_PSYBLADE,Psyblade,PSYCHIC,Physical,80,Y,SELECTED,1,N,FRONT,contact move
+MOVE_HYDRO_STEAM,Hydro Steam,WATER,Special,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_BLOOD_MOON,Blood Moon,NORMAL,Special,130,N,SELECTED,1,N,ANY,comes from above/below or homes in
+MOVE_MATCHA_GOTCHA,Matcha Gotcha,GRASS,Special,80,N,BOTH,2,N,FRONT,"a stream of tea; travels out from the user, so it hits front + middle"
+MOVE_SYRUP_BOMB,Syrup Bomb,GRASS,Special,60,N,SELECTED,2,N,FRONT,"syrup splashes on impact; travels out from the user, so it hits front + middle"
+MOVE_IVY_CUDGEL,Ivy Cudgel,GRASS,Physical,100,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_ELECTRO_SHOT,Electro Shot,ELECTRIC,Special,130,N,SELECTED,1,N,ANY,electricity arcs to any foe
+MOVE_TERA_STARSTORM,Tera Starstorm,NORMAL,Special,120,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_FICKLE_BEAM,Fickle Beam,DRAGON,Special,80,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_THUNDERCLAP,Thunderclap,ELECTRIC,Special,70,N,SELECTED,1,N,ANY,electricity arcs to any foe
+MOVE_MIGHTY_CLEAVE,Mighty Cleave,ROCK,Physical,95,Y,SELECTED,1,N,FRONT,contact move
+MOVE_TACHYON_CUTTER,Tachyon Cutter,STEEL,Special,50,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_HARD_PRESS,Hard Press,STEEL,Physical,100,Y,SELECTED,1,N,FRONT,contact move
+MOVE_ALLURING_VOICE,Alluring Voice,FAIRY,Special,80,N,SELECTED,2,N,ANY,"a sound wave; sound spreads in every direction, so you pick both targets"
+MOVE_TEMPER_FLARE,Temper Flare,FIRE,Physical,75,Y,SELECTED,1,N,FRONT,contact move
+MOVE_SUPERCELL_SLAM,Supercell Slam,ELECTRIC,Physical,100,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
+MOVE_PSYCHIC_NOISE,Psychic Noise,PSYCHIC,Special,75,N,SELECTED,2,N,ANY,"a sound wave; psychic sound waves, so you pick both targets"
+MOVE_UPPER_HAND,Upper Hand,FIGHTING,Physical,65,Y,SELECTED,1,N,FRONT,contact move
+MOVE_MALIGNANT_CHAIN,Malignant Chain,POISON,Special,100,N,SELECTED,1,N,FRONT,travels out from the user

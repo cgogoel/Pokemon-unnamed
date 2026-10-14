@@ -950,7 +950,7 @@ static void DoAIScoreProcessing(enum BattlerId battlerAtk, enum BattlerId battle
     gAiThinkingStruct->movesetIndex = 0;
 
     if (gBattleTypeFlags & BATTLE_TYPE_PALACE)
-        BattleAI_SetupAIData(gBattleStruct->palaceFlags >> 4, battlerAtk);
+        BattleAI_SetupAIData(gBattleStruct->palaceFlags >> MAX_BATTLERS_COUNT, battlerAtk);
     else
         BattleAI_SetupAIData(0xF, battlerAtk);
 

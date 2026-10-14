@@ -196,8 +196,8 @@ u16 ChooseMoveAndTargetInBattlePalace(enum BattlerId battler)
     // Pass selected moves to AI, pick one
     if (selectedMoves != 0)
     {
-        // Lower 4 bits of palaceFlags are flags for each battler.
-        // Clear the rest of palaceFlags, then set the selected moves in the upper 4 bits.
+        // Lower MAX_BATTLERS_COUNT bits of palaceFlags are flags for each battler.
+        // Clear the rest of palaceFlags, then set the selected moves in the next 4 bits.
         gBattleStruct->palaceFlags &= (1 << MAX_BATTLERS_COUNT) - 1;
         gBattleStruct->palaceFlags |= (selectedMoves << MAX_BATTLERS_COUNT);
         BattleAI_SetupAIData(selectedMoves, battler);

@@ -413,11 +413,14 @@ static void HandleInputChooseAction(enum BattlerId battler)
 void HandleInputChooseTarget(enum BattlerId battler)
 {
     enum BattlerId i;
+    // Cursor cycle order. Middle positions only exist in triple battles and are skipped otherwise.
     static const enum BattlerPosition identities[MAX_BATTLERS_COUNT] =
     {
         B_POSITION_PLAYER_LEFT,
+        B_POSITION_PLAYER_MIDDLE,
         B_POSITION_PLAYER_RIGHT,
         B_POSITION_OPPONENT_RIGHT,
+        B_POSITION_OPPONENT_MIDDLE,
         B_POSITION_OPPONENT_LEFT,
     };
     enum Move move = GetMonData(GetBattlerMon(battler), MON_DATA_MOVE1 + gMoveSelectionCursor[battler]);
@@ -542,10 +545,10 @@ void HandleInputChooseTarget(enum BattlerId battler)
                 }
                 do
                 {
-                    if (++i > 3)
+                    if (++i >= MAX_BATTLERS_COUNT)
                         i = 0;
                     gMultiUsePlayerCursor = GetBattlerAtPosition(identities[i]);
-                } while (gMultiUsePlayerCursor == gBattlersCount);
+                } while (gMultiUsePlayerCursor >= gBattlersCount);
 
                 i = 0;
                 switch (GetBattlerPosition(gMultiUsePlayerCursor))

@@ -88,9 +88,20 @@ enum BattlerId GetBattlerAtPosition(enum BattlerPosition position)
     return battler;
 }
 
+// In triple battles the middle battler's "partner" is the left flank of its side; see GetSecondAllyPosition for the other ally.
 enum BattlerPosition GetPartnerPosition(enum BattlerPosition position)
 {
+    if (position >= B_POSITION_PLAYER_MIDDLE)
+        return position - B_POSITION_PLAYER_MIDDLE;
     return (position ^ BIT_FLANK);
+}
+
+// The ally that isn't returned by GetPartnerPosition. Only exists in triple battles.
+enum BattlerPosition GetSecondAllyPosition(enum BattlerPosition position)
+{
+    if (position >= B_POSITION_PLAYER_MIDDLE)
+        return (position - B_POSITION_PLAYER_MIDDLE) ^ BIT_FLANK;
+    return B_POSITION_PLAYER_MIDDLE | (position & BIT_SIDE);
 }
 
 enum BattlerPosition GetOppositePosition(enum BattlerPosition position)
@@ -101,6 +112,12 @@ enum BattlerPosition GetOppositePosition(enum BattlerPosition position)
 enum BattlerId GetPartnerBattler(enum BattlerId battler)
 {
     return GetBattlerAtPosition(GetPartnerPosition(GetBattlerPosition(battler)));
+}
+
+// Returns gBattlersCount outside of triple battles.
+enum BattlerId GetSecondAllyBattler(enum BattlerId battler)
+{
+    return GetBattlerAtPosition(GetSecondAllyPosition(GetBattlerPosition(battler)));
 }
 
 enum BattlerId GetOppositeBattler(enum BattlerId battler)
@@ -118,6 +135,12 @@ enum BattlerId GetBattlerLeftFoe(enum BattlerId battler)
 enum BattlerId GetBattlerRightFoe(enum BattlerId battler)
 {
     return GetPartnerBattler(GetBattlerLeftFoe(battler));
+}
+
+// Returns gBattlersCount outside of triple battles.
+enum BattlerId GetBattlerMiddleFoe(enum BattlerId battler)
+{
+    return GetBattlerAtPosition(B_POSITION_PLAYER_MIDDLE | (GetBattlerSide(battler) ^ BIT_SIDE));
 }
 
 enum BattlerId GetDefaultSelectionTarget(enum BattlerId battler, enum MoveTarget moveTarget)
@@ -1021,8 +1044,8 @@ void HandleAction_ActionFinished(void)
     gBattleStruct->bouncedMoveIsUsed = FALSE;
     gBattleStruct->snatchedMoveIsUsed = FALSE;
     gBattleScripting.moveendState = 0;
-    gBattleCommunication[3] = 0;
-    gBattleCommunication[4] = 0;
+    gBattleCommunication[MOVE_EFFECT_BYTE] = 0;
+    gBattleCommunication[ACTIONS_CONFIRMED_COUNT] = 0;
     gBattleResources->battleScriptsStack->size = 0;
 
     if (GetConfig(B_RECALC_TURN_AFTER_ACTIONS) >= GEN_8
@@ -1233,7 +1256,7 @@ static u32 GetAiTurnOrder(u8 *aiTurnOrder, enum BattlerId battler)
 
 static bool32 Ai_AttackerMovesAfterTarget(enum BattlerId battlerAtk, enum BattlerId battlerDef)
 {
-    u8 aiTurnOrder[4] = {0};
+    u8 aiTurnOrder[MAX_BATTLERS_COUNT] = {0};
     AI_SetBattlerTurnOrder(aiTurnOrder);
 
     return GetAiTurnOrder(aiTurnOrder, battlerAtk) > GetAiTurnOrder(aiTurnOrder, battlerDef);
@@ -1241,7 +1264,7 @@ static bool32 Ai_AttackerMovesAfterTarget(enum BattlerId battlerAtk, enum Battle
 
 static bool32 Ai_AttackerMovesLast(enum BattlerId battlerAtk)
 {
-    u8 aiTurnOrder[4] = {0};
+    u8 aiTurnOrder[MAX_BATTLERS_COUNT] = {0};
     AI_SetBattlerTurnOrder(aiTurnOrder);
     u32 numAliveBattlers = 0;
     u32 battlerTurnOrder = GetAiTurnOrder(aiTurnOrder, battlerAtk);
@@ -9547,8 +9570,7 @@ bool32 CanTargetBattler(enum BattlerId battlerAtk, enum BattlerId battlerDef, en
 
 u32 GetNextTarget(u32 moveTarget, bool32 excludeCurrent)
 {
-    enum BattlerId battler;
-    for (battler = B_BATTLER_0; battler < MAX_BATTLERS_COUNT; battler++)
+    for (enum BattlerId battler = B_BATTLER_0; battler < gBattlersCount; battler++)
     {
         if (excludeCurrent && battler == gBattlerTarget)
             continue;
@@ -9556,9 +9578,9 @@ u32 GetNextTarget(u32 moveTarget, bool32 excludeCurrent)
             continue;
         if (gBattleStruct->moveResultFlags[battler] & MOVE_RESULT_NO_EFFECT)
             continue;
-        break;
+        return battler;
     }
-    return battler;
+    return MAX_BATTLERS_COUNT;
 }
 
 void CopyMonLevelAndBaseStatsToBattleMon(enum BattlerId battler, struct Pokemon *mon, bool32 updateSpeedStat)
@@ -11133,6 +11155,11 @@ enum BattlerId GetTargetFromSlotId(enum BattlerId battlerAtk, enum BattlerId bat
         return GetBattlerLeftFoe(battlerAtk);
     case B_BATTLER_3:
         return GetBattlerRightFoe(battlerAtk);
+    // Slots 4 and 5 only resolve to a battler in triple battles.
+    case B_BATTLER_4:
+        return IsTripleBattle() ? GetBattlerMiddleFoe(battlerAtk) : MAX_BATTLERS_COUNT;
+    case B_BATTLER_5:
+        return IsTripleBattle() ? GetSecondAllyBattler(battlerAtk) : MAX_BATTLERS_COUNT;
     default:
         errorf("Illegal battler");
         return B_BATTLER_0;

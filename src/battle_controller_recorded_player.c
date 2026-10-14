@@ -337,7 +337,7 @@ static void RecordedPlayerHandleTrainerSlideBack(enum BattlerId battler)
 
 static void ChooseActionInBattlePalace(enum BattlerId battler)
 {
-    if (gBattleCommunication[4] >= gBattlersCount / 2)
+    if (gBattleCommunication[ACTIONS_CONFIRMED_COUNT] >= gBattlersCount / 2)
     {
         BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, RecordedBattle_GetBattlerAction(RECORDED_BATTLE_PALACE_ACTION, battler), 0);
         BtlController_Complete(battler);

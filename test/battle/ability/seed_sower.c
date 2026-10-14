@@ -51,9 +51,9 @@ DOUBLE_BATTLE_TEST("Multi-target moves hit correct battlers after Seed Sower is 
 
     for (j = 0; j < ARRAY_COUNT(moves); j++)
     {
-        for (k = 0; k < MAX_BATTLERS_COUNT; k++)
+        for (k = 0; k < 4; k++) // Doubles battlers only
         {
-            for (l = 0; l < MAX_BATTLERS_COUNT; l++)
+            for (l = 0; l < 4; l++)
             {
                 if (k == l)
                     continue; // No tests needed when attacker has Seed Sower

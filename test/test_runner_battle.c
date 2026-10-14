@@ -286,7 +286,7 @@ static void InitTestBattlers(const struct BattleTest *test)
     case BATTLE_TEST_AI_TWO_VS_ONE:
     case BATTLE_TEST_ONE_VS_TWO:
     case BATTLE_TEST_AI_ONE_VS_TWO:
-        STATE->battlersCount = MAX_BATTLERS_COUNT;
+        STATE->battlersCount = 4;
         break;
     }
 

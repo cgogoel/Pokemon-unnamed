@@ -3405,7 +3405,7 @@ static void Cmd_openpartyscreen(void)
         {
             bool32 hasReplacement;
 
-            hitmarkerFaintBits = gHitMarker >> 28;
+            hitmarkerFaintBits = gHitMarker >> HITMARKER_FAINTED_SHIFT;
             for (enum BattlerId i = 0; i < gBattlersCount; i++)
             {
                 if (((1u << i) & hitmarkerFaintBits))
@@ -3444,7 +3444,7 @@ static void Cmd_openpartyscreen(void)
                 }
             }
 
-            for (enum BattlerId i = 0; i < MAX_BATTLERS_COUNT / 2; i++)
+            for (enum BattlerId i = 0; i <= B_BATTLER_1; i++)
             {
                 if (!(gSpecialStatuses[i].faintedHasReplacement))
                 {
@@ -3470,8 +3470,8 @@ static void Cmd_openpartyscreen(void)
         {
             if (IsDoubleBattle())
             {
-                hitmarkerFaintBits = gHitMarker >> 28;
-                for (enum BattlerId i = 0; i < MAX_BATTLERS_COUNT / 2; i++)
+                hitmarkerFaintBits = gHitMarker >> HITMARKER_FAINTED_SHIFT;
+                for (enum BattlerId i = 0; i <= B_BATTLER_1; i++)
                 {
                     if ((1 << GetPartnerBattler(i)) & hitmarkerFaintBits && (1 << i) & hitmarkerFaintBits)
                     {
@@ -3504,7 +3504,7 @@ static void Cmd_openpartyscreen(void)
             gBattlescriptCurrInstr = cmd->nextInstr;
         }
 
-        hitmarkerFaintBits = gHitMarker >> 28;
+        hitmarkerFaintBits = gHitMarker >> HITMARKER_FAINTED_SHIFT;
 
         u32 fainted = 0;
         while (fainted < gBattlersCount && !((1u << fainted) & hitmarkerFaintBits))
@@ -4250,7 +4250,7 @@ static u32 GetPossibleNextTarget(u32 currTarget)
     // currTarget allows for a starting point without relying on values for previous targets being set
     if (currTarget != MAX_BATTLERS_COUNT)
     {
-        for (i = 0; i < MAX_BATTLERS_COUNT; i++)
+        for (i = 0; i < GetTargetSlotCount(); i++)
         {
             if (GetTargetFromSlotId(gBattlerAttacker, i) == currTarget)
                 break;
@@ -4258,7 +4258,7 @@ static u32 GetPossibleNextTarget(u32 currTarget)
         i++; // next target after finding currTarget
     }
 
-    while (i < MAX_BATTLERS_COUNT)
+    while (i < GetTargetSlotCount())
     {
         enum BattlerId battler = GetTargetFromSlotId(gBattlerAttacker, i);
         i++;
@@ -10019,7 +10019,7 @@ void BS_CheckPokeFlute(void)
         }
     }
 
-    for (enum BattlerPosition position = B_POSITION_PLAYER_LEFT; position < MAX_POSITION_COUNT; position++)
+    for (enum BattlerPosition position = B_POSITION_PLAYER_LEFT; position < gBattlersCount; position++)
     {
         enum BattleTrainer trainer = GetBattlerTrainer(GetBattlerAtPosition(position));
         UpdatePokeFlutePartyStatus(gParties[trainer], position);

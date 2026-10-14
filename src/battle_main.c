@@ -110,6 +110,7 @@ static void TryDoEventsBeforeFirstTurn(void);
 static void HandleTurnActionSelectionState(void);
 static void RunTurnActionsFunctions(void);
 static void SetActionsAndBattlersTurnOrder(void);
+static u32 GetSpeedTieBattlerCount(void);
 static void UpdateBattlerPartyOrdersOnSwitch(enum BattlerId battler);
 static bool8 AllAtActionConfirmed(void);
 static void TryChangeTurnOrder(void);
@@ -3237,7 +3238,7 @@ static void DoBattleIntro(void)
                 }
             }
 
-            for (enum BattlerPosition position = B_POSITION_PLAYER_LEFT; position < MAX_POSITION_COUNT; position++)
+            for (enum BattlerPosition position = B_POSITION_PLAYER_LEFT; position < gBattlersCount; position++)
             {
                 if (position > B_POSITION_OPPONENT_LEFT && !BattleSideHasTwoTrainers(position & BIT_SIDE))
                     continue;
@@ -3452,7 +3453,7 @@ static void TryDoEventsBeforeFirstTurn(void)
         }
         #endif // TESTING
 
-        gBattleStruct->speedTieBreaks = RandomUniform(RNG_SPEED_TIE, 0, Factorial(MAX_BATTLERS_COUNT) - 1);
+        gBattleStruct->speedTieBreaks = RandomUniform(RNG_SPEED_TIE, 0, Factorial(GetSpeedTieBattlerCount()) - 1);
         gBattleTurnCounter = 0;
         gBattleStruct->eventState.beforeFirstTurn++;
         break;
@@ -3602,7 +3603,7 @@ void BattleTurnPassed(void)
 
 bool32 EndTurnEvents(void) // Called from Battle Script
 {
-    gBattleStruct->speedTieBreaks = RandomUniform(RNG_SPEED_TIE, 0, Factorial(MAX_BATTLERS_COUNT) - 1);
+    gBattleStruct->speedTieBreaks = RandomUniform(RNG_SPEED_TIE, 0, Factorial(GetSpeedTieBattlerCount()) - 1);
 
     TurnValuesCleanUp(TRUE);
 
@@ -4578,44 +4579,44 @@ s32 GetWhichBattlerFasterOrTies(struct BattleCalcValues *calcValues, bool32 igno
         priority2);
 }
 
-// 24 == MAX_BATTLERS_COUNT!.
-// These are the possible orders if all the battlers speed tie.
-// An order is chosen at the start of the turn.
-static const u8 sBattlerOrders[24][4] =
+// Number of battlers the speed tie permutation covers. Doubles and singles keep the original 4 so their RNG is unchanged.
+static u32 GetSpeedTieBattlerCount(void)
 {
-    { 0, 1, 2, 3 },
-    { 0, 1, 3, 2 },
-    { 0, 2, 1, 3 },
-    { 0, 2, 3, 1 },
-    { 0, 3, 1, 2 },
-    { 0, 3, 2, 1 },
-    { 1, 0, 2, 3 },
-    { 1, 0, 3, 2 },
-    { 1, 2, 0, 3 },
-    { 1, 2, 3, 0 },
-    { 1, 3, 0, 2 },
-    { 1, 3, 2, 0 },
-    { 2, 0, 1, 3 },
-    { 2, 0, 3, 1 },
-    { 2, 1, 0, 3 },
-    { 2, 1, 3, 0 },
-    { 2, 3, 0, 1 },
-    { 2, 3, 1, 0 },
-    { 3, 0, 1, 2 },
-    { 3, 0, 2, 1 },
-    { 3, 1, 0, 2 },
-    { 3, 1, 2, 0 },
-    { 3, 2, 0, 1 },
-    { 3, 2, 1, 0 },
-};
+    return IsTripleBattle() ? MAX_BATTLERS_COUNT : 4;
+}
+
+// gBattleStruct->speedTieBreaks is a permutation index (Lehmer code) chosen at the start of the turn.
+// Decodes it and returns the tie break order of the battler; for 4 battlers this matches the old lexicographic table.
+static u32 GetSpeedTieOrder(enum BattlerId battler)
+{
+    u32 count = GetSpeedTieBattlerCount();
+    u32 code = gBattleStruct->speedTieBreaks;
+    u8 pool[MAX_BATTLERS_COUNT];
+    u32 i, j;
+
+    for (i = 0; i < count; i++)
+        pool[i] = i;
+
+    for (i = 0; i < count; i++)
+    {
+        u32 factorial = Factorial(count - 1 - i);
+        u32 index = code / factorial;
+        code %= factorial;
+        if (i == battler)
+            return pool[index];
+        for (j = index; j < count - 1 - i; j++)
+            pool[j] = pool[j + 1];
+    }
+    return battler;
+}
 
 s32 GetWhichBattlerFaster(struct BattleCalcValues *calcValues, bool32 ignoreChosenMoves)
 {
     s32 strikesFirst = GetWhichBattlerFasterOrTies(calcValues, ignoreChosenMoves);
     if (strikesFirst == 0)
     {
-        s32 order1 = sBattlerOrders[gBattleStruct->speedTieBreaks][calcValues->battlerAtk];
-        s32 order2 = sBattlerOrders[gBattleStruct->speedTieBreaks][calcValues->battlerDef];
+        s32 order1 = GetSpeedTieOrder(calcValues->battlerAtk);
+        s32 order2 = GetSpeedTieOrder(calcValues->battlerDef);
         if (order1 < order2)
             strikesFirst = 1;
         else
@@ -5019,8 +5020,8 @@ static void CheckChangingTurnOrderEffects(void)
     }
 
     gBattleMainFunc = RunTurnActionsFunctions;
-    gBattleCommunication[3] = 0;
-    gBattleCommunication[4] = 0;
+    gBattleCommunication[MOVE_EFFECT_BYTE] = 0;
+    gBattleCommunication[ACTIONS_CONFIRMED_COUNT] = 0;
     gBattleResources->battleScriptsStack->size = 0;
 }
 

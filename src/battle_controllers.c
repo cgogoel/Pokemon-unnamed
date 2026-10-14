@@ -214,10 +214,12 @@ static void InitBtlControllersInternal(void)
     if (!isLink || isMaster)
         gBattleMainFunc = BeginBattleIntro;
 
-    if (!isDouble)
-        gBattlersCount = 2;
-    else
+    if (IsTripleBattle())
         gBattlersCount = MAX_BATTLERS_COUNT;
+    else if (isDouble)
+        gBattlersCount = 4;
+    else
+        gBattlersCount = 2;
 
     if ((gBattleTypeFlags & BATTLE_TYPE_BATTLE_TOWER)
         || !isMulti

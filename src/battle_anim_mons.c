@@ -1863,7 +1863,7 @@ static u16 GetBattlerYDeltaFromSpriteId(u8 spriteId)
     enum Species species;
     u16 i;
 
-    for (i = 0; i < MAX_BATTLERS_COUNT; i++)
+    for (i = 0; i < (IsContest() ? CONTESTANT_COUNT : gBattlersCount); i++)
     {
         if (gBattlerSpriteIds[i] == spriteId)
         {

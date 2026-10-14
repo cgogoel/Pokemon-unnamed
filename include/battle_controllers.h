@@ -112,7 +112,7 @@ static inline bool32 IsBattleControllerActiveOnLocal(enum BattlerId battler)
 static inline void MarkBattleControllerMessageOutboundOverLink(enum BattlerId battler)
 {
     assertf(battler < MAX_BATTLERS_COUNT, "illegal battle controller: %d", battler);
-    gBattleControllerExecFlags |= ((1u << battler) << (32 - MAX_BATTLERS_COUNT));
+    gBattleControllerExecFlags |= ((1u << battler) << 28);
 }
 
 static inline void MarkBattleControllerMessageSynchronizedOverLink(enum BattlerId battler)

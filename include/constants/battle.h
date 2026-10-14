@@ -62,6 +62,8 @@ enum BattlerPosition
     B_POSITION_OPPONENT_LEFT,
     B_POSITION_PLAYER_RIGHT,
     B_POSITION_OPPONENT_RIGHT,
+    B_POSITION_PLAYER_MIDDLE,   // Triple battles only
+    B_POSITION_OPPONENT_MIDDLE, // Triple battles only
     MAX_POSITION_COUNT,
     B_POSITION_ABSENT = 0xFF,
 };
@@ -72,6 +74,8 @@ enum __attribute__((packed)) BattlerId
     B_BATTLER_1,
     B_BATTLER_2,
     B_BATTLER_3,
+    B_BATTLER_4, // Triple battles only
+    B_BATTLER_5, // Triple battles only
     MAX_BATTLERS_COUNT,
 };
 
@@ -112,7 +116,7 @@ enum BattleSide
 #define BATTLE_TYPE_EREADER_TRAINER    (1 << 11)
 #define BATTLE_TYPE_RAID               (1 << 12)
 #define BATTLE_TYPE_LEGENDARY          (1 << 13)
-#define BATTLE_TYPE_14                 (1 << 14)
+#define BATTLE_TYPE_TRIPLE             (1 << 14) // 3v3, one acting battler per side per turn. See docs/hack/triple_battles.md
 #define BATTLE_TYPE_TWO_OPPONENTS      (1 << 15)
 #define BATTLE_TYPE_DOME               (1 << 16)
 #define BATTLE_TYPE_PALACE             (1 << 17)
@@ -136,13 +140,13 @@ enum BattleSide
 #define BATTLE_TYPE_RECORDED_INVALID        ((BATTLE_TYPE_LINK | BATTLE_TYPE_SAFARI | BATTLE_TYPE_FIRST_BATTLE                  \
                                              | BATTLE_TYPE_CATCH_TUTORIAL | BATTLE_TYPE_ROAMER | BATTLE_TYPE_EREADER_TRAINER    \
                                              | BATTLE_TYPE_LEGENDARY                                                            \
-                                             | BATTLE_TYPE_RECORDED | BATTLE_TYPE_TRAINER_HILL | BATTLE_TYPE_SECRET_BASE))
+                                             | BATTLE_TYPE_RECORDED | BATTLE_TYPE_TRAINER_HILL | BATTLE_TYPE_SECRET_BASE | BATTLE_TYPE_TRIPLE))
 
 #define WILD_DOUBLE_BATTLE                  ((gBattleTypeFlags & BATTLE_TYPE_DOUBLE && !(gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_TRAINER))))
 #define RECORDED_WILD_BATTLE                ((gBattleTypeFlags & BATTLE_TYPE_RECORDED) && !(gBattleTypeFlags & (BATTLE_TYPE_TRAINER | BATTLE_TYPE_FRONTIER)))
 #define BATTLE_TWO_VS_ONE_OPPONENT          ((gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER && TRAINER_BATTLE_PARAM.opponentB == 0xFFFF))
 #define BATTLE_TYPE_HAS_AI                  (BATTLE_TYPE_TRAINER | BATTLE_TYPE_FIRST_BATTLE | BATTLE_TYPE_SAFARI | BATTLE_TYPE_ROAMER | BATTLE_TYPE_INGAME_PARTNER)
-#define BATTLE_TYPE_MORE_THAN_TWO_BATTLERS  (BATTLE_TYPE_DOUBLE | BATTLE_TYPE_MULTI | BATTLE_TYPE_INGAME_PARTNER | BATTLE_TYPE_TWO_OPPONENTS)
+#define BATTLE_TYPE_MORE_THAN_TWO_BATTLERS  (BATTLE_TYPE_DOUBLE | BATTLE_TYPE_MULTI | BATTLE_TYPE_INGAME_PARTNER | BATTLE_TYPE_TWO_OPPONENTS | BATTLE_TYPE_TRIPLE)
 #define BATTLE_TYPE_PLAYER_HAS_PARTNER      (BATTLE_TYPE_MULTI | BATTLE_TYPE_INGAME_PARTNER | BATTLE_TYPE_TOWER_LINK_MULTI)
 
 // Multibattle test composite flags
@@ -383,9 +387,8 @@ enum QueuedSwitch
 #define HITMARKER_UNUSED_23             (1 << 23)
 #define HITMARKER_UNUSED_24             (1 << 24)
 #define HITMARKER_UNUSED_25             (1 << 25)
-#define HITMARKER_UNUSED_26             (1 << 26)
-#define HITMARKER_UNUSED_27             (1 << 27)
-#define HITMARKER_FAINTED(battler)      (1u << (battler + 28)) // Also uses bits 29, 30 and 31
+#define HITMARKER_FAINTED_SHIFT         26
+#define HITMARKER_FAINTED(battler)      (1u << (battler + HITMARKER_FAINTED_SHIFT)) // Uses bits 26-31, one per battler
 
 // Per-side statuses that affect an entire party.
 // These select from gSideStatuses[n], which is a u32.

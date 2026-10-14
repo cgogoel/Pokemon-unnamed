@@ -625,7 +625,7 @@ struct BattleStruct
     u8 stateIdAfterSelScript[MAX_BATTLERS_COUNT];
     u8 prevSelectedPartySlot;
     u8 stringMoveType;
-    u8 palaceFlags; // First 4 bits are "is <= 50% HP and not asleep" for each battler, last 4 bits are selected moves to pass to AI
+    u16 palaceFlags; // First MAX_BATTLERS_COUNT bits are "is <= 50% HP and not asleep" for each battler, next 4 bits are selected moves to pass to AI
     u8 recordedActionSet; // related to choosing Pokémon?
     u8 wallyBattleState;
     u8 wallyMovesState;
@@ -704,7 +704,7 @@ struct BattleStruct
     s32 aiDelayFrames; // Number of frames it took to choose an action.
     s32 aiDelayCycles; // Number of cycles it took to choose an action.
     u8 shellSideArmCategory[MAX_BATTLERS_COUNT][MAX_BATTLERS_COUNT];
-    u8 speedTieBreaks; // MAX_BATTLERS_COUNT! values.
+    u16 speedTieBreaks; // gBattlersCount! values (permutation index), see GetSpeedTieOrder.
     u32 stellarBoostFlags[MAX_BATTLE_TRAINERS]; // bitfield
     struct SleepClause monCausingSleepClause[NUM_BATTLE_SIDES]; // Stores which Pokémon on a given side is causing Sleep Clause to be active as the mon's index in the party
     u8 additionalEffectsCounter:4; // A counter for the additionalEffects applied by the current move in Cmd_setadditionaleffects
@@ -1122,6 +1122,9 @@ enum BattlerPosition GetPartnerPosition(enum BattlerPosition position);
 enum BattlerPosition GetOppositePosition(enum BattlerPosition position);
 enum BattlerId GetBattlerLeftFoe(enum BattlerId battler);
 enum BattlerId GetBattlerRightFoe(enum BattlerId battler);
+enum BattlerId GetBattlerMiddleFoe(enum BattlerId battler);
+enum BattlerId GetSecondAllyBattler(enum BattlerId battler);
+enum BattlerPosition GetSecondAllyPosition(enum BattlerPosition position);
 enum BattlerId GetDefaultSelectionTarget(enum BattlerId battler, enum MoveTarget moveTarget);
 
 static inline bool32 IsBattlerAlive(enum BattlerId battler)
@@ -1181,6 +1184,17 @@ static inline bool32 IsBattlerAlly(enum BattlerId battlerAtk, enum BattlerId bat
 static inline bool32 IsDoubleBattle(void)
 {
     return !!(gBattleTypeFlags & BATTLE_TYPE_MORE_THAN_TWO_BATTLERS);
+}
+
+static inline bool32 IsTripleBattle(void)
+{
+    return !!(gBattleTypeFlags & BATTLE_TYPE_TRIPLE);
+}
+
+// Number of target slots GetTargetFromSlotId understands: self, partner and 2 foes, plus middle foe and second ally in triples.
+static inline u32 GetTargetSlotCount(void)
+{
+    return IsTripleBattle() ? MAX_BATTLERS_COUNT : 4;
 }
 
 static inline bool32 IsSpreadMove(enum MoveTarget moveTarget)

@@ -591,6 +591,11 @@ struct BattleStruct
     struct FutureSight futureSight[MAX_BATTLERS_COUNT];
     struct Wish wish[MAX_BATTLERS_COUNT];
     u16 moveTarget[MAX_BATTLERS_COUNT];
+    // Triple battles, see triple_battle.c
+    u8 tripleRank[MAX_BATTLERS_COUNT];          // Formation: near, middle, far
+    u8 tripleSecondTarget[MAX_BATTLERS_COUNT];  // Chosen second target of a 2-target move, + 1 (0 = none)
+    u8 tripleMainTarget[MAX_BATTLERS_COUNT];    // Full-damage target of the move being used
+    u8 tripleHitSecond[MAX_BATTLERS_COUNT];     // Half-damage target of a 2-target move
     u8 faintCounter[MAX_BATTLE_TRAINERS]; // Supreme Overload / Last Respects
     u32 expShareExpValue;
     u32 expValue;

@@ -14,6 +14,7 @@
 #include "party_menu.h"
 #include "random.h"
 #include "test/battle.h"
+#include "triple_battle.h"
 #include "trainer_pools.h"
 #include "window.h"
 #include "constants/characters.h"
@@ -3256,8 +3257,13 @@ void Move(u32 sourceLine, struct BattlePokemon *battler, struct MoveContext ctx)
     if (!ctx.explicitAllowed || ctx.allowed)
     {
         PushBattlerAction(sourceLine, battlerId, RECORDED_MOVE_SLOT, moveSlot);
-        PushBattlerAction(sourceLine, battlerId, RECORDED_MOVE_TARGET,
-                          ctx.explicitTarget ? target : RECORDED_TARGET_DEFAULT);
+        u32 targetByte = ctx.explicitTarget ? target : RECORDED_TARGET_DEFAULT;
+        if (ctx.explicitSecondTarget)
+        {
+            INVALID_IF(!IsTripleTest(), "secondTarget is only used in triple battles");
+            targetByte |= TRIPLE_TARGET_ENCODE_SECOND(ctx.secondTarget - gBattleMons);
+        }
+        PushBattlerAction(sourceLine, battlerId, RECORDED_MOVE_TARGET, targetByte);
     }
 
     if (ctx.explicitPartyIndex)

@@ -1211,6 +1211,8 @@ struct MoveContext
     u16 explicitNotExpected:1;
     struct BattlePokemon *target;
     bool8 explicitTarget;
+    struct BattlePokemon *secondTarget; // Triple battles: second target of a 2-target move
+    bool8 explicitSecondTarget;
     struct RiggedRNG rng;
     bool8 explicitRNG;
 };

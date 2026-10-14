@@ -7,6 +7,7 @@
 #include "battle_controllers.h"
 #include "battle_gfx_sfx_util.h"
 #include "battle_interface.h"
+#include "triple_battle.h"
 #include "battle_message.h"
 #include "battle_setup.h"
 #include "battle_tv.h"
@@ -178,6 +179,8 @@ void InitBattleControllers(void)
     InitBtlControllersInternal();
 
     SetBattlePartyIds();
+    if (IsTripleBattle())
+        InitTripleFormation();
 
     if (!(gBattleTypeFlags & BATTLE_TYPE_MULTI))
     {

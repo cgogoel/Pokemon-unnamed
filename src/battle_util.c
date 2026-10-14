@@ -6,6 +6,7 @@
 #include "battle_environment.h"
 #include "battle_pyramid.h"
 #include "battle_util.h"
+#include "triple_battle.h"
 #include "battle_controllers.h"
 #include "battle_interface.h"
 #include "battle_setup.h"
@@ -7339,6 +7340,8 @@ static inline s32 CalculateBaseDamage(u32 power, u32 userFinalAttack, u32 level,
 
 static inline uq4_12_t GetTargetDamageModifier(struct DamageContext *ctx)
 {
+    if (IsTripleBattle())
+        return GetTripleTargetDamageModifier(ctx->battlerAtk, ctx->battlerDef, ctx->move, gBattleStruct->numSpreadTargets);
     if (IsDoubleBattle())
     {
         u32 targetCount = GetMoveTargetCount(ctx);
@@ -9551,6 +9554,9 @@ enum MoveTarget GetBattlerMoveTargetType(enum BattlerId battler, enum Move move)
 {
     if (CanBattlerHitBothFoesInTerrain(battler, move, GetMoveEffect(move)))
         return TARGET_BOTH;
+
+    if (IsTripleBattle())
+        return GetTripleMoveTargetType(move, GetBattlerMoveSelectionTargetType(battler, move));
 
     return GetBattlerMoveSelectionTargetType(battler, move);
 }

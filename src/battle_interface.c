@@ -4,6 +4,7 @@
 #include "pokemon.h"
 #include "battle_controllers.h"
 #include "battle_interface.h"
+#include "triple_battle.h"
 #include "battle_z_move.h"
 #include "graphics.h"
 #include "sprite.h"
@@ -878,21 +879,21 @@ static const s16 sBattlerHealthboxCoords[BATTLE_COORDS_COUNT][MAX_BATTLERS_COUNT
         [B_POSITION_OPPONENT_LEFT]  = { 44,  19 },
         [B_POSITION_OPPONENT_RIGHT] = { 32,  44 },
     },
-    // Placeholder layout until compact triple healthboxes exist.
+    // Indexed by layout position: the near battler's box is on top.
     [BATTLE_COORDS_TRIPLES] =
     {
-        [B_POSITION_PLAYER_LEFT]     = { 159, 64 },
+        [B_POSITION_PLAYER_RIGHT]    = { 159, 64 },
         [B_POSITION_PLAYER_MIDDLE]   = { 165, 84 },
-        [B_POSITION_PLAYER_RIGHT]    = { 171, 104 },
-        [B_POSITION_OPPONENT_LEFT]   = { 44,  12 },
+        [B_POSITION_PLAYER_LEFT]     = { 171, 104 },
+        [B_POSITION_OPPONENT_RIGHT]  = { 44,  12 },
         [B_POSITION_OPPONENT_MIDDLE] = { 38,  32 },
-        [B_POSITION_OPPONENT_RIGHT]  = { 32,  52 },
+        [B_POSITION_OPPONENT_LEFT]   = { 32,  52 },
     },
 };
 
 void GetBattlerHealthboxCoords(enum BattlerId battler, s16 *x, s16 *y)
 {
-    enum BattlerPosition position = GetBattlerPosition(battler);
+    enum BattlerPosition position = GetBattlerLayoutPosition(battler);
     enum BattleCoordTypes index = GetBattlerCoordsIndex(battler);
 
     *x = sBattlerHealthboxCoords[index][position][0];

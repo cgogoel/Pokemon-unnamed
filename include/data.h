@@ -92,6 +92,7 @@ enum TrainerBattleType
 {
     TRAINER_BATTLE_TYPE_SINGLES,
     TRAINER_BATTLE_TYPE_DOUBLES,
+    TRAINER_BATTLE_TYPE_TRIPLES, // 3v3, see docs/hack/triple_battles.md
 };
 
 enum MultiTeamSize

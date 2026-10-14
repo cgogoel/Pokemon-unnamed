@@ -1,6 +1,7 @@
 #include "global.h"
 #include "battle.h"
 #include "battle_anim.h"
+#include "triple_battle.h"
 #include "battle_interface.h"
 #include "bg.h"
 #include "contest.h"
@@ -51,14 +52,15 @@ const struct UCoords8 sBattlerCoords[BATTLE_COORDS_COUNT][MAX_BATTLERS_COUNT] =
         [B_POSITION_OPPONENT_RIGHT] = { 152, 32 },
     },
     // Placeholder layout, to be tuned with screenshots.
+    // Indexed by layout position (see GetBattlerLayoutPosition): right is the near spot, left the far one.
     [BATTLE_COORDS_TRIPLES] =
     {
-        [B_POSITION_PLAYER_LEFT]     = { 24, 80 },
-        [B_POSITION_PLAYER_MIDDLE]   = { 64, 84 },
-        [B_POSITION_PLAYER_RIGHT]    = { 104, 88 },
-        [B_POSITION_OPPONENT_LEFT]   = { 216, 40 },
-        [B_POSITION_OPPONENT_MIDDLE] = { 176, 36 },
-        [B_POSITION_OPPONENT_RIGHT]  = { 136, 32 },
+        [B_POSITION_PLAYER_RIGHT]    = { 100, 80 },
+        [B_POSITION_PLAYER_MIDDLE]   = { 62, 84 },
+        [B_POSITION_PLAYER_LEFT]     = { 26, 88 },
+        [B_POSITION_OPPONENT_RIGHT]  = { 146, 44 },
+        [B_POSITION_OPPONENT_MIDDLE] = { 182, 38 },
+        [B_POSITION_OPPONENT_LEFT]   = { 216, 32 },
     },
 };
 
@@ -103,10 +105,10 @@ u8 GetBattlerSpriteCoord(enum BattlerId battler, u8 coordType)
     {
     case BATTLER_COORD_X:
     case BATTLER_COORD_X_2:
-        retVal = sBattlerCoords[GetBattlerCoordsIndex(battler)][GetBattlerPosition(battler)].x;
+        retVal = sBattlerCoords[GetBattlerCoordsIndex(battler)][GetBattlerLayoutPosition(battler)].x;
         break;
     case BATTLER_COORD_Y:
-        retVal = sBattlerCoords[GetBattlerCoordsIndex(battler)][GetBattlerPosition(battler)].y;
+        retVal = sBattlerCoords[GetBattlerCoordsIndex(battler)][GetBattlerLayoutPosition(battler)].y;
         break;
     case BATTLER_COORD_Y_PIC_OFFSET:
     case BATTLER_COORD_Y_PIC_OFFSET_DEFAULT:
@@ -206,7 +208,7 @@ u8 GetBattlerSpriteFinal_Y(enum BattlerId battler, enum Species species, bool32 
         offset = GetBattlerYDelta(battler, species);
         offset -= GetBattlerElevation(battler, species);
     }
-    y = offset + sBattlerCoords[GetBattlerCoordsIndex(battler)][GetBattlerPosition(battler)].y;
+    y = offset + sBattlerCoords[GetBattlerCoordsIndex(battler)][GetBattlerLayoutPosition(battler)].y;
     if (a3)
     {
         if (IsOnPlayerSide(battler))
@@ -1998,6 +2000,16 @@ u8 GetBattlerSpriteSubpriority(enum BattlerId battler)
         else
             return 40;
     }
+    else if (IsTripleBattle())
+    {
+        // Sprites lower on the screen are closer to the camera and drawn in front.
+        static const u8 sTripleSubpriorities[MAX_POSITION_COUNT] =
+        {
+            [B_POSITION_PLAYER_LEFT] = 20, [B_POSITION_PLAYER_MIDDLE] = 25, [B_POSITION_PLAYER_RIGHT] = 30,
+            [B_POSITION_OPPONENT_RIGHT] = 40, [B_POSITION_OPPONENT_MIDDLE] = 45, [B_POSITION_OPPONENT_LEFT] = 50,
+        };
+        subpriority = sTripleSubpriorities[GetBattlerLayoutPosition(battler)];
+    }
     else
     {
         position = GetBattlerPosition(battler);
@@ -2005,12 +2017,8 @@ u8 GetBattlerSpriteSubpriority(enum BattlerId battler)
             subpriority = 30;
         else if (position == B_POSITION_PLAYER_RIGHT)
             subpriority = 20;
-        else if (position == B_POSITION_PLAYER_MIDDLE)
-            subpriority = 25;
         else if (position == B_POSITION_OPPONENT_LEFT)
             subpriority = 40;
-        else if (position == B_POSITION_OPPONENT_MIDDLE)
-            subpriority = 45;
         else
             subpriority = 50;
     }

@@ -1737,6 +1737,7 @@ void BattleMainCB2(void)
     RunTextPrinters();
     UpdatePaletteFade();
     RunTasks();
+    TestRunner_Battle_TryDumpScreen(gBattleMainFunc == HandleTurnActionSelectionState);
 
     if (JOY_HELD(B_BUTTON) && gBattleTypeFlags & BATTLE_TYPE_RECORDED && RecordedBattle_CanStopPlayback())
     {
@@ -3944,8 +3945,8 @@ static void HandleTurnActionSelectionState(void)
                 case B_ACTION_TRIPLE_FORMATION:
                     // Rearranging is free: apply it and ask the same battler for its real action.
                     RecordedBattle_SetBattlerAction(battler, gBattleResources->bufferB[battler][2]);
-                    if (IsTripleBattle())
-                        TrySetTripleFormation(GetBattlerSide(battler), gBattleResources->bufferB[battler][2]);
+                    if (IsTripleBattle() && TrySetTripleFormation(GetBattlerSide(battler), gBattleResources->bufferB[battler][2]))
+                        UpdateTripleFormationGraphics(GetBattlerSide(battler));
                     gChosenActionByBattler[battler] = B_ACTION_NONE;
                     gBattleCommunication[battler] = STATE_BEFORE_ACTION_CHOSEN;
                     return;

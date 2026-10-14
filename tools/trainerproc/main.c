@@ -43,6 +43,7 @@ enum BattleType
 {
     BATTLE_TYPE_SINGLE,
     BATTLE_TYPE_DOUBLE,
+    BATTLE_TYPE_TRIPLE,
 };
 
 enum MultiParty
@@ -890,6 +891,11 @@ static bool token_battle_type(struct Parser *p, const struct Token *t, enum Batt
     else if (is_literal_token(t, "Double") || is_literal_token(t, "Doubles"))
     {
         *g = BATTLE_TYPE_DOUBLE;
+        return true;
+    }
+    else if (is_literal_token(t, "Triple") || is_literal_token(t, "Triples"))
+    {
+        *g = BATTLE_TYPE_TRIPLE;
         return true;
     }
     else
@@ -1882,7 +1888,9 @@ static void fprint_trainers(const char *output_path, FILE *f, struct Parsed *par
         {
             fprintf(f, "#line %d\n", trainer->battle_type_line);
             fprintf(f, "        .battleType = ");
-            if (trainer->battle_type == BATTLE_TYPE_DOUBLE)
+            if (trainer->battle_type == BATTLE_TYPE_TRIPLE)
+                fprintf(f, "TRAINER_BATTLE_TYPE_TRIPLES,\n");
+            else if (trainer->battle_type == BATTLE_TYPE_DOUBLE)
                 fprintf(f, "TRAINER_BATTLE_TYPE_DOUBLES,\n");
             else
                 fprintf(f, "TRAINER_BATTLE_TYPE_SINGLES,\n");

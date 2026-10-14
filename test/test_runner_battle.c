@@ -15,6 +15,7 @@
 #include "random.h"
 #include "test/battle.h"
 #include "triple_battle.h"
+#include "gpu_regs.h"
 #include "trainer_pools.h"
 #include "window.h"
 #include "constants/characters.h"
@@ -3519,6 +3520,77 @@ void SkipTurn(u32 sourceLine, struct BattlePokemon *battler)
     enum BattlerId battlerId = battler - gBattleMons;
     INVALID_IF(DATA.turnState == TURN_CLOSED, "SKIP_TURN outside TURN");
     DATA.actionBattlers |= 1 << battlerId;
+}
+
+void ScreenDump_(u32 sourceLine, u32 turn)
+{
+    INVALID_IF(turn == 0, "SCREEN_DUMP turns start at 1");
+    DATA.screenDumpTurn = turn;
+    DATA.screenDumpDone = FALSE;
+}
+
+// The test printf has no %x, so dump lines are built by hand.
+static char *AppendHex(char *dst, u32 value, u32 digits)
+{
+    static const char hex[] = "0123456789abcdef";
+    for (s32 i = digits - 1; i >= 0; i--)
+        *dst++ = hex[(value >> (4 * i)) & 0xF];
+    return dst;
+}
+
+static void DumpMemoryRegion(char tag, const u8 *base, u32 size)
+{
+    char line[16 + 2 * 64 + 1];
+
+    for (u32 offset = 0; offset < size; offset += 64)
+    {
+        char *p = line;
+        *p++ = tag;
+        *p++ = ' ';
+        p = AppendHex(p, offset, 5);
+        *p++ = ' ';
+        for (u32 i = 0; i < 64; i++)
+            p = AppendHex(p, base[offset + i], 2);
+        *p = '\0';
+        Test_MgbaPrintf("SCRDUMP %s", line);
+    }
+}
+
+static void DumpRegisters(char tag, const u16 *values, u32 count)
+{
+    char line[2 + 5 * 8 + 1];
+    char *p = line;
+
+    *p++ = tag;
+    for (u32 i = 0; i < count; i++)
+    {
+        *p++ = ' ';
+        p = AppendHex(p, values[i], 4);
+    }
+    *p = '\0';
+    Test_MgbaPrintf("SCRDUMP %s", line);
+}
+
+void TestRunner_Battle_TryDumpScreen(bool32 atActionSelection)
+{
+    if (DATA.screenDumpTurn == 0 || DATA.screenDumpDone || !atActionSelection || gBattleTurnCounter + 1 != DATA.screenDumpTurn)
+        return;
+
+    const u16 regs[] = { GetGpuReg(REG_OFFSET_DISPCNT), GetGpuReg(REG_OFFSET_BG0CNT), GetGpuReg(REG_OFFSET_BG1CNT), GetGpuReg(REG_OFFSET_BG2CNT), GetGpuReg(REG_OFFSET_BG3CNT) };
+    const u16 scroll[] =
+    {
+        GetGpuReg(REG_OFFSET_BG0HOFS), GetGpuReg(REG_OFFSET_BG0VOFS), GetGpuReg(REG_OFFSET_BG1HOFS), GetGpuReg(REG_OFFSET_BG1VOFS),
+        GetGpuReg(REG_OFFSET_BG2HOFS), GetGpuReg(REG_OFFSET_BG2VOFS), GetGpuReg(REG_OFFSET_BG3HOFS), GetGpuReg(REG_OFFSET_BG3VOFS),
+    };
+
+    DATA.screenDumpDone = TRUE;
+    Test_MgbaPrintf("SCRDUMP BEGIN %s", gTestRunnerState.test->name);
+    DumpRegisters('R', regs, ARRAY_COUNT(regs));
+    DumpRegisters('S', scroll, ARRAY_COUNT(scroll));
+    DumpMemoryRegion('V', (const u8 *)VRAM, VRAM_SIZE);
+    DumpMemoryRegion('O', (const u8 *)OAM, OAM_SIZE);
+    DumpMemoryRegion('P', (const u8 *)PLTT, PLTT_SIZE);
+    Test_MgbaPrintf("SCRDUMP END");
 }
 
 void Formation(u32 sourceLine, struct BattlePokemon *near, struct BattlePokemon *middle, struct BattlePokemon *far)

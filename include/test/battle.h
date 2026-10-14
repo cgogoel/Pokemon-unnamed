@@ -791,7 +791,9 @@ struct BattleTestData
     u32 slowerThan[MAX_BATTLE_TRAINERS][PARTY_SIZE];
     enum BattleTrainer battlerParty;
     u16 battlerTrainers; // 2 bits per battler
-    u8 tripleDeferredSendOut[MAX_BATTLERS_COUNT]; // Triple battles: party index + 1 of a SEND_OUT recorded after the turn's passes
+    u8 tripleDeferredSendOut[MAX_BATTLERS_COUNT];
+    u8 screenDumpTurn; // SCREEN_DUMP: turn whose action selection is dumped (0 = none)
+    bool8 screenDumpDone; // Triple battles: party index + 1 of a SEND_OUT recorded after the turn's passes
     u8 currentPartyIndex;
     struct Pokemon *currentMon;
     u8 gender;
@@ -1183,6 +1185,9 @@ enum { TURN_CLOSED, TURN_OPEN, TURN_CLOSING };
 #define SWITCH(battler, partyIndex) Switch(__LINE__, battler, partyIndex)
 // Triple battles: rearrange a side's formation for free. Recorded on the side's left battler, before its action.
 #define FORMATION(near, middle, far) Formation(__LINE__, near, middle, far)
+// Development aid: prints the screen (VRAM, OAM, palettes, BG registers) when the given turn's action selection starts.
+// Render it with tools/screen_dump/render_screen_dump.py.
+#define SCREEN_DUMP(turn) ScreenDump_(__LINE__, turn)
 #define SKIP_TURN(battler) SkipTurn(__LINE__, battler)
 #define SEND_OUT(battler, partyIndex) SendOut(__LINE__, battler, partyIndex)
 #define USE_ITEM(battler, ...) UseItem(__LINE__, battler, (struct ItemContext) { R_APPEND_TRUE(__VA_ARGS__) })
@@ -1243,6 +1248,7 @@ void Score(u32 sourceLine, struct BattlePokemon *battler, u32 cmp, bool32 toValu
 void ForcedMove(u32 sourceLine, struct BattlePokemon *);
 void Switch(u32 sourceLine, struct BattlePokemon *, u32 partyIndex);
 void Formation(u32 sourceLine, struct BattlePokemon *near, struct BattlePokemon *middle, struct BattlePokemon *far);
+void ScreenDump_(u32 sourceLine, u32 turn);
 void SkipTurn(u32 sourceLine, struct BattlePokemon *);
 void UseItem(u32 sourceLine, struct BattlePokemon *, struct ItemContext);
 void SendOut(u32 sourceLine, struct BattlePokemon *, u32 partyIndex);

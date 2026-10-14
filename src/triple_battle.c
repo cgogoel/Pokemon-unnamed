@@ -3,6 +3,9 @@
 #include "battle_util.h"
 #include "battle_ai_main.h"
 #include "battle_ai_util.h"
+#include "battle_anim.h"
+#include "battle_interface.h"
+#include "sprite.h"
 #include "triple_battle.h"
 #include "constants/battle_ai.h"
 #include "constants/moves.h"
@@ -64,6 +67,38 @@ bool32 TrySetTripleFormation(enum BattleSide side, u8 packedRanks)
 enum TripleFormationRank GetTripleFormationRank(enum BattlerId battler)
 {
     return gBattleStruct->tripleRank[battler];
+}
+
+// Where a battler is drawn. In triple battles that follows the formation: the near battler takes the spot closest to
+// the middle of the field and the far one the spot at the edge, whatever its battle position.
+enum BattlerPosition GetBattlerLayoutPosition(enum BattlerId battler)
+{
+    static const enum BattlerPosition sRankLayout[TRIPLE_RANK_COUNT] =
+    {
+        [TRIPLE_RANK_NEAR] = B_POSITION_PLAYER_RIGHT,
+        [TRIPLE_RANK_MIDDLE] = B_POSITION_PLAYER_MIDDLE,
+        [TRIPLE_RANK_FAR] = B_POSITION_PLAYER_LEFT,
+    };
+
+    if (!IsTripleBattle() || gBattleStruct == NULL)
+        return GetBattlerPosition(battler);
+    return sRankLayout[GetTripleFormationRank(battler)] | GetBattlerSide(battler);
+}
+
+// Moves a side's sprites and healthboxes to match a new formation.
+void UpdateTripleFormationGraphics(enum BattleSide side)
+{
+    for (enum BattlerId battler = 0; battler < gBattlersCount; battler++)
+    {
+        if (GetBattlerSide(battler) != side || !IsBattlerSpritePresent(battler))
+            continue;
+
+        struct Sprite *sprite = &gSprites[gBattlerSpriteIds[battler]];
+        sprite->x = GetBattlerSpriteCoord(battler, BATTLER_COORD_X_2);
+        sprite->y = GetBattlerSpriteDefault_Y(battler);
+        sprite->subpriority = GetBattlerSpriteSubpriority(battler);
+        InitBattlerHealthboxCoords(battler);
+    }
 }
 
 // Returns the alive foe of battlerAtk that is aliveIndex-th from the front, or MAX_BATTLERS_COUNT.

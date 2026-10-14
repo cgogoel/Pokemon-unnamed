@@ -40,6 +40,8 @@ const struct TripleMoveInfo *GetTripleMoveInfo(enum Move move);
 void InitTripleFormation(void);
 bool32 TrySetTripleFormation(enum BattleSide side, u8 packedRanks);
 enum TripleFormationRank GetTripleFormationRank(enum BattlerId battler);
+enum BattlerPosition GetBattlerLayoutPosition(enum BattlerId battler);
+void UpdateTripleFormationGraphics(enum BattleSide side);
 enum BattlerId GetTripleFoeAtRank(enum BattlerId battlerAtk, u32 aliveIndex);
 enum MoveTarget GetTripleMoveTargetType(enum Move move, enum MoveTarget canonTarget);
 enum BattlerId SetTripleMoveTargets(enum BattlerId battlerAtk, enum Move move, enum BattlerId battlerDef);

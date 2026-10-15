@@ -151,7 +151,7 @@ bool32 ShowTripleMoveIndicator(enum Move move)
     if (!IsTripleBattle() || info->aoe == 0)
         return FALSE;
 
-    // The main target is shown as the front foe; ANY moves can pick any of them.
+    // FRONT moves: the main target is the front foe
     switch (info->aoe)
     {
     case 1:
@@ -165,11 +165,19 @@ bool32 ShowTripleMoveIndicator(enum Move move)
         break;
     }
     if (info->aoe == 3)
+    {
         arrows = 0; // Every foe is hit, reach doesn't matter
+    }
     else if (info->reach == TRIPLE_REACH_ANY)
+    {
+        // The player picks the targets: no section is shaded, the arrows show any foe can be picked
         arrows = (1 << TRIPLE_RANK_COUNT) - 1;
+        fills[0] = fills[1] = fills[2] = INDICATOR_COLOR_WHITE;
+    }
     else
+    {
         arrows = 1 << 2;
+    }
 
     u32 *tiles = AllocZeroed(INDICATOR_WIDTH * INDICATOR_HEIGHT / 2);
     if (tiles == NULL)

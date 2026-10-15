@@ -349,6 +349,8 @@ void UpdateIndicatorVisibilityAndType(u32 healthboxId, bool32 invisible)
 
 void UpdateIndicatorOamPriority(u32 healthboxId, u32 oamPriority)
 {
+    if (GetIndicatorSpriteId(healthboxId) == 0)
+        return;
     gSprites[GetIndicatorSpriteId(healthboxId)].oam.priority = oamPriority;
 }
 
@@ -356,6 +358,8 @@ void UpdateIndicatorLevelData(u32 healthboxId, u32 level)
 {
     s32 xDelta = 0;
 
+    if (GetIndicatorSpriteId(healthboxId) == 0)
+        return;
     if (level >= 100)
         xDelta -= 4;
     else if (level < 10)
@@ -379,6 +383,13 @@ void CreateIndicatorSprite(enum BattlerId battler)
     enum BattlerPosition position;
     u32 spriteId;
     s16 xHealthbox = 0, x = 0, y = 0;
+
+    // Triple battles have no room for indicators: the compact healthboxes and six battlers leave few sprites to spare.
+    if (IsTripleBattle())
+    {
+        gBattleStruct->gimmick.indicatorSpriteId[battler] = 0;
+        return;
+    }
 
     position = GetBattlerPosition(battler);
     GetBattlerHealthboxCoords(battler, &xHealthbox, &y);

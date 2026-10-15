@@ -64,6 +64,17 @@ static const struct CompressedSpriteSheet sSpriteSheets_DoublesPlayerHealthbox[3
     {gHealthboxDoublesPlayerGfx, 0x800, TAG_HEALTHBOX_PLAYER3_TILE},
 };
 
+// Compact 64x16 healthboxes for triple battles, so six of them leave enough sprite VRAM for move animations.
+static const struct CompressedSpriteSheet sSpriteSheets_TriplesHealthbox[] =
+{
+    {gHealthboxTriplesGfx, 0x200, TAG_HEALTHBOX_PLAYER1_TILE},
+    {gHealthboxTriplesGfx, 0x200, TAG_HEALTHBOX_PLAYER2_TILE},
+    {gHealthboxTriplesGfx, 0x200, TAG_HEALTHBOX_PLAYER3_TILE},
+    {gHealthboxTriplesGfx, 0x200, TAG_HEALTHBOX_OPPONENT1_TILE},
+    {gHealthboxTriplesGfx, 0x200, TAG_HEALTHBOX_OPPONENT2_TILE},
+    {gHealthboxTriplesGfx, 0x200, TAG_HEALTHBOX_OPPONENT3_TILE},
+};
+
 static const struct CompressedSpriteSheet sSpriteSheets_DoublesOpponentHealthbox[3] =
 {
     {gHealthboxDoublesOpponentGfx, 0x800, TAG_HEALTHBOX_OPPONENT1_TILE},
@@ -734,11 +745,8 @@ bool8 BattleLoadAllHealthBoxesGfx(u8 state)
     {
         switch (state)
         {
-        case 2 ... 4:
-            spriteSheet = &sSpriteSheets_DoublesPlayerHealthbox[state - 2];
-            break;
-        case 5 ... 7:
-            spriteSheet = &sSpriteSheets_DoublesOpponentHealthbox[state - 5];
+        case 2 ... 7:
+            spriteSheet = &sSpriteSheets_TriplesHealthbox[state - 2];
             break;
         case 8 ... 13:
             spriteSheet = &sSpriteSheets_HealthBar[GetBattlerPosition((enum BattlerId)(state - 8))];

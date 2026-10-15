@@ -9749,7 +9749,7 @@ void BS_AllySwitchSwapBattler(void)
     NATIVE_ARGS();
 
     gBattleScripting.battler = gBattlerAttacker;
-    gBattlerAttacker ^= BIT_FLANK;
+    gBattlerAttacker = GetPartnerBattler(gBattlerAttacker);
     gProtectStructs[gBattlerAttacker].usedAllySwitch = TRUE;
     gBattlescriptCurrInstr = cmd->nextInstr;
 }

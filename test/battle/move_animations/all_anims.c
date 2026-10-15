@@ -208,100 +208,121 @@ static u32 GetVariationsNumber(enum Move move, bool8 isDouble)
     return variationsNumber;
 }
 
-static void DoublesWhen(enum Move move, struct BattlePokemon *attacker, struct BattlePokemon *target, struct BattlePokemon *ignore1, struct BattlePokemon *ignore2, u32 variation, u32 benchIndex)
+// Triple battles: a formation to set in the first turn (attackerFormation[0] == NULL for none).
+struct TripleAnimSetup
+{
+    struct BattlePokemon *attackerFormation[3];
+    struct BattlePokemon *targetFormation[3];
+};
+
+static void TripleAnimFormation(const struct TripleAnimSetup *triple, bool32 *pending)
+{
+    if (!*pending)
+        return;
+    FORMATION(triple->attackerFormation[0], triple->attackerFormation[1], triple->attackerFormation[2]);
+    FORMATION(triple->targetFormation[0], triple->targetFormation[1], triple->targetFormation[2]);
+    *pending = FALSE;
+}
+
+static void DoublesWhen(enum Move move, struct BattlePokemon *attacker, struct BattlePokemon *target, struct BattlePokemon *ignore1, struct BattlePokemon *ignore2, u32 variation, const struct TripleAnimSetup *triple)
 {
     enum BattleMoveEffects effect = GetMoveEffect(move);
+    // Triple battles: one more party member on the field, and the foe hits back with a move that reaches past the front.
+    u32 benchIndex = (triple != NULL) ? 3 : 2;
+    enum Move hitBackMove = (triple != NULL) ? MOVE_AERIAL_ACE : MOVE_POUND;
+    bool32 formationPending = (triple != NULL && triple->attackerFormation[0] != NULL);
     // Setup turn
     if (effect == EFFECT_SNORE
      || effect == EFFECT_SLEEP_TALK)
     {  // Player needs to be asleep
-        TURN { MOVE(attacker, MOVE_REST); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_REST); }
     }
     else if (effect == EFFECT_SPIT_UP
             || effect == EFFECT_SWALLOW)
     { // Player needs to have used Stockpile
         for (u32 i = 0; i <= variation; i++)
         {
-            TURN { MOVE(attacker, MOVE_STOCKPILE); }
+            TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_STOCKPILE); }
         }
     }
     else if ((effect == EFFECT_DOUBLE_POWER_ON_ARG_STATUS && GetMoveEffectArg_Status(move) == STATUS1_PARALYSIS))
     { // Opponent needs to be paralyzed
-        TURN { MOVE(attacker, MOVE_THUNDER_WAVE, target: target); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_THUNDER_WAVE, target: target); }
     }
     else if (effect == EFFECT_RECYCLE
           || effect == EFFECT_BELCH)
     { // Player needs to have eaten its Berry
-        TURN { MOVE(attacker, MOVE_STUFF_CHEEKS); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_STUFF_CHEEKS); }
     }
     else if (effect == EFFECT_REFRESH
           || effect == EFFECT_PSYCHO_SHIFT)
     { // Player needs to be paralyzed
-        TURN { MOVE(target, MOVE_THUNDER_WAVE, target: attacker); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(target, MOVE_THUNDER_WAVE, target: attacker); }
     }
     else if (effect == EFFECT_LAST_RESORT)
     { // Player needs to have used all other moves
-        TURN { MOVE(attacker, MOVE_POUND, target: target); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_POUND, target: target); }
     }
     else if (effect == EFFECT_DREAM_EATER
           || effect == EFFECT_NIGHTMARE)
     { // Opponent needs to be asleep
-        TURN { MOVE(target, MOVE_REST); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(target, MOVE_REST); }
     }
     else if (effect == EFFECT_STAT_CHANGE_ON_STATUS
           || effect == EFFECT_PURIFY)
     { // Opponent needs to be poisoned
-        TURN { MOVE(attacker, MOVE_POISON_POWDER, target: target); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_POISON_POWDER, target: target); }
     }
     else if (effect == EFFECT_TOPSY_TURVY)
     { // Opponent needs to have its stats buffed
-        TURN { MOVE(target, MOVE_SWORDS_DANCE); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(target, MOVE_SWORDS_DANCE); }
     }
     else if (effect == EFFECT_AURORA_VEIL)
     { // Has to be hailing
-        TURN { MOVE(attacker, MOVE_HAIL); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_HAIL); }
     }
     else if (effect == EFFECT_STEEL_ROLLER)
     { // Needs a terrain
-        TURN { MOVE(attacker, MOVE_ELECTRIC_TERRAIN); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_ELECTRIC_TERRAIN); }
     }
     else if (gMovesInfo[move].effect == EFFECT_WEATHER_BALL && variation > 0)
     {
         if (variation == 1)
-            TURN { MOVE(attacker, MOVE_SUNNY_DAY); }
+            TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_SUNNY_DAY); }
         else if (variation == 2)
-            TURN { MOVE(attacker, MOVE_RAIN_DANCE); }
+            TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_RAIN_DANCE); }
         else if (variation == 3)
-            TURN { MOVE(attacker, MOVE_SANDSTORM); }
+            TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_SANDSTORM); }
         else
-            TURN { MOVE(attacker, MOVE_HAIL); }
+            TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_HAIL); }
     }
     else if (gMovesInfo[move].effect == EFFECT_TERRAIN_PULSE && variation > 0)
     {
         if (variation == 1)
-            TURN { MOVE(attacker, MOVE_ELECTRIC_TERRAIN); }
+            TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_ELECTRIC_TERRAIN); }
         else if (variation == 2)
-            TURN { MOVE(attacker, MOVE_GRASSY_TERRAIN); }
+            TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_GRASSY_TERRAIN); }
         else if (variation == 3)
-            TURN { MOVE(attacker, MOVE_PSYCHIC_TERRAIN); }
+            TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_PSYCHIC_TERRAIN); }
         else if (variation == 4)
-            TURN { MOVE(attacker, MOVE_MISTY_TERRAIN); }
+            TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_MISTY_TERRAIN); }
     }
     else if (gBattleMoveEffects[gMovesInfo[move].effect].twoTurnEffect)
     {
-        TURN { MOVE(attacker, move, target: target); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, move, target: target); }
     }
     // Effective turn
     TURN {
+        TripleAnimFormation(triple, &formationPending);
         if (effect == EFFECT_REFLECT_DAMAGE)
         {
             bool32 useSpecialMove = GetMoveReflectDamage_DamageCategories(move) == 1u << DAMAGE_CATEGORY_SPECIAL;
-            MOVE(target, useSpecialMove ? MOVE_SWIFT : MOVE_POUND, target: attacker);
+            MOVE(target, useSpecialMove ? MOVE_SWIFT : hitBackMove, target: attacker);
             MOVE(attacker, move);
         }
         else if (TargetHasToMove(move))
         {
-            MOVE(target, MOVE_POUND, target: attacker);
+            MOVE(target, hitBackMove, target: attacker);
             MOVE(attacker, move, target: target);
         }
         else if (effect == EFFECT_SNATCH)
@@ -322,14 +343,14 @@ static void DoublesWhen(enum Move move, struct BattlePokemon *attacker, struct B
         else if (UserHasToGoFirst(move))
         { // Player needs to go first
             MOVE(attacker, move, target: target);
-            MOVE(target, MOVE_POUND, target: attacker);
+            MOVE(target, hitBackMove, target: attacker);
         }
         else if (effect == EFFECT_AFTER_YOU)
         { // Player goes first, opponent third
             MOVE(attacker, move, target: target);
             if (ignore1 != NULL) // Triple battles: only the attacker acts on its side
                 MOVE(ignore1, MOVE_CELEBRATE);
-            MOVE(target, MOVE_POUND, target: attacker);
+            MOVE(target, hitBackMove, target: attacker);
             if (ignore2 != NULL)
                 MOVE(ignore2, MOVE_CELEBRATE);
         }
@@ -403,19 +424,19 @@ static void DoublesWhen(enum Move move, struct BattlePokemon *attacker, struct B
     }
     else if (gMovesInfo[move].effect == EFFECT_ROLLOUT)
     {
-        TURN { MOVE(attacker, move, target: target); }
-        TURN { MOVE(attacker, move, target: target); }
-        TURN { MOVE(attacker, move, target: target); }
-        TURN { MOVE(attacker, move, target: target); }
-        TURN { MOVE(attacker, MOVE_LAST_RESORT, target: attacker); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, move, target: target); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, move, target: target); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, move, target: target); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, move, target: target); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, MOVE_LAST_RESORT, target: attacker); }
     }
     else if (gMovesInfo[move].effect == EFFECT_REFRESH || gMovesInfo[move].effect == EFFECT_PSYCHO_SHIFT)
     {
-        TURN { MOVE(attacker, move, target: target, WITH_RNG(RNG_PARALYSIS, FALSE)); }
+        TURN { TripleAnimFormation(triple, &formationPending); MOVE(attacker, move, target: target, WITH_RNG(RNG_PARALYSIS, FALSE)); }
     }
 }
 
-static void DoublesScene(enum Move move, struct BattlePokemon *attacker)
+static void DoublesScene(enum Move move, struct BattlePokemon *attacker, enum Move hitBackMove)
 {
     enum BattleMoveEffects effect = GetMoveEffect(move);
     if (effect == EFFECT_STAT_CHANGE_MAGNETIC) // For some reason, Magnetic Flux and Gear Up are failing in Double Battles here
@@ -424,7 +445,7 @@ static void DoublesScene(enum Move move, struct BattlePokemon *attacker)
     }
     else if (effect == EFFECT_MIRROR_MOVE)
     { // Copy the opponent's move
-        ANIMATION(ANIM_TYPE_MOVE, MOVE_POUND, attacker);
+        ANIMATION(ANIM_TYPE_MOVE, hitBackMove, attacker);
     }
     else if (effect == EFFECT_NATURE_POWER)
     { // Recorded battles always use BATTLE_ENVIRONMENT_BUILDING
@@ -821,9 +842,9 @@ DOUBLE_BATTLE_TEST("Move Animations don't leak when used - Doubles (playerLeft t
         }
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, NULL);
     } SCENE {
-        DoublesScene(move, attacker);
+        DoublesScene(move, attacker, MOVE_POUND);
     } THEN {
         FORCE_MOVE_ANIM(FALSE);
         if (gLoadFail || gSpriteAllocs != 0)
@@ -896,9 +917,9 @@ DOUBLE_BATTLE_TEST("Move Animations don't leak when used - Doubles (opponentLeft
         }
         PLAYER(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, NULL);
     } SCENE {
-        DoublesScene(move, attacker);
+        DoublesScene(move, attacker, MOVE_POUND);
     } THEN {
         FORCE_MOVE_ANIM(FALSE);
         if (gLoadFail || gSpriteAllocs != 0)
@@ -971,9 +992,9 @@ DOUBLE_BATTLE_TEST("Move Animations don't leak when used - Doubles (playerLeft t
         }
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, NULL);
     } SCENE {
-        DoublesScene(move, attacker);
+        DoublesScene(move, attacker, MOVE_POUND);
     } THEN {
         FORCE_MOVE_ANIM(FALSE);
         if (gLoadFail || gSpriteAllocs != 0)
@@ -1046,9 +1067,9 @@ DOUBLE_BATTLE_TEST("Move Animations don't leak when used - Doubles (opponentRigh
         }
         PLAYER(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, NULL);
     } SCENE {
-        DoublesScene(move, attacker);
+        DoublesScene(move, attacker, MOVE_POUND);
     } THEN {
         FORCE_MOVE_ANIM(FALSE);
         if (gLoadFail || gSpriteAllocs != 0)
@@ -1121,9 +1142,9 @@ DOUBLE_BATTLE_TEST("Move Animations don't leak when used - Doubles (playerRight 
         }
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, NULL);
     } SCENE {
-        DoublesScene(move, attacker);
+        DoublesScene(move, attacker, MOVE_POUND);
     } THEN {
         FORCE_MOVE_ANIM(FALSE);
         if (gLoadFail || gSpriteAllocs != 0)
@@ -1196,9 +1217,9 @@ DOUBLE_BATTLE_TEST("Move Animations don't leak when used - Doubles (opponentLeft
         }
         PLAYER(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, NULL);
     } SCENE {
-        DoublesScene(move, attacker);
+        DoublesScene(move, attacker, MOVE_POUND);
     } THEN {
         FORCE_MOVE_ANIM(FALSE);
         if (gLoadFail || gSpriteAllocs != 0)
@@ -1271,9 +1292,9 @@ DOUBLE_BATTLE_TEST("Move Animations don't leak when used - Doubles (playerRight 
         }
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, NULL);
     } SCENE {
-        DoublesScene(move, attacker);
+        DoublesScene(move, attacker, MOVE_POUND);
     } THEN {
         FORCE_MOVE_ANIM(FALSE);
         if (gLoadFail || gSpriteAllocs != 0)
@@ -1346,9 +1367,9 @@ DOUBLE_BATTLE_TEST("Move Animations don't leak when used - Doubles (opponentRigh
         }
         PLAYER(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, NULL);
     } SCENE {
-        DoublesScene(move, attacker);
+        DoublesScene(move, attacker, MOVE_POUND);
     } THEN {
         FORCE_MOVE_ANIM(FALSE);
         if (gLoadFail || gSpriteAllocs != 0)
@@ -1718,10 +1739,13 @@ TRIPLE_BATTLE_TEST("Move Animations don't leak when used - Triples (playerMiddle
         OPPONENT(SPECIES_WOBBUFFET) TRIPLE_ANIM_FOE_MON
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        TURN { FORMATION(playerMiddle, playerLeft, playerRight); FORMATION(opponentMiddle, opponentLeft, opponentRight); }
-        DoublesWhen(move, playerMiddle, opponentMiddle, NULL, NULL, variation, 3);
+        struct TripleAnimSetup triple = {
+            .attackerFormation = { playerMiddle, playerLeft, playerRight },
+            .targetFormation = { opponentMiddle, opponentLeft, opponentRight },
+        };
+        DoublesWhen(move, playerMiddle, opponentMiddle, NULL, NULL, variation, &triple);
     } SCENE {
-        DoublesScene(move, playerMiddle);
+        DoublesScene(move, playerMiddle, MOVE_AERIAL_ACE);
     } THEN {
         FORCE_MOVE_ANIM(FALSE);
         if (gLoadFail || gSpriteAllocs != 0)
@@ -1731,7 +1755,7 @@ TRIPLE_BATTLE_TEST("Move Animations don't leak when used - Triples (playerMiddle
     }
 }
 
-TRIPLE_BATTLE_TEST("Move Animations don't leak when used - Triples (opponentMiddle at the back to playerRight)")
+TRIPLE_BATTLE_TEST("Move Animations don't leak when used - Triples (opponentMiddle at the back to playerLeft in front)")
 {
     u32 j = ANIM_TEST_START_MOVE;
     enum Move move = MOVE_NONE;
@@ -1760,9 +1784,10 @@ TRIPLE_BATTLE_TEST("Move Animations don't leak when used - Triples (opponentMidd
         PLAYER(SPECIES_WOBBUFFET) TRIPLE_ANIM_FOE_MON
         PLAYER(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, opponentMiddle, playerRight, NULL, NULL, variation, 3);
+        struct TripleAnimSetup triple = {0};
+        DoublesWhen(move, opponentMiddle, playerLeft, NULL, NULL, variation, &triple);
     } SCENE {
-        DoublesScene(move, opponentMiddle);
+        DoublesScene(move, opponentMiddle, MOVE_AERIAL_ACE);
     } THEN {
         FORCE_MOVE_ANIM(FALSE);
         if (gLoadFail || gSpriteAllocs != 0)
@@ -2515,9 +2540,9 @@ DOUBLE_BATTLE_TEST("Move Animations work 1")
         }
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, NULL);
     } SCENE {
-        DoublesScene(move, attacker);
+        DoublesScene(move, attacker, MOVE_POUND);
     } THEN {
         FORCE_MOVE_ANIM(FALSE);
         if (gLoadFail || gSpriteAllocs != 0)
@@ -2590,9 +2615,9 @@ DOUBLE_BATTLE_TEST("Move Animations work 2")
         }
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, NULL);
     } SCENE {
-        DoublesScene(move, attacker);
+        DoublesScene(move, attacker, MOVE_POUND);
     } THEN {
         FORCE_MOVE_ANIM(FALSE);
         if (gLoadFail || gSpriteAllocs != 0)
@@ -2665,9 +2690,9 @@ DOUBLE_BATTLE_TEST("Move Animations work 3")
         }
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, NULL);
     } SCENE {
-        DoublesScene(move, attacker);
+        DoublesScene(move, attacker, MOVE_POUND);
     } THEN {
         FORCE_MOVE_ANIM(FALSE);
         if (gLoadFail || gSpriteAllocs != 0)
@@ -2740,9 +2765,9 @@ DOUBLE_BATTLE_TEST("Move Animations work 4")
         }
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, NULL);
     } SCENE {
-        DoublesScene(move, attacker);
+        DoublesScene(move, attacker, MOVE_POUND);
     } THEN {
         FORCE_MOVE_ANIM(FALSE);
         if (gLoadFail || gSpriteAllocs != 0)

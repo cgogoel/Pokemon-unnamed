@@ -45,6 +45,13 @@ Shown with each move in the battle move menu (next to type/PP) and in the summar
   - `ANY`: every square has a red outline.
 - **Ally marker:** a small extra icon (e.g. red "!") when the move also hits the user's own allies (`hits_allies = Y`).
 
+### Healthboxes
+Six full healthboxes and six Pokémon use up most of the GBA's sprite memory, leaving too little for move animations,
+so triple battles use a compact 64x16 box (`graphics/battle_interface/healthbox_triples.png`): name, then level
+(or the status icon in its place), with the HP bar right under it. No HP numbers (Select doesn't swap them in) and no
+gender symbol or gimmick indicator (Mega/Tera/...). The full HP numbers are in the party and summary screens.
+Box positions are in `sBattlerHealthboxCoords[BATTLE_COORDS_TRIPLES]` (`src/battle_interface.c`).
+
 ### Player controls (action menu)
 - **R**: this Pokémon passes; the next one (left → middle → right) chooses.
 - **L**: move this Pokémon one spot forward in the formation (front wraps to back). Free.
@@ -61,6 +68,9 @@ Shown with each move in the battle move menu (next to type/PP) and in the summar
   (see `test/battle/triple_battle.c`).
 - Screenshots without an emulator window: `SCREEN_DUMP(turn)` or `UI_PREVIEW("A.D>D")` in a scratch test, then
   `python3 tools/screen_dump/render_screen_dump.py <make check log> <out dir>`.
+- Animation check: set `T_SHOULD_RUN_MOVE_ANIM` to `TRUE` in `include/config/test.h` and run
+  `make check TESTS="Move Animations don't leak when used - Triples"` (every move used by a middle battler, from the front
+  and from the back row; several minutes). Set it back to `FALSE` afterwards.
 
 ## Engine approach
 - New flag `BATTLE_TYPE_TRIPLE` (reuses the free bit 14) with `IsTripleBattle()`. It is included in
@@ -91,6 +101,6 @@ Shown with each move in the battle move menu (next to type/PP) and in the summar
 - [x] Phase 1 (engine supports 6 battlers; all existing tests pass)
 - [x] Phase 2 (engine rules, covered by test/battle/triple_battle.c)
 - [x] Phase 3 (AI picks its best actor; respects FRONT reach)
-- [ ] Phase 4 (in progress: layout by formation, controls, target selection and move indicator done; still to do:
-  compact healthboxes / layout polish, party menu for 3 active, animation check with middle battlers)
+- [ ] Phase 4 (in progress: layout by formation, controls, target selection, move indicator, compact healthboxes and the
+  animation check done; the in-battle party menu lists the 3 active Pokémon first but still uses the doubles layout)
 - [ ] Phase 5 (in progress: `Battle Type: Triples` and the debug battle work; Act gating still to do)

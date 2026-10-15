@@ -2973,6 +2973,7 @@ void OpenTurn(u32 sourceLine)
         Test_ExitWithResult(TEST_RESULT_ERROR, sourceLine, "%s:%d: TURN exceeds MAX_TURNS", gTestRunnerState.test->filename, sourceLine);
     DATA.turnState = TURN_OPEN;
     DATA.actionBattlers = 0x00;
+    DATA.skipTurnBattlers = 0x00;
     DATA.moveBattlers = 0x00;
 }
 
@@ -3029,6 +3030,10 @@ static void CloseTripleTurn(u32 sourceLine)
             actorIndex = 0;
             Move(sourceLine, &gBattleMons[order[0]], (struct MoveContext) { move: MOVE_CELEBRATE, explicitMove: TRUE });
         }
+
+        // A battler locked into its move acts without choosing, and its allies pass without being asked.
+        if (DATA.skipTurnBattlers & (1 << order[actorIndex]))
+            continue;
 
         for (s32 j = 0; j < actorIndex; j++)
         {
@@ -3522,6 +3527,7 @@ void SkipTurn(u32 sourceLine, struct BattlePokemon *battler)
     enum BattlerId battlerId = battler - gBattleMons;
     INVALID_IF(DATA.turnState == TURN_CLOSED, "SKIP_TURN outside TURN");
     DATA.actionBattlers |= 1 << battlerId;
+    DATA.skipTurnBattlers |= 1 << battlerId;
 }
 
 void ScreenDump_(u32 sourceLine, u32 turn)

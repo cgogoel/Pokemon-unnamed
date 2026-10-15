@@ -812,6 +812,7 @@ struct BattleTestData
     u8 turnState;
     u8 turns;
     u8 actionBattlers;
+    u8 skipTurnBattlers; // Triple battles: SKIP_TURN battlers, whose allies the engine passes without asking
     u8 moveBattlers;
     bool8 hasAI:1;
     bool8 logAI:1;

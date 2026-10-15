@@ -6825,7 +6825,7 @@ static enum BattlerId LoadBattleAnimTarget(u8 arg)
             battler = GetPartnerBattler(gBattleAnimAttacker);
             break;
         case ANIM_DEF_PARTNER:
-            battler = GetPartnerBattler(gBattleAnimTarget);
+            battler = GetAnimTargetPartner();
             break;
         }
     }
@@ -6862,9 +6862,9 @@ void InitSpritePosToAnimTargetsCentre(struct Sprite *sprite, bool32 respectMonPi
     if (!respectMonPicOffsets)
     {
         sprite->x = (GetBattlerSpriteCoord2(gBattleAnimTarget, BATTLER_COORD_X)
-                       +  GetBattlerSpriteCoord2(GetPartnerBattler(gBattleAnimTarget), BATTLER_COORD_X)) / 2;
+                       +  GetBattlerSpriteCoord2(GetAnimTargetPartner(), BATTLER_COORD_X)) / 2;
         sprite->y = (GetBattlerSpriteCoord2(gBattleAnimTarget, BATTLER_COORD_Y)
-                       +  GetBattlerSpriteCoord2(GetPartnerBattler(gBattleAnimTarget), BATTLER_COORD_Y)) / 2;
+                       +  GetBattlerSpriteCoord2(GetAnimTargetPartner(), BATTLER_COORD_Y)) / 2;
     }
 
     SetAnimSpriteInitialXOffset(sprite, gBattleAnimArgs[0]);
@@ -7175,11 +7175,11 @@ static void SpriteCB_CoreEnforcerBeam(struct Sprite *sprite)
         sprite->data[0] = gBattleAnimArgs[2];
 
         sprite->data[2] = (GetBattlerSpriteCoord(gBattleAnimTarget, BATTLER_COORD_X_2)
-                        +  GetBattlerSpriteCoord(GetPartnerBattler(gBattleAnimTarget), BATTLER_COORD_X_2)) / 2;
+                        +  GetBattlerSpriteCoord(GetAnimTargetPartner(), BATTLER_COORD_X_2)) / 2;
 
 
         sprite->data[4] = (GetBattlerSpriteCoord(gBattleAnimTarget, BATTLER_COORD_Y_PIC_OFFSET)
-                        +  GetBattlerSpriteCoord(GetPartnerBattler(gBattleAnimTarget), BATTLER_COORD_Y_PIC_OFFSET)) / 2;
+                        +  GetBattlerSpriteCoord(GetAnimTargetPartner(), BATTLER_COORD_Y_PIC_OFFSET)) / 2;
 
         sprite->callback = StartAnimLinearTranslation;
         StoreSpriteCallbackInData6(sprite, DestroyAnimSprite);
@@ -8144,10 +8144,10 @@ void CoreEnforcerLoadBeamTarget(struct Sprite *sprite)
     sprite->data[0] = gBattleAnimArgs[2];
     sprite->data[1] = sprite->x;
     sprite->data[2] = (GetBattlerSpriteCoord(gBattleAnimTarget, BATTLER_COORD_X_2)
-                    +  GetBattlerSpriteCoord(GetPartnerBattler(gBattleAnimTarget), BATTLER_COORD_X_2)) / 2;
+                    +  GetBattlerSpriteCoord(GetAnimTargetPartner(), BATTLER_COORD_X_2)) / 2;
     sprite->data[3] = sprite->y;
     sprite->data[4] = (GetBattlerSpriteCoord(gBattleAnimTarget, BATTLER_COORD_Y_PIC_OFFSET)
-                    +  GetBattlerSpriteCoord(GetPartnerBattler(gBattleAnimTarget), BATTLER_COORD_Y_PIC_OFFSET)) / 2;
+                    +  GetBattlerSpriteCoord(GetAnimTargetPartner(), BATTLER_COORD_Y_PIC_OFFSET)) / 2;
 }
 
 void AnimTask_CreateBestowItem(u8 taskId)

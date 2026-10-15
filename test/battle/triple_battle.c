@@ -472,3 +472,25 @@ TRIPLE_BATTLE_TEST("Triple battles: the send out message names all three Pokémo
         MESSAGE("Go! Pikachu, Machamp and Venusaur!");
     }
 }
+
+AI_TRIPLE_BATTLE_TEST("Triple battles: the AI never switches to a Pokémon already on the field")
+{
+    GIVEN {
+        AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT | AI_FLAG_SMART_SWITCHING | AI_FLAG_SMART_MON_CHOICES);
+        PLAYER(SPECIES_GENGAR) { Moves(MOVE_SHADOW_BALL); }
+        PLAYER(SPECIES_GENGAR) { Moves(MOVE_SHADOW_BALL); }
+        PLAYER(SPECIES_GENGAR) { Moves(MOVE_SHADOW_BALL); }
+        // Nothing on the field can hurt the Gengar; the best counter (Tyranitar) is already out in the middle, asleep
+        OPPONENT(SPECIES_SNORLAX) { Moves(MOVE_BODY_SLAM); }
+        OPPONENT(SPECIES_SNORLAX) { Moves(MOVE_BODY_SLAM); }
+        OPPONENT(SPECIES_TYRANITAR) { Moves(MOVE_CRUNCH); Status1(STATUS1_SLEEP_TURN(3)); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_TACKLE); }
+    } WHEN {
+        TURN { MOVE(playerLeft, MOVE_SHADOW_BALL, target: opponentLeft); }
+    } THEN {
+        // Only the middle battler is the Tyranitar
+        EXPECT_NE(opponentLeft->species, SPECIES_TYRANITAR);
+        EXPECT_NE(opponentRight->species, SPECIES_TYRANITAR);
+        EXPECT_EQ(opponentMiddle->species, SPECIES_TYRANITAR);
+    }
+}

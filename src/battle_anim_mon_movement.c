@@ -529,7 +529,7 @@ static void SlideMonToOriginalPosPartner(struct Sprite *sprite)
     if (!gBattleAnimArgs[0])
         monSpriteId = gBattlerSpriteIds[GetPartnerBattler(gBattleAnimAttacker)];
     else
-        monSpriteId = gBattlerSpriteIds[GetPartnerBattler(gBattleAnimTarget)];
+        monSpriteId = gBattlerSpriteIds[GetAnimTargetPartner()];
 
     sprite->data[0] = gBattleAnimArgs[2];
     sprite->data[1] = gSprites[monSpriteId].x + gSprites[monSpriteId].x2;
@@ -630,7 +630,7 @@ static void SlideMonToOffsetPartner(struct Sprite *sprite)
     if (!gBattleAnimArgs[0])
         battler = GetPartnerBattler(gBattleAnimAttacker);
     else
-        battler = GetPartnerBattler(gBattleAnimTarget);
+        battler = GetAnimTargetPartner();
 
     monSpriteId = gBattlerSpriteIds[battler];
     if (!IsOnPlayerSide(battler))
@@ -854,12 +854,12 @@ void AnimTask_SlideOffScreen(u8 taskId)
         spriteId = gBattlerSpriteIds[GetPartnerBattler(gBattleAnimAttacker)];
         break;
     case ANIM_DEF_PARTNER:
-        if (!IsBattlerSpriteVisible(GetPartnerBattler(gBattleAnimTarget)))
+        if (!IsBattlerSpriteVisible(GetAnimTargetPartner()))
         {
             DestroyAnimVisualTask(taskId);
             return;
         }
-        spriteId = gBattlerSpriteIds[GetPartnerBattler(gBattleAnimTarget)];
+        spriteId = gBattlerSpriteIds[GetAnimTargetPartner()];
         break;
     default:
         DestroyAnimVisualTask(taskId);

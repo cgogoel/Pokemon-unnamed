@@ -459,8 +459,8 @@ struct FloorShades
 };
 
 // The oval tiles use their own BG palette: a copy of the floor's environment palette with the oval colors added in
-// slots the floor tiles don't use. Palette 6 is only used by the link battle VS screen.
-#define FLOOR_PALETTE 6
+// slots the floor tiles don't use (TRIPLE_FLOOR_BG_PALETTE).
+#define FLOOR_PALETTE TRIPLE_FLOOR_BG_PALETTE
 
 // The oval colors come from the floor's average color: same hue, more saturated, at fixed brightness steps, from a
 // dark base oval to a pale outer section. Out of 32: brightness, then saturation (32 = unchanged).

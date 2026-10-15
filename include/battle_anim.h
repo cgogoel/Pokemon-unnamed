@@ -227,6 +227,7 @@ u8 GetBattleBgPaletteNum(void);
 u8 GetBattlerSpriteBGPriorityRank(enum BattlerId battler);
 bool32 IsBattlerOnAnimBg2(enum BattlerId battler);
 enum BattlerId GetAnimBgPartner(enum BattlerId battler);
+enum BattlerId GetAnimTargetPartner(void);
 void StoreSpriteCallbackInData6(struct Sprite *sprite, void (*callback)(struct Sprite *));
 void SetSpritePrimaryCoordsFromSecondaryCoords(struct Sprite *sprite);
 u8 GetBattlerSpriteDefault_Y(enum BattlerId battler);

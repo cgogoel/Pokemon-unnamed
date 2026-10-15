@@ -323,8 +323,8 @@ u8 GetAnimBattlerSpriteId(enum AnimBattler animBattler)
             return gBattlerSpriteIds[GetPartnerBattler(gBattleAnimAttacker)];
         break;
     case ANIM_DEF_PARTNER:
-        if (IsBattlerSpriteVisible(GetPartnerBattler(gBattleAnimTarget)))
-            return gBattlerSpriteIds[GetPartnerBattler(gBattleAnimTarget)];
+        if (IsBattlerSpriteVisible(GetAnimTargetPartner()))
+            return gBattlerSpriteIds[GetAnimTargetPartner()];
         else
             return SPRITE_NONE;
         break;
@@ -786,13 +786,13 @@ void InitSpritePosToAnimBothTargets(struct Sprite *sprite, bool8 respectMonPicOf
 {
     if (!respectMonPicOffsets)
     {
-        sprite->x = GetBattlerSpriteCoord2(gBattleAnimTarget, BATTLER_COORD_X) + GetBattlerSpriteCoord2(GetPartnerBattler(gBattleAnimTarget), BATTLER_COORD_X);
-        sprite->y = GetBattlerSpriteCoord2(gBattleAnimTarget, BATTLER_COORD_Y) + GetBattlerSpriteCoord2(GetPartnerBattler(gBattleAnimTarget), BATTLER_COORD_Y);
+        sprite->x = GetBattlerSpriteCoord2(gBattleAnimTarget, BATTLER_COORD_X) + GetBattlerSpriteCoord2(GetAnimTargetPartner(), BATTLER_COORD_X);
+        sprite->y = GetBattlerSpriteCoord2(gBattleAnimTarget, BATTLER_COORD_Y) + GetBattlerSpriteCoord2(GetAnimTargetPartner(), BATTLER_COORD_Y);
     }
     else
     {
-        sprite->x = GetBattlerSpriteCoord2(gBattleAnimTarget, BATTLER_COORD_X_2) + GetBattlerSpriteCoord2(GetPartnerBattler(gBattleAnimTarget), BATTLER_COORD_X_2);
-        sprite->y = GetBattlerSpriteCoord2(gBattleAnimTarget, BATTLER_COORD_Y_PIC_OFFSET) + GetBattlerSpriteCoord2(GetPartnerBattler(gBattleAnimTarget), BATTLER_COORD_Y_PIC_OFFSET);
+        sprite->x = GetBattlerSpriteCoord2(gBattleAnimTarget, BATTLER_COORD_X_2) + GetBattlerSpriteCoord2(GetAnimTargetPartner(), BATTLER_COORD_X_2);
+        sprite->y = GetBattlerSpriteCoord2(gBattleAnimTarget, BATTLER_COORD_Y_PIC_OFFSET) + GetBattlerSpriteCoord2(GetAnimTargetPartner(), BATTLER_COORD_Y_PIC_OFFSET);
     }
     sprite->x = sprite->x / 2;
     sprite->y = sprite->y / 2;
@@ -1354,6 +1354,8 @@ u32 GetBattlePalettesMask(bool8 battleBackground, bool8 attacker, bool8 target, 
     {
         if (!IsContest())
             selectedPalettes = 0xe; // Palettes 1, 2, and 3
+        if (IsTripleBattle())
+            selectedPalettes |= 1 << TRIPLE_FLOOR_BG_PALETTE;
         else
             selectedPalettes = 1 << GetBattleBgPaletteNum();
     }
@@ -1377,9 +1379,9 @@ u32 GetBattlePalettesMask(bool8 battleBackground, bool8 attacker, bool8 target, 
     }
     if (targetPartner)
     {
-        if (IsBattlerSpriteVisible(GetPartnerBattler(gBattleAnimTarget)))
+        if (IsBattlerSpriteVisible(GetAnimTargetPartner()))
         {
-            shift = GetPartnerBattler(gBattleAnimTarget) + 16;
+            shift = GetAnimTargetPartner() + 16;
             selectedPalettes |= 1 << shift;
         }
     }
@@ -1971,8 +1973,8 @@ static void UNUSED SetPriorityForVisibleBattlers(u8 priority)
         gSprites[gBattlerSpriteIds[gBattleAnimTarget]].oam.priority = priority;
     if (IsBattlerSpriteVisible(gBattleAnimAttacker))
         gSprites[gBattlerSpriteIds[gBattleAnimAttacker]].oam.priority = priority;
-    if (IsBattlerSpriteVisible(GetPartnerBattler(gBattleAnimTarget)))
-        gSprites[gBattlerSpriteIds[GetPartnerBattler(gBattleAnimTarget)]].oam.priority = priority;
+    if (IsBattlerSpriteVisible(GetAnimTargetPartner()))
+        gSprites[gBattlerSpriteIds[GetAnimTargetPartner()]].oam.priority = priority;
     if (IsBattlerSpriteVisible(GetPartnerBattler(gBattleAnimAttacker)))
         gSprites[gBattlerSpriteIds[GetPartnerBattler(gBattleAnimAttacker)]].oam.priority = priority;
 }
@@ -2044,6 +2046,21 @@ u8 GetBattlerSpriteBGPriorityRank(enum BattlerId battler)
     return IsBattlerOnAnimBg2(battler) ? 2 : 1;
 }
 
+// The battler animations treat as the target's partner. In a triple battle's 2-target move that's the move's other
+// target, so the animation follows the two Pokémon actually hit.
+enum BattlerId GetAnimTargetPartner(void)
+{
+    if (IsTripleBattle() && !IsContest())
+    {
+        enum BattlerId attacker = gBattleAnimAttacker;
+        if (GetTripleMoveInfo(gAnimMoveIndex)->aoe == 2
+         && gBattleStruct->tripleMainTarget[attacker] == gBattleAnimTarget
+         && gBattleStruct->tripleHitSecond[attacker] < gBattlersCount)
+            return gBattleStruct->tripleHitSecond[attacker];
+    }
+    return GetPartnerBattler(gBattleAnimTarget);
+}
+
 // Whether monbg puts the battler on BG2 (or BG1). Triple battles go by where the battler stands on screen.
 bool32 IsBattlerOnAnimBg2(enum BattlerId battler)
 {
@@ -2058,7 +2075,7 @@ bool32 IsBattlerOnAnimBg2(enum BattlerId battler)
 enum BattlerId GetAnimBgPartner(enum BattlerId battler)
 {
     if (IsTripleBattle())
-        return GetPartnerBattler(battler);
+        return (battler == gBattleAnimTarget) ? GetAnimTargetPartner() : GetPartnerBattler(battler);
     return battler ^ BIT_FLANK;
 }
 
@@ -2223,8 +2240,9 @@ void SetAverageBattlerPositions(enum BattlerId battler, bool8 respectMonPicOffse
     battlerY = GetBattlerSpriteCoord(battler, yCoordType);
     if (IsDoubleBattle() && !IsContest())
     {
-        partnerX = GetBattlerSpriteCoord(GetPartnerBattler(battler), xCoordType);
-        partnerY = GetBattlerSpriteCoord(GetPartnerBattler(battler), yCoordType);
+        enum BattlerId partner = (battler == gBattleAnimTarget) ? GetAnimTargetPartner() : GetPartnerBattler(battler);
+        partnerX = GetBattlerSpriteCoord(partner, xCoordType);
+        partnerY = GetBattlerSpriteCoord(partner, yCoordType);
     }
     else
     {

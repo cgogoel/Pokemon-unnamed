@@ -1206,7 +1206,7 @@ enum BattlerId GetAnimBattlerId(enum AnimBattler wantedBattler)
     case ANIM_ATK_PARTNER:
         return GetPartnerBattler(gBattleAnimAttacker);
     case ANIM_DEF_PARTNER:
-        return GetPartnerBattler(gBattleAnimTarget);
+        return GetAnimTargetPartner();
     case ANIM_PLAYER_LEFT ... ANIM_OPPONENT_RIGHT:
         return wantedBattler - MAX_BATTLERS_COUNT;
     }
@@ -1437,7 +1437,7 @@ static void Cmd_clearmonbg(void)
     if (sMonAnimTaskIdArray[0] != TASK_NONE)
         gSprites[gBattlerSpriteIds[battler]].invisible = FALSE;
     if (animBattlerId > 1 && sMonAnimTaskIdArray[1] != TASK_NONE)
-        gSprites[gBattlerSpriteIds[GetPartnerBattler(battler)]].invisible = FALSE;
+        gSprites[gBattlerSpriteIds[GetAnimBgPartner(battler)]].invisible = FALSE;
     else
         animBattlerId = 0;
 
@@ -1529,8 +1529,8 @@ static void Cmd_clearmonbg_static(void)
 
     if (IsBattlerSpriteVisible(battler))
         gSprites[gBattlerSpriteIds[battler]].invisible = FALSE;
-    if (animBattlerId > 1 && IsBattlerSpriteVisible(GetPartnerBattler(battler)))
-        gSprites[gBattlerSpriteIds[GetPartnerBattler(battler)]].invisible = FALSE;
+    if (animBattlerId > 1 && IsBattlerSpriteVisible(GetAnimBgPartner(battler)))
+        gSprites[gBattlerSpriteIds[GetAnimBgPartner(battler)]].invisible = FALSE;
     else
         animBattlerId = 0;
 
@@ -1552,7 +1552,7 @@ static void Task_ClearMonBgStatic(u8 taskId)
 
         if (IsBattlerSpriteVisible(battler))
             ResetBattleAnimBg(toBG_2);
-        if (gTasks[taskId].data[0] > 1 && IsBattlerSpriteVisible(GetPartnerBattler(battler)))
+        if (gTasks[taskId].data[0] > 1 && IsBattlerSpriteVisible(GetAnimBgPartner(battler)))
             ResetBattleAnimBg(toBG_2 ^ 1);
 
         DestroyTask(taskId);

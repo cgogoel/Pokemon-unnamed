@@ -59,7 +59,7 @@ Shown with each move in the battle move menu, before the move type (`ShowTripleM
 - Floor (`DrawTripleBattleFloor`): nested ovals along each team's diagonal on top of the location's background, with
   the 1v1 platforms painted out. A solid base oval under the rear Pokémon, a half-shaded section out to the middle one
   and an outlined outer ring out to the front one. Colors come from the location's floor color (same hue,
-  more saturated, dark base oval to pale outer section; `sFloorShadeSteps`). The oval tiles use BG palette 6, a copy of
+  more saturated, dark base oval to pale outer section; `sFloorShadeSteps`). The oval tiles use BG palette 7 (`TRIPLE_FLOOR_BG_PALETTE`), a copy of
   the floor palette with these colors added. Not drawn while a terrain (Electric Terrain...) replaces the background.
 
 ### HP bars and name tags

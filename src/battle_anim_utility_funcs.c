@@ -90,7 +90,7 @@ void AnimTask_BlendBattleAnimPalExclude(u8 taskId)
         break;
     case ANIM_OPPONENT_RIGHT:
         selectedPalettes = 0;
-        animBattlers[0] = GetPartnerBattler(gBattleAnimTarget);
+        animBattlers[0] = GetAnimTargetPartner();
         break;
     }
 

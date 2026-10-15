@@ -57,6 +57,7 @@ static void PlayerHandleTrainerSlideBack(enum BattlerId battler);
 static void PlayerHandlePaletteFade(enum BattlerId battler);
 static void PlayerHandlePause(enum BattlerId battler);
 static void PlayerHandleChooseAction(enum BattlerId battler);
+static void StepTowardTriplePickedActor(enum BattlerId battler);
 static void PlayerHandleYesNoBox(enum BattlerId battler);
 static void PlayerHandleChooseItem(enum BattlerId battler);
 static void PlayerHandleChoosePokemon(enum BattlerId battler);
@@ -370,15 +371,19 @@ static void HandleInputChooseAction(enum BattlerId battler)
             ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
         }
     }
-    else if (IsTripleBattle() && JOY_NEW(R_BUTTON))
+    else if (IsTripleBattle() && JOY_NEW(L_BUTTON | R_BUTTON))
     {
-        // Triple battles: this Pokémon doesn't act, the next one chooses.
-        PlaySE(SE_SELECT);
-        TryHideLastUsedBall();
-        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_PASS, 0);
-        BtlController_Complete(battler);
+        // Triple battles: pick the Pokémon to the left / right on screen to act instead
+        enum BattlerId picked = GetTripleScreenNeighbor(battler, JOY_NEW(R_BUTTON) ? 1 : -1);
+        if (picked != MAX_BATTLERS_COUNT)
+        {
+            PlaySE(SE_SELECT);
+            TryHideLastUsedBall();
+            gBattleStruct->triplePickedActor = picked + 1;
+            StepTowardTriplePickedActor(battler);
+        }
     }
-    else if (IsTripleBattle() && JOY_NEW(L_BUTTON))
+    else if (IsTripleBattle() && JOY_NEW(SELECT_BUTTON))
     {
         // Triple battles: move this Pokémon one spot forward in the formation. Free; the same Pokémon chooses again.
         PlaySE(SE_SELECT);
@@ -2066,9 +2071,32 @@ static void HandleChooseActionAfterDma3(enum BattlerId battler)
     }
 }
 
+// Triple battles: the engine asks the player's Pokémon in a fixed order. Until the one picked with L/R is asked, each
+// one asked passes (picked one later) or hands back to the one before it (picked one earlier).
+static void StepTowardTriplePickedActor(enum BattlerId battler)
+{
+    enum BattlerId picked = gBattleStruct->triplePickedActor - 1;
+
+    if (DoesTripleBattlerChooseLater(battler, picked))
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_PASS, 0);
+    else
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_CANCEL_PARTNER, 0);
+    BtlController_Complete(battler);
+}
+
 static void PlayerHandleChooseAction(enum BattlerId battler)
 {
     s32 i;
+
+    if (IsTripleBattle() && gBattleStruct->triplePickedActor != 0)
+    {
+        if (gBattleStruct->triplePickedActor - 1 != battler)
+        {
+            StepTowardTriplePickedActor(battler);
+            return;
+        }
+        gBattleStruct->triplePickedActor = 0;
+    }
 
     gBattlerControllerFuncs[battler] = HandleChooseActionAfterDma3;
     BattleTv_ClearExplosionFaintCause();
@@ -2080,7 +2108,21 @@ static void PlayerHandleChooseAction(enum BattlerId battler)
     TryRestoreLastUsedBall();
     ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
     PREPARE_MON_NICK_BUFFER(gBattleTextBuff1, battler, gBattlerPartyIndexes[battler]);
-    BattleStringExpandPlaceholdersToDisplayedString(gText_WhatWillPkmnDo);
+    if (IsTripleBattle())
+    {
+        // Two lines: the question, then the L/R and Select hints. Long names use a narrower font.
+        u8 nickname[POKEMON_NAME_LENGTH + 1];
+        GetMonData(GetBattlerMon(battler), MON_DATA_NICKNAME, nickname);
+        StringGet_Nickname(nickname);
+        if (GetStringWidth(FONT_NARROW, nickname, 0) > 48)
+            BattleStringExpandPlaceholdersToDisplayedString(gText_WhatWillPkmnDoTripleLongName);
+        else
+            BattleStringExpandPlaceholdersToDisplayedString(gText_WhatWillPkmnDoTriple);
+    }
+    else
+    {
+        BattleStringExpandPlaceholdersToDisplayedString(gText_WhatWillPkmnDo);
+    }
 
     enum BattlerId partner = GetBattlerAtPosition(B_POSITION_PLAYER_RIGHT);
     if (B_SHOW_PARTNER_TARGET && gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER && IsBattlerAlive(partner))

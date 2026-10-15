@@ -69,9 +69,12 @@ Shown with each move in the battle move menu, before the move type (`ShowTripleM
 - These keep sprite memory free for move animations: six full healthboxes left too little.
 
 ### Player controls (action menu)
-- **R**: this Pokémon passes; the next one (left → middle → right) chooses.
-- **L**: move this Pokémon one spot forward in the formation (front wraps to back). Free.
-- **B** (middle/right): go back to the previous Pokémon.
+The prompt reads "What will Pikachu do?" with a hint line: `L R Pick`, `SELECT Order`.
+- **L / R**: pick the Pokémon to the left / right on screen (toward the rear / the front) to act instead; wraps around.
+  The engine still asks the side's Pokémon in battler order; the ones not picked pass or hand the choice back
+  automatically (`StepTowardTriplePickedActor`).
+- **SELECT**: move the selected Pokémon one spot forward in the formation (front wraps to back). Free.
+- **B** (middle/right): go back to the previous Pokémon in the engine's order.
 - Moves: FRONT and 3-target moves skip target selection; 2-target ANY moves pick two different foes.
 
 ### Trying it

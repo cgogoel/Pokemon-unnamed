@@ -3799,7 +3799,10 @@ static bool32 DoesTripleSideAlreadyHaveActor(enum BattlerId battler)
             continue;
         if (gBattleMons[i].volatiles.multipleTurns || gBattleMons[i].volatiles.rechargeTimer > 0)
             return TRUE;
+        // A battler that handed the choice back (STATE_WAIT_SET_BEFORE_ACTION) isn't acting
         if (gBattleCommunication[i] >= STATE_WAIT_ACTION_CASE_CHOSEN
+         && gBattleCommunication[i] != STATE_WAIT_SET_BEFORE_ACTION
+         && gChosenActionByBattler[i] != B_ACTION_CANCEL_PARTNER
          && gChosenActionByBattler[i] != B_ACTION_PASS
          && gChosenActionByBattler[i] != B_ACTION_NOTHING_FAINTED
          && gChosenActionByBattler[i] != B_ACTION_NONE)

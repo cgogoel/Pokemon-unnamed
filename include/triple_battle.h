@@ -55,6 +55,8 @@ bool32 IsTripleTwoTargetChoiceMove(enum Move move);
 enum TripleTargetChoice GetTripleTargetChoice(enum Move move, enum MoveTarget canonTarget);
 enum BattlerId GetTriplePreviousChoosingBattler(enum BattlerId battler);
 u8 GetTripleFormationMovingUp(enum BattlerId battler);
+bool32 DoesTripleBattlerChooseLater(enum BattlerId battlerFrom, enum BattlerId battlerTo);
+enum BattlerId GetTripleScreenNeighbor(enum BattlerId battler, s32 step);
 void UpdateTripleFormationGraphics(enum BattleSide side);
 enum BattlerId GetTripleFoeAtRank(enum BattlerId battlerAtk, u32 aliveIndex);
 enum MoveTarget GetTripleMoveTargetType(enum Move move, enum MoveTarget canonTarget);

@@ -138,6 +138,44 @@ enum BattlerId GetTriplePreviousChoosingBattler(enum BattlerId battler)
     return MAX_BATTLERS_COUNT;
 }
 
+// Order in which a side's battlers choose their action.
+static s32 GetTripleChoosingIndex(enum BattlerId battler)
+{
+    enum BattlerPosition position = GetBattlerPosition(battler);
+    if ((position & ~BIT_SIDE) == B_POSITION_PLAYER_LEFT)
+        return 0;
+    if ((position & ~BIT_SIDE) == B_POSITION_PLAYER_MIDDLE)
+        return 1;
+    return 2;
+}
+
+// Whether battlerTo chooses after battlerFrom.
+bool32 DoesTripleBattlerChooseLater(enum BattlerId battlerFrom, enum BattlerId battlerTo)
+{
+    return GetTripleChoosingIndex(battlerTo) > GetTripleChoosingIndex(battlerFrom);
+}
+
+// The ally on screen to the left (step = -1, toward the rear) or right (step = 1, toward the front), wrapping around;
+// MAX_BATTLERS_COUNT if there's none.
+enum BattlerId GetTripleScreenNeighbor(enum BattlerId battler, s32 step)
+{
+    enum BattleSide side = GetBattlerSide(battler);
+    const enum BattlerPosition spots[TRIPLE_RANK_COUNT] = { B_POSITION_PLAYER_LEFT | side, B_POSITION_PLAYER_MIDDLE | side, B_POSITION_PLAYER_RIGHT | side };
+    s32 index;
+
+    for (index = 0; index < TRIPLE_RANK_COUNT && GetBattlerAtLayoutPosition(spots[index]) != battler; index++)
+        ;
+    if (index == TRIPLE_RANK_COUNT)
+        return MAX_BATTLERS_COUNT;
+    for (s32 i = 1; i < TRIPLE_RANK_COUNT; i++)
+    {
+        enum BattlerId neighbor = GetBattlerAtLayoutPosition(spots[(index + step * i + 2 * TRIPLE_RANK_COUNT) % TRIPLE_RANK_COUNT]);
+        if (neighbor < gBattlersCount && !(gAbsentBattlerFlags & (1u << neighbor)) && IsBattlerAlive(neighbor))
+            return neighbor;
+    }
+    return MAX_BATTLERS_COUNT;
+}
+
 // The formation after moving a battler one spot forward (the near battler wraps around to the far spot).
 u8 GetTripleFormationMovingUp(enum BattlerId battler)
 {

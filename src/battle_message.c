@@ -1470,6 +1470,9 @@ const u8 gText_PkmnStoppedEvolving[] = _("Huh? {STR_VAR_1}\nstopped evolving!\p"
 const u8 gText_EllipsisQuestionMark[] = _("……?\p");
 const u8 gText_WhatWillPkmnDo[] = _("What will\n{B_BUFF1} do?");
 const u8 gText_WhatWillPkmnDo2[] = _("What will\n{B_PLAYER_NAME} do?");
+// Triple battles: L/R pick which Pokémon acts, Select moves it forward in the formation
+const u8 gText_WhatWillPkmnDoTriple[] = _("{FONT_NARROW}What will {B_BUFF1} do?\n{L_BUTTON}{R_BUTTON}Pick {SELECT_BUTTON}Order");
+const u8 gText_WhatWillPkmnDoTripleLongName[] = _("{FONT_NARROWER}What will {B_BUFF1} do?\n{FONT_NARROW}{L_BUTTON}{R_BUTTON}Pick {SELECT_BUTTON}Order");
 const u8 gText_WhatWillWallyDo[] = _("What will\nWALLY do?");
 const u8 gText_LinkStandby[] = _("{PAUSE 16}Link standby…");
 const u8 gText_BattleMenu[] = _("Battle{CLEAR_TO 56}Bag\nPokémon{CLEAR_TO 56}Run");

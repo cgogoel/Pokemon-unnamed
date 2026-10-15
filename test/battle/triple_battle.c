@@ -150,6 +150,53 @@ TRIPLE_BATTLE_TEST("Triple battles: 2-target ANY moves hit the two chosen foes")
     }
 }
 
+TRIPLE_BATTLE_TEST("Triple battles: 2-target ANY moves aimed at the front or rear foe also hit the middle foe")
+{
+    s16 mainDamage, secondDamage;
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_ROCK_SLIDE)->aoe == 2);
+        TRIPLE_PARTIES
+    } WHEN {
+        // The rear foe isn't next to the front one, so the middle foe is hit instead
+        TURN { MOVE(playerLeft, MOVE_ROCK_SLIDE, target: opponentLeft, secondTarget: opponentMiddle, WITH_RNG(RNG_HOLD_EFFECT_FLINCH, FALSE)); }
+    } SCENE {
+        HP_BAR(opponentLeft, captureDamage: &mainDamage);
+        HP_BAR(opponentRight, captureDamage: &secondDamage);
+        NOT HP_BAR(opponentMiddle);
+    } THEN {
+        EXPECT_MUL_EQ(mainDamage, UQ_4_12(0.5), secondDamage);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: 2-target ANY moves aimed at the middle foe hit the chosen neighbour")
+{
+    bool32 pickRear;
+    PARAMETRIZE { pickRear = FALSE; }
+    PARAMETRIZE { pickRear = TRUE; }
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_ROCK_SLIDE)->aoe == 2);
+        TRIPLE_PARTIES
+    } WHEN {
+        if (pickRear)
+            TURN { MOVE(playerLeft, MOVE_ROCK_SLIDE, target: opponentRight, secondTarget: opponentMiddle, WITH_RNG(RNG_HOLD_EFFECT_FLINCH, FALSE)); }
+        else // No pick: the front foe
+            TURN { MOVE(playerLeft, MOVE_ROCK_SLIDE, target: opponentRight, WITH_RNG(RNG_HOLD_EFFECT_FLINCH, FALSE)); }
+    } SCENE {
+        if (pickRear)
+        {
+            HP_BAR(opponentRight);
+            HP_BAR(opponentMiddle);
+            NOT HP_BAR(opponentLeft);
+        }
+        else
+        {
+            HP_BAR(opponentLeft);
+            HP_BAR(opponentRight);
+            NOT HP_BAR(opponentMiddle);
+        }
+    }
+}
+
 TRIPLE_BATTLE_TEST("Triple battles: 3-target moves hit every foe for 75%")
 {
     s16 spreadDamage[3];
@@ -407,5 +454,21 @@ AI_TRIPLE_BATTLE_TEST("Triple battles: the AI doesn't aim FRONT moves past the f
         OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
     } WHEN {
         TURN { EXPECT_MOVE(opponentLeft, MOVE_TACKLE, target: playerLeft); }
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: the send out message names all three Pokémon")
+{
+    GIVEN {
+        PLAYER(SPECIES_PIKACHU);
+        PLAYER(SPECIES_MACHAMP);
+        PLAYER(SPECIES_VENUSAUR);
+        OPPONENT(SPECIES_SNORLAX);
+        OPPONENT(SPECIES_ALAKAZAM);
+        OPPONENT(SPECIES_ARCANINE);
+    } WHEN {
+        TURN {}
+    } SCENE {
+        MESSAGE("Go! Pikachu, Machamp and Venusaur!");
     }
 }

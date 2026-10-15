@@ -60,6 +60,7 @@ enum BattlerId GetTripleScreenNeighbor(enum BattlerId battler, s32 step);
 void UpdateTripleFormationGraphics(enum BattleSide side);
 enum BattlerId GetTripleFoeAtRank(enum BattlerId battlerAtk, u32 aliveIndex);
 enum MoveTarget GetTripleMoveTargetType(enum Move move, enum MoveTarget canonTarget);
+u32 GetTripleSecondTargetChoices(enum BattlerId battlerAtk, enum BattlerId mainTarget, enum BattlerId *choices);
 enum BattlerId SetTripleMoveTargets(enum BattlerId battlerAtk, enum Move move, enum BattlerId battlerDef);
 void MarkTripleExcludedTargets(enum BattlerId battlerAtk, enum Move move);
 u32 CountTripleSpreadTargets(enum BattlerId battlerAtk);

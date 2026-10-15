@@ -466,9 +466,16 @@ static bool32 IsValidTargetForCursor(enum BattlerId battler, enum BattlerId targ
         return FALSE;
     if (IsTripleBattle() && IsTripleTwoTargetChoiceMove(move))
     {
-        // Both targets of a 2-target move are foes, and different ones.
-        if (IsBattlerAlly(battler, target) || target + 1 == gBattleStruct->tripleFirstTarget[battler])
+        // 2-target moves aim at foes; the second target is a neighbour of the first in the foes' line.
+        if (IsBattlerAlly(battler, target))
             return FALSE;
+        if (gBattleStruct->tripleFirstTarget[battler] != 0)
+        {
+            enum BattlerId choices[2];
+            u32 count = GetTripleSecondTargetChoices(battler, gBattleStruct->tripleFirstTarget[battler] - 1, choices);
+            if (!((count > 0 && choices[0] == target) || (count > 1 && choices[1] == target)))
+                return FALSE;
+        }
     }
     return TRUE;
 }
@@ -586,12 +593,19 @@ void HandleInputChooseTarget(enum BattlerId battler)
         PlaySE(SE_SELECT);
         if (IsTripleBattle() && IsTripleTwoTargetChoiceMove(move) && gBattleStruct->tripleFirstTarget[battler] == 0)
         {
-            // First of two targets: keep it highlighted and pick the second one.
-            gBattleStruct->tripleFirstTarget[battler] = gMultiUsePlayerCursor + 1;
-            EndBounceEffect(gMultiUsePlayerCursor, BOUNCE_HEALTHBOX);
-            MoveTargetCursor(battler, move, moveTarget, 1);
-            gSprites[gBattlerSpriteIds[gMultiUsePlayerCursor]].callback = SpriteCB_ShowAsMoveTarget;
-            return;
+            // The second target is next to the first in the foes' line. Only the middle foe has two neighbours, so
+            // only then does the player pick the second target (the front or the rear foe).
+            enum BattlerId choices[2];
+            if (GetTripleSecondTargetChoices(battler, gMultiUsePlayerCursor, choices) == 2)
+            {
+                gBattleStruct->tripleFirstTarget[battler] = gMultiUsePlayerCursor + 1;
+                EndBounceEffect(gMultiUsePlayerCursor, BOUNCE_HEALTHBOX);
+                gMultiUsePlayerCursor = choices[0];
+                if (B_SHOW_EFFECTIVENESS)
+                    MoveSelectionDisplayMoveEffectiveness(CheckTypeEffectiveness(battler, gMultiUsePlayerCursor), battler);
+                gSprites[gBattlerSpriteIds[gMultiUsePlayerCursor]].callback = SpriteCB_ShowAsMoveTarget;
+                return;
+            }
         }
         if (IsTripleBattle() && gBattleStruct->tripleFirstTarget[battler] != 0)
         {

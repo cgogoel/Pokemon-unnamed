@@ -1531,8 +1531,8 @@ u8 CreatePartyStatusSummarySprites(enum BattlerId battler, struct HpAndStatus *p
         {
             isOpponent = FALSE;
             bar_X = 136;
-            if (IsTripleBattle()) // In the empty band between the two teams' floor ovals
-                bar_Y = 72;
+            if (IsTripleBattle()) // In the empty band between the two teams' floor ovals, under the foe trainer's feet
+                bar_Y = 80;
             else if (BattleSideHasTwoTrainers(B_SIDE_PLAYER))
                 bar_Y = GetBattlerPosition(battler) == B_POSITION_PLAYER_LEFT ? 90 : 106;
             else

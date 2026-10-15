@@ -26,7 +26,8 @@ Custom battle mode for Act 2 onward. Not the Gen 5 Triple Battle: **only one Pok
 - Each move hits **1**, **2** or **3** foes.
   - **2:** the main target takes full damage, the second takes **50%**.
     - Reach `ANY` (lore says it can come from any direction: wind/Flying, electric, psychic, sound, falling from above, homing):
-      the player picks both targets.
+      the second target is next to the main one in the foes' line. Aiming at the front or rear foe also hits the middle
+      foe; aiming at the middle foe, the player picks the front or the rear one (the front one by default, e.g. for the AI).
     - Reach `FRONT` (travels out from the user, e.g. fire, seeds, sprays): always hits the front and middle foes, no choice.
   - **3:** hits all foes for **75%** each.
   - No move hits the user's own allies: canon ally-hitting moves (Earthquake, Surf, Explosion, ...) hit only the 3 foes.
@@ -75,7 +76,8 @@ The prompt reads "What will Pikachu do?" with a hint line: `L R Pick`, `SELECT O
   automatically (`StepTowardTriplePickedActor`).
 - **SELECT**: move the selected Pokémon one spot forward in the formation (front wraps to back). Free.
 - **B** (middle/right): go back to the previous Pokémon in the engine's order.
-- Moves: FRONT and 3-target moves skip target selection; 2-target ANY moves pick two different foes.
+- Moves: FRONT and 3-target moves skip target selection; 2-target ANY moves aimed at the middle foe then pick the front
+  or rear one.
 - Target cursor: Left/Right move along a row of Pokémon by their place on screen, Up/Down switch between the foes' row
   and the player's.
 

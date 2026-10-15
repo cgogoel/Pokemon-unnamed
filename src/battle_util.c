@@ -1,5 +1,6 @@
 #include "global.h"
 #include "battle.h"
+#include "debug.h"
 #include "battle_anim.h"
 #include "battle_anim_scripts.h"
 #include "battle_arena.h"
@@ -5683,6 +5684,8 @@ enum Obedience GetAttackerObedienceForAction(void)
     if (gBattleTypeFlags & BATTLE_TYPE_FRONTIER)
         return OBEYS;
     if (gBattleTypeFlags & BATTLE_TYPE_RECORDED)
+        return OBEYS;
+    if (DEBUG_OVERWORLD_MENU && gIsDebugBattle) // The debug menu's party always obeys
         return OBEYS;
     if (B_OBEDIENCE_MECHANICS < GEN_8 && !IsOtherTrainer(gBattleMons[gBattlerAttacker].otId, gBattleMons[gBattlerAttacker].otName))
         return OBEYS;

@@ -748,17 +748,15 @@ bool8 BattleLoadAllHealthBoxesGfx(u8 state)
 
     if (IsTripleBattle())
     {
-        switch (state)
-        {
-        case 2 ... 7:
-            spriteSheet = &sSpriteSheets_TriplesHealthbox[state - 2];
-            break;
-        case 8 ... 13:
-            spriteSheet = &sSpriteSheets_HealthBar[GetBattlerPosition((enum BattlerId)(state - 8))];
-            break;
-        default:
+        // A healthbox per battler, then an HP bar per battler (4 battlers in 2v2, 6 in 3v3).
+        // The healthbox sheets are player 1-3 then opponent 1-3; 2v2 has no third one on either side.
+        static const u8 sHealthboxSheets2v2[] = { 0, 1, 3, 4 };
+        if (state - 2 < gBattlersCount)
+            spriteSheet = &sSpriteSheets_TriplesHealthbox[HasTripleMiddleBattlers() ? state - 2 : sHealthboxSheets2v2[state - 2]];
+        else if (state - 2 - gBattlersCount < gBattlersCount)
+            spriteSheet = &sSpriteSheets_HealthBar[GetBattlerPosition((enum BattlerId)(state - 2 - gBattlersCount))];
+        else
             return TRUE;
-        }
     }
     else if (IsDoubleBattle())
     {
@@ -1260,7 +1258,7 @@ void LoadAndCreateEnemyShadowSprites(void)
         CreateEnemyShadowSprite(battler);
     }
 
-    if (IsTripleBattle())
+    if (HasTripleMiddleBattlers())
     {
         battler = GetBattlerAtPosition(B_POSITION_OPPONENT_MIDDLE);
         CreateEnemyShadowSprite(battler);

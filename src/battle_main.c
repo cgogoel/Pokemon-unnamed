@@ -4680,7 +4680,7 @@ s32 GetWhichBattlerFasterOrTies(struct BattleCalcValues *calcValues, bool32 igno
 // Number of battlers the speed tie permutation covers. Doubles and singles keep the original 4 so their RNG is unchanged.
 static u32 GetSpeedTieBattlerCount(void)
 {
-    return IsTripleBattle() ? MAX_BATTLERS_COUNT : 4;
+    return HasTripleMiddleBattlers() ? MAX_BATTLERS_COUNT : 4;
 }
 
 // gBattleStruct->speedTieBreaks is a permutation index (Lehmer code) chosen at the start of the turn.

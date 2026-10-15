@@ -243,6 +243,8 @@ static void InvokeTestFunction(const struct BattleTest *test)
         break;
     case BATTLE_TEST_DOUBLES:
     case BATTLE_TEST_AI_DOUBLES:
+    case BATTLE_TEST_TRIPLES_2V2:
+    case BATTLE_TEST_AI_TRIPLES_2V2:
         DATA.battlerTrainers |= B_TRAINER_OPPONENT_A << 6;
         InvokeDoubleTestFunctionWithStack(STATE->results, STATE->runParameter, &gBattleMons[B_POSITION_PLAYER_LEFT], &gBattleMons[B_POSITION_OPPONENT_LEFT], &gBattleMons[B_POSITION_PLAYER_RIGHT], &gBattleMons[B_POSITION_OPPONENT_RIGHT], test->function.doubles, &DATA.stack[BATTLE_TEST_STACK_SIZE]);
         break;
@@ -285,6 +287,7 @@ bool32 IsAITest(void)
     case BATTLE_TEST_AI_TWO_VS_ONE:
     case BATTLE_TEST_AI_ONE_VS_TWO:
     case BATTLE_TEST_AI_TRIPLES:
+    case BATTLE_TEST_AI_TRIPLES_2V2:
         return TRUE;
     }
     return FALSE;
@@ -292,7 +295,15 @@ bool32 IsAITest(void)
 
 static bool32 IsTripleTest(void)
 {
-    return GetBattleTest()->type == BATTLE_TEST_TRIPLES || GetBattleTest()->type == BATTLE_TEST_AI_TRIPLES;
+    switch (GetBattleTest()->type)
+    {
+    case BATTLE_TEST_TRIPLES:
+    case BATTLE_TEST_AI_TRIPLES:
+    case BATTLE_TEST_TRIPLES_2V2:
+    case BATTLE_TEST_AI_TRIPLES_2V2:
+        return TRUE;
+    }
+    return FALSE;
 }
 
 static bool32 IsAIDoublesTest(void)
@@ -328,6 +339,8 @@ static void InitTestBattlers(const struct BattleTest *test)
     case BATTLE_TEST_AI_TWO_VS_ONE:
     case BATTLE_TEST_ONE_VS_TWO:
     case BATTLE_TEST_AI_ONE_VS_TWO:
+    case BATTLE_TEST_TRIPLES_2V2:
+    case BATTLE_TEST_AI_TRIPLES_2V2:
         STATE->battlersCount = 4;
         break;
     case BATTLE_TEST_TRIPLES:
@@ -544,6 +557,21 @@ static void BattleTest_Run(void *data)
         DATA.recordedBattle.battleFlags = BATTLE_TYPE_IS_MASTER | BATTLE_TYPE_RECORDED_IS_MASTER | BATTLE_TYPE_RECORDED_LINK | BATTLE_TYPE_TRAINER | BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE;
         DATA.recordedBattle.opponentA = TRAINER_LINK_OPPONENT;
         DATA.recordedBattle.opponentB = TRAINER_NONE;
+        for (i = 0; i < STATE->battlersCount; i++)
+            DATA.currentMonIndexes[i] = i / 2;
+        break;
+    case BATTLE_TEST_TRIPLES_2V2:
+        DATA.recordedBattle.battleFlags = BATTLE_TYPE_IS_MASTER | BATTLE_TYPE_RECORDED_IS_MASTER | BATTLE_TYPE_RECORDED_LINK | BATTLE_TYPE_TRAINER | BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE | BATTLE_TYPE_TRIPLE_2V2;
+        DATA.recordedBattle.opponentA = TRAINER_LINK_OPPONENT;
+        DATA.recordedBattle.opponentB = TRAINER_NONE;
+        for (i = 0; i < STATE->battlersCount; i++)
+            DATA.currentMonIndexes[i] = i / 2;
+        break;
+    case BATTLE_TEST_AI_TRIPLES_2V2:
+        DATA.recordedBattle.battleFlags = BATTLE_TYPE_IS_MASTER | BATTLE_TYPE_TRAINER | BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE | BATTLE_TYPE_TRIPLE_2V2;
+        DATA.recordedBattle.opponentA = TRAINER_LEAF_TEST;
+        DATA.recordedBattle.opponentB = TRAINER_NONE;
+        DATA.hasAI = TRUE;
         for (i = 0; i < STATE->battlersCount; i++)
             DATA.currentMonIndexes[i] = i / 2;
         break;
@@ -2870,6 +2898,8 @@ static const char *BattlerIdentifier(enum BattlerId battlerId)
     case BATTLE_TEST_AI_TWO_VS_ONE:
     case BATTLE_TEST_ONE_VS_TWO:
     case BATTLE_TEST_AI_ONE_VS_TWO:
+    case BATTLE_TEST_TRIPLES_2V2:
+    case BATTLE_TEST_AI_TRIPLES_2V2:
         return sBattlerIdentifiersDoubles[battlerId];
     case BATTLE_TEST_TRIPLES:
     case BATTLE_TEST_AI_TRIPLES:
@@ -3009,10 +3039,16 @@ static void CloseTripleTurn(u32 sourceLine)
 {
     for (enum BattleSide side = B_SIDE_PLAYER; side < NUM_BATTLE_SIDES; side++)
     {
-        const enum BattlerId order[] = { B_POSITION_PLAYER_LEFT | side, B_POSITION_PLAYER_MIDDLE | side, B_POSITION_PLAYER_RIGHT | side };
+        enum BattlerId order[TRIPLE_RANK_COUNT];
+        u32 orderCount = 0;
         s32 actorIndex = -1;
 
-        for (u32 j = 0; j < ARRAY_COUNT(order); j++)
+        order[orderCount++] = B_POSITION_PLAYER_LEFT | side;
+        if (STATE->battlersCount == MAX_BATTLERS_COUNT)
+            order[orderCount++] = B_POSITION_PLAYER_MIDDLE | side;
+        order[orderCount++] = B_POSITION_PLAYER_RIGHT | side;
+
+        for (u32 j = 0; j < orderCount; j++)
         {
             if (DATA.actionBattlers & (1 << order[j]))
             {
@@ -3675,19 +3711,23 @@ static void DumpScreen(void)
 
 void Formation(u32 sourceLine, struct BattlePokemon *near, struct BattlePokemon *middle, struct BattlePokemon *far)
 {
-    enum BattlerId battlers[TRIPLE_RANK_COUNT] = { near - gBattleMons, middle - gBattleMons, far - gBattleMons };
+    // In 2v2 (middle == NULL) the ranks are near = 0 and far = 1
+    bool32 twoPerSide = (middle == NULL);
+    enum BattlerId battlers[TRIPLE_RANK_COUNT] = { near - gBattleMons, twoPerSide ? far - gBattleMons : middle - gBattleMons, far - gBattleMons };
+    u32 size = twoPerSide ? 2 : TRIPLE_RANK_COUNT;
     enum BattleSide side = battlers[0] & BIT_SIDE;
     enum BattlerId left = B_POSITION_PLAYER_LEFT | side;
     u8 ranks[MAX_BATTLERS_COUNT] = {0};
 
     INVALID_IF(!IsTripleTest(), "FORMATION is only used in triple battles");
+    INVALID_IF(twoPerSide != (STATE->battlersCount != MAX_BATTLERS_COUNT), "Use FORMATION in 3v3 and FORMATION_2V2 in 2v2");
     INVALID_IF(DATA.turnState == TURN_CLOSED, "FORMATION outside TURN");
     INVALID_IF((battlers[1] & BIT_SIDE) != side || (battlers[2] & BIT_SIDE) != side, "FORMATION battlers must be on the same side");
-    INVALID_IF(battlers[0] == battlers[1] || battlers[0] == battlers[2] || battlers[1] == battlers[2], "FORMATION battlers must be different");
+    INVALID_IF(battlers[0] == battlers[size - 1] || (!twoPerSide && (battlers[0] == battlers[1] || battlers[1] == battlers[2])), "FORMATION battlers must be different");
     INVALID_IF(DATA.actionBattlers & (1 << left), "FORMATION must come before the side's MOVE, SWITCH or USE_ITEM");
 
-    for (enum TripleFormationRank rank = TRIPLE_RANK_NEAR; rank < TRIPLE_RANK_COUNT; rank++)
-        ranks[battlers[rank]] = rank;
+    for (u32 rank = TRIPLE_RANK_NEAR; rank < size; rank++)
+        ranks[battlers[twoPerSide && rank == 1 ? 2 : rank]] = rank;
     PushBattlerAction(sourceLine, left, RECORDED_ACTION_TYPE, B_ACTION_TRIPLE_FORMATION);
     PushBattlerAction(sourceLine, left, RECORDED_TRIPLE_FORMATION, TRIPLE_FORMATION_PACK(ranks[left], ranks[B_POSITION_PLAYER_RIGHT | side], ranks[B_POSITION_PLAYER_MIDDLE | side]));
 }

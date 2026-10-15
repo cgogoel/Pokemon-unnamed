@@ -156,7 +156,7 @@ static void CB2_ReshowBattleScreenAfterMenu(void)
                 species = GetMonData(GetBattlerMon(opponentBattler), MON_DATA_SPECIES);
                 SetBattlerShadowSpriteCallback(opponentBattler, species);
             }
-            if (IsTripleBattle())
+            if (HasTripleMiddleBattlers())
             {
                 opponentBattler = GetBattlerAtPosition(B_POSITION_OPPONENT_MIDDLE);
                 species = GetMonData(GetBattlerMon(opponentBattler), MON_DATA_SPECIES);

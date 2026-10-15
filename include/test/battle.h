@@ -580,6 +580,8 @@ enum {
     BATTLE_TEST_AI_ONE_VS_TWO,
     BATTLE_TEST_TRIPLES,
     BATTLE_TEST_AI_TRIPLES,
+    BATTLE_TEST_TRIPLES_2V2,
+    BATTLE_TEST_AI_TRIPLES_2V2,
 };
 
 typedef void (*SingleBattleTestFunction)(void *, const u32, struct BattlePokemon *, struct BattlePokemon *);
@@ -1026,6 +1028,9 @@ bool32 IsAITest(void);
 // 3v3, one acting battler per side per turn. See docs/hack/triple_battles.md
 #define TRIPLE_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_TRIPLE(_name, BATTLE_TEST_TRIPLES, __VA_ARGS__)
 #define AI_TRIPLE_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_TRIPLE(_name, BATTLE_TEST_AI_TRIPLES, __VA_ARGS__)
+// The 3v3 rules with 2 Pokémon per side: playerLeft/Right and opponentLeft/Right, no middle battlers.
+#define TRIPLE_2V2_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_DOUBLE(_name, BATTLE_TEST_TRIPLES_2V2, __VA_ARGS__)
+#define AI_TRIPLE_2V2_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_DOUBLE(_name, BATTLE_TEST_AI_TRIPLES_2V2, __VA_ARGS__)
 
 /* Parametrize */
 
@@ -1193,6 +1198,7 @@ enum { TURN_CLOSED, TURN_OPEN, TURN_CLOSING };
 #define SWITCH(battler, partyIndex) Switch(__LINE__, battler, partyIndex)
 // Triple battles: rearrange a side's formation for free. Recorded on the side's left battler, before its action.
 #define FORMATION(near, middle, far) Formation(__LINE__, near, middle, far)
+#define FORMATION_2V2(near, far) Formation(__LINE__, near, NULL, far)
 // Development aid: prints the screen (VRAM, OAM, palettes, BG registers) when the given turn's action selection starts.
 // Render it with tools/screen_dump/render_screen_dump.py.
 #define SCREEN_DUMP(turn) ScreenDump_(__LINE__, turn)

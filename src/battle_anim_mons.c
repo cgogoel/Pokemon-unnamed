@@ -65,6 +65,32 @@ const struct UCoords8 sBattlerCoords[BATTLE_COORDS_COUNT][MAX_BATTLERS_COUNT] =
     },
 };
 
+// 2v2 with the 3v3 rules: the rear and front spots only, spread along the same diagonals as in 3v3.
+static const struct UCoords8 sBattlerCoordsTriples2v2[MAX_POSITION_COUNT] =
+{
+    [B_POSITION_PLAYER_LEFT]    = { 68, 85 },
+    [B_POSITION_PLAYER_RIGHT]   = { 172, 81 },
+    [B_POSITION_OPPONENT_LEFT]  = { 64, 11 },
+    [B_POSITION_OPPONENT_RIGHT] = { 168, 22 },
+};
+
+// Where a battler stands, by its layout position.
+static const struct UCoords8 *GetBattlerBaseCoords(enum BattlerId battler)
+{
+    enum BattleCoordTypes index = GetBattlerCoordsIndex(battler);
+    if (index == BATTLE_COORDS_TRIPLES)
+        return GetTripleSpotCoords(GetBattlerLayoutPosition(battler));
+    return &sBattlerCoords[index][GetBattlerLayoutPosition(battler)];
+}
+
+// A triple battle spot (layout position) on screen.
+const struct UCoords8 *GetTripleSpotCoords(enum BattlerPosition layoutPosition)
+{
+    if (!HasTripleMiddleBattlers())
+        return &sBattlerCoordsTriples2v2[layoutPosition];
+    return &sBattlerCoords[BATTLE_COORDS_TRIPLES][layoutPosition];
+}
+
 // Placeholders for Pokémon sprites to be created for a move animation effect (e.g. Role Play / Snatch)
 #define TAG_MOVE_EFFECT_MON_1 55125
 #define TAG_MOVE_EFFECT_MON_2 55126
@@ -106,10 +132,10 @@ u8 GetBattlerSpriteCoord(enum BattlerId battler, u8 coordType)
     {
     case BATTLER_COORD_X:
     case BATTLER_COORD_X_2:
-        retVal = sBattlerCoords[GetBattlerCoordsIndex(battler)][GetBattlerLayoutPosition(battler)].x;
+        retVal = GetBattlerBaseCoords(battler)->x;
         break;
     case BATTLER_COORD_Y:
-        retVal = sBattlerCoords[GetBattlerCoordsIndex(battler)][GetBattlerLayoutPosition(battler)].y;
+        retVal = GetBattlerBaseCoords(battler)->y;
         break;
     case BATTLER_COORD_Y_PIC_OFFSET:
     case BATTLER_COORD_Y_PIC_OFFSET_DEFAULT:
@@ -209,7 +235,7 @@ u8 GetBattlerSpriteFinal_Y(enum BattlerId battler, enum Species species, bool32 
         offset = GetBattlerYDelta(battler, species);
         offset -= GetBattlerElevation(battler, species);
     }
-    y = offset + sBattlerCoords[GetBattlerCoordsIndex(battler)][GetBattlerLayoutPosition(battler)].y;
+    y = offset + GetBattlerBaseCoords(battler)->y;
     if (a3)
     {
         if (IsOnPlayerSide(battler))

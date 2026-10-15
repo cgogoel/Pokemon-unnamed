@@ -2546,7 +2546,7 @@ void BufferStringBattle(enum StringID stringID, enum BattlerId battler)
                 {
                     stringPtr = sText_BeCarefulPkmn;
                 }
-                else if (IsTripleBattle() && IsValidForBattle(GetBattlerMon(GetBattlerAtPosition(B_POSITION_PLAYER_MIDDLE))))
+                else if (HasTripleMiddleBattlers() && IsValidForBattle(GetBattlerMon(GetBattlerAtPosition(B_POSITION_PLAYER_MIDDLE))))
                 {
                     stringPtr = sText_GoThreePkmn;
                 }
@@ -2562,7 +2562,7 @@ void BufferStringBattle(enum StringID stringID, enum BattlerId battler)
         }
         else
         {
-            if (IsTripleBattle() && IsValidForBattle(GetBattlerMon(GetBattlerAtPosition(B_POSITION_OPPONENT_MIDDLE))))
+            if (HasTripleMiddleBattlers() && IsValidForBattle(GetBattlerMon(GetBattlerAtPosition(B_POSITION_OPPONENT_MIDDLE))))
             {
                 stringPtr = sText_Trainer1SentOutThreePkmn;
             }

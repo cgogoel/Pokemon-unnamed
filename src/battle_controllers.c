@@ -217,7 +217,7 @@ static void InitBtlControllersInternal(void)
     if (!isLink || isMaster)
         gBattleMainFunc = BeginBattleIntro;
 
-    if (IsTripleBattle())
+    if (HasTripleMiddleBattlers())
         gBattlersCount = MAX_BATTLERS_COUNT;
     else if (isDouble)
         gBattlersCount = 4;
@@ -247,7 +247,7 @@ static void InitBtlControllersInternal(void)
             gBattlerPositions[B_BATTLER_2] = isPlayerPrimary ? B_POSITION_PLAYER_RIGHT : B_POSITION_OPPONENT_RIGHT;
             gBattlerPositions[B_BATTLER_3] = isPlayerPrimary ? B_POSITION_OPPONENT_RIGHT : B_POSITION_PLAYER_RIGHT;
         }
-        if (IsTripleBattle())
+        if (HasTripleMiddleBattlers())
         {
             gBattlerPositions[B_BATTLER_4] = isPlayerPrimary ? B_POSITION_PLAYER_MIDDLE : B_POSITION_OPPONENT_MIDDLE;
             gBattlerPositions[B_BATTLER_5] = isPlayerPrimary ? B_POSITION_OPPONENT_MIDDLE : B_POSITION_PLAYER_MIDDLE;
@@ -369,7 +369,7 @@ static void InitBtlControllersInternal(void)
             }
 
             // The middle battlers are controlled the same way as the right flank of their side.
-            if (IsTripleBattle())
+            if (HasTripleMiddleBattlers())
             {
                 SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_4), gBattlerControllerFuncs[GetBattlerPosition(B_BATTLER_2)]);
                 SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_5), gBattlerControllerFuncs[GetBattlerPosition(B_BATTLER_3)]);
@@ -2898,7 +2898,7 @@ enum BattlerId GetIntroThirdBattler(enum BattlerId battler)
 {
     enum BattlerId third;
 
-    if (!IsTripleBattle() || GetBattlerPosition(battler) >= B_POSITION_PLAYER_RIGHT)
+    if (!HasTripleMiddleBattlers() || GetBattlerPosition(battler) >= B_POSITION_PLAYER_RIGHT)
         return MAX_BATTLERS_COUNT;
     third = GetSecondAllyBattler(battler);
     if (third >= gBattlersCount || !IsValidForBattle(GetBattlerMon(third)))

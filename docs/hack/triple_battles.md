@@ -8,6 +8,15 @@ Custom battle mode for Act 2 onward. Not the Gen 5 Triple Battle: **only one Pok
   (AI) does the same. The other two on each side take no action that turn.
 - Bag / Pokémon / Run count as the side's one action.
 
+### When 3v3 rules apply, and how many per side
+- From **Act 2** on (`VAR_STORY_ACT` >= `STORY_ACT_UNIVERSITY`, `include/constants/story.h`), trainers set to
+  `Battle Type: Doubles` or `Triples` use these rules. Before that they're normal double battles.
+- Pokémon per side = the smaller of the player's Pokémon able to battle and the trainer's party, up to 3
+  (`GetTripleTrainerBattleTypeFlags`, `src/triple_battle.c`): 3 each is a 3v3, 2 each a **2v2** with the same rules,
+  1 each a single battle. Battles against two trainers or with a partner stay normal double battles.
+- 2v2 sets `BATTLE_TYPE_TRIPLE_2V2` along with `BATTLE_TYPE_TRIPLE`: 4 battlers, no middle ones
+  (`GetTripleSideSize()`, `HasTripleMiddleBattlers()`). The formation has a front and a rear rank.
+
 ### Formation (near / middle / far)
 - Each side's 3 Pokémon stand in a formation order: **near** (front), **middle**, **far** (back).
   Idea: shield a glass cannon behind a tank.
@@ -50,6 +59,9 @@ Shown with each move in the battle move menu, before the move type (`ShowTripleM
 - Each team stands on a diagonal: rear Pokémon on the left, front Pokémon on the right, so the two front Pokémon face off
   in the right-hand column. Spots: `sBattlerCoords[BATTLE_COORDS_TRIPLES]` (`src/battle_anim_mons.c`), indexed by layout
   position (left = rear, middle, right = front; see `GetBattlerLayoutPosition`). Reordering moves Pokémon between spots.
+- 2v2 uses its own two spots on the same diagonals (`sBattlerCoordsTriples2v2`, `src/battle_anim_mons.c`), bigger
+  sprites (`sTripleSpriteScale2v2`), a base oval reaching partway to the front Pokémon inside the outer ring, and a
+  two-oval move indicator.
 - Sprites are shrunk by depth (`sTripleSpriteScale`, `src/triple_battle_ui.c`): the player's rear Pokémon (closest to the
   camera) is biggest, the foes' rear Pokémon smallest. The pic is scaled in memory when it loads, so animations still use
   the normal sprite.
@@ -94,7 +106,8 @@ The prompt reads "What will Pikachu do?" with a hint line: `L R Pick`, `SELECT O
 
 ### Development aids
 - Tests: `TRIPLE_BATTLE_TEST`, `AI_TRIPLE_BATTLE_TEST`, `MOVE(..., secondTarget: x)`, `FORMATION(near, middle, far)`
-  (see `test/battle/triple_battle.c`).
+  (see `test/battle/triple_battle.c`); 2v2: `TRIPLE_2V2_BATTLE_TEST`, `AI_TRIPLE_2V2_BATTLE_TEST`,
+  `FORMATION_2V2(near, far)` (`test/battle/triple_battle_2v2.c`). Field size rules: `test/triple_battle_setup.c`.
 - Screenshots without an emulator window: `SCREEN_DUMP(turn)`, `SCREEN_DUMP_FRAME(frame)` (a frame from the battle's
   start, e.g. the opening) or `UI_PREVIEW("A.D>D")` in a scratch test, then
   `python3 tools/screen_dump/render_screen_dump.py <make check log> <out dir>`.
@@ -133,4 +146,4 @@ The prompt reads "What will Pikachu do?" with a hint line: `L R Pick`, `SELECT O
 - [x] Phase 3 (AI picks its best actor; respects FRONT reach)
 - [ ] Phase 4 (in progress: diagonal field layout with depth scaling, oval floor, floating HP bars and name tags,
   controls, target selection, move indicator, the in-battle Pokémon menu and the animation check done)
-- [ ] Phase 5 (in progress: `Battle Type: Triples` and the debug battle work; Act gating still to do)
+- [x] Phase 5 (`Battle Type: Triples`, the debug battle, Act gating, field size matching both sides, 2v2)

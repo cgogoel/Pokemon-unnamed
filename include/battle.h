@@ -1201,10 +1201,22 @@ static inline bool32 IsTripleBattle(void)
     return !!(gBattleTypeFlags & BATTLE_TYPE_TRIPLE);
 }
 
+// Pokémon per side in a triple battle: 3, or 2 when the 3v3 rules are played 2v2 (no middle battlers).
+static inline u32 GetTripleSideSize(void)
+{
+    return (gBattleTypeFlags & BATTLE_TYPE_TRIPLE_2V2) ? 2 : 3;
+}
+
+// Triple battle with middle battlers (B_BATTLER_4 and B_BATTLER_5).
+static inline bool32 HasTripleMiddleBattlers(void)
+{
+    return IsTripleBattle() && GetTripleSideSize() == 3;
+}
+
 // Number of target slots GetTargetFromSlotId understands: self, partner and 2 foes, plus middle foe and second ally in triples.
 static inline u32 GetTargetSlotCount(void)
 {
-    return IsTripleBattle() ? MAX_BATTLERS_COUNT : 4;
+    return HasTripleMiddleBattlers() ? MAX_BATTLERS_COUNT : 4;
 }
 
 static inline bool32 IsSpreadMove(enum MoveTarget moveTarget)

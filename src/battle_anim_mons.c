@@ -51,16 +51,16 @@ const struct UCoords8 sBattlerCoords[BATTLE_COORDS_COUNT][MAX_BATTLERS_COUNT] =
         [B_POSITION_PLAYER_RIGHT]   = { 90, 84 },
         [B_POSITION_OPPONENT_RIGHT] = { 152, 32 },
     },
-    // Placeholder layout, to be tuned with screenshots.
-    // Indexed by layout position (see GetBattlerLayoutPosition): right is the near spot, left the far one.
+    // Indexed by layout position (see GetBattlerLayoutPosition): right is the front spot, left the rear one.
+    // Each team stands on a diagonal with its rear Pokémon on the left and its front Pokémon on the right.
     [BATTLE_COORDS_TRIPLES] =
     {
-        [B_POSITION_PLAYER_RIGHT]    = { 100, 80 },
-        [B_POSITION_PLAYER_MIDDLE]   = { 62, 84 },
-        [B_POSITION_PLAYER_LEFT]     = { 26, 88 },
-        [B_POSITION_OPPONENT_RIGHT]  = { 146, 44 },
-        [B_POSITION_OPPONENT_MIDDLE] = { 182, 38 },
-        [B_POSITION_OPPONENT_LEFT]   = { 216, 32 },
+        [B_POSITION_PLAYER_LEFT]     = { 40, 76 },
+        [B_POSITION_PLAYER_MIDDLE]   = { 118, 72 },
+        [B_POSITION_PLAYER_RIGHT]    = { 196, 68 },
+        [B_POSITION_OPPONENT_LEFT]   = { 40, 8 },
+        [B_POSITION_OPPONENT_MIDDLE] = { 112, 16 },
+        [B_POSITION_OPPONENT_RIGHT]  = { 188, 24 },
     },
 };
 

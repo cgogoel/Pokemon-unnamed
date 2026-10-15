@@ -166,6 +166,8 @@ void SetControllerToPlayer(enum BattlerId battler)
 void PlayerBufferExecCompleted(enum BattlerId battler)
 {
     gBattlerControllerFuncs[battler] = PlayerBufferRunCommand;
+    if (IsTripleBattle())
+        SetTripleNameTags(0);
     if (gBattleTypeFlags & BATTLE_TYPE_LINK)
     {
         u8 playerId = GetMultiplayerId();
@@ -235,6 +237,9 @@ static enum Item GetNextBall(enum Item ballId)
 static void HandleInputChooseAction(enum BattlerId battler)
 {
     enum Item itemId = gBattleResources->bufferA[battler][2] | (gBattleResources->bufferA[battler][3] << 8);
+
+    if (IsTripleBattle()) // Name tag over the Pokémon choosing
+        SetTripleNameTags(1u << battler);
 
     DoBounceEffect(battler, BOUNCE_HEALTHBOX, 7, 1);
     DoBounceEffect(battler, BOUNCE_MON, 7, 1);
@@ -500,6 +505,14 @@ void HandleInputChooseTarget(enum BattlerId battler)
     enum Move move = GetMonData(GetBattlerMon(battler), MON_DATA_MOVE1 + gMoveSelectionCursor[battler]);
     enum MoveTarget moveTarget = GetBattlerMoveSelectionTargetType(battler, move);
 
+    if (IsTripleBattle()) // Name tags over the target under the cursor and the first pick of a 2-target move
+    {
+        u32 tags = (gMultiUsePlayerCursor < MAX_BATTLERS_COUNT) ? (1u << gMultiUsePlayerCursor) : 0;
+        if (gBattleStruct->tripleFirstTarget[battler] != 0)
+            tags |= 1u << (gBattleStruct->tripleFirstTarget[battler] - 1);
+        SetTripleNameTags(tags);
+    }
+
     DoBounceEffect(gMultiUsePlayerCursor, BOUNCE_HEALTHBOX, 15, 1);
     for (i = 0; i < gBattlersCount; i++)
     {
@@ -687,6 +700,9 @@ void HandleInputChooseMove(enum BattlerId battler)
 {
     u32 canSelectTarget = 0;
     struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
+
+    if (IsTripleBattle())
+        SetTripleNameTags(1u << battler);
 
     if (JOY_HELD(DPAD_ANY) && gSaveBlock2Ptr->optionsButtonMode == OPTIONS_BUTTON_MODE_L_EQUALS_A)
         gPlayerDpadHoldFrames++;

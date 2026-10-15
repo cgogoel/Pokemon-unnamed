@@ -69,6 +69,14 @@ void RemoveUnreachableTripleMoveScores(enum BattlerId battlerAtk, enum BattlerId
 void ResetTripleMoveIndicator(void);
 void HideTripleMoveIndicator(void);
 bool32 ShowTripleMoveIndicator(enum Move move);
+u32 GetTripleSpriteScale(enum BattlerId battler);
+u32 ScaleTripleMonPic(u8 *pic, enum BattlerId battler);
+#define TRIPLE_HEALTHBAR_OFFSET_Y 7 // From the healthbox to the HP bar under it
+#define TRIPLE_HEAD_GAP 6           // Between the top of the HP bar and the Pokémon's head
+#define TRIPLE_HEALTHBOX_MIN_Y (-6) // Keeps the HP bar on screen; the name tag can go partly off the top
+void GetTripleHealthboxCoords(enum BattlerId battler, s16 *x, s16 *y);
+void SetTripleNameTags(u32 battlerMask);
+void DrawTripleBattleFloor(void);
 
 uq4_12_t GetTripleTargetDamageModifier(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, u32 targetCount);
 

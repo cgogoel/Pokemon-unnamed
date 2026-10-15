@@ -172,6 +172,9 @@ void UpdateTripleFormationGraphics(enum BattleSide side)
             continue;
 
         struct Sprite *sprite = &gSprites[gBattlerSpriteIds[battler]];
+        // Sprites are scaled by depth, so the pic is reloaded for its new spot
+        BattleLoadSubstituteOrMonSpriteGfx(battler, !gBattleSpritesDataPtr->battlerData[battler].behindSubstitute);
+        DmaCopy32(3, gMonSpritesGfxPtr->spritesGfx[GetBattlerPosition(battler)], (void *)(OBJ_VRAM0 + sprite->oam.tileNum * TILE_SIZE_4BPP), MON_PIC_SIZE);
         sprite->x = GetBattlerSpriteCoord(battler, BATTLER_COORD_X_2);
         sprite->y = GetBattlerSpriteDefault_Y(battler);
         sprite->subpriority = GetBattlerSpriteSubpriority(battler);

@@ -45,12 +45,24 @@ Shown with each move in the battle move menu (next to type/PP) and in the summar
   - `ANY`: every square has a red outline.
 - **Ally marker:** a small extra icon (e.g. red "!") when the move also hits the user's own allies (`hits_allies = Y`).
 
-### Healthboxes
-Six full healthboxes and six Pokémon use up most of the GBA's sprite memory, leaving too little for move animations,
-so triple battles use a compact 64x16 box (`graphics/battle_interface/healthbox_triples.png`): name, then level
-(or the status icon in its place), with the HP bar right under it. No HP numbers (Select doesn't swap them in) and no
-gender symbol or gimmick indicator (Mega/Tera/...). The full HP numbers are in the party and summary screens.
-Box positions are in `sBattlerHealthboxCoords[BATTLE_COORDS_TRIPLES]` (`src/battle_interface.c`).
+### Field layout
+- Each team stands on a diagonal: rear Pokémon on the left, front Pokémon on the right, so the two front Pokémon face off
+  in the right-hand column. Spots: `sBattlerCoords[BATTLE_COORDS_TRIPLES]` (`src/battle_anim_mons.c`), indexed by layout
+  position (left = rear, middle, right = front; see `GetBattlerLayoutPosition`). Reordering moves Pokémon between spots.
+- Sprites are shrunk by depth (`sTripleSpriteScale`, `src/triple_battle_ui.c`): the player's rear Pokémon (closest to the
+  camera) is biggest, the foes' rear Pokémon smallest. The pic is scaled in memory when it loads, so animations still use
+  the normal sprite.
+- Floor (`DrawTripleBattleFloor`): nested ovals along each team's diagonal on top of the location's background, with
+  the 1v1 platforms painted out. A solid base oval under the rear Pokémon, a half-shaded section out to the middle one
+  and an outlined outer ring out to the front one. Shades use free palette slots of the background (darker versions of its
+  floor color). Not drawn while a terrain (Electric Terrain...) replaces the background.
+
+### HP bars and name tags
+- A short HP bar floats over each Pokémon's head, with a small status pill (`triple_status_pills.png`) on its left when
+  it has a status condition. No HP numbers.
+- A name tag (name, level or status) pops up over the Pokémon choosing an action or move, and over the target under the
+  cursor. It's the compact 64x16 healthbox (`healthbox_triples.png`), hidden the rest of the time.
+- These keep sprite memory free for move animations: six full healthboxes left too little.
 
 ### Player controls (action menu)
 - **R**: this Pokémon passes; the next one (left → middle → right) chooses.
@@ -101,6 +113,7 @@ Box positions are in `sBattlerHealthboxCoords[BATTLE_COORDS_TRIPLES]` (`src/batt
 - [x] Phase 1 (engine supports 6 battlers; all existing tests pass)
 - [x] Phase 2 (engine rules, covered by test/battle/triple_battle.c)
 - [x] Phase 3 (AI picks its best actor; respects FRONT reach)
-- [ ] Phase 4 (in progress: layout by formation, controls, target selection, move indicator, compact healthboxes and the
-  animation check done; the in-battle party menu lists the 3 active Pokémon first but still uses the doubles layout)
+- [ ] Phase 4 (in progress: diagonal field layout with depth scaling, oval floor, floating HP bars and name tags,
+  controls, target selection, move indicator and the animation check done; the in-battle party menu lists the 3 active
+  Pokémon first but still uses the doubles layout)
 - [ ] Phase 5 (in progress: `Battle Type: Triples` and the debug battle work; Act gating still to do)

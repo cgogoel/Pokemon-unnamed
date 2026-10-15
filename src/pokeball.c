@@ -1,6 +1,7 @@
 #include "global.h"
 #include "battle.h"
 #include "battle_anim.h"
+#include "battle_interface.h"
 #include "decompress.h"
 #include "graphics.h"
 #include "main.h"
@@ -1325,6 +1326,19 @@ static void SpriteCB_TradePokeballEnd(struct Sprite *sprite)
 void StartHealthboxSlideIn(enum BattlerId battler)
 {
     struct Sprite *healthboxSprite = &gSprites[gHealthboxSpriteIds[battler]];
+
+    // Triple battles: the HP bar floats over the Pokémon, which is only now loaded. Place it, then drop it in from above
+    // over the same 23 frames the slide takes (the send out waits for it).
+    if (IsTripleBattle())
+    {
+        InitBattlerHealthboxCoords(battler);
+        healthboxSprite->sSpeedX = 0;
+        healthboxSprite->sSpeedY = -1;
+        healthboxSprite->x2 = 0;
+        healthboxSprite->y2 = -23;
+        healthboxSprite->callback = SpriteCB_HealthboxSlideIn;
+        return;
+    }
 
     healthboxSprite->sSpeedX = 5;
     healthboxSprite->sSpeedY = 0;

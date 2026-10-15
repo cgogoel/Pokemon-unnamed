@@ -1005,6 +1005,7 @@ const u32 gHealthboxSinglesOpponentGfx[] = INCGFX_U32("graphics/battle_interface
 const u32 gHealthboxSinglesOpponentLargeGfx[] = INCGFX_U32("graphics/battle_interface/healthbox_singles_opponent_large.png", ".4bpp.smol", "-mwidth 8 -mheight 8");
 const u32 gHealthboxDoublesPlayerGfx[] = INCGFX_U32("graphics/battle_interface/healthbox_doubles_player.png", ".4bpp.smol", "-mwidth 8 -mheight 4");
 const u32 gHealthboxDoublesOpponentGfx[] = INCGFX_U32("graphics/battle_interface/healthbox_doubles_opponent.png", ".4bpp.smol", "-mwidth 8 -mheight 4");
+const u32 gTripleStatusPillsGfx[] = INCGFX_U32("graphics/battle_interface/triple_status_pills.png", ".4bpp");
 const u32 gHealthboxTriplesGfx[] = INCGFX_U32("graphics/battle_interface/healthbox_triples.png", ".4bpp.smol", "-mwidth 4 -mheight 2");
 const u32 gHealthboxSafariGfx[] = INCGFX_U32("graphics/battle_interface/healthbox_safari.png", ".4bpp.smol", "-mwidth 8 -mheight 8");
 

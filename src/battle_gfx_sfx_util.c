@@ -1,5 +1,6 @@
 #include "global.h"
 #include "battle.h"
+#include "triple_battle.h"
 #include "battle_controllers.h"
 #include "battle_ai_main.h"
 #include "battle_anim.h"
@@ -672,6 +673,8 @@ void BattleLoadMonSpriteGfx(struct Pokemon *mon, enum BattlerId battler)
     HandleLoadSpecialPokePic(!IsOnPlayerSide(battler),
                              gMonSpritesGfxPtr->spritesGfx[position],
                              species, personalityValue);
+    if (IsTripleBattle())
+        ScaleTripleMonPic(gMonSpritesGfxPtr->spritesGfx[position], battler);
 
     paletteOffset = OBJ_PLTT_ID(battler);
 
@@ -974,6 +977,8 @@ void HandleSpeciesGfxDataChange(enum BattlerId battlerAtk, enum BattlerId battle
                                  gMonSpritesGfxPtr->spritesGfx[position],
                                  targetSpecies,
                                  personalityValue);
+        if (IsTripleBattle())
+            ScaleTripleMonPic(gMonSpritesGfxPtr->spritesGfx[position], battlerAtk);
     }
     src = gMonSpritesGfxPtr->spritesGfx[position];
     dst = (void *)(OBJ_VRAM0 + gSprites[gBattlerSpriteIds[battlerAtk]].oam.tileNum * 32);
@@ -1039,6 +1044,8 @@ void BattleLoadSubstituteOrMonSpriteGfx(enum BattlerId battler, bool8 loadMonSpr
         {
             Dma3CopyLarge32_(gMonSpritesGfxPtr->spritesGfx[position], &gMonSpritesGfxPtr->spritesGfx[position][MON_PIC_SIZE * i], MON_PIC_SIZE);
         }
+        if (IsTripleBattle() && !IsContest())
+            ScaleTripleMonPic(gMonSpritesGfxPtr->spritesGfx[position], battler);
 
         palOffset = OBJ_PLTT_ID(battler);
         LoadPalette(gBattleAnimSpritePal_Substitute, palOffset, PLTT_SIZE_4BPP);

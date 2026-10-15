@@ -49,6 +49,7 @@ enum
 #define TAG_HEALTHBOX_OPPONENT3_TILE    0xD7F1
 #define TAG_HEALTHBAR_PLAYER3_TILE      0xD7F2
 #define TAG_HEALTHBAR_OPPONENT3_TILE    0xD7F3
+#define TAG_TRIPLE_STATUS_TILE          0xD7F5 // + battler, up to 0xD7FA
 
 #define TAG_HEALTHBOX_PALS_1            0xD709
 #define TAG_HEALTHBOX_PALS_2            0xD70A

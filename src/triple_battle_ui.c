@@ -402,14 +402,28 @@ struct FloorShades
 // slots the floor tiles don't use. Palette 6 is only used by the link battle VS screen.
 #define FLOOR_PALETTE 6
 
-// Colors of the ovals: a dark gray base oval and outlines, a green middle section and a pale green outer section
-static const u16 sFloorColors[FLOOR_SHADE_COUNT] =
+// The oval colors come from the floor's average color: same hue, more saturated, at fixed brightness steps, from a
+// dark base oval to a pale outer section. Out of 32: brightness, then saturation (32 = unchanged).
+static const u8 sFloorShadeSteps[FLOOR_SHADE_COUNT][2] =
 {
-    [FLOOR_LIGHT]   = RGB(24, 28, 22),
-    [FLOOR_HALF]    = RGB(15, 21, 13),
-    [FLOOR_BASE]    = RGB(9, 10, 10),
-    [FLOOR_OUTLINE] = RGB(7, 8, 8),
+    [FLOOR_LIGHT]   = { 27, 56 },
+    [FLOOR_HALF]    = { 20, 56 },
+    [FLOOR_BASE]    = { 10, 40 },
+    [FLOOR_OUTLINE] = { 7, 32 },
 };
+
+static u16 GetFloorShadeColor(u32 shade, s32 r, s32 g, s32 b)
+{
+    s32 mean = (r + g + b) / 3;
+    s32 c[3] = { r, g, b };
+    for (u32 i = 0; i < 3; i++)
+    {
+        c[i] = mean + (c[i] - mean) * sFloorShadeSteps[shade][1] / 32;
+        c[i] = c[i] * sFloorShadeSteps[shade][0] / 32;
+        c[i] = (c[i] < 0) ? 0 : (c[i] > 31) ? 31 : c[i];
+    }
+    return RGB(c[0], c[1], c[2]);
+}
 
 static u16 GetFloorSourceEntry(const u16 *tilemap, u32 row)
 {
@@ -445,8 +459,14 @@ static void BuildFloorShades(struct FloorShades *shades, const u16 *tilemap, con
     u32 main = (rows[1] > rows[0]) ? 1 : 0;
     if (rows[2] > rows[main])
         main = 2;
+    u16 floorColors[FLOOR_SHADE_COUNT] = {0};
     if (count[main] != 0)
-        sTripleHazeColor = RGB(sum[main][0] / count[main], sum[main][1] / count[main], sum[main][2] / count[main]);
+    {
+        s32 r = sum[main][0] / count[main], g = sum[main][1] / count[main], b = sum[main][2] / count[main];
+        sTripleHazeColor = RGB(r, g, b);
+        for (u32 shade = FLOOR_LIGHT; shade < FLOOR_SHADE_COUNT; shade++)
+            floorColors[shade] = GetFloorShadeColor(shade, r, g, b);
+    }
 
     for (u32 p = 0; p < 3; p++)
         shades->reserved[p] = FALSE;
@@ -461,7 +481,7 @@ static void BuildFloorShades(struct FloorShades *shades, const u16 *tilemap, con
         shades->reserved[main] = TRUE;
         LoadPalette(&gPlttBufferUnfaded[BG_PLTT_ID(2 + main)], BG_PLTT_ID(FLOOR_PALETTE), PLTT_SIZE_4BPP);
         for (u32 shade = FLOOR_LIGHT; shade < FLOOR_SHADE_COUNT; shade++)
-            LoadPalette(&sFloorColors[shade], BG_PLTT_ID(FLOOR_PALETTE) + shades->index[shade], PLTT_SIZEOF(1));
+            LoadPalette(&floorColors[shade], BG_PLTT_ID(FLOOR_PALETTE) + shades->index[shade], PLTT_SIZEOF(1));
     }
 
     for (u32 p = 0; p < 3; p++)
@@ -471,7 +491,7 @@ static void BuildFloorShades(struct FloorShades *shades, const u16 *tilemap, con
         {
             for (u32 i = 0; i < 16; i++)
             {
-                s32 r = GET_R(sFloorColors[shade]), g = GET_G(sFloorColors[shade]), b = GET_B(sFloorColors[shade]);
+                s32 r = GET_R(floorColors[shade]), g = GET_G(floorColors[shade]), b = GET_B(floorColors[shade]);
                 u32 best = i, bestDistance = 0xFFFFFFFF;
                 if (shade == FLOOR_NONE)
                 {

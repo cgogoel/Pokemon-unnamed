@@ -57,8 +57,9 @@ Shown with each move in the battle move menu (next to type/PP) and in the summar
 - Haze (`sTripleHaze`): farther Pokémon fade toward the floor color, strongest for the foes' rear Pokémon.
 - Floor (`DrawTripleBattleFloor`): nested ovals along each team's diagonal on top of the location's background, with
   the 1v1 platforms painted out. A solid base oval under the rear Pokémon, a half-shaded section out to the middle one
-  and an outlined outer ring out to the front one. Dark gray base oval and outlines, green middle section,
-  pale green outer section (`sFloorColors`); the oval tiles use BG palette 6, a copy of the floor palette with these colors added. Not drawn while a terrain (Electric Terrain...) replaces the background.
+  and an outlined outer ring out to the front one. Colors come from the location's floor color (same hue,
+  more saturated, dark base oval to pale outer section; `sFloorShadeSteps`). The oval tiles use BG palette 6, a copy of
+  the floor palette with these colors added. Not drawn while a terrain (Electric Terrain...) replaces the background.
 
 ### HP bars and name tags
 - A short HP bar floats over each Pokémon's head, with a small status pill (`triple_status_pills.png`) on its left when

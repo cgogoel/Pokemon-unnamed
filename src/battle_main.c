@@ -3724,6 +3724,26 @@ u8 IsRunningFromBattleImpossible(enum BattlerId battler)
     return BATTLE_RUN_SUCCESS;
 }
 
+// Stores gBattlePartyCurrentOrder as the party order of the battler and its allies (all 3 of them in a triple battle)
+static void SaveBattlePartyOrderForAllies(enum BattlerId battler)
+{
+    enum BattlerId ally;
+
+    memcpy(gBattleStruct->battlerPartyOrders[battler], gBattlePartyCurrentOrder, sizeof(gBattlePartyCurrentOrder));
+    if (IsTripleBattle())
+    {
+        for (ally = 0; ally < gBattlersCount; ally++)
+        {
+            if (ally != battler && IsBattlerAlly(battler, ally))
+                memcpy(gBattleStruct->battlerPartyOrders[ally], gBattlePartyCurrentOrder, sizeof(gBattlePartyCurrentOrder));
+        }
+    }
+    else
+    {
+        memcpy(gBattleStruct->battlerPartyOrders[GetPartnerBattler(battler)], gBattlePartyCurrentOrder, sizeof(gBattlePartyCurrentOrder));
+    }
+}
+
 void SwitchTwoBattlersInParty(enum BattlerId battler, enum BattlerId battler2)
 {
     s32 i;
@@ -3735,12 +3755,7 @@ void SwitchTwoBattlersInParty(enum BattlerId battler, enum BattlerId battler2)
     partyId1 = GetPartyIdFromBattlePartyId(gBattlerPartyIndexes[battler]);
     partyId2 = GetPartyIdFromBattlePartyId(gBattlerPartyIndexes[battler2]);
     SwitchPartyMonSlots(partyId1, partyId2);
-
-    for (i = 0; i < (int)ARRAY_COUNT(gBattlePartyCurrentOrder); i++)
-    {
-        *(battler * 3 + i + (u8 *)(gBattleStruct->battlerPartyOrders)) = gBattlePartyCurrentOrder[i];
-        *(GetPartnerBattler(battler) * 3 + i + (u8 *)(gBattleStruct->battlerPartyOrders)) = gBattlePartyCurrentOrder[i];
-    }
+    SaveBattlePartyOrderForAllies(battler);
 }
 
 void SwitchPartyOrder(enum BattlerId battler)
@@ -3762,11 +3777,7 @@ void SwitchPartyOrder(enum BattlerId battler)
 
     if (IsDoubleBattle())
     {
-        for (i = 0; i < (int)ARRAY_COUNT(gBattlePartyCurrentOrder); i++)
-        {
-            *(battler * 3 + i + (u8 *)(gBattleStruct->battlerPartyOrders)) = gBattlePartyCurrentOrder[i];
-            *(GetPartnerBattler(battler) * 3 + i + (u8 *)(gBattleStruct->battlerPartyOrders)) = gBattlePartyCurrentOrder[i];
-        }
+        SaveBattlePartyOrderForAllies(battler);
     }
     else
     {

@@ -421,6 +421,33 @@ TRIPLE_BATTLE_TEST("Triple battles: switching in a benched Pokémon uses the sid
     }
 }
 
+TRIPLE_BATTLE_TEST("Triple battles: a switch updates the party menu order of all three battlers on the side")
+{
+    GIVEN {
+        PLAYER(SPECIES_PIKACHU);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_VENUSAUR);
+        PLAYER(SPECIES_LAPRAS);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { SWITCH(playerLeft, 3); }
+    } SCENE {
+        SWITCH_OUT_MESSAGE("Pikachu");
+    } THEN {
+        // The party menu lists the battlers' Pokémon first: Lapras now, with Pikachu on the bench
+        enum BattlerId battler;
+        for (battler = 0; battler < gBattlersCount; battler++)
+        {
+            if (!IsOnPlayerSide(battler))
+                continue;
+            EXPECT_EQ(gBattleStruct->battlerPartyOrders[battler][0] >> 4, 3);
+            EXPECT_EQ(memcmp(gBattleStruct->battlerPartyOrders[battler], gBattleStruct->battlerPartyOrders[B_BATTLER_0], sizeof(gBattleStruct->battlerPartyOrders[0])), 0);
+        }
+    }
+}
+
 AI_TRIPLE_BATTLE_TEST("Triple battles: the AI acts with the battler that has the best move")
 {
     GIVEN {

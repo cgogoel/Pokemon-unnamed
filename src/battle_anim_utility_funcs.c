@@ -685,7 +685,7 @@ void AnimTask_BlendNonAttackerPalettes(u8 taskId)
     int j;
     u32 selectedPalettes = 0;
 
-    for (battler = 0; battler < MAX_BATTLERS_COUNT; battler++)
+    for (battler = 0; battler < gBattlersCount; battler++)
     {
         if (gBattleAnimAttacker != battler)
             selectedPalettes |= 1 << (battler + 16);

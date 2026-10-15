@@ -55,7 +55,8 @@ enum BattleAction
     B_ACTION_CANCEL_PARTNER = B_ACTION_FINISHED, // when choosing an action
     B_ACTION_NOTHING_FAINTED, // when choosing an action
     B_ACTION_UNK_14,
-    B_ACTION_UNK_15,
+    B_ACTION_PASS, // Triple battles: this battler doesn't act this turn
+    B_ACTION_TRIPLE_FORMATION, // Triple battles: rearrange the side's formation, then choose the real action
     B_ACTION_DEBUG = 20,
     B_ACTION_THROW_BALL, // R to throw last used ball
     B_ACTION_NONE = 0xFF
@@ -591,6 +592,14 @@ struct BattleStruct
     struct FutureSight futureSight[MAX_BATTLERS_COUNT];
     struct Wish wish[MAX_BATTLERS_COUNT];
     u16 moveTarget[MAX_BATTLERS_COUNT];
+    // Triple battles, see triple_battle.c
+    u8 tripleRank[MAX_BATTLERS_COUNT];          // Formation: near, middle, far
+    u8 tripleSecondTarget[MAX_BATTLERS_COUNT];  // Chosen second target of a 2-target move, + 1 (0 = none)
+    u8 tripleMainTarget[MAX_BATTLERS_COUNT];    // Full-damage target of the move being used
+    u8 tripleHitSecond[MAX_BATTLERS_COUNT];     // Half-damage target of a 2-target move
+    u8 tripleAiActor[NUM_BATTLE_SIDES];         // AI side's chosen actor this turn
+    u8 tripleFirstTarget[MAX_BATTLERS_COUNT];   // Player picking the second target of a 2-target move: first target + 1
+    u16 tripleAiDecidedTurn[NUM_BATTLE_SIDES];  // gBattleTurnCounter + 1 of the turn the actor was chosen
     u8 faintCounter[MAX_BATTLE_TRAINERS]; // Supreme Overload / Last Respects
     u32 expShareExpValue;
     u32 expValue;
@@ -625,7 +634,7 @@ struct BattleStruct
     u8 stateIdAfterSelScript[MAX_BATTLERS_COUNT];
     u8 prevSelectedPartySlot;
     u8 stringMoveType;
-    u8 palaceFlags; // First 4 bits are "is <= 50% HP and not asleep" for each battler, last 4 bits are selected moves to pass to AI
+    u16 palaceFlags; // First MAX_BATTLERS_COUNT bits are "is <= 50% HP and not asleep" for each battler, next 4 bits are selected moves to pass to AI
     u8 recordedActionSet; // related to choosing Pokémon?
     u8 wallyBattleState;
     u8 wallyMovesState;
@@ -704,7 +713,7 @@ struct BattleStruct
     s32 aiDelayFrames; // Number of frames it took to choose an action.
     s32 aiDelayCycles; // Number of cycles it took to choose an action.
     u8 shellSideArmCategory[MAX_BATTLERS_COUNT][MAX_BATTLERS_COUNT];
-    u8 speedTieBreaks; // MAX_BATTLERS_COUNT! values.
+    u16 speedTieBreaks; // gBattlersCount! values (permutation index), see GetSpeedTieOrder.
     u32 stellarBoostFlags[MAX_BATTLE_TRAINERS]; // bitfield
     struct SleepClause monCausingSleepClause[NUM_BATTLE_SIDES]; // Stores which Pokémon on a given side is causing Sleep Clause to be active as the mon's index in the party
     u8 additionalEffectsCounter:4; // A counter for the additionalEffects applied by the current move in Cmd_setadditionaleffects
@@ -1122,6 +1131,9 @@ enum BattlerPosition GetPartnerPosition(enum BattlerPosition position);
 enum BattlerPosition GetOppositePosition(enum BattlerPosition position);
 enum BattlerId GetBattlerLeftFoe(enum BattlerId battler);
 enum BattlerId GetBattlerRightFoe(enum BattlerId battler);
+enum BattlerId GetBattlerMiddleFoe(enum BattlerId battler);
+enum BattlerId GetSecondAllyBattler(enum BattlerId battler);
+enum BattlerPosition GetSecondAllyPosition(enum BattlerPosition position);
 enum BattlerId GetDefaultSelectionTarget(enum BattlerId battler, enum MoveTarget moveTarget);
 
 static inline bool32 IsBattlerAlive(enum BattlerId battler)
@@ -1181,6 +1193,17 @@ static inline bool32 IsBattlerAlly(enum BattlerId battlerAtk, enum BattlerId bat
 static inline bool32 IsDoubleBattle(void)
 {
     return !!(gBattleTypeFlags & BATTLE_TYPE_MORE_THAN_TWO_BATTLERS);
+}
+
+static inline bool32 IsTripleBattle(void)
+{
+    return !!(gBattleTypeFlags & BATTLE_TYPE_TRIPLE);
+}
+
+// Number of target slots GetTargetFromSlotId understands: self, partner and 2 foes, plus middle foe and second ally in triples.
+static inline u32 GetTargetSlotCount(void)
+{
+    return IsTripleBattle() ? MAX_BATTLERS_COUNT : 4;
 }
 
 static inline bool32 IsSpreadMove(enum MoveTarget moveTarget)

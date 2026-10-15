@@ -934,6 +934,9 @@ enum BattleTransition GetTrainerBattleTransition(void)
     case TRAINER_BATTLE_TYPE_DOUBLES:
         minPartyCount = 2; // double battles always at least have 2 Pokémon.
         break;
+    case TRAINER_BATTLE_TYPE_TRIPLES:
+        minPartyCount = 3;
+        break;
     }
 
     transitionType = GetBattleTransitionTypeByMap();
@@ -1503,6 +1506,10 @@ void BattleSetup_StartTrainerBattle(void)
     {
         gBattleTypeFlags |= BATTLE_TYPE_DOUBLE;
     }
+    else if (GetTrainerBattleType(TRAINER_BATTLE_PARAM.opponentA) == TRAINER_BATTLE_TYPE_TRIPLES)
+    {
+        gBattleTypeFlags |= BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE;
+    }
 
     sNoOfPossibleTrainerRetScripts = gNoOfApproachingTrainers;
     gNoOfApproachingTrainers = 0;
@@ -1656,6 +1663,8 @@ void BattleSetup_StartRematchBattle(void)
     gBattleTypeFlags = BATTLE_TYPE_TRAINER;
     if (GetTrainerBattleType(TRAINER_BATTLE_PARAM.opponentA) == TRAINER_BATTLE_TYPE_DOUBLES)
         gBattleTypeFlags |= BATTLE_TYPE_DOUBLE;
+    else if (GetTrainerBattleType(TRAINER_BATTLE_PARAM.opponentA) == TRAINER_BATTLE_TYPE_TRIPLES)
+        gBattleTypeFlags |= BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE;
     
     gMain.savedCallback = CB2_EndRematchBattle;
     DoTrainerBattle();

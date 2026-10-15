@@ -5,6 +5,7 @@
 #include "battle_hold_effects.h"
 #include "battle_ai_record.h"
 #include "battle_util.h"
+#include "triple_battle.h"
 #include "battle_move_resolution.h"
 #include "battle_script_commands.h"
 #include "battle_stat_change.h"
@@ -695,7 +696,7 @@ static bool32 IsSmartTarget(enum BattlerId battlerAtk, enum BattlerId battlerDef
 
 static bool32 IsTargetingBothFoes(enum BattlerId battlerAtk, enum BattlerId battlerDef)
 {
-    if (battlerDef == GetPartnerBattler(battlerAtk) || battlerAtk == battlerDef)
+    if (IsBattlerAlly(battlerAtk, battlerDef)) // The user and every ally (two in triple battles)
     {
         gBattleStruct->moveResultFlags[battlerDef] = MOVE_RESULT_DOESNT_AFFECT_FOE;
         return skipFailure;
@@ -964,6 +965,9 @@ static enum CancelerResult CancelerSetTargets(struct BattleCalcValues *cv)
         {
             cv->battlerDef = GetPartnerBattler(cv->battlerDef);
         }
+
+        if (IsTripleBattle())
+            cv->battlerDef = SetTripleMoveTargets(cv->battlerAtk, cv->move, cv->battlerDef);
     }
 
     gBattlerTarget = cv->battlerDef; // ShouldCheckTargetMoveFailure relies on gBattlerTarget
@@ -978,6 +982,8 @@ static enum CancelerResult CancelerSetTargets(struct BattleCalcValues *cv)
             gBattleStruct->moveResultFlags[battlerDef] |= MOVE_RESULT_NOT_PRESENT;
     }
     gBattleStruct->eventState.atkCancelerBattler = 0;
+    if (IsTripleBattle())
+        MarkTripleExcludedTargets(cv->battlerAtk, cv->move);
 
     if (IsBattlerAlly(cv->battlerAtk, cv->battlerDef) && !IsBattlerAlive(cv->battlerDef))
     {
@@ -2266,7 +2272,12 @@ static enum CancelerResult CancelerTargetFailure(struct BattleCalcValues *cv)
         gBattleStruct->eventState.moveEndBlock++;
     }
 
-    if (IsDoubleBattle())
+    if (IsTripleBattle())
+    {
+        if (moveTarget == TARGET_BOTH || moveTarget == TARGET_FOES_AND_ALLY)
+            gBattleStruct->numSpreadTargets = CountTripleSpreadTargets(gBattlerAttacker);
+    }
+    else if (IsDoubleBattle())
     {
         if (moveTarget == TARGET_BOTH)
             gBattleStruct->numSpreadTargets = CountAliveMonsInBattle(BATTLE_ALIVE_EXCEPT_BATTLER_SIDE, gBattlerAttacker);
@@ -2707,7 +2718,7 @@ static enum CancelerResult CancelerPreAnimActivations(struct BattleCalcValues *c
         }
         gBattleStruct->eventState.moveEndBlock++;
     case PRE_ANIM_TERA_SHELL:
-        for (enum BattlerId battler = B_BATTLER_0; battler < MAX_BATTLERS_COUNT; battler++)
+        for (enum BattlerId battler = B_BATTLER_0; battler < gBattlersCount; battler++)
         {
             enum BattlerId battlerDef = GetTargetBySlot(cv->battlerAtk, battler);
 

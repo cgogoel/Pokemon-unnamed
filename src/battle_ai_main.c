@@ -7,6 +7,7 @@
 #include "battle_ai_items.h"
 #include "battle_ai_switch.h"
 #include "battle_ai_main.h"
+#include "triple_battle.h"
 #include "battle_ai_record.h"
 #include "battle_stat_change.h"
 #include "battle_controllers.h"
@@ -950,7 +951,7 @@ static void DoAIScoreProcessing(enum BattlerId battlerAtk, enum BattlerId battle
     gAiThinkingStruct->movesetIndex = 0;
 
     if (gBattleTypeFlags & BATTLE_TYPE_PALACE)
-        BattleAI_SetupAIData(gBattleStruct->palaceFlags >> 4, battlerAtk);
+        BattleAI_SetupAIData(gBattleStruct->palaceFlags >> MAX_BATTLERS_COUNT, battlerAtk);
     else
         BattleAI_SetupAIData(0xF, battlerAtk);
 
@@ -1032,7 +1033,7 @@ static struct ChosenAction ChooseMoveOrAction_Doubles(enum BattlerId battlerAtk)
     u32 mostViableMovesNo;
     s32 mostMovePoints;
 
-    for (enum BattlerId battlerDef = 0; battlerDef < MAX_BATTLERS_COUNT; battlerDef++)
+    for (enum BattlerId battlerDef = 0; battlerDef < gBattlersCount; battlerDef++)
     {
         if (gBattleMons[battlerDef].hp == 0 || battlerAtk == battlerDef)
         {
@@ -1042,6 +1043,8 @@ static struct ChosenAction ChooseMoveOrAction_Doubles(enum BattlerId battlerAtk)
         else
         {
             DoAIScoreProcessing(battlerAtk, battlerDef);
+            if (IsTripleBattle())
+                RemoveUnreachableTripleMoveScores(battlerAtk, battlerDef, gAiThinkingStruct->score);
 
             mostViableMovesScores[0] = gAiThinkingStruct->score[0];
             mostViableMovesIndices[0] = 0;
@@ -1076,7 +1079,7 @@ static struct ChosenAction ChooseMoveOrAction_Doubles(enum BattlerId battlerAtk)
             bestMovePointsForTarget[battlerDef] = mostViableMovesScores[0];
 
             // Don't use a move against ally if it has less than 100 points.
-            if (battlerDef == GetPartnerBattler(battlerAtk) && bestMovePointsForTarget[battlerDef] < AI_SCORE_DEFAULT)
+            if (IsBattlerAlly(battlerAtk, battlerDef) && bestMovePointsForTarget[battlerDef] < AI_SCORE_DEFAULT)
             {
                 bestMovePointsForTarget[battlerDef] = -1;
             }
@@ -1092,7 +1095,7 @@ static struct ChosenAction ChooseMoveOrAction_Doubles(enum BattlerId battlerAtk)
     mostViableTargetsArray[0] = 0;
     mostViableTargetsNo = 1;
 
-    for (enum BattlerId battler = 1; battler < MAX_BATTLERS_COUNT; battler++)
+    for (enum BattlerId battler = 1; battler < gBattlersCount; battler++)
     {
         if (mostMovePoints == bestMovePointsForTarget[battler])
         {

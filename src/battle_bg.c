@@ -1,5 +1,6 @@
 #include "global.h"
 #include "battle.h"
+#include "triple_battle.h"
 #include "battle_anim.h"
 #include "battle_bg.h"
 #include "battle_main.h"
@@ -879,6 +880,8 @@ static void LoadBattleEnvironmentGfx(u16 environment)
     DecompressDataWithHeaderVram(gBattleEnvironmentInfo[environment].background.tileset, (void *)(BG_CHAR_ADDR(2)));
     DecompressDataWithHeaderVram(gBattleEnvironmentInfo[environment].background.tilemap, (void *)(BG_SCREEN_ADDR(26)));
     LoadPalette(gBattleEnvironmentInfo[environment].palette, BG_PLTT_ID(2), 3 * PLTT_SIZE_4BPP);
+    if (IsTripleBattle())
+        DrawTripleBattleFloor();
 }
 
 // Loads the entry associated with the battle environment.
@@ -1345,6 +1348,8 @@ bool8 LoadChosenBattleElement(u8 caseId)
         break;
     case 5:
         LoadPalette(gBattleEnvironmentInfo[GetBattleEnvironmentOverride()].palette, BG_PLTT_ID(2), 3 * PLTT_SIZE_4BPP);
+        if (IsTripleBattle())
+            DrawTripleBattleFloor();
         break;
     case 6:
         LoadBattleMenuWindowGfx();

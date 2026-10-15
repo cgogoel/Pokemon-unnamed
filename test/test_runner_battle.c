@@ -14,6 +14,8 @@
 #include "party_menu.h"
 #include "random.h"
 #include "test/battle.h"
+#include "triple_battle.h"
+#include "gpu_regs.h"
 #include "trainer_pools.h"
 #include "window.h"
 #include "constants/characters.h"
@@ -191,6 +193,35 @@ NAKED static void InvokeOneVsTwoTestFunctionWithStack(void *results, u32 i, stru
         .pool");
 }
 
+// Same as the double version, with playerMiddle and opponentMiddle as two more stack arguments.
+NAKED static void InvokeTripleTestFunctionWithStack(void *results, u32 i, struct BattlePokemon *playerLeft, struct BattlePokemon *opponentLeft, struct BattlePokemon *playerRight, struct BattlePokemon *opponentRight, struct BattlePokemon *playerMiddle, struct BattlePokemon *opponentMiddle, TripleBattleTestFunction function, void *stack)
+{
+    asm("push {r4-r7,lr}\n\
+         ldr r4, [sp, #36] @ function\n\
+         ldr r5, [sp, #40] @ stack\n\
+         mov r6, sp\n\
+         mov sp, r5\n\
+         push {r6}\n\
+         add r6, #20\n\
+         ldr r5, [r6, #8] @ playerMiddle\n\
+         ldr r7, [r6, #12] @ opponentMiddle\n\
+         push {r5, r7}\n\
+         ldr r5, [r6, #0] @ playerRight\n\
+         ldr r7, [r6, #4] @ opponentRight\n\
+         push {r5, r7}\n\
+         ldr r6, =TripleRestoreSP + 1\n\
+         mov lr, r6\n\
+         bx r4\n\
+    TripleRestoreSP:\n\
+         add sp, #16\n\
+         pop {r0}\n\
+         mov sp, r0\n\
+         pop {r4-r7}\n\
+         pop {r0}\n\
+         bx r0\n\
+        .pool");
+}
+
 // Calls test->function, but pointing its stack at DATA.stack so that
 // local variables are live after the function returns (and so can be
 // referenced by HP_BAR, or the next call, etc).
@@ -225,6 +256,11 @@ static void InvokeTestFunction(const struct BattleTest *test)
         DATA.battlerTrainers |= (B_TRAINER_PARTNER << 4 | B_TRAINER_OPPONENT_A << 6);
         InvokeTwoVsOneTestFunctionWithStack(STATE->results, STATE->runParameter, &gBattleMons[B_POSITION_PLAYER_LEFT], &gBattleMons[B_POSITION_OPPONENT_LEFT], &gBattleMons[B_POSITION_PLAYER_RIGHT], &gBattleMons[B_POSITION_OPPONENT_RIGHT], test->function.two_vs_one, &DATA.stack[BATTLE_TEST_STACK_SIZE]);
         break;
+    case BATTLE_TEST_TRIPLES:
+    case BATTLE_TEST_AI_TRIPLES:
+        DATA.battlerTrainers |= B_TRAINER_OPPONENT_A << 6 | B_TRAINER_PLAYER << 8 | B_TRAINER_OPPONENT_A << 10;
+        InvokeTripleTestFunctionWithStack(STATE->results, STATE->runParameter, &gBattleMons[B_POSITION_PLAYER_LEFT], &gBattleMons[B_POSITION_OPPONENT_LEFT], &gBattleMons[B_POSITION_PLAYER_RIGHT], &gBattleMons[B_POSITION_OPPONENT_RIGHT], &gBattleMons[B_POSITION_PLAYER_MIDDLE], &gBattleMons[B_POSITION_OPPONENT_MIDDLE], test->function.triples, &DATA.stack[BATTLE_TEST_STACK_SIZE]);
+        break;
     case BATTLE_TEST_ONE_VS_TWO:
     case BATTLE_TEST_AI_ONE_VS_TWO:
         DATA.battlerTrainers |= B_TRAINER_OPPONENT_B << 6;
@@ -248,9 +284,15 @@ bool32 IsAITest(void)
     case BATTLE_TEST_AI_MULTI:
     case BATTLE_TEST_AI_TWO_VS_ONE:
     case BATTLE_TEST_AI_ONE_VS_TWO:
+    case BATTLE_TEST_AI_TRIPLES:
         return TRUE;
     }
     return FALSE;
+}
+
+static bool32 IsTripleTest(void)
+{
+    return GetBattleTest()->type == BATTLE_TEST_TRIPLES || GetBattleTest()->type == BATTLE_TEST_AI_TRIPLES;
 }
 
 static bool32 IsAIDoublesTest(void)
@@ -286,6 +328,10 @@ static void InitTestBattlers(const struct BattleTest *test)
     case BATTLE_TEST_AI_TWO_VS_ONE:
     case BATTLE_TEST_ONE_VS_TWO:
     case BATTLE_TEST_AI_ONE_VS_TWO:
+        STATE->battlersCount = 4;
+        break;
+    case BATTLE_TEST_TRIPLES:
+    case BATTLE_TEST_AI_TRIPLES:
         STATE->battlersCount = MAX_BATTLERS_COUNT;
         break;
     }
@@ -491,6 +537,21 @@ static void BattleTest_Run(void *data)
     case BATTLE_TEST_SINGLES:
         DATA.recordedBattle.battleFlags = BATTLE_TYPE_IS_MASTER | BATTLE_TYPE_RECORDED_IS_MASTER | BATTLE_TYPE_RECORDED_LINK | BATTLE_TYPE_TRAINER;
         DATA.recordedBattle.opponentA = TRAINER_LINK_OPPONENT;
+        for (i = 0; i < STATE->battlersCount; i++)
+            DATA.currentMonIndexes[i] = i / 2;
+        break;
+    case BATTLE_TEST_TRIPLES:
+        DATA.recordedBattle.battleFlags = BATTLE_TYPE_IS_MASTER | BATTLE_TYPE_RECORDED_IS_MASTER | BATTLE_TYPE_RECORDED_LINK | BATTLE_TYPE_TRAINER | BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE;
+        DATA.recordedBattle.opponentA = TRAINER_LINK_OPPONENT;
+        DATA.recordedBattle.opponentB = TRAINER_NONE;
+        for (i = 0; i < STATE->battlersCount; i++)
+            DATA.currentMonIndexes[i] = i / 2;
+        break;
+    case BATTLE_TEST_AI_TRIPLES:
+        DATA.recordedBattle.battleFlags = BATTLE_TYPE_IS_MASTER | BATTLE_TYPE_TRAINER | BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE;
+        DATA.recordedBattle.opponentA = TRAINER_LEAF_TEST;
+        DATA.recordedBattle.opponentB = TRAINER_NONE;
+        DATA.hasAI = TRUE;
         for (i = 0; i < STATE->battlersCount; i++)
             DATA.currentMonIndexes[i] = i / 2;
         break;
@@ -1336,6 +1397,7 @@ static const char *const sBattleActionNames[] =
     [B_ACTION_USE_MOVE] = "MOVE",
     [B_ACTION_USE_ITEM] = "USE_ITEM",
     [B_ACTION_SWITCH] = "SWITCH",
+    [B_ACTION_PASS] = "PASS",
 };
 
 static const char *const sGimmickIdentifiers[GIMMICKS_COUNT] =
@@ -2780,6 +2842,16 @@ static const char *const sBattlerIdentifiersDoubles[] =
     "opponentRight",
 };
 
+static const char *const sBattlerIdentifiersTriples[] =
+{
+    "playerLeft",
+    "opponentLeft",
+    "playerRight",
+    "opponentRight",
+    "playerMiddle",
+    "opponentMiddle",
+};
+
 static const char *BattlerIdentifier(enum BattlerId battlerId)
 {
     const struct BattleTest *test = GetBattleTest();
@@ -2799,6 +2871,9 @@ static const char *BattlerIdentifier(enum BattlerId battlerId)
     case BATTLE_TEST_ONE_VS_TWO:
     case BATTLE_TEST_AI_ONE_VS_TWO:
         return sBattlerIdentifiersDoubles[battlerId];
+    case BATTLE_TEST_TRIPLES:
+    case BATTLE_TEST_AI_TRIPLES:
+        return sBattlerIdentifiersTriples[battlerId];
     }
     return "<unknown>";
 }
@@ -2898,6 +2973,7 @@ void OpenTurn(u32 sourceLine)
         Test_ExitWithResult(TEST_RESULT_ERROR, sourceLine, "%s:%d: TURN exceeds MAX_TURNS", gTestRunnerState.test->filename, sourceLine);
     DATA.turnState = TURN_OPEN;
     DATA.actionBattlers = 0x00;
+    DATA.skipTurnBattlers = 0x00;
     DATA.moveBattlers = 0x00;
 }
 
@@ -2927,11 +3003,69 @@ static void SetAiActionToPass(u32 sourceLine, enum BattlerId battlerId)
     DATA.expectedAiActionIndex[battlerId]++;
 }
 
+// Triple battles: only one battler per side acts. Each side chooses left, middle, right, and the engine
+// passes automatically for everyone after the actor, so only the battlers before it record a pass.
+static void CloseTripleTurn(u32 sourceLine)
+{
+    for (enum BattleSide side = B_SIDE_PLAYER; side < NUM_BATTLE_SIDES; side++)
+    {
+        const enum BattlerId order[] = { B_POSITION_PLAYER_LEFT | side, B_POSITION_PLAYER_MIDDLE | side, B_POSITION_PLAYER_RIGHT | side };
+        s32 actorIndex = -1;
+
+        for (u32 j = 0; j < ARRAY_COUNT(order); j++)
+        {
+            if (DATA.actionBattlers & (1 << order[j]))
+            {
+                INVALID_IF(actorIndex != -1, "Only one battler per side can act in a triple battle turn");
+                actorIndex = j;
+            }
+        }
+
+        if (actorIndex == -1)
+        {
+            if (IsAITest() && side == B_SIDE_OPPONENT)
+                continue; // The AI picks its actor.
+            if (DATA.uiPreview && side == B_SIDE_PLAYER)
+                continue; // The player's input is scripted.
+            actorIndex = 0;
+            Move(sourceLine, &gBattleMons[order[0]], (struct MoveContext) { move: MOVE_CELEBRATE, explicitMove: TRUE });
+        }
+
+        // A battler locked into its move acts without choosing, and its allies pass without being asked.
+        if (DATA.skipTurnBattlers & (1 << order[actorIndex]))
+            continue;
+
+        for (s32 j = 0; j < actorIndex; j++)
+        {
+            PushBattlerAction(sourceLine, order[j], RECORDED_ACTION_TYPE, B_ACTION_PASS);
+            DATA.actionBattlers |= 1 << order[j];
+        }
+    }
+
+    for (enum BattlerId battler = 0; battler < MAX_BATTLERS_COUNT; battler++)
+    {
+        if (DATA.tripleDeferredSendOut[battler] != 0)
+        {
+            PushBattlerAction(sourceLine, battler, RECORDED_PARTY_INDEX, DATA.tripleDeferredSendOut[battler] - 1);
+            DATA.currentMonIndexes[battler] = DATA.tripleDeferredSendOut[battler] - 1;
+            DATA.tripleDeferredSendOut[battler] = 0;
+        }
+    }
+}
+
 void CloseTurn(u32 sourceLine)
 {
     s32 i;
     INVALID_IF(DATA.turnState != TURN_OPEN, "Nested TURN");
     DATA.turnState = TURN_CLOSING;
+
+    if (IsTripleTest())
+    {
+        CloseTripleTurn(sourceLine);
+        DATA.turnState = TURN_CLOSED;
+        DATA.turns++;
+        return;
+    }
 
     // If Move was not specified always use Celebrate. In AI Tests allow any taken action.
     for (i = 0; i < STATE->battlersCount; i++)
@@ -3141,8 +3275,13 @@ void Move(u32 sourceLine, struct BattlePokemon *battler, struct MoveContext ctx)
     if (!ctx.explicitAllowed || ctx.allowed)
     {
         PushBattlerAction(sourceLine, battlerId, RECORDED_MOVE_SLOT, moveSlot);
-        PushBattlerAction(sourceLine, battlerId, RECORDED_MOVE_TARGET,
-                          ctx.explicitTarget ? target : RECORDED_TARGET_DEFAULT);
+        u32 targetByte = ctx.explicitTarget ? target : RECORDED_TARGET_DEFAULT;
+        if (ctx.explicitSecondTarget)
+        {
+            INVALID_IF(!IsTripleTest(), "secondTarget is only used in triple battles");
+            targetByte |= TRIPLE_TARGET_ENCODE_SECOND(ctx.secondTarget - gBattleMons);
+        }
+        PushBattlerAction(sourceLine, battlerId, RECORDED_MOVE_TARGET, targetByte);
     }
 
     if (ctx.explicitPartyIndex)
@@ -3388,6 +3527,160 @@ void SkipTurn(u32 sourceLine, struct BattlePokemon *battler)
     enum BattlerId battlerId = battler - gBattleMons;
     INVALID_IF(DATA.turnState == TURN_CLOSED, "SKIP_TURN outside TURN");
     DATA.actionBattlers |= 1 << battlerId;
+    DATA.skipTurnBattlers |= 1 << battlerId;
+}
+
+void ScreenDump_(u32 sourceLine, u32 turn)
+{
+    INVALID_IF(turn == 0, "SCREEN_DUMP turns start at 1");
+    DATA.screenDumpTurn = turn;
+    DATA.screenDumpDone = FALSE;
+}
+
+// The test printf has no %x, so dump lines are built by hand.
+static char *AppendHex(char *dst, u32 value, u32 digits)
+{
+    static const char hex[] = "0123456789abcdef";
+    for (s32 i = digits - 1; i >= 0; i--)
+        *dst++ = hex[(value >> (4 * i)) & 0xF];
+    return dst;
+}
+
+static void DumpMemoryRegion(char tag, const u8 *base, u32 size)
+{
+    char line[16 + 2 * 64 + 1];
+
+    for (u32 offset = 0; offset < size; offset += 64)
+    {
+        char *p = line;
+        bool32 allZero = TRUE;
+
+        for (u32 i = 0; i < 64 && allZero; i++)
+            allZero = (base[offset + i] == 0);
+        if (allZero)
+            continue; // The renderer starts from zeroed memory.
+
+        *p++ = tag;
+        *p++ = ' ';
+        p = AppendHex(p, offset, 5);
+        *p++ = ' ';
+        for (u32 i = 0; i < 64; i++)
+            p = AppendHex(p, base[offset + i], 2);
+        *p = '\0';
+        Test_MgbaPrintf("SCRDUMP %s", line);
+    }
+}
+
+static void DumpRegisters(char tag, const u16 *values, u32 count)
+{
+    char line[2 + 5 * 8 + 1];
+    char *p = line;
+
+    *p++ = tag;
+    for (u32 i = 0; i < count; i++)
+    {
+        *p++ = ' ';
+        p = AppendHex(p, values[i], 4);
+    }
+    *p = '\0';
+    Test_MgbaPrintf("SCRDUMP %s", line);
+}
+
+static void DumpScreen(void);
+
+void TestRunner_Battle_TryDumpScreen(bool32 atActionSelection)
+{
+    if (DATA.screenDumpTurn == 0 || DATA.screenDumpDone || !atActionSelection || gBattleTurnCounter + 1 != DATA.screenDumpTurn)
+        return;
+    DATA.screenDumpDone = TRUE;
+    DumpScreen();
+}
+
+void UiPreview_(u32 sourceLine, const char *script)
+{
+    u32 i;
+    for (i = 0; script[i] != '\0' && i < ARRAY_COUNT(DATA.uiPreviewScript) - 1; i++)
+        DATA.uiPreviewScript[i] = script[i];
+    DATA.uiPreviewScript[i] = '\0';
+    DATA.uiPreview = TRUE;
+}
+
+bool32 TestRunner_Battle_IsUiPreview(void)
+{
+    return DATA.uiPreview;
+}
+
+#define UI_PREVIEW_START_FRAMES 30
+#define UI_PREVIEW_STEP_FRAMES 12
+
+void TestRunner_Battle_UiPreviewKeys(bool32 inBattleTurn)
+{
+    u32 keys = 0;
+    char c;
+
+    if (!DATA.uiPreview || (!inBattleTurn && DATA.uiPreviewFrame == 0))
+        return;
+    if (++DATA.uiPreviewFrame < UI_PREVIEW_START_FRAMES || (DATA.uiPreviewFrame - UI_PREVIEW_START_FRAMES) % UI_PREVIEW_STEP_FRAMES != 0)
+        return;
+
+    c = DATA.uiPreviewScript[DATA.uiPreviewPos];
+    if (c == '\0')
+        Test_ExitWithResult(TEST_RESULT_PASS, SourceLine(0), "UI preview done");
+    DATA.uiPreviewPos++;
+
+    switch (c)
+    {
+    case 'A': keys = A_BUTTON; break;
+    case 'B': keys = B_BUTTON; break;
+    case 'L': keys = L_BUTTON; break;
+    case 'R': keys = R_BUTTON; break;
+    case 'S': keys = SELECT_BUTTON; break;
+    case 'T': keys = START_BUTTON; break;
+    case '<': keys = DPAD_LEFT; break;
+    case '>': keys = DPAD_RIGHT; break;
+    case '^': keys = DPAD_UP; break;
+    case 'v': keys = DPAD_DOWN; break;
+    case 'D': DumpScreen(); break;
+    }
+    gMain.newKeys = gMain.newAndRepeatedKeys = keys;
+    gMain.heldKeys = keys & ~B_BUTTON; // Holding B quits recorded battles, which tests are.
+}
+
+static void DumpScreen(void)
+{
+    const u16 regs[] = { GetGpuReg(REG_OFFSET_DISPCNT), GetGpuReg(REG_OFFSET_BG0CNT), GetGpuReg(REG_OFFSET_BG1CNT), GetGpuReg(REG_OFFSET_BG2CNT), GetGpuReg(REG_OFFSET_BG3CNT) };
+    const u16 scroll[] =
+    {
+        GetGpuReg(REG_OFFSET_BG0HOFS), GetGpuReg(REG_OFFSET_BG0VOFS), GetGpuReg(REG_OFFSET_BG1HOFS), GetGpuReg(REG_OFFSET_BG1VOFS),
+        GetGpuReg(REG_OFFSET_BG2HOFS), GetGpuReg(REG_OFFSET_BG2VOFS), GetGpuReg(REG_OFFSET_BG3HOFS), GetGpuReg(REG_OFFSET_BG3VOFS),
+    };
+
+    Test_MgbaPrintf("SCRDUMP BEGIN %s %d", gTestRunnerState.test->name, DATA.uiPreviewDumps++);
+    DumpRegisters('R', regs, ARRAY_COUNT(regs));
+    DumpRegisters('S', scroll, ARRAY_COUNT(scroll));
+    DumpMemoryRegion('V', (const u8 *)VRAM, VRAM_SIZE);
+    DumpMemoryRegion('O', (const u8 *)OAM, OAM_SIZE);
+    DumpMemoryRegion('P', (const u8 *)PLTT, PLTT_SIZE);
+    Test_MgbaPrintf("SCRDUMP END");
+}
+
+void Formation(u32 sourceLine, struct BattlePokemon *near, struct BattlePokemon *middle, struct BattlePokemon *far)
+{
+    enum BattlerId battlers[TRIPLE_RANK_COUNT] = { near - gBattleMons, middle - gBattleMons, far - gBattleMons };
+    enum BattleSide side = battlers[0] & BIT_SIDE;
+    enum BattlerId left = B_POSITION_PLAYER_LEFT | side;
+    u8 ranks[MAX_BATTLERS_COUNT] = {0};
+
+    INVALID_IF(!IsTripleTest(), "FORMATION is only used in triple battles");
+    INVALID_IF(DATA.turnState == TURN_CLOSED, "FORMATION outside TURN");
+    INVALID_IF((battlers[1] & BIT_SIDE) != side || (battlers[2] & BIT_SIDE) != side, "FORMATION battlers must be on the same side");
+    INVALID_IF(battlers[0] == battlers[1] || battlers[0] == battlers[2] || battlers[1] == battlers[2], "FORMATION battlers must be different");
+    INVALID_IF(DATA.actionBattlers & (1 << left), "FORMATION must come before the side's MOVE, SWITCH or USE_ITEM");
+
+    for (enum TripleFormationRank rank = TRIPLE_RANK_NEAR; rank < TRIPLE_RANK_COUNT; rank++)
+        ranks[battlers[rank]] = rank;
+    PushBattlerAction(sourceLine, left, RECORDED_ACTION_TYPE, B_ACTION_TRIPLE_FORMATION);
+    PushBattlerAction(sourceLine, left, RECORDED_TRIPLE_FORMATION, TRIPLE_FORMATION_PACK(ranks[left], ranks[B_POSITION_PLAYER_RIGHT | side], ranks[B_POSITION_PLAYER_MIDDLE | side]));
 }
 
 void SendOut(u32 sourceLine, struct BattlePokemon *battler, u32 partyIndex)
@@ -3401,6 +3694,12 @@ void SendOut(u32 sourceLine, struct BattlePokemon *battler, u32 partyIndex)
     {
         if (battlerId != i && (battlerId & BIT_SIDE) == (i & BIT_SIDE))
             INVALID_IF((DATA.currentMonIndexes[i] == partyIndex) && Test_BattlersShareParty(battlerId, i), "SEND_OUT to battler");
+    }
+    if (IsTripleTest() && !(DATA.actionBattlers & (1 << battlerId)))
+    {
+        // The battler may only pass this turn; its pass is recorded when the turn closes, so the send out has to wait.
+        DATA.tripleDeferredSendOut[battlerId] = partyIndex + 1;
+        return;
     }
     if (!(DATA.actionBattlers & (1 << battlerId)))
         Move(sourceLine, battler, (struct MoveContext) { move: MOVE_CELEBRATE, explicitMove: TRUE });

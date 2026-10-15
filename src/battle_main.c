@@ -1,6 +1,7 @@
 #include "global.h"
 #include "battle.h"
 #include "battle_anim.h"
+#include "triple_battle.h"
 #include "battle_ai_main.h"
 #include "battle_ai_record.h"
 #include "battle_arena.h"
@@ -110,6 +111,7 @@ static void TryDoEventsBeforeFirstTurn(void);
 static void HandleTurnActionSelectionState(void);
 static void RunTurnActionsFunctions(void);
 static void SetActionsAndBattlersTurnOrder(void);
+static u32 GetSpeedTieBattlerCount(void);
 static void UpdateBattlerPartyOrdersOnSwitch(enum BattlerId battler);
 static bool8 AllAtActionConfirmed(void);
 static void TryChangeTurnOrder(void);
@@ -432,6 +434,7 @@ static void (*const sTurnActionsFuncsTable[])(void) =
     [B_ACTION_TRY_FINISH]             = HandleAction_TryFinish,
     [B_ACTION_FINISHED]               = HandleAction_ActionFinished,
     [B_ACTION_NOTHING_FAINTED]        = HandleAction_NothingIsFainted,
+    [B_ACTION_PASS]                   = HandleAction_NothingIsFainted,
     [B_ACTION_THROW_BALL]             = HandleAction_ThrowBall,
 };
 
@@ -1734,6 +1737,7 @@ void BattleMainCB2(void)
     RunTextPrinters();
     UpdatePaletteFade();
     RunTasks();
+    TestRunner_Battle_TryDumpScreen(gBattleMainFunc == HandleTurnActionSelectionState);
 
     if (JOY_HELD(B_BUTTON) && gBattleTypeFlags & BATTLE_TYPE_RECORDED && RecordedBattle_CanStopPlayback())
     {
@@ -2731,6 +2735,7 @@ void BeginBattleIntro(void)
 
 static void BattleMainCB1(void)
 {
+    TestRunner_Battle_UiPreviewKeys(gBattleMainFunc == HandleTurnActionSelectionState);
     gBattleMainFunc();
     for (enum BattlerId battler = 0; battler < gBattlersCount; battler++)
         gBattlerControllerFuncs[battler](battler);
@@ -3237,7 +3242,7 @@ static void DoBattleIntro(void)
                 }
             }
 
-            for (enum BattlerPosition position = B_POSITION_PLAYER_LEFT; position < MAX_POSITION_COUNT; position++)
+            for (enum BattlerPosition position = B_POSITION_PLAYER_LEFT; position < gBattlersCount; position++)
             {
                 if (position > B_POSITION_OPPONENT_LEFT && !BattleSideHasTwoTrainers(position & BIT_SIDE))
                     continue;
@@ -3452,7 +3457,7 @@ static void TryDoEventsBeforeFirstTurn(void)
         }
         #endif // TESTING
 
-        gBattleStruct->speedTieBreaks = RandomUniform(RNG_SPEED_TIE, 0, Factorial(MAX_BATTLERS_COUNT) - 1);
+        gBattleStruct->speedTieBreaks = RandomUniform(RNG_SPEED_TIE, 0, Factorial(GetSpeedTieBattlerCount()) - 1);
         gBattleTurnCounter = 0;
         gBattleStruct->eventState.beforeFirstTurn++;
         break;
@@ -3602,7 +3607,7 @@ void BattleTurnPassed(void)
 
 bool32 EndTurnEvents(void) // Called from Battle Script
 {
-    gBattleStruct->speedTieBreaks = RandomUniform(RNG_SPEED_TIE, 0, Factorial(MAX_BATTLERS_COUNT) - 1);
+    gBattleStruct->speedTieBreaks = RandomUniform(RNG_SPEED_TIE, 0, Factorial(GetSpeedTieBattlerCount()) - 1);
 
     TurnValuesCleanUp(TRUE);
 
@@ -3785,6 +3790,61 @@ enum
     STATE_SELECTION_SCRIPT_MAY_RUN
 };
 
+// Triple battles: whether another battler on the side already acts this turn, or is locked into acting.
+static bool32 DoesTripleSideAlreadyHaveActor(enum BattlerId battler)
+{
+    for (enum BattlerId i = 0; i < gBattlersCount; i++)
+    {
+        if (i == battler || !IsBattlerAlly(i, battler) || gAbsentBattlerFlags & (1u << i))
+            continue;
+        if (gBattleMons[i].volatiles.multipleTurns || gBattleMons[i].volatiles.rechargeTimer > 0)
+            return TRUE;
+        if (gBattleCommunication[i] >= STATE_WAIT_ACTION_CASE_CHOSEN
+         && gChosenActionByBattler[i] != B_ACTION_PASS
+         && gChosenActionByBattler[i] != B_ACTION_NOTHING_FAINTED
+         && gChosenActionByBattler[i] != B_ACTION_NONE)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+static bool32 CanBattlerStartChoosingAction(enum BattlerId battler)
+{
+    enum BattlerPosition position = GetBattlerPosition(battler);
+
+    if (IsTripleBattle())
+    {
+        enum BattlerId previous = GetTriplePreviousChoosingBattler(battler);
+        return previous >= gBattlersCount
+            || gAbsentBattlerFlags & (1u << previous)
+            || gBattleCommunication[previous] == STATE_WAIT_ACTION_CONFIRMED;
+    }
+
+    return gBattleTypeFlags & BATTLE_TYPE_MULTI
+        || (position & BIT_FLANK) == B_FLANK_LEFT
+        || gAbsentBattlerFlags & 1u << GetBattlerAtPosition(GetPartnerPosition(position))
+        || gBattleCommunication[GetBattlerAtPosition(GetPartnerPosition(position))] == STATE_WAIT_ACTION_CONFIRMED;
+}
+
+static bool32 IsAiBattlerForActionSelection(enum BattlerId battler)
+{
+    return (gBattleTypeFlags & BATTLE_TYPE_HAS_AI || IsWildMonSmart()) && (BattlerHasAi(battler) && !(gBattleTypeFlags & BATTLE_TYPE_PALACE));
+}
+
+// In triple battles the target byte also carries the second target of 2-target moves.
+static void SetChosenMoveTarget(enum BattlerId battler, u8 targetByte)
+{
+    if (IsTripleBattle())
+    {
+        gBattleStruct->moveTarget[battler] = TRIPLE_TARGET_MAIN(targetByte);
+        gBattleStruct->tripleSecondTarget[battler] = TRIPLE_TARGET_HAS_SECOND(targetByte);
+    }
+    else
+    {
+        gBattleStruct->moveTarget[battler] = targetByte;
+    }
+}
+
 static void HandleTurnActionSelectionState(void)
 {
     s32 i;
@@ -3792,27 +3852,33 @@ static void HandleTurnActionSelectionState(void)
     gBattleCommunication[ACTIONS_CONFIRMED_COUNT] = 0;
     for (enum BattlerId battlerIndex = 0; battlerIndex < gBattlersCount; battlerIndex++)
     {
-        enum BattlerId battler = gAiLogicData->reverseBattlerLogicOrder ? GetPartnerBattler(battlerIndex) : battlerIndex;
+        // Partner swapping only makes sense with two battlers per side.
+        enum BattlerId battler = (gAiLogicData->reverseBattlerLogicOrder && !IsTripleBattle()) ? GetPartnerBattler(battlerIndex) : battlerIndex;
         enum BattlerPosition position = GetBattlerPosition(battler);
         switch (gBattleCommunication[battler])
         {
         case STATE_TURN_START_RECORD: // Recorded battle related action on start of every turn.
             RecordedBattle_CopyBattlerMoves(battler);
             gBattleCommunication[battler] = STATE_BEFORE_ACTION_CHOSEN;
-            bool32 isAiBattler = (gBattleTypeFlags & BATTLE_TYPE_HAS_AI || IsWildMonSmart()) && (BattlerHasAi(battler) && !(gBattleTypeFlags & BATTLE_TYPE_PALACE));
-            if (isAiBattler)
+            if (IsAiBattlerForActionSelection(battler))
             {
-                ComputeAiBattlerDecisions(battler); // Do AI score computations here so we can use them in AI_TrySwitchOrUseItem
+                if (IsTripleBattle())
+                    ChooseTripleAiActor(battler, IsAiBattlerForActionSelection); // Scores the whole side and picks who acts
+                else
+                    ComputeAiBattlerDecisions(battler); // Do AI score computations here so we can use them in AI_TrySwitchOrUseItem
             }
             // fallthrough
         case STATE_BEFORE_ACTION_CHOSEN: // Choose an action.
             gBattleStruct->monToSwitchIntoId[battler] = PARTY_SIZE;
-            if (gBattleTypeFlags & BATTLE_TYPE_MULTI
-                || (position & BIT_FLANK) == B_FLANK_LEFT
-                || gAbsentBattlerFlags & 1u << GetBattlerAtPosition(GetPartnerPosition(position))
-                || gBattleCommunication[GetBattlerAtPosition(GetPartnerPosition(position))] == STATE_WAIT_ACTION_CONFIRMED)
+            if (CanBattlerStartChoosingAction(battler))
             {
-                if (gAbsentBattlerFlags & 1u << battler || gBattleStruct->battlerState[battler].commandingDondozo)
+                if (IsTripleBattle() && !(gAbsentBattlerFlags & 1u << battler)
+                 && (DoesTripleSideAlreadyHaveActor(battler) || (IsAiBattlerForActionSelection(battler) && IsTripleAiPassing(battler))))
+                {
+                    gChosenActionByBattler[battler] = B_ACTION_PASS;
+                    gBattleCommunication[battler] = STATE_WAIT_ACTION_CONFIRMED;
+                }
+                else if (gAbsentBattlerFlags & 1u << battler || gBattleStruct->battlerState[battler].commandingDondozo)
                 {
                     gChosenActionByBattler[battler] = B_ACTION_NOTHING_FAINTED;
                     if (!(gBattleTypeFlags & BATTLE_TYPE_MULTI))
@@ -3864,13 +3930,21 @@ static void HandleTurnActionSelectionState(void)
 
                 switch (gBattleResources->bufferB[battler][1])
                 {
+                case B_ACTION_TRIPLE_FORMATION:
+                    // Rearranging is free: apply it and ask the same battler for its real action.
+                    RecordedBattle_SetBattlerAction(battler, gBattleResources->bufferB[battler][2]);
+                    if (IsTripleBattle() && TrySetTripleFormation(GetBattlerSide(battler), gBattleResources->bufferB[battler][2]))
+                        UpdateTripleFormationGraphics(GetBattlerSide(battler));
+                    gChosenActionByBattler[battler] = B_ACTION_NONE;
+                    gBattleCommunication[battler] = STATE_BEFORE_ACTION_CHOSEN;
+                    return;
                 case B_ACTION_USE_MOVE:
                     if (AreAllMovesUnusable(battler))
                     {
                         gBattleCommunication[battler] = STATE_SELECTION_SCRIPT;
                         gBattleStruct->battlerState[battler].selectionScriptFinished = FALSE;
                         gBattleStruct->stateIdAfterSelScript[battler] = STATE_WAIT_ACTION_CONFIRMED_STANDBY;
-                        gBattleStruct->moveTarget[battler] = gBattleResources->bufferB[battler][3];
+                        SetChosenMoveTarget(battler, gBattleResources->bufferB[battler][3]);
                         return;
                     }
                     else if (GetConfig(B_ENCORE_TARGET) < GEN_5 && gBattleMons[battler].volatiles.encoredMove != MOVE_NONE)
@@ -3985,45 +4059,53 @@ static void HandleTurnActionSelectionState(void)
                     }
                     break;
                 case B_ACTION_CANCEL_PARTNER:
+                {
+                    // Goes back to the battler that chose before this one; in triple battles that isn't always the partner.
+                    enum BattlerId previous = IsTripleBattle() ? GetTriplePreviousChoosingBattler(battler) : GetPartnerBattler(battler);
                     gBattleCommunication[battler] = STATE_WAIT_SET_BEFORE_ACTION;
-                    gBattleCommunication[GetPartnerBattler(battler)] = STATE_BEFORE_ACTION_CHOSEN;
+                    gBattleCommunication[previous] = STATE_BEFORE_ACTION_CHOSEN;
                     RecordedBattle_ClearBattlerAction(battler, 1);
-                    if (gBattleMons[GetPartnerBattler(battler)].volatiles.multipleTurns
-                        || gBattleMons[GetPartnerBattler(battler)].volatiles.rechargeTimer > 0)
+                    if (gBattleMons[previous].volatiles.multipleTurns
+                        || gBattleMons[previous].volatiles.rechargeTimer > 0)
                     {
                         BtlController_EmitEndBounceEffect(battler, B_COMM_TO_CONTROLLER);
                         MarkBattlerForControllerExec(battler);
                         return;
                     }
-                    else if (gChosenActionByBattler[GetPartnerBattler(battler)] == B_ACTION_SWITCH)
+                    else if (gChosenActionByBattler[previous] == B_ACTION_SWITCH)
                     {
-                        RecordedBattle_ClearBattlerAction(GetPartnerBattler(battler), 2);
+                        RecordedBattle_ClearBattlerAction(previous, 2);
                     }
-                    else if (gChosenActionByBattler[GetPartnerBattler(battler)] == B_ACTION_RUN)
+                    else if (gChosenActionByBattler[previous] == B_ACTION_RUN)
                     {
-                        RecordedBattle_ClearBattlerAction(GetPartnerBattler(battler), 1);
+                        RecordedBattle_ClearBattlerAction(previous, 1);
                     }
-                    else if (gChosenActionByBattler[GetPartnerBattler(battler)] == B_ACTION_USE_MOVE
-                             && (gProtectStructs[GetPartnerBattler(battler)].noValidMoves
-                                || gBattleMons[GetPartnerBattler(battler)].volatiles.encoredMove))
+                    else if (gChosenActionByBattler[previous] == B_ACTION_USE_MOVE
+                             && (gProtectStructs[previous].noValidMoves
+                                || gBattleMons[previous].volatiles.encoredMove))
                     {
-                        RecordedBattle_ClearBattlerAction(GetPartnerBattler(battler), 1);
+                        RecordedBattle_ClearBattlerAction(previous, 1);
                     }
                     else if (gBattleTypeFlags & BATTLE_TYPE_PALACE
-                             && gChosenActionByBattler[GetPartnerBattler(battler)] == B_ACTION_USE_MOVE)
+                             && gChosenActionByBattler[previous] == B_ACTION_USE_MOVE)
                     {
                         gRngValue = gBattlePalaceMoveSelectionRngValue;
-                        RecordedBattle_ClearBattlerAction(GetPartnerBattler(battler), 1);
+                        RecordedBattle_ClearBattlerAction(previous, 1);
+                    }
+                    else if (gChosenActionByBattler[previous] == B_ACTION_PASS)
+                    {
+                        RecordedBattle_ClearBattlerAction(previous, 1);
                     }
                     else
                     {
-                        RecordedBattle_ClearBattlerAction(GetPartnerBattler(battler), 3);
+                        RecordedBattle_ClearBattlerAction(previous, 3);
                     }
 
-                    gBattleStruct->gimmick.toActivate &= ~((1u << GetPartnerPosition(GetBattlerPosition(battler))));
+                    gBattleStruct->gimmick.toActivate &= ~(1u << previous);
                     BtlController_EmitEndBounceEffect(battler, B_COMM_TO_CONTROLLER);
                     MarkBattlerForControllerExec(battler);
                     return;
+                }
                 case B_ACTION_DEBUG:
                     BtlController_EmitDebugMenu(battler, B_COMM_TO_CONTROLLER);
                     MarkBattlerForControllerExec(battler);
@@ -4119,7 +4201,7 @@ static void HandleTurnActionSelectionState(void)
                             // Get the chosen move position (and thus the chosen move) and target from the returned buffer.
                             gBattleStruct->chosenMovePositions[battler] = gBattleResources->bufferB[battler][2] & ~RET_GIMMICK;
                             gChosenMoveByBattler[battler] = GetBattlerChosenMove(battler);
-                            gBattleStruct->moveTarget[battler] = gBattleResources->bufferB[battler][3];
+                            SetChosenMoveTarget(battler, gBattleResources->bufferB[battler][3]);
                             if (IsBattleMoveStatus(gChosenMoveByBattler[battler]) && GetBattlerAbility(battler) == ABILITY_MYCELIUM_MIGHT)
                                 gProtectStructs[battler].myceliumMight = TRUE;
                             if (GetBattlerHoldEffect(battler) == HOLD_EFFECT_LAGGING_TAIL)
@@ -4207,6 +4289,9 @@ static void HandleTurnActionSelectionState(void)
                     gBattleCommunication[battler]++;
                     break;
                 case B_ACTION_WALLY_THROW:
+                    gBattleCommunication[battler]++;
+                    break;
+                case B_ACTION_PASS:
                     gBattleCommunication[battler]++;
                     break;
                 case B_ACTION_DEBUG:
@@ -4578,44 +4663,44 @@ s32 GetWhichBattlerFasterOrTies(struct BattleCalcValues *calcValues, bool32 igno
         priority2);
 }
 
-// 24 == MAX_BATTLERS_COUNT!.
-// These are the possible orders if all the battlers speed tie.
-// An order is chosen at the start of the turn.
-static const u8 sBattlerOrders[24][4] =
+// Number of battlers the speed tie permutation covers. Doubles and singles keep the original 4 so their RNG is unchanged.
+static u32 GetSpeedTieBattlerCount(void)
 {
-    { 0, 1, 2, 3 },
-    { 0, 1, 3, 2 },
-    { 0, 2, 1, 3 },
-    { 0, 2, 3, 1 },
-    { 0, 3, 1, 2 },
-    { 0, 3, 2, 1 },
-    { 1, 0, 2, 3 },
-    { 1, 0, 3, 2 },
-    { 1, 2, 0, 3 },
-    { 1, 2, 3, 0 },
-    { 1, 3, 0, 2 },
-    { 1, 3, 2, 0 },
-    { 2, 0, 1, 3 },
-    { 2, 0, 3, 1 },
-    { 2, 1, 0, 3 },
-    { 2, 1, 3, 0 },
-    { 2, 3, 0, 1 },
-    { 2, 3, 1, 0 },
-    { 3, 0, 1, 2 },
-    { 3, 0, 2, 1 },
-    { 3, 1, 0, 2 },
-    { 3, 1, 2, 0 },
-    { 3, 2, 0, 1 },
-    { 3, 2, 1, 0 },
-};
+    return IsTripleBattle() ? MAX_BATTLERS_COUNT : 4;
+}
+
+// gBattleStruct->speedTieBreaks is a permutation index (Lehmer code) chosen at the start of the turn.
+// Decodes it and returns the tie break order of the battler; for 4 battlers this matches the old lexicographic table.
+static u32 GetSpeedTieOrder(enum BattlerId battler)
+{
+    u32 count = GetSpeedTieBattlerCount();
+    u32 code = gBattleStruct->speedTieBreaks;
+    u8 pool[MAX_BATTLERS_COUNT];
+    u32 i, j;
+
+    for (i = 0; i < count; i++)
+        pool[i] = i;
+
+    for (i = 0; i < count; i++)
+    {
+        u32 factorial = Factorial(count - 1 - i);
+        u32 index = code / factorial;
+        code %= factorial;
+        if (i == battler)
+            return pool[index];
+        for (j = index; j < count - 1 - i; j++)
+            pool[j] = pool[j + 1];
+    }
+    return battler;
+}
 
 s32 GetWhichBattlerFaster(struct BattleCalcValues *calcValues, bool32 ignoreChosenMoves)
 {
     s32 strikesFirst = GetWhichBattlerFasterOrTies(calcValues, ignoreChosenMoves);
     if (strikesFirst == 0)
     {
-        s32 order1 = sBattlerOrders[gBattleStruct->speedTieBreaks][calcValues->battlerAtk];
-        s32 order2 = sBattlerOrders[gBattleStruct->speedTieBreaks][calcValues->battlerDef];
+        s32 order1 = GetSpeedTieOrder(calcValues->battlerAtk);
+        s32 order2 = GetSpeedTieOrder(calcValues->battlerDef);
         if (order1 < order2)
             strikesFirst = 1;
         else
@@ -5019,8 +5104,8 @@ static void CheckChangingTurnOrderEffects(void)
     }
 
     gBattleMainFunc = RunTurnActionsFunctions;
-    gBattleCommunication[3] = 0;
-    gBattleCommunication[4] = 0;
+    gBattleCommunication[MOVE_EFFECT_BYTE] = 0;
+    gBattleCommunication[ACTIONS_CONFIRMED_COUNT] = 0;
     gBattleResources->battleScriptsStack->size = 0;
 }
 

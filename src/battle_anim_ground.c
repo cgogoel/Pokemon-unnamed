@@ -555,7 +555,7 @@ static void AnimDigDirtMound(struct Sprite *sprite)
 #define tDelay               data[1]
 #define tTimer               data[2]
 #define tMaxTime             data[3]
-#define tbattlerSpriteIds(i) data[9 + (i)]
+#define tbattlerSpriteIds(i) data[4 + (i)] // Up to MAX_BATTLERS_COUNT (6): data[4] to data[9]
 #define tNumBattlers         data[13] // AnimTask_ShakeBattlers
 #define tInitialX            data[13] // AnimTask_ShakePlatforms
 #define tHorizOffset         data[14]

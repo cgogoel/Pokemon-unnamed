@@ -1,6 +1,7 @@
 #include "global.h"
 #include "battle.h"
 #include "battle_anim.h"
+#include "triple_battle.h"
 #include "battle_interface.h"
 #include "bg.h"
 #include "contest.h"
@@ -50,6 +51,18 @@ const struct UCoords8 sBattlerCoords[BATTLE_COORDS_COUNT][MAX_BATTLERS_COUNT] =
         [B_POSITION_PLAYER_RIGHT]   = { 90, 84 },
         [B_POSITION_OPPONENT_RIGHT] = { 152, 32 },
     },
+    // Indexed by layout position (see GetBattlerLayoutPosition): right is the front spot, left the rear one.
+    // Each team stands on a diagonal with its rear Pokémon on the left and its front Pokémon on the right.
+    [BATTLE_COORDS_TRIPLES] =
+    {
+        // The player's back sprites are cut off at the bottom: the cut stays behind the text box, the rear one lowest
+        [B_POSITION_PLAYER_LEFT]     = { 40, 86 },
+        [B_POSITION_PLAYER_MIDDLE]   = { 118, 83 },
+        [B_POSITION_PLAYER_RIGHT]    = { 196, 80 },
+        [B_POSITION_OPPONENT_LEFT]   = { 40, 8 },
+        [B_POSITION_OPPONENT_MIDDLE] = { 112, 16 },
+        [B_POSITION_OPPONENT_RIGHT]  = { 188, 24 },
+    },
 };
 
 // Placeholders for Pokémon sprites to be created for a move animation effect (e.g. Role Play / Snatch)
@@ -93,10 +106,10 @@ u8 GetBattlerSpriteCoord(enum BattlerId battler, u8 coordType)
     {
     case BATTLER_COORD_X:
     case BATTLER_COORD_X_2:
-        retVal = sBattlerCoords[GetBattlerCoordsIndex(battler)][GetBattlerPosition(battler)].x;
+        retVal = sBattlerCoords[GetBattlerCoordsIndex(battler)][GetBattlerLayoutPosition(battler)].x;
         break;
     case BATTLER_COORD_Y:
-        retVal = sBattlerCoords[GetBattlerCoordsIndex(battler)][GetBattlerPosition(battler)].y;
+        retVal = sBattlerCoords[GetBattlerCoordsIndex(battler)][GetBattlerLayoutPosition(battler)].y;
         break;
     case BATTLER_COORD_Y_PIC_OFFSET:
     case BATTLER_COORD_Y_PIC_OFFSET_DEFAULT:
@@ -196,7 +209,7 @@ u8 GetBattlerSpriteFinal_Y(enum BattlerId battler, enum Species species, bool32 
         offset = GetBattlerYDelta(battler, species);
         offset -= GetBattlerElevation(battler, species);
     }
-    y = offset + sBattlerCoords[GetBattlerCoordsIndex(battler)][GetBattlerPosition(battler)].y;
+    y = offset + sBattlerCoords[GetBattlerCoordsIndex(battler)][GetBattlerLayoutPosition(battler)].y;
     if (a3)
     {
         if (IsOnPlayerSide(battler))
@@ -1863,7 +1876,7 @@ static u16 GetBattlerYDeltaFromSpriteId(u8 spriteId)
     enum Species species;
     u16 i;
 
-    for (i = 0; i < MAX_BATTLERS_COUNT; i++)
+    for (i = 0; i < (IsContest() ? CONTESTANT_COUNT : gBattlersCount); i++)
     {
         if (gBattlerSpriteIds[i] == spriteId)
         {
@@ -1988,6 +2001,16 @@ u8 GetBattlerSpriteSubpriority(enum BattlerId battler)
         else
             return 40;
     }
+    else if (IsTripleBattle())
+    {
+        // Sprites lower on the screen are closer to the camera and drawn in front.
+        static const u8 sTripleSubpriorities[MAX_POSITION_COUNT] =
+        {
+            [B_POSITION_PLAYER_LEFT] = 20, [B_POSITION_PLAYER_MIDDLE] = 25, [B_POSITION_PLAYER_RIGHT] = 30,
+            [B_POSITION_OPPONENT_RIGHT] = 40, [B_POSITION_OPPONENT_MIDDLE] = 45, [B_POSITION_OPPONENT_LEFT] = 50,
+        };
+        subpriority = sTripleSubpriorities[GetBattlerLayoutPosition(battler)];
+    }
     else
     {
         position = GetBattlerPosition(battler);
@@ -2018,15 +2041,25 @@ u8 GetBattlerSpriteBGPriority(enum BattlerId battler)
 
 u8 GetBattlerSpriteBGPriorityRank(enum BattlerId battler)
 {
-    if (!IsContest())
-    {
-        enum BattlerPosition position = GetBattlerPosition(battler);
-        if (position == B_POSITION_PLAYER_LEFT || position == B_POSITION_OPPONENT_RIGHT)
-            return 2;
-        else
-            return 1;
-    }
-    return 1;
+    return IsBattlerOnAnimBg2(battler) ? 2 : 1;
+}
+
+// Whether monbg puts the battler on BG2 (or BG1). Triple battles go by where the battler stands on screen.
+bool32 IsBattlerOnAnimBg2(enum BattlerId battler)
+{
+    if (IsContest())
+        return FALSE;
+
+    enum BattlerPosition position = IsTripleBattle() ? GetBattlerLayoutPosition(battler) : GetBattlerPosition(battler);
+    return position == B_POSITION_PLAYER_LEFT || position == B_POSITION_OPPONENT_RIGHT;
+}
+
+// The ally that monbg moves to the other background along with the battler.
+enum BattlerId GetAnimBgPartner(enum BattlerId battler)
+{
+    if (IsTripleBattle())
+        return GetPartnerBattler(battler);
+    return battler ^ BIT_FLANK;
 }
 
 // Create Pokémon sprite to be used for a move animation effect (e.g. Role Play / Snatch)

@@ -31,7 +31,9 @@ struct PlayerInfo
 };
 
 // Save data using TryWriteSpecialSaveSector is allowed to exceed SECTOR_DATA_SIZE (up to the counter field)
+#if !TESTING
 STATIC_ASSERT(sizeof(struct RecordedBattleSave) <= SECTOR_COUNTER_OFFSET, RecordedBattleSaveFreeSpace);
+#endif
 
 EWRAM_DATA rng_value_t gRecordedBattleRngSeed = RNG_VALUE_EMPTY;
 EWRAM_DATA rng_value_t gBattlePalaceMoveSelectionRngValue = RNG_VALUE_EMPTY;
@@ -417,7 +419,7 @@ bool32 MoveRecordedBattleToSaveData(void)
         battleSave->apprenticeLanguage = gSaveBlock2Ptr->apprentices[gPartnerTrainerId - TRAINER_RECORD_MIXING_APPRENTICE].language;
     }
 
-    for (i = 0; i < MAX_BATTLERS_COUNT; i++)
+    for (i = 0; i < RECORDED_BATTLE_SAVE_BATTLERS; i++)
         for (j = 0; j < BATTLER_RECORD_SIZE; j++)
             battleSave->battleRecord[i][j] = sBattleRecords[i][j];
 
@@ -542,7 +544,7 @@ void SetVariablesForRecordedBattle(struct RecordedBattleSave *src)
 
     gSaveBlock2Ptr->frontier.lvlMode = src->lvlMode;
 
-    for (i = 0; i < MAX_BATTLERS_COUNT; i++)
+    for (i = 0; i < RECORDED_BATTLE_SAVE_BATTLERS; i++)
         for (j = 0; j < BATTLER_RECORD_SIZE; j++)
             sBattleRecords[i][j] = src->battleRecord[i][j];
 }

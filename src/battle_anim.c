@@ -1165,12 +1165,7 @@ static void Cmd_monbg(void)
     // Move designated battler to background
     if (IsBattlerSpriteVisible(battler))
     {
-        enum BattlerPosition position = GetBattlerPosition(battler);
-        if (position == B_POSITION_OPPONENT_LEFT || position == B_POSITION_PLAYER_RIGHT || IsContest())
-            toBG_2 = FALSE;
-        else
-            toBG_2 = TRUE;
-
+        toBG_2 = IsBattlerOnAnimBg2(battler);
         MoveBattlerSpriteToBG(battler, toBG_2, FALSE);
         taskId = CreateTask(Task_InitUpdateMonBg, 10);
         gAnimVisualTaskCount++;
@@ -1178,19 +1173,13 @@ static void Cmd_monbg(void)
         gTasks[taskId].tInBg2 = toBG_2;
         gTasks[taskId].tActive = TRUE;
         gTasks[taskId].tIsPartner = FALSE;
-
     }
 
     // Move battler's partner to background
-    battler ^= BIT_FLANK;
+    toBG_2 = !IsContest() && !IsBattlerOnAnimBg2(battler); // The partner takes the other background
+    battler = GetAnimBgPartner(battler);
     if (IsBattlerSpriteVisible(battler))
     {
-        enum BattlerPosition position = GetBattlerPosition(battler);
-        if (position == B_POSITION_OPPONENT_LEFT || position == B_POSITION_PLAYER_RIGHT || IsContest())
-            toBG_2 = FALSE;
-        else
-            toBG_2 = TRUE;
-
         MoveBattlerSpriteToBG(battler, toBG_2, FALSE);
         taskId = CreateTask(Task_InitUpdateMonBg, 10);
         gAnimVisualTaskCount++;
@@ -1464,12 +1453,7 @@ static void Task_ClearMonBg(u8 taskId)
     gTasks[taskId].data[1]++;
     if (gTasks[taskId].data[1] != 1)
     {
-        u8 to_BG2;
-        enum BattlerPosition position = GetBattlerPosition(gTasks[taskId].data[2]);
-        if (position == B_POSITION_OPPONENT_LEFT || position == B_POSITION_PLAYER_RIGHT || IsContest())
-            to_BG2 = FALSE;
-        else
-            to_BG2 = TRUE;
+        u8 to_BG2 = IsBattlerOnAnimBg2(gTasks[taskId].data[2]);
 
         if (sMonAnimTaskIdArray[0] != TASK_NONE)
         {
@@ -1510,24 +1494,14 @@ static void Cmd_monbg_static(void)
 
     if (IsBattlerSpriteVisible(battler))
     {
-        enum BattlerPosition position = GetBattlerPosition(battler);
-        if (position == B_POSITION_OPPONENT_LEFT || position == B_POSITION_PLAYER_RIGHT || IsContest())
-            toBG_2 = FALSE;
-        else
-            toBG_2 = TRUE;
-
+        toBG_2 = IsBattlerOnAnimBg2(battler);
         MoveBattlerSpriteToBG(battler, toBG_2, FALSE);
     }
 
-    battler ^= BIT_FLANK;
+    toBG_2 = !IsContest() && !IsBattlerOnAnimBg2(battler); // The partner takes the other background
+    battler = GetAnimBgPartner(battler);
     if (animBattlerId > 1 && IsBattlerSpriteVisible(battler))
     {
-        enum BattlerPosition position = GetBattlerPosition(battler);
-        if (position == B_POSITION_OPPONENT_LEFT || position == B_POSITION_PLAYER_RIGHT || IsContest())
-            toBG_2 = FALSE;
-        else
-            toBG_2 = TRUE;
-
         MoveBattlerSpriteToBG(battler, toBG_2, FALSE);
     }
 
@@ -1574,11 +1548,7 @@ static void Task_ClearMonBgStatic(u8 taskId)
     {
         bool8 toBG_2;
         enum BattlerId battler = gTasks[taskId].data[2];
-        enum BattlerPosition position = GetBattlerPosition(battler);
-        if (position == B_POSITION_OPPONENT_LEFT || position == B_POSITION_PLAYER_RIGHT || IsContest())
-            toBG_2 = FALSE;
-        else
-            toBG_2 = TRUE;
+        toBG_2 = IsBattlerOnAnimBg2(battler);
 
         if (IsBattlerSpriteVisible(battler))
             ResetBattleAnimBg(toBG_2);

@@ -131,7 +131,8 @@ static void Intro_WaitForShinyAnimAndHealthbox(enum BattlerId battler)
         else
         {
             if (gSprites[gHealthboxSpriteIds[battler]].callback == SpriteCallbackDummy
-                && gSprites[gHealthboxSpriteIds[GetPartnerBattler(battler)]].callback == SpriteCallbackDummy)
+                && gSprites[gHealthboxSpriteIds[GetPartnerBattler(battler)]].callback == SpriteCallbackDummy
+                && IsIntroThirdBattlerHealthboxDone(battler))
             {
                 healthboxAnimDone = TRUE;
             }
@@ -166,7 +167,8 @@ static void Intro_WaitForShinyAnimAndHealthbox(enum BattlerId battler)
         else
         {
             if (gSprites[gHealthboxSpriteIds[battler]].callback == SpriteCallbackDummy
-                && gSprites[gHealthboxSpriteIds[GetPartnerBattler(battler)]].callback == SpriteCallbackDummy)
+                && gSprites[gHealthboxSpriteIds[GetPartnerBattler(battler)]].callback == SpriteCallbackDummy
+                && IsIntroThirdBattlerHealthboxDone(battler))
             {
                 healthboxAnimDone = TRUE;
             }
@@ -194,12 +196,12 @@ static void Intro_TryShinyAnimShowHealthbox(enum BattlerId battler)
             TryShinyAnimation(battler, GetBattlerMon(battler));
 
         if (!gBattleSpritesDataPtr->healthBoxesData[GetPartnerBattler(battler)].triedShinyMonAnim
-        && !gBattleSpritesDataPtr->healthBoxesData[GetPartnerBattler(battler)].ballAnimActive)
+        && !gBattleSpritesDataPtr->healthBoxesData[GetPartnerBattler(battler)].ballAnimActive && !IsIntroThirdBattlerBallAnimActive(battler))
             TryShinyAnimation(GetPartnerBattler(battler), GetBattlerMon(GetPartnerBattler(battler)));
     }
 
     if (!gBattleSpritesDataPtr->healthBoxesData[battler].ballAnimActive
-        && !gBattleSpritesDataPtr->healthBoxesData[GetPartnerBattler(battler)].ballAnimActive)
+        && !gBattleSpritesDataPtr->healthBoxesData[GetPartnerBattler(battler)].ballAnimActive && !IsIntroThirdBattlerBallAnimActive(battler))
     {
         if (!gBattleSpritesDataPtr->healthBoxesData[battler].healthboxSlideInStarted)
         {
@@ -212,6 +214,7 @@ static void Intro_TryShinyAnimShowHealthbox(enum BattlerId battler)
             UpdateHealthboxAttribute(gHealthboxSpriteIds[battler], GetBattlerMon(battler), HEALTHBOX_ALL);
             StartHealthboxSlideIn(battler);
             SetHealthboxSpriteVisible(gHealthboxSpriteIds[battler]);
+            IntroThirdBattlerShowHealthbox(battler);
         }
         gBattleSpritesDataPtr->healthBoxesData[battler].healthboxSlideInStarted = TRUE;
     }
@@ -219,6 +222,7 @@ static void Intro_TryShinyAnimShowHealthbox(enum BattlerId battler)
     if (gBattleSpritesDataPtr->healthBoxesData[battler].healthboxSlideInStarted
         && !gBattleSpritesDataPtr->healthBoxesData[battler].waitForCry
         && !gBattleSpritesDataPtr->healthBoxesData[GetPartnerBattler(battler)].waitForCry
+        && !IsIntroThirdBattlerWaitingForCry(battler)
         && !IsCryPlayingOrClearCrySongs())
     {
         if (!gBattleSpritesDataPtr->healthBoxesData[battler].bgmRestored)
@@ -243,6 +247,8 @@ static void Intro_TryShinyAnimShowHealthbox(enum BattlerId battler)
     {
         if (IsDoubleBattle() && !(gBattleTypeFlags & BATTLE_TYPE_MULTI))
             DestroySprite(&gSprites[gBattleControllerData[GetPartnerBattler(battler)]]);
+
+        IntroThirdBattlerDestroyBallSprite(battler);
 
         DestroySprite(&gSprites[gBattleControllerData[battler]]);
         gBattleSpritesDataPtr->animationData->introAnimActive = FALSE;
@@ -337,7 +343,7 @@ static void RecordedPlayerHandleTrainerSlideBack(enum BattlerId battler)
 
 static void ChooseActionInBattlePalace(enum BattlerId battler)
 {
-    if (gBattleCommunication[4] >= gBattlersCount / 2)
+    if (gBattleCommunication[ACTIONS_CONFIRMED_COUNT] >= gBattlersCount / 2)
     {
         BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, RecordedBattle_GetBattlerAction(RECORDED_BATTLE_PALACE_ACTION, battler), 0);
         BtlController_Complete(battler);
@@ -352,7 +358,10 @@ static void RecordedPlayerHandleChooseAction(enum BattlerId battler)
     }
     else
     {
-        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, RecordedBattle_GetBattlerAction(RECORDED_ACTION_TYPE, battler), 0);
+        u32 action = RecordedBattle_GetBattlerAction(RECORDED_ACTION_TYPE, battler);
+        // Triple battles: a formation change carries the new formation.
+        u32 data = (action == B_ACTION_TRIPLE_FORMATION) ? RecordedBattle_GetBattlerAction(RECORDED_TRIPLE_FORMATION, battler) : 0;
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, action, data);
         BtlController_Complete(battler);
     }
 }
@@ -367,10 +376,10 @@ static void RecordedPlayerHandleChooseMove(enum BattlerId battler)
     {
         u8 moveIndex = RecordedBattle_GetBattlerAction(RECORDED_MOVE_SLOT, battler);
         u8 target = RecordedBattle_GetBattlerAction(RECORDED_MOVE_TARGET, battler);
-        if (target == RECORDED_TARGET_DEFAULT)
+        if ((target & 0xF) == RECORDED_TARGET_DEFAULT)
         {
             struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
-            target = GetDefaultSelectionTarget(battler, GetBattlerMoveSelectionTargetType(battler, moveInfo->moves[moveIndex]));
+            target = (target & 0xF0) | GetDefaultSelectionTarget(battler, GetBattlerMoveSelectionTargetType(battler, moveInfo->moves[moveIndex])); // Triple battles keep the second target in the high nibble
         }
         BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, moveIndex | (target << 8));
     }

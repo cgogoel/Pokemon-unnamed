@@ -136,15 +136,17 @@ static const struct OamData sOamData_GimmickIndicator =
 static void SpriteCb_GimmickIndicator(struct Sprite *sprite);
 
 #define BATTLER_INDICATOR_TAG 0xDEDE
-static const struct SpriteSheet sBattler_GimmickSpritesheets[] =
+static const struct SpriteSheet sBattler_GimmickSpritesheets[MAX_BATTLERS_COUNT] =
 {
     {sNormalIndicatorGfx, sizeof(sNormalIndicatorGfx), BATTLER_INDICATOR_TAG},
     {sNormalIndicatorGfx, sizeof(sNormalIndicatorGfx), BATTLER_INDICATOR_TAG+1},
     {sNormalIndicatorGfx, sizeof(sNormalIndicatorGfx), BATTLER_INDICATOR_TAG+2},
     {sNormalIndicatorGfx, sizeof(sNormalIndicatorGfx), BATTLER_INDICATOR_TAG+3},
+    {sNormalIndicatorGfx, sizeof(sNormalIndicatorGfx), BATTLER_INDICATOR_TAG+4},
+    {sNormalIndicatorGfx, sizeof(sNormalIndicatorGfx), BATTLER_INDICATOR_TAG+5},
 };
 
-static const struct SpriteTemplate sSpriteTemplate_BattlerIndicators[] =
+static const struct SpriteTemplate sSpriteTemplate_BattlerIndicators[MAX_BATTLERS_COUNT] =
 {
     [0] =
     {
@@ -170,6 +172,20 @@ static const struct SpriteTemplate sSpriteTemplate_BattlerIndicators[] =
     [3] =
     {
         .tileTag = BATTLER_INDICATOR_TAG + 3,   // updated dynamically
+        .paletteTag = TAG_TERA_INDICATOR_PAL,   // updated dynamically
+        .oam = &sOamData_GimmickIndicator,
+        .callback = SpriteCb_GimmickIndicator,
+    },
+    [4] =
+    {
+        .tileTag = BATTLER_INDICATOR_TAG + 4,   // updated dynamically
+        .paletteTag = TAG_TERA_INDICATOR_PAL,   // updated dynamically
+        .oam = &sOamData_GimmickIndicator,
+        .callback = SpriteCb_GimmickIndicator,
+    },
+    [5] =
+    {
+        .tileTag = BATTLER_INDICATOR_TAG + 5,   // updated dynamically
         .paletteTag = TAG_TERA_INDICATOR_PAL,   // updated dynamically
         .oam = &sOamData_GimmickIndicator,
         .callback = SpriteCb_GimmickIndicator,

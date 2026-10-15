@@ -18,45 +18,67 @@ Pic: Brendan
 Gender: Male
 Music: Male
 
-Buffie (Wobbuffet)
-Brave Nature
-Level: 100
-IVs: 31 HP / 31 Atk / 31 Def / 31 SpA / 31 SpD / 31 Spe
-EVs: 252 Def / 252 SpD / 6 Spe
-- Brutal Swing
-- Water Gun
-- Bubble
-- Sleep Talk
+Pikachu
+Level: 50
+- Thunderbolt
+- Quick Attack
+- Rock Slide
+- Surf
 
-Wynaut
-Brave Nature
-Level: 100
-IVs: 31 HP / 31 Atk / 31 Def / 31 SpA / 31 SpD / 31 Spe
-EVs: 252 Def / 252 SpD / 6 Spe
-- Brutal Swing
-- Fly
-- Bubble
-- Sleep Talk
+Machamp
+Level: 50
+- Cross Chop
+- Rock Slide
+- Earthquake
+- Bulk Up
+
+Venusaur
+Level: 50
+- Razor Leaf
+- Sleep Powder
+- Sludge Bomb
+- Giga Drain
+
+Lapras
+Level: 50
+- Ice Beam
+- Psychic
+- Body Slam
+- Surf
 
 === DEBUG_TRAINER_AI ===
 Name: Debugger
 AI: Smart Trainer
 Class: Rival
-Battle Type: Singles
+Battle Type: Triples
 Pic: Steven
 Gender: Male
 Music: Male
 
-Buffie (Wobbuffet)
-Brave Nature
-Level: 100
-IVs: 31 HP / 31 Atk / 31 Def / 31 SpA / 31 SpD / 31 Spe
-EVs: 252 Def / 252 SpD / 6 Spe
-- Sleep Talk
+Snorlax
+Level: 50
+- Body Slam
+- Earthquake
+- Rest
+- Hyper Beam
 
-Wynaut
-Brave Nature
-Level: 100
-IVs: 31 HP / 31 Atk / 31 Def / 31 SpA / 31 SpD / 31 Spe
-EVs: 252 Def / 252 SpD / 6 Spe
-- Sleep Talk
+Alakazam
+Level: 50
+- Psychic
+- Shadow Ball
+- Thunder Wave
+- Recover
+
+Arcanine
+Level: 50
+- Flamethrower
+- Extreme Speed
+- Heat Wave
+- Roar
+
+Gyarados
+Level: 50
+- Waterfall
+- Bite
+- Dragon Dance
+- Ice Fang

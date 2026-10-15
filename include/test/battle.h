@@ -577,7 +577,9 @@ enum {
     BATTLE_TEST_AI_DOUBLES,
     BATTLE_TEST_AI_MULTI,
     BATTLE_TEST_AI_TWO_VS_ONE,
-    BATTLE_TEST_AI_ONE_VS_TWO
+    BATTLE_TEST_AI_ONE_VS_TWO,
+    BATTLE_TEST_TRIPLES,
+    BATTLE_TEST_AI_TRIPLES,
 };
 
 typedef void (*SingleBattleTestFunction)(void *, const u32, struct BattlePokemon *, struct BattlePokemon *);
@@ -585,6 +587,7 @@ typedef void (*DoubleBattleTestFunction)(void *, const u32, struct BattlePokemon
 typedef void (*MultiBattleTestFunction)(void *, const u32, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *);
 typedef void (*TwoVsOneBattleTestFunction)(void *, const u32, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *);
 typedef void (*OneVsTwoBattleTestFunction)(void *, const u32, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *);
+typedef void (*TripleBattleTestFunction)(void *, const u32, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *);
 
 struct BattleTest
 {
@@ -596,6 +599,7 @@ struct BattleTest
         MultiBattleTestFunction multi;
         TwoVsOneBattleTestFunction two_vs_one;
         OneVsTwoBattleTestFunction one_vs_two;
+        TripleBattleTestFunction triples;
     } function;
     size_t resultsSize;
 };
@@ -786,7 +790,15 @@ struct BattleTestData
     u8 explicitSpeeds[MAX_BATTLE_TRAINERS];
     u32 slowerThan[MAX_BATTLE_TRAINERS][PARTY_SIZE];
     enum BattleTrainer battlerParty;
-    u8 battlerTrainers;
+    u16 battlerTrainers; // 2 bits per battler
+    u8 tripleDeferredSendOut[MAX_BATTLERS_COUNT];
+    u8 screenDumpTurn; // SCREEN_DUMP: turn whose action selection is dumped (0 = none)
+    bool8 screenDumpDone;
+    bool8 uiPreview;
+    u8 uiPreviewPos;
+    u16 uiPreviewFrame;
+    u8 uiPreviewDumps;
+    char uiPreviewScript[48]; // Triple battles: party index + 1 of a SEND_OUT recorded after the turn's passes
     u8 currentPartyIndex;
     struct Pokemon *currentMon;
     u8 gender;
@@ -800,6 +812,7 @@ struct BattleTestData
     u8 turnState;
     u8 turns;
     u8 actionBattlers;
+    u8 skipTurnBattlers; // Triple battles: SKIP_TURN battlers, whose allies the engine passes without asking
     u8 moveBattlers;
     bool8 hasAI:1;
     bool8 logAI:1;
@@ -973,6 +986,23 @@ bool32 IsAITest(void);
     }; \
     static void CAT(Test, __LINE__)(struct CAT(Result, __LINE__) *results, const u32 i, struct BattlePokemon *playerLeft, struct BattlePokemon *opponentLeft, struct BattlePokemon *playerRight, struct BattlePokemon *opponentRight)
 
+#define BATTLE_TEST_ARGS_TRIPLE(_name, _type, ...) \
+    struct CAT(Result, __LINE__) { RECURSIVELY(R_FOR_EACH(APPEND_SEMICOLON, __VA_ARGS__)) }; \
+    static void CAT(Test, __LINE__)(struct CAT(Result, __LINE__) *, const u32, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *, struct BattlePokemon *); \
+    __attribute__((section(".tests"), used)) static const struct Test CAT(sTest, __LINE__) = \
+    { \
+        .name = _name, \
+        .filename = __FILE__, \
+        .runner = &gBattleTestRunner, \
+        .sourceLine = __LINE__, \
+        .data = (void *)&(const struct BattleTest) \
+        { \
+            .type = _type, \
+            .function = { .triples = (TripleBattleTestFunction)CAT(Test, __LINE__) }, \
+            .resultsSize = sizeof(struct CAT(Result, __LINE__)), \
+        }, \
+    }; \
+    static void CAT(Test, __LINE__)(struct CAT(Result, __LINE__) *results, const u32 i, struct BattlePokemon *playerLeft, struct BattlePokemon *opponentLeft, struct BattlePokemon *playerRight, struct BattlePokemon *opponentRight, struct BattlePokemon *playerMiddle, struct BattlePokemon *opponentMiddle)
 
 #define SINGLE_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_SINGLE(_name, BATTLE_TEST_SINGLES, __VA_ARGS__)
 #define WILD_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_SINGLE(_name, BATTLE_TEST_WILD, __VA_ARGS__)
@@ -990,6 +1020,10 @@ bool32 IsAITest(void);
 
 #define ONE_VS_TWO_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_ONE_VS_TWO(_name, BATTLE_TEST_ONE_VS_TWO, __VA_ARGS__)
 #define AI_ONE_VS_TWO_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_ONE_VS_TWO(_name, BATTLE_TEST_AI_ONE_VS_TWO, __VA_ARGS__)
+
+// 3v3, one acting battler per side per turn. See docs/hack/triple_battles.md
+#define TRIPLE_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_TRIPLE(_name, BATTLE_TEST_TRIPLES, __VA_ARGS__)
+#define AI_TRIPLE_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_TRIPLE(_name, BATTLE_TEST_AI_TRIPLES, __VA_ARGS__)
 
 /* Parametrize */
 
@@ -1155,6 +1189,14 @@ enum { TURN_CLOSED, TURN_OPEN, TURN_CLOSING };
 
 #define FORCED_MOVE(battler) ForcedMove(__LINE__, battler)
 #define SWITCH(battler, partyIndex) Switch(__LINE__, battler, partyIndex)
+// Triple battles: rearrange a side's formation for free. Recorded on the side's left battler, before its action.
+#define FORMATION(near, middle, far) Formation(__LINE__, near, middle, far)
+// Development aid: prints the screen (VRAM, OAM, palettes, BG registers) when the given turn's action selection starts.
+// Render it with tools/screen_dump/render_screen_dump.py.
+#define SCREEN_DUMP(turn) ScreenDump_(__LINE__, turn)
+// Development aid: the player's battlers take real input from a key script once the first turn starts.
+// Keys: A B L R S(elect) T(start) < > ^ v, '.' waits, 'D' dumps the screen. The test ends after the script.
+#define UI_PREVIEW(script) UiPreview_(__LINE__, script)
 #define SKIP_TURN(battler) SkipTurn(__LINE__, battler)
 #define SEND_OUT(battler, partyIndex) SendOut(__LINE__, battler, partyIndex)
 #define USE_ITEM(battler, ...) UseItem(__LINE__, battler, (struct ItemContext) { R_APPEND_TRUE(__VA_ARGS__) })
@@ -1186,6 +1228,8 @@ struct MoveContext
     u16 explicitNotExpected:1;
     struct BattlePokemon *target;
     bool8 explicitTarget;
+    struct BattlePokemon *secondTarget; // Triple battles: second target of a 2-target move
+    bool8 explicitSecondTarget;
     struct RiggedRNG rng;
     bool8 explicitRNG;
 };
@@ -1212,6 +1256,9 @@ void ExpectSwitch(u32 sourceLine, struct BattlePokemon *battler, u32 partyIndex)
 void Score(u32 sourceLine, struct BattlePokemon *battler, u32 cmp, bool32 toValue, struct TestAIScoreStruct cmpCtx);
 void ForcedMove(u32 sourceLine, struct BattlePokemon *);
 void Switch(u32 sourceLine, struct BattlePokemon *, u32 partyIndex);
+void Formation(u32 sourceLine, struct BattlePokemon *near, struct BattlePokemon *middle, struct BattlePokemon *far);
+void ScreenDump_(u32 sourceLine, u32 turn);
+void UiPreview_(u32 sourceLine, const char *script);
 void SkipTurn(u32 sourceLine, struct BattlePokemon *);
 void UseItem(u32 sourceLine, struct BattlePokemon *, struct ItemContext);
 void SendOut(u32 sourceLine, struct BattlePokemon *, u32 partyIndex);

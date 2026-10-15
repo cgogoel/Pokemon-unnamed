@@ -584,6 +584,24 @@ const struct SpriteTemplate gBattlerSpriteTemplates[MAX_BATTLERS_COUNT] =
         .affineAnims = gAffineAnims_BattleSpriteOpponentSide,
         .callback = SpriteCB_WildMon
     },
+    [B_POSITION_PLAYER_MIDDLE] = {
+        .tileTag = TAG_NONE,
+        .paletteTag = 0,
+        .oam = &gOamData_BattleSpritePlayerSide,
+        .anims = NULL,
+        .images = gBattlerPicTable_PlayerMiddle,
+        .affineAnims = gAffineAnims_BattleSpritePlayerSide,
+        .callback = SpriteCB_BattleSpriteStartSlideLeft,
+    },
+    [B_POSITION_OPPONENT_MIDDLE] = {
+        .tileTag = TAG_NONE,
+        .paletteTag = 0,
+        .oam = &gOamData_BattleSpriteOpponentSide,
+        .anims = NULL,
+        .images = gBattlerPicTable_OpponentMiddle,
+        .affineAnims = gAffineAnims_BattleSpriteOpponentSide,
+        .callback = SpriteCB_WildMon
+    },
 };
 
 static const struct SpriteTemplate sTrainerBackSpriteTemplate =
@@ -1844,7 +1862,7 @@ void SetMultiuseSpriteTemplateToPokemon(enum Species speciesTag, enum BattlerPos
         gMultiuseSpriteTemplate = gBattlerSpriteTemplates[battlerPosition];
 
     gMultiuseSpriteTemplate.paletteTag = speciesTag;
-    if (battlerPosition == B_POSITION_PLAYER_LEFT || battlerPosition == B_POSITION_PLAYER_RIGHT)
+    if ((battlerPosition & BIT_SIDE) == B_SIDE_PLAYER)
         gMultiuseSpriteTemplate.anims = gAnims_MonPic;
     else
     {
@@ -1862,7 +1880,7 @@ void SetMultiuseSpriteTemplateToPokemon(enum Species speciesTag, enum BattlerPos
 void SetMultiuseSpriteTemplateToTrainerBack(enum TrainerPicID trainerPicId, enum BattlerPosition battlerPosition)
 {
     gMultiuseSpriteTemplate.paletteTag = GetTrainerPicTag(trainerPicId, FALSE);
-    if (battlerPosition == B_POSITION_PLAYER_LEFT || battlerPosition == B_POSITION_PLAYER_RIGHT)
+    if ((battlerPosition & BIT_SIDE) == B_SIDE_PLAYER)
     {
         gMultiuseSpriteTemplate = sTrainerBackSpriteTemplate;
         gMultiuseSpriteTemplate.images = GetTrainerBackPicImage(trainerPicId);

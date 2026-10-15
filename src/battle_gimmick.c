@@ -143,7 +143,7 @@ void CreateGimmickTriggerSprite(enum BattlerId battler)
 
     if (gBattleStruct->gimmick.triggerSpriteId == 0xFF)
     {
-        if (GetBattlerCoordsIndex(battler) == BATTLE_COORDS_DOUBLES)
+        if (GetBattlerCoordsIndex(battler) != BATTLE_COORDS_SINGLES)
             gBattleStruct->gimmick.triggerSpriteId = CreateSprite(gimmick->triggerTemplate,
                                                                   gSprites[gHealthboxSpriteIds[battler]].x - DOUBLES_GIMMICK_TRIGGER_POS_X_SLIDE,
                                                                   gSprites[gHealthboxSpriteIds[battler]].y - DOUBLES_GIMMICK_TRIGGER_POS_Y_DIFF, 0);
@@ -202,7 +202,7 @@ static void SpriteCb_GimmickTrigger(struct Sprite *sprite)
     s32 yDiff;
     s32 xHealthbox = gSprites[gHealthboxSpriteIds[sprite->tBattler]].x;
 
-    if (GetBattlerCoordsIndex(sprite->tBattler) == BATTLE_COORDS_DOUBLES)
+    if (GetBattlerCoordsIndex(sprite->tBattler) != BATTLE_COORDS_SINGLES)
     {
         xSlide = DOUBLES_GIMMICK_TRIGGER_POS_X_SLIDE;
         xPriority = DOUBLES_GIMMICK_TRIGGER_POS_X_PRIORITY;
@@ -349,6 +349,8 @@ void UpdateIndicatorVisibilityAndType(u32 healthboxId, bool32 invisible)
 
 void UpdateIndicatorOamPriority(u32 healthboxId, u32 oamPriority)
 {
+    if (GetIndicatorSpriteId(healthboxId) == 0)
+        return;
     gSprites[GetIndicatorSpriteId(healthboxId)].oam.priority = oamPriority;
 }
 
@@ -356,6 +358,8 @@ void UpdateIndicatorLevelData(u32 healthboxId, u32 level)
 {
     s32 xDelta = 0;
 
+    if (GetIndicatorSpriteId(healthboxId) == 0)
+        return;
     if (level >= 100)
         xDelta -= 4;
     else if (level < 10)
@@ -364,12 +368,14 @@ void UpdateIndicatorLevelData(u32 healthboxId, u32 level)
     gSprites[GetIndicatorSpriteId(healthboxId)].tLevelXDelta = xDelta;
 }
 
-static const s8 sIndicatorPositions[][2] =
+static const s8 sIndicatorPositions[MAX_POSITION_COUNT][2] =
 {
     [B_POSITION_PLAYER_LEFT] = {49, -9},
     [B_POSITION_OPPONENT_LEFT] = {40, -9},
     [B_POSITION_PLAYER_RIGHT] = {48, -9},
     [B_POSITION_OPPONENT_RIGHT] = {40, -9},
+    [B_POSITION_PLAYER_MIDDLE] = {48, -9},
+    [B_POSITION_OPPONENT_MIDDLE] = {40, -9},
 };
 
 void CreateIndicatorSprite(enum BattlerId battler)
@@ -377,6 +383,13 @@ void CreateIndicatorSprite(enum BattlerId battler)
     enum BattlerPosition position;
     u32 spriteId;
     s16 xHealthbox = 0, x = 0, y = 0;
+
+    // Triple battles have no room for indicators: the compact healthboxes and six battlers leave few sprites to spare.
+    if (IsTripleBattle())
+    {
+        gBattleStruct->gimmick.indicatorSpriteId[battler] = 0;
+        return;
+    }
 
     position = GetBattlerPosition(battler);
     GetBattlerHealthboxCoords(battler, &xHealthbox, &y);

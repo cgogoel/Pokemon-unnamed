@@ -6,6 +6,13 @@
 #include "random.h"
 
 #define BATTLER_RECORD_SIZE 388
+// Saved recordings keep the vanilla 4 battlers; triple battles are never recorded (BATTLE_TYPE_RECORDED_INVALID).
+// The test runner drives battles through this struct (never saved), so it needs every battler.
+#if TESTING
+#define RECORDED_BATTLE_SAVE_BATTLERS MAX_BATTLERS_COUNT
+#else
+#define RECORDED_BATTLE_SAVE_BATTLERS 4
+#endif
 
 struct RecordedBattleSave
 {
@@ -25,7 +32,7 @@ struct RecordedBattleSave
     u16 textSpeed:3;
     u16 playersGender:4; // 1 bit per player; please don't hate me
     u16 padding:1;
-    u64 AI_scripts[MAX_BATTLERS_COUNT];
+    u64 AI_scripts[RECORDED_BATTLE_SAVE_BATTLERS];
     u8 recordMixFriendName[PLAYER_NAME_LENGTH + 1];
     u8 recordMixFriendClass;
     u8 apprenticeId;
@@ -34,7 +41,7 @@ struct RecordedBattleSave
     u8 multiplayerId:2;
     u8 playersBattlers; // Setup so player 2/3 battler and player 0/1 second battler occupy same bits
     u16 easyChatSpeech[EASY_CHAT_BATTLE_WORDS_COUNT];
-    u8 battleRecord[MAX_BATTLERS_COUNT][BATTLER_RECORD_SIZE];
+    u8 battleRecord[RECORDED_BATTLE_SAVE_BATTLERS][BATTLER_RECORD_SIZE];
     u32 checksum;
 };
 
@@ -49,6 +56,7 @@ enum
     RECORDED_ITEM_ID,
     RECORDED_ITEM_TARGET,
     RECORDED_ITEM_MOVE,
+    RECORDED_TRIPLE_FORMATION,
 };
 
 #define RECORDED_TARGET_DEFAULT 0xF

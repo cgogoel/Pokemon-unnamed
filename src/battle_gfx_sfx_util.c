@@ -1,5 +1,6 @@
 #include "global.h"
 #include "battle.h"
+#include "triple_battle.h"
 #include "battle_controllers.h"
 #include "battle_ai_main.h"
 #include "battle_anim.h"
@@ -56,16 +57,30 @@ static const struct CompressedSpriteSheet sSpriteSheet_SinglesOpponentLargeHealt
     gHealthboxSinglesOpponentLargeGfx, 0x1000, TAG_HEALTHBOX_OPPONENT1_TILE
 };
 
-static const struct CompressedSpriteSheet sSpriteSheets_DoublesPlayerHealthbox[2] =
+// The third entry is the middle battler in triple battles.
+static const struct CompressedSpriteSheet sSpriteSheets_DoublesPlayerHealthbox[3] =
 {
     {gHealthboxDoublesPlayerGfx, 0x800, TAG_HEALTHBOX_PLAYER1_TILE},
-    {gHealthboxDoublesPlayerGfx, 0x800, TAG_HEALTHBOX_PLAYER2_TILE}
+    {gHealthboxDoublesPlayerGfx, 0x800, TAG_HEALTHBOX_PLAYER2_TILE},
+    {gHealthboxDoublesPlayerGfx, 0x800, TAG_HEALTHBOX_PLAYER3_TILE},
 };
 
-static const struct CompressedSpriteSheet sSpriteSheets_DoublesOpponentHealthbox[2] =
+// Compact 64x16 healthboxes for triple battles, so six of them leave enough sprite VRAM for move animations.
+static const struct CompressedSpriteSheet sSpriteSheets_TriplesHealthbox[] =
+{
+    {gHealthboxTriplesGfx, 0x200, TAG_HEALTHBOX_PLAYER1_TILE},
+    {gHealthboxTriplesGfx, 0x200, TAG_HEALTHBOX_PLAYER2_TILE},
+    {gHealthboxTriplesGfx, 0x200, TAG_HEALTHBOX_PLAYER3_TILE},
+    {gHealthboxTriplesGfx, 0x200, TAG_HEALTHBOX_OPPONENT1_TILE},
+    {gHealthboxTriplesGfx, 0x200, TAG_HEALTHBOX_OPPONENT2_TILE},
+    {gHealthboxTriplesGfx, 0x200, TAG_HEALTHBOX_OPPONENT3_TILE},
+};
+
+static const struct CompressedSpriteSheet sSpriteSheets_DoublesOpponentHealthbox[3] =
 {
     {gHealthboxDoublesOpponentGfx, 0x800, TAG_HEALTHBOX_OPPONENT1_TILE},
-    {gHealthboxDoublesOpponentGfx, 0x800, TAG_HEALTHBOX_OPPONENT2_TILE}
+    {gHealthboxDoublesOpponentGfx, 0x800, TAG_HEALTHBOX_OPPONENT2_TILE},
+    {gHealthboxDoublesOpponentGfx, 0x800, TAG_HEALTHBOX_OPPONENT3_TILE},
 };
 
 static const struct CompressedSpriteSheet sSpriteSheet_SafariHealthbox =
@@ -78,7 +93,9 @@ static const struct CompressedSpriteSheet sSpriteSheets_HealthBar[MAX_BATTLERS_C
     {gBlankGfxCompressed, 0x0100, TAG_HEALTHBAR_PLAYER1_TILE},
     {gBlankGfxCompressed, 0x0120, TAG_HEALTHBAR_OPPONENT1_TILE},
     {gBlankGfxCompressed, 0x0100, TAG_HEALTHBAR_PLAYER2_TILE},
-    {gBlankGfxCompressed, 0x0120, TAG_HEALTHBAR_OPPONENT2_TILE}
+    {gBlankGfxCompressed, 0x0120, TAG_HEALTHBAR_OPPONENT2_TILE},
+    {gBlankGfxCompressed, 0x0100, TAG_HEALTHBAR_PLAYER3_TILE},
+    {gBlankGfxCompressed, 0x0120, TAG_HEALTHBAR_OPPONENT3_TILE},
 };
 
 const struct SpritePalette sSpritePalettes_HealthBoxHealthBar[2] =
@@ -196,8 +213,8 @@ u16 ChooseMoveAndTargetInBattlePalace(enum BattlerId battler)
     // Pass selected moves to AI, pick one
     if (selectedMoves != 0)
     {
-        // Lower 4 bits of palaceFlags are flags for each battler.
-        // Clear the rest of palaceFlags, then set the selected moves in the upper 4 bits.
+        // Lower MAX_BATTLERS_COUNT bits of palaceFlags are flags for each battler.
+        // Clear the rest of palaceFlags, then set the selected moves in the next 4 bits.
         gBattleStruct->palaceFlags &= (1 << MAX_BATTLERS_COUNT) - 1;
         gBattleStruct->palaceFlags |= (selectedMoves << MAX_BATTLERS_COUNT);
         BattleAI_SetupAIData(selectedMoves, battler);
@@ -656,6 +673,8 @@ void BattleLoadMonSpriteGfx(struct Pokemon *mon, enum BattlerId battler)
     HandleLoadSpecialPokePic(!IsOnPlayerSide(battler),
                              gMonSpritesGfxPtr->spritesGfx[position],
                              species, personalityValue);
+    if (IsTripleBattle())
+        ScaleTripleMonPic(gMonSpritesGfxPtr->spritesGfx[position], battler);
 
     paletteOffset = OBJ_PLTT_ID(battler);
 
@@ -666,6 +685,8 @@ void BattleLoadMonSpriteGfx(struct Pokemon *mon, enum BattlerId battler)
 
     LoadPalette(paletteData, paletteOffset, PLTT_SIZE_4BPP);
     LoadPalette(paletteData, BG_PLTT_ID(8) + BG_PLTT_ID(battler), PLTT_SIZE_4BPP);
+    if (IsTripleBattle())
+        ApplyTripleHaze(battler);
 
     // transform's pink color
     if (gBattleMons[battler].volatiles.transformed)
@@ -725,7 +746,21 @@ bool8 BattleLoadAllHealthBoxesGfx(u8 state)
 
     const struct CompressedSpriteSheet *spriteSheet = NULL;
 
-    if (IsDoubleBattle())
+    if (IsTripleBattle())
+    {
+        switch (state)
+        {
+        case 2 ... 7:
+            spriteSheet = &sSpriteSheets_TriplesHealthbox[state - 2];
+            break;
+        case 8 ... 13:
+            spriteSheet = &sSpriteSheets_HealthBar[GetBattlerPosition((enum BattlerId)(state - 8))];
+            break;
+        default:
+            return TRUE;
+        }
+    }
+    else if (IsDoubleBattle())
     {
         switch (state)
         {
@@ -944,6 +979,8 @@ void HandleSpeciesGfxDataChange(enum BattlerId battlerAtk, enum BattlerId battle
                                  gMonSpritesGfxPtr->spritesGfx[position],
                                  targetSpecies,
                                  personalityValue);
+        if (IsTripleBattle())
+            ScaleTripleMonPic(gMonSpritesGfxPtr->spritesGfx[position], battlerAtk);
     }
     src = gMonSpritesGfxPtr->spritesGfx[position];
     dst = (void *)(OBJ_VRAM0 + gSprites[gBattlerSpriteIds[battlerAtk]].oam.tileNum * 32);
@@ -951,6 +988,8 @@ void HandleSpeciesGfxDataChange(enum BattlerId battlerAtk, enum BattlerId battle
     paletteOffset = OBJ_PLTT_ID(battlerAtk);
     paletteData = GetMonSpritePalFromSpeciesAndPersonality(targetSpecies, isShiny, personalityValue);
     LoadPalette(paletteData, paletteOffset, PLTT_SIZE_4BPP);
+    if (IsTripleBattle() && !IsContest())
+        ApplyTripleHaze(battlerAtk);
 
     if (changeType == SPECIES_GFX_CHANGE_GHOST_UNVEIL)
     {
@@ -1009,6 +1048,8 @@ void BattleLoadSubstituteOrMonSpriteGfx(enum BattlerId battler, bool8 loadMonSpr
         {
             Dma3CopyLarge32_(gMonSpritesGfxPtr->spritesGfx[position], &gMonSpritesGfxPtr->spritesGfx[position][MON_PIC_SIZE * i], MON_PIC_SIZE);
         }
+        if (IsTripleBattle() && !IsContest())
+            ScaleTripleMonPic(gMonSpritesGfxPtr->spritesGfx[position], battler);
 
         palOffset = OBJ_PLTT_ID(battler);
         LoadPalette(gBattleAnimSpritePal_Substitute, palOffset, PLTT_SIZE_4BPP);
@@ -1218,6 +1259,12 @@ void LoadAndCreateEnemyShadowSprites(void)
         battler = GetBattlerAtPosition(B_POSITION_OPPONENT_RIGHT);
         CreateEnemyShadowSprite(battler);
     }
+
+    if (IsTripleBattle())
+    {
+        battler = GetBattlerAtPosition(B_POSITION_OPPONENT_MIDDLE);
+        CreateEnemyShadowSprite(battler);
+    }
 }
 
 void SpriteCB_EnemyShadow(struct Sprite *shadowSprite)
@@ -1413,6 +1460,8 @@ void FreeMonSpritesGfx(void)
     gMonSpritesGfxPtr->spritesGfx[B_POSITION_OPPONENT_LEFT] = NULL;
     gMonSpritesGfxPtr->spritesGfx[B_POSITION_PLAYER_RIGHT] = NULL;
     gMonSpritesGfxPtr->spritesGfx[B_POSITION_OPPONENT_RIGHT] = NULL;
+    gMonSpritesGfxPtr->spritesGfx[B_POSITION_PLAYER_MIDDLE] = NULL;
+    gMonSpritesGfxPtr->spritesGfx[B_POSITION_OPPONENT_MIDDLE] = NULL;
     FREE_AND_SET_NULL(gMonSpritesGfxPtr);
 }
 

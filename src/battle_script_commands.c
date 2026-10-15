@@ -3364,6 +3364,43 @@ static void ChooseMonToSendOut(enum BattlerId battler, u8 slotId)
     MarkBattlerForControllerExec(battler);
 }
 
+// Triple battles: each pass opens the party screen for at most one fainted battler per side (left, middle, right),
+// so a side's replacements are chosen one after another and never collide.
+static void OpenTriplePartyScreensForFainted(void)
+{
+    for (enum BattleSide side = B_SIDE_PLAYER; side < NUM_BATTLE_SIDES; side++)
+    {
+        const enum BattlerPosition order[] = { B_POSITION_PLAYER_LEFT | side, B_POSITION_PLAYER_MIDDLE | side, B_POSITION_PLAYER_RIGHT | side };
+
+        for (u32 j = 0; j < ARRAY_COUNT(order); j++)
+        {
+            enum BattlerId battler = GetBattlerAtPosition(order[j]);
+            u32 excludedSlot = PARTY_SIZE;
+
+            if (battler >= gBattlersCount || !(gHitMarker & HITMARKER_FAINTED(battler)) || gSpecialStatuses[battler].faintedHasReplacement)
+                continue;
+
+            if (HasNoMonsToSwitch(battler, PARTY_SIZE, PARTY_SIZE))
+            {
+                gAbsentBattlerFlags |= 1u << battler;
+                gHitMarker &= ~HITMARKER_FAINTED(battler);
+                BtlController_EmitCantSwitch(battler, B_COMM_TO_CONTROLLER);
+                MarkBattlerForControllerExec(battler);
+                continue;
+            }
+
+            for (enum BattlerId ally = 0; ally < gBattlersCount; ally++)
+            {
+                if (ally != battler && IsBattlerAlly(ally, battler) && gSpecialStatuses[ally].faintedHasReplacement)
+                    excludedSlot = gBattleStruct->monToSwitchIntoId[ally];
+            }
+            ChooseMonToSendOut(battler, excludedSlot);
+            gSpecialStatuses[battler].faintedHasReplacement = TRUE;
+            break;
+        }
+    }
+}
+
 static void Cmd_openpartyscreen(void)
 {
     CMD_ARGS(u8 battler:7, u8 partyScreenOptional:1, const u8 *failInstr);
@@ -3372,6 +3409,30 @@ static void Cmd_openpartyscreen(void)
     u8 hitmarkerFaintBits = 0;
     enum BattlerId battler = 0;
     const u8 *failInstr = cmd->failInstr;
+
+    if (cmd->battler == BS_FAINTED_MULTIPLE_3 && !IsTripleBattle())
+    {
+        gBattlescriptCurrInstr = failInstr;
+        return;
+    }
+
+    if (IsTripleBattle()
+     && (cmd->battler == BS_FAINTED_MULTIPLE_1 || cmd->battler == BS_FAINTED_MULTIPLE_2 || cmd->battler == BS_FAINTED_MULTIPLE_3))
+    {
+        OpenTriplePartyScreensForFainted();
+        gBattlescriptCurrInstr = cmd->nextInstr;
+        if (cmd->battler != BS_FAINTED_MULTIPLE_1)
+        {
+            u32 fainted = 0;
+            while (fainted < gBattlersCount && !(gHitMarker & HITMARKER_FAINTED(fainted)))
+                fainted++;
+            if (fainted == gBattlersCount)
+                gBattlescriptCurrInstr = failInstr;
+            else
+                gBattlerFainted = fainted;
+        }
+        return;
+    }
 
     if (cmd->battler == BS_FAINTED_MULTIPLE_1)
     {
@@ -3405,7 +3466,7 @@ static void Cmd_openpartyscreen(void)
         {
             bool32 hasReplacement;
 
-            hitmarkerFaintBits = gHitMarker >> 28;
+            hitmarkerFaintBits = gHitMarker >> HITMARKER_FAINTED_SHIFT;
             for (enum BattlerId i = 0; i < gBattlersCount; i++)
             {
                 if (((1u << i) & hitmarkerFaintBits))
@@ -3444,7 +3505,7 @@ static void Cmd_openpartyscreen(void)
                 }
             }
 
-            for (enum BattlerId i = 0; i < MAX_BATTLERS_COUNT / 2; i++)
+            for (enum BattlerId i = 0; i <= B_BATTLER_1; i++)
             {
                 if (!(gSpecialStatuses[i].faintedHasReplacement))
                 {
@@ -3470,8 +3531,8 @@ static void Cmd_openpartyscreen(void)
         {
             if (IsDoubleBattle())
             {
-                hitmarkerFaintBits = gHitMarker >> 28;
-                for (enum BattlerId i = 0; i < MAX_BATTLERS_COUNT / 2; i++)
+                hitmarkerFaintBits = gHitMarker >> HITMARKER_FAINTED_SHIFT;
+                for (enum BattlerId i = 0; i <= B_BATTLER_1; i++)
                 {
                     if ((1 << GetPartnerBattler(i)) & hitmarkerFaintBits && (1 << i) & hitmarkerFaintBits)
                     {
@@ -3504,7 +3565,7 @@ static void Cmd_openpartyscreen(void)
             gBattlescriptCurrInstr = cmd->nextInstr;
         }
 
-        hitmarkerFaintBits = gHitMarker >> 28;
+        hitmarkerFaintBits = gHitMarker >> HITMARKER_FAINTED_SHIFT;
 
         u32 fainted = 0;
         while (fainted < gBattlersCount && !((1u << fainted) & hitmarkerFaintBits))
@@ -4250,7 +4311,7 @@ static u32 GetPossibleNextTarget(u32 currTarget)
     // currTarget allows for a starting point without relying on values for previous targets being set
     if (currTarget != MAX_BATTLERS_COUNT)
     {
-        for (i = 0; i < MAX_BATTLERS_COUNT; i++)
+        for (i = 0; i < GetTargetSlotCount(); i++)
         {
             if (GetTargetFromSlotId(gBattlerAttacker, i) == currTarget)
                 break;
@@ -4258,7 +4319,7 @@ static u32 GetPossibleNextTarget(u32 currTarget)
         i++; // next target after finding currTarget
     }
 
-    while (i < MAX_BATTLERS_COUNT)
+    while (i < GetTargetSlotCount())
     {
         enum BattlerId battler = GetTargetFromSlotId(gBattlerAttacker, i);
         i++;
@@ -9688,7 +9749,7 @@ void BS_AllySwitchSwapBattler(void)
     NATIVE_ARGS();
 
     gBattleScripting.battler = gBattlerAttacker;
-    gBattlerAttacker ^= BIT_FLANK;
+    gBattlerAttacker = GetPartnerBattler(gBattlerAttacker);
     gProtectStructs[gBattlerAttacker].usedAllySwitch = TRUE;
     gBattlescriptCurrInstr = cmd->nextInstr;
 }
@@ -10019,7 +10080,7 @@ void BS_CheckPokeFlute(void)
         }
     }
 
-    for (enum BattlerPosition position = B_POSITION_PLAYER_LEFT; position < MAX_POSITION_COUNT; position++)
+    for (enum BattlerPosition position = B_POSITION_PLAYER_LEFT; position < gBattlersCount; position++)
     {
         enum BattleTrainer trainer = GetBattlerTrainer(GetBattlerAtPosition(position));
         UpdatePokeFlutePartyStatus(gParties[trainer], position);
@@ -11402,13 +11463,21 @@ void BS_HandleTrainerSlideMsg(void)
     gBattlescriptCurrInstr = cmd->nextInstr;
 }
 
+// Triple battles: the middle battlers belong to the same trainer as the left ones.
+static enum BattlerId GetTrainerSlideBattlerSlot(enum BattlerId battler)
+{
+    if (battler >= B_BATTLER_4)
+        return battler - B_BATTLER_4;
+    return battler;
+}
+
 void BS_TryTrainerSlideMsgFirstOff(void)
 {
     NATIVE_ARGS(u8 battler);
     enum BattlerId battler = GetBattlerForBattleScript(cmd->battler);
     enum BattlerId tempBattler = gBattleScripting.battler;
 
-    switch (gBattlerFainted)
+    switch (GetTrainerSlideBattlerSlot(gBattlerFainted))
     {
     case B_BATTLER_0:
         if ((ShouldDoTrainerSlide(B_BATTLER_1, TRAINER_SLIDE_ATTACKER_LANDS_FIRST_DOWN)))
@@ -11533,7 +11602,7 @@ void BS_TryTrainerSlideMsgLastOn(void)
     enum BattlerId battler = GetBattlerForBattleScript(cmd->battler);
     enum BattlerId tempBattler = gBattleScripting.battler;
 
-    switch (gBattleScripting.battler)
+    switch (GetTrainerSlideBattlerSlot(gBattleScripting.battler))
     {
     case B_BATTLER_0:
         if ((ShouldDoTrainerSlide(B_BATTLER_1, TRAINER_SLIDE_OPPONENT_LAST_SWITCHIN)))

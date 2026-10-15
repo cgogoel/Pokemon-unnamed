@@ -309,11 +309,12 @@ enum BattleScriptOpcode
 #define SPRITES_INIT_STATE1     1 // shares the Id as well
 #define SPRITES_INIT_STATE2     2
 #define MOVE_EFFECT_BYTE        3
-#define ACTIONS_CONFIRMED_COUNT 4
-#define MULTISTRING_CHOOSER     5
+// Entries 0 to MAX_BATTLERS_COUNT - 1 also hold each battler's action selection state.
 #define MISS_TYPE               6
 #define MSG_DISPLAY             7
-#define BATTLE_COMMUNICATION_ENTRIES_COUNT  8
+#define ACTIONS_CONFIRMED_COUNT 8
+#define MULTISTRING_CHOOSER     9
+#define BATTLE_COMMUNICATION_ENTRIES_COUNT  10
 
 #define cMULTISTRING_CHOOSER (gBattleCommunication + MULTISTRING_CHOOSER)
 
@@ -339,6 +340,7 @@ enum BattleScriptOpcode
 #define BS_OPPONENT2                14
 #define BS_ABILITY_BATTLER          15
 #define BS_ATTACKER_PARTNER         16
+#define BS_FAINTED_MULTIPLE_3       17 // for openpartyscreen, triple battles only
 
 // compare operands
 #define CMP_EQUAL               0

@@ -3,19 +3,22 @@
 ## Project
 A Pokémon ROM hack (working title: TBD) built on **pokeemerald-expansion** (RHH),
 a GBA hack base on top of pret's pokeemerald decompilation. This repo is a fork of
-`rh-hideout/pokeemerald-expansion`. Output is a GBA ROM (`pokeemerald.gba`).
+`rh-hideout/pokeemerald-expansion`. The hack is built in **FireRed (Kanto) mode**; output is `pokefirered.gba`.
 
 Current expansion version: `include/constants/expansion.h` (`EXPANSION_VERSION_*`; currently 1.17.2).
 Per-release notes live in `docs/changelogs/<X.Y.x>/` (`docs/CHANGELOG.md` is just an mdBook include stub).
 
 ## Environment
-- macOS, devkitARM toolchain (installed via devkitPro pacman, `DEVKITPRO`/`DEVKITARM` set in `~/.zshrc`)
+- macOS, devkitARM toolchain (installed via devkitPro pacman, `DEVKITPRO`/`DEVKITARM` set in `~/.zshrc`).
+  Non-interactive shells don't load `~/.zshrc`: prefix builds with
+  `export DEVKITPRO=/opt/devkitpro DEVKITARM=/opt/devkitpro/devkitARM PATH=/opt/devkitpro/devkitARM/bin:$PATH`
 - libpng, pkg-config, coreutils via Homebrew
 - Emulator for testing: mGBA
 - Map editor: Porymap (maps and tilesets are edited there by hand, not in code)
 
 ## Commands
-- Build: `make -j$(sysctl -n hw.ncpu)`
+- Build (FireRed is the Makefile default): `make -j$(sysctl -n hw.ncpu)`
+- Vanilla Emerald / LeafGreen builds: `make emerald` / `make leafgreen` (run `make clean` when switching game versions)
 - Build with debug symbols: `make debug`
 - Release build (strips debug features): `make release`
 - Run expansion test suite: `make check`
@@ -30,7 +33,8 @@ as done. Run `make check` after touching battle logic, species data, moves or ab
 - Species data: `src/data/pokemon/species_info/`
 - Trainer parties: `src/data/trainers.party` (FRLG variant: `trainers_frlg.party`; `trainers.h` is generated)
 - Wild encounters: `src/data/wild_encounters.json` (`wild_encounters.h` is generated from it)
-- Maps (headers, events, connections): `data/maps/<MapName>/map.json`
+- Maps (headers, events, connections): `data/maps/<MapName>/map.json` (Kanto maps are the `*_Frlg` ones;
+  new maps need `"region": "REGION_KANTO"` or no region — see `docs/tutorials/how_to_frlg.md`)
 - Map scripts: `data/maps/<MapName>/scripts.inc`
 - Shared event scripts: `data/scripts/`
 - Graphics: `graphics/`
@@ -52,6 +56,8 @@ as done. Run `make check` after touching battle logic, species data, moves or ab
 - Update incrementally by release tag: `git pull RHH expansion/X.Y.Z`, resolve conflicts, rebuild, `make check`.
 
 ## Hack design
+**Region:** Kanto, built on the expansion's FireRed mode (`IS_FRLG`). Porymap project is set to `pokefirered`.
+
 **Premise:** An ordinary person's life with Pokémon, from childhood through university to a career.
 They're a small-town kid who loves Pokémon but has no training. Told in a short prologue and three acts
 that grow in length. Act 3 retells Kanto events (Red, Blue, Oak, Giovanni, Silph Co.) from an insider's view.
@@ -81,8 +87,6 @@ that grow in length. Act 3 retells Kanto events (Red, Blue, Oak, Giovanni, Silph
   ultimate move**, and hands it to Red, who uses it to defeat Giovanni.
 
 ### Open decisions
-- Hometown / Act 1–2 region: Kanto or a new region? Act 3 is Kanto, so the expansion's FRLG mode
-  (`IS_FRLG`, `docs/tutorials/how_to_frlg.md`) may be a better base than Emerald.
 - Names: player, hometown, university, the professor, the mole.
 - Difficulty goals; which Pokémon generations appear.
 

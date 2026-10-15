@@ -6799,7 +6799,12 @@ static void AnimTask_AllySwitchDataSwap(u8 taskId)
             continue;
 
         if (GetMoveEffect(gChosenMoveByBattler[i]) == EFFECT_SNIPE_SHOT || ability == ABILITY_PROPELLER_TAIL || ability == ABILITY_STALWART)
-            gBattleStruct->moveTarget[i] ^= BIT_FLANK;
+        {
+            if (gBattleStruct->moveTarget[i] == battlerAtk)
+                gBattleStruct->moveTarget[i] = battlerPartner;
+            else if (gBattleStruct->moveTarget[i] == battlerPartner)
+                gBattleStruct->moveTarget[i] = battlerAtk;
+        }
     }
 
     // For some reason the order in which the sprites are created matters. Looks like an issue with the sprite system, potentially with the Sprite Template.

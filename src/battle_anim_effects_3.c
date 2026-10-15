@@ -4911,7 +4911,8 @@ static void AnimMeteorMashStar_Step(struct Sprite *sprite)
     sprite->y2 = ((sprite->data[3] - sprite->data[1]) * sprite->data[5]) / sprite->data[4];
     if (!(sprite->data[5] & 1))
     {
-        CreateSprite(
+        // Trail sparkles are decorative: skip them when the sprite table is full (triple battles have 6 battlers on screen)
+        CreateSpriteUnchecked(
             &gMiniTwinklingStarSpriteTemplate,
             sprite->x + sprite->x2,
             sprite->y + sprite->y2, 5);

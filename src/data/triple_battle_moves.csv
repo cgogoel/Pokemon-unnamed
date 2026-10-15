@@ -53,7 +53,7 @@ MOVE_EMBER,Ember,FIRE,Special,40,N,SELECTED,1,N,FRONT,travels out from the user
 MOVE_FLAMETHROWER,Flamethrower,FIRE,Special,90,N,SELECTED,1,N,FRONT,travels out from the user
 MOVE_WATER_GUN,Water Gun,WATER,Special,40,N,SELECTED,1,N,FRONT,travels out from the user
 MOVE_HYDRO_PUMP,Hydro Pump,WATER,Special,110,N,SELECTED,1,N,FRONT,travels out from the user
-MOVE_SURF,Surf,WATER,Special,90,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_SURF,Surf,WATER,Special,90,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_ICE_BEAM,Ice Beam,ICE,Special,90,N,SELECTED,1,N,FRONT,travels out from the user
 MOVE_BLIZZARD,Blizzard,ICE,Special,110,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
 MOVE_PSYBEAM,Psybeam,PSYCHIC,Special,65,N,SELECTED,1,N,ANY,psychic power reaches any foe
@@ -84,7 +84,7 @@ MOVE_THUNDERBOLT,Thunderbolt,ELECTRIC,Special,90,N,SELECTED,1,N,ANY,electricity 
 MOVE_THUNDER_WAVE,Thunder Wave,ELECTRIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
 MOVE_THUNDER,Thunder,ELECTRIC,Special,110,N,SELECTED,1,N,ANY,electricity arcs to any foe
 MOVE_ROCK_THROW,Rock Throw,ROCK,Physical,50,N,SELECTED,1,N,FRONT,travels out from the user
-MOVE_EARTHQUAKE,Earthquake,GROUND,Physical,100,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_EARTHQUAKE,Earthquake,GROUND,Physical,100,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_FISSURE,Fissure,GROUND,Physical,1,N,SELECTED,1,N,ANY,the ground opens under the foe
 MOVE_DIG,Dig,GROUND,Physical,80,Y,SELECTED,1,N,ANY,attacks from underground
 MOVE_TOXIC,Toxic,POISON,Status,,N,SELECTED,1,N,FRONT,sent out from the user
@@ -100,7 +100,7 @@ MOVE_SMOKESCREEN,Smokescreen,NORMAL,Status,,N,SELECTED,1,N,FRONT,sent out from t
 MOVE_CONFUSE_RAY,Confuse Ray,GHOST,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
 MOVE_METRONOME,Metronome,NORMAL,Status,,N,DEPENDS,1,N,ANY,automatically targets whoever hit the user
 MOVE_MIRROR_MOVE,Mirror Move,FLYING,Status,,N,DEPENDS,1,N,ANY,automatically targets whoever hit the user
-MOVE_SELF_DESTRUCT,Self-Destruct,NORMAL,Physical,200,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_SELF_DESTRUCT,Self-Destruct,NORMAL,Physical,200,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_EGG_BOMB,Egg Bomb,NORMAL,Physical,100,N,SELECTED,1,N,FRONT,travels out from the user
 MOVE_LICK,Lick,GHOST,Physical,30,Y,SELECTED,1,N,ANY,ghostly attacks phase past the front
 MOVE_SMOG,Smog,POISON,Special,30,N,SELECTED,2,N,FRONT,"a cloud of exhaust gas; travels out from the user, so it hits front + middle"
@@ -129,7 +129,7 @@ MOVE_SPORE,Spore,GRASS,Status,,N,SELECTED,1,N,FRONT,sent out from the user
 MOVE_FLASH,Flash,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
 MOVE_PSYWAVE,Psywave,PSYCHIC,Special,1,N,SELECTED,1,N,ANY,psychic power reaches any foe
 MOVE_CRABHAMMER,Crabhammer,WATER,Physical,100,Y,SELECTED,1,N,FRONT,contact move
-MOVE_EXPLOSION,Explosion,NORMAL,Physical,250,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_EXPLOSION,Explosion,NORMAL,Physical,250,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_FURY_SWIPES,Fury Swipes,NORMAL,Physical,18,Y,SELECTED,1,N,FRONT,contact move
 MOVE_BONEMERANG,Bonemerang,GROUND,Physical,50,N,SELECTED,1,N,ANY,the bone curves around
 MOVE_ROCK_SLIDE,Rock Slide,ROCK,Physical,75,N,BOTH,2,N,ANY,"a few boulders; boulders fall from above, so you pick both targets"
@@ -183,7 +183,7 @@ MOVE_PRESENT,Present,NORMAL,Physical,1,N,SELECTED,1,N,FRONT,travels out from the
 MOVE_FRUSTRATION,Frustration,NORMAL,Physical,1,Y,SELECTED,1,N,FRONT,contact move
 MOVE_PAIN_SPLIT,Pain Split,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
 MOVE_SACRED_FIRE,Sacred Fire,FIRE,Physical,100,N,SELECTED,1,N,FRONT,travels out from the user
-MOVE_MAGNITUDE,Magnitude,GROUND,Physical,1,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_MAGNITUDE,Magnitude,GROUND,Physical,1,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_DYNAMIC_PUNCH,Dynamic Punch,FIGHTING,Physical,100,Y,SELECTED,1,N,FRONT,contact move
 MOVE_MEGAHORN,Megahorn,BUG,Physical,120,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
 MOVE_DRAGON_BREATH,Dragon Breath,DRAGON,Special,60,N,SELECTED,1,N,FRONT,travels out from the user
@@ -239,7 +239,7 @@ MOVE_ARM_THRUST,Arm Thrust,FIGHTING,Physical,15,Y,SELECTED,1,N,FRONT,contact mov
 MOVE_LUSTER_PURGE,Luster Purge,PSYCHIC,Special,95,N,SELECTED,1,N,ANY,psychic power reaches any foe
 MOVE_MIST_BALL,Mist Ball,PSYCHIC,Special,95,N,SELECTED,1,N,ANY,psychic power reaches any foe
 MOVE_FEATHER_DANCE,Feather Dance,FLYING,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
-MOVE_TEETER_DANCE,Teeter Dance,NORMAL,Status,,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_TEETER_DANCE,Teeter Dance,NORMAL,Status,,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_BLAZE_KICK,Blaze Kick,FIRE,Physical,85,Y,SELECTED,1,N,FRONT,contact move
 MOVE_ICE_BALL,Ice Ball,ICE,Physical,30,Y,SELECTED,1,N,FRONT,contact move
 MOVE_NEEDLE_ARM,Needle Arm,GRASS,Physical,60,Y,SELECTED,1,N,FRONT,contact move
@@ -352,8 +352,8 @@ MOVE_FLASH_CANNON,Flash Cannon,STEEL,Special,80,N,SELECTED,1,N,FRONT,travels out
 MOVE_ROCK_CLIMB,Rock Climb,NORMAL,Physical,90,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
 MOVE_DEFOG,Defog,FLYING,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
 MOVE_DRACO_METEOR,Draco Meteor,DRAGON,Special,130,N,SELECTED,3,N,ANY,comets rain from the sky
-MOVE_DISCHARGE,Discharge,ELECTRIC,Special,80,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
-MOVE_LAVA_PLUME,Lava Plume,FIRE,Special,80,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_DISCHARGE,Discharge,ELECTRIC,Special,80,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
+MOVE_LAVA_PLUME,Lava Plume,FIRE,Special,80,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_LEAF_STORM,Leaf Storm,GRASS,Special,130,N,SELECTED,3,N,ANY,a storm of leaves
 MOVE_POWER_WHIP,Power Whip,GRASS,Physical,120,Y,SELECTED,1,N,ANY,long vines/tentacles reach past the front
 MOVE_ROCK_WRECKER,Rock Wrecker,ROCK,Physical,150,N,SELECTED,1,N,FRONT,travels out from the user
@@ -389,9 +389,9 @@ MOVE_TELEKINESIS,Telekinesis,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, 
 MOVE_SMACK_DOWN,Smack Down,ROCK,Physical,50,N,SELECTED,1,N,FRONT,travels out from the user
 MOVE_STORM_THROW,Storm Throw,FIGHTING,Physical,60,Y,SELECTED,1,N,FRONT,contact move
 MOVE_FLAME_BURST,Flame Burst,FIRE,Special,70,N,SELECTED,2,N,FRONT,"the flame bursts onto a neighbor (canon splash damage); travels out from the user, so it hits front + middle"
-MOVE_SLUDGE_WAVE,Sludge Wave,POISON,Special,95,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_SLUDGE_WAVE,Sludge Wave,POISON,Special,95,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_HEAVY_SLAM,Heavy Slam,STEEL,Physical,1,Y,SELECTED,1,N,FRONT,contact move
-MOVE_SYNCHRONOISE,Synchronoise,PSYCHIC,Special,120,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_SYNCHRONOISE,Synchronoise,PSYCHIC,Special,120,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_ELECTRO_BALL,Electro Ball,ELECTRIC,Special,1,N,SELECTED,1,N,ANY,electricity arcs to any foe
 MOVE_SOAK,Soak,WATER,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
 MOVE_FLAME_CHARGE,Flame Charge,FIRE,Physical,50,Y,SELECTED,1,N,FRONT,contact move
@@ -424,7 +424,7 @@ MOVE_FIRE_PLEDGE,Fire Pledge,FIRE,Special,80,N,SELECTED,1,N,FRONT,travels out fr
 MOVE_GRASS_PLEDGE,Grass Pledge,GRASS,Special,80,N,SELECTED,1,N,FRONT,travels out from the user
 MOVE_VOLT_SWITCH,Volt Switch,ELECTRIC,Special,70,N,SELECTED,1,N,ANY,electricity arcs to any foe
 MOVE_STRUGGLE_BUG,Struggle Bug,BUG,Special,50,N,BOTH,2,N,FRONT,"a flailing attack; travels out from the user, so it hits front + middle"
-MOVE_BULLDOZE,Bulldoze,GROUND,Physical,60,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_BULLDOZE,Bulldoze,GROUND,Physical,60,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_FROST_BREATH,Frost Breath,ICE,Special,60,N,SELECTED,1,N,FRONT,travels out from the user
 MOVE_DRAGON_TAIL,Dragon Tail,DRAGON,Physical,60,Y,SELECTED,2,N,FRONT,knocks the front Pokémon back into the one behind it (hits front + middle)
 MOVE_ELECTROWEB,Electroweb,ELECTRIC,Special,55,N,BOTH,2,N,ANY,"one net; electricity arcs to any target, so you pick both targets"
@@ -444,7 +444,7 @@ MOVE_TAIL_SLAP,Tail Slap,NORMAL,Physical,25,Y,SELECTED,1,N,FRONT,contact move
 MOVE_HURRICANE,Hurricane,FLYING,Special,110,N,SELECTED,3,N,ANY,a hurricane engulfs the field
 MOVE_HEAD_CHARGE,Head Charge,NORMAL,Physical,120,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
 MOVE_GEAR_GRIND,Gear Grind,STEEL,Physical,60,Y,SELECTED,1,N,FRONT,contact move
-MOVE_SEARING_SHOT,Searing Shot,FIRE,Special,100,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_SEARING_SHOT,Searing Shot,FIRE,Special,100,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_TECHNO_BLAST,Techno Blast,NORMAL,Special,120,N,SELECTED,1,N,FRONT,travels out from the user
 MOVE_RELIC_SONG,Relic Song,NORMAL,Special,75,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
 MOVE_SECRET_SWORD,Secret Sword,FIGHTING,Special,85,N,SELECTED,1,N,FRONT,travels out from the user
@@ -465,9 +465,9 @@ MOVE_FELL_STINGER,Fell Stinger,BUG,Physical,50,Y,SELECTED,1,N,FRONT,contact move
 MOVE_PHANTOM_FORCE,Phantom Force,GHOST,Physical,90,Y,SELECTED,1,N,ANY,vanishes and reappears anywhere
 MOVE_TRICK_OR_TREAT,Trick-or-Treat,GHOST,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
 MOVE_NOBLE_ROAR,Noble Roar,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
-MOVE_PARABOLIC_CHARGE,Parabolic Charge,ELECTRIC,Special,65,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_PARABOLIC_CHARGE,Parabolic Charge,ELECTRIC,Special,65,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_FORESTS_CURSE,Forest's Curse,GRASS,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
-MOVE_PETAL_BLIZZARD,Petal Blizzard,GRASS,Physical,90,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_PETAL_BLIZZARD,Petal Blizzard,GRASS,Physical,90,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_FREEZE_DRY,Freeze-Dry,ICE,Special,70,N,SELECTED,1,N,FRONT,travels out from the user
 MOVE_DISARMING_VOICE,Disarming Voice,FAIRY,Special,40,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
 MOVE_PARTING_SHOT,Parting Shot,DARK,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
@@ -477,7 +477,7 @@ MOVE_ELECTRIFY,Electrify,ELECTRIC,Status,,N,SELECTED,1,N,ANY,"status effect, not
 MOVE_PLAY_ROUGH,Play Rough,FAIRY,Physical,90,Y,SELECTED,1,N,FRONT,contact move
 MOVE_FAIRY_WIND,Fairy Wind,FAIRY,Special,40,N,SELECTED,2,N,ANY,"a gust of wind; wind can curve around, so you pick both targets"
 MOVE_MOONBLAST,Moonblast,FAIRY,Special,95,N,SELECTED,1,N,ANY,moonlight from the sky
-MOVE_BOOMBURST,Boomburst,NORMAL,Special,140,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_BOOMBURST,Boomburst,NORMAL,Special,140,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_PLAY_NICE,Play Nice,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
 MOVE_CONFIDE,Confide,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
 MOVE_DIAMOND_STORM,Diamond Storm,ROCK,Physical,100,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
@@ -506,7 +506,7 @@ MOVE_HYPERSPACE_FURY,Hyperspace Fury,DARK,Physical,100,N,SELECTED,1,N,FRONT,trav
 MOVE_FIRST_IMPRESSION,First Impression,BUG,Physical,100,Y,SELECTED,1,N,ANY,darts around the front Pokémon
 MOVE_SPIRIT_SHACKLE,Spirit Shackle,GHOST,Physical,90,N,SELECTED,1,N,ANY,ghostly attacks phase past the front
 MOVE_DARKEST_LARIAT,Darkest Lariat,DARK,Physical,85,Y,SELECTED,1,N,FRONT,contact move
-MOVE_SPARKLING_ARIA,Sparkling Aria,WATER,Special,90,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_SPARKLING_ARIA,Sparkling Aria,WATER,Special,90,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_ICE_HAMMER,Ice Hammer,ICE,Physical,100,Y,SELECTED,1,N,FRONT,contact move
 MOVE_FLORAL_HEALING,Floral Healing,FAIRY,Status,,N,SELECTED,1,N,ANY,"status effect, not a projectile"
 MOVE_HIGH_HORSEPOWER,High Horsepower,GROUND,Physical,95,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
@@ -532,7 +532,7 @@ MOVE_INSTRUCT,Instruct,PSYCHIC,Status,,N,SELECTED,1,N,ANY,"status effect, not a 
 MOVE_BEAK_BLAST,Beak Blast,FLYING,Physical,120,N,SELECTED,1,N,ANY,attacks from the air
 MOVE_CLANGING_SCALES,Clanging Scales,DRAGON,Special,110,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
 MOVE_DRAGON_HAMMER,Dragon Hammer,DRAGON,Physical,100,Y,SELECTED,2,N,FRONT,a charge that knocks the front Pokémon back into the one behind it (hits front + middle)
-MOVE_BRUTAL_SWING,Brutal Swing,DARK,Physical,60,Y,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_BRUTAL_SWING,Brutal Swing,DARK,Physical,60,Y,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_SHELL_TRAP,Shell Trap,FIRE,Special,150,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
 MOVE_FLEUR_CANNON,Fleur Cannon,FAIRY,Special,130,N,SELECTED,1,N,FRONT,travels out from the user
 MOVE_PSYCHIC_FANGS,Psychic Fangs,PSYCHIC,Physical,85,Y,SELECTED,1,N,FRONT,contact move
@@ -548,7 +548,7 @@ MOVE_TEARFUL_LOOK,Tearful Look,NORMAL,Status,,N,SELECTED,1,N,ANY,"status effect,
 MOVE_ZING_ZAP,Zing Zap,ELECTRIC,Physical,80,Y,SELECTED,1,N,FRONT,contact move
 MOVE_NATURES_MADNESS,Nature's Madness,FAIRY,Special,1,N,SELECTED,1,N,FRONT,travels out from the user
 MOVE_MULTI_ATTACK,Multi-Attack,NORMAL,Physical,120,Y,SELECTED,1,N,FRONT,contact move
-MOVE_MIND_BLOWN,Mind Blown,FIRE,Special,150,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_MIND_BLOWN,Mind Blown,FIRE,Special,150,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_PLASMA_FISTS,Plasma Fists,ELECTRIC,Physical,100,Y,SELECTED,1,N,FRONT,contact move
 MOVE_PHOTON_GEYSER,Photon Geyser,PSYCHIC,Special,100,N,SELECTED,1,N,ANY,psychic power reaches any foe
 MOVE_ZIPPY_ZAP,Zippy Zap,ELECTRIC,Physical,80,Y,SELECTED,1,N,ANY,darts around the front Pokémon
@@ -598,7 +598,7 @@ MOVE_STEEL_ROLLER,Steel Roller,STEEL,Physical,130,Y,SELECTED,3,N,ANY,so dramatic
 MOVE_SCALE_SHOT,Scale Shot,DRAGON,Physical,25,N,SELECTED,1,N,FRONT,travels out from the user
 MOVE_METEOR_BEAM,Meteor Beam,ROCK,Special,120,N,SELECTED,1,N,FRONT,travels out from the user
 MOVE_SHELL_SIDE_ARM,Shell Side Arm,POISON,Special,90,N,SELECTED,1,N,FRONT,travels out from the user
-MOVE_MISTY_EXPLOSION,Misty Explosion,FAIRY,Special,100,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_MISTY_EXPLOSION,Misty Explosion,FAIRY,Special,100,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_GRASSY_GLIDE,Grassy Glide,GRASS,Physical,55,Y,SELECTED,1,N,FRONT,contact move
 MOVE_RISING_VOLTAGE,Rising Voltage,ELECTRIC,Special,70,N,SELECTED,1,N,ANY,electricity arcs to any foe
 MOVE_TERRAIN_PULSE,Terrain Pulse,NORMAL,Special,50,N,SELECTED,1,N,FRONT,travels out from the user
@@ -606,7 +606,7 @@ MOVE_SKITTER_SMACK,Skitter Smack,BUG,Physical,70,Y,SELECTED,1,N,FRONT,contact mo
 MOVE_BURNING_JEALOUSY,Burning Jealousy,FIRE,Special,70,N,BOTH,3,N,ANY,wide-area move (canon: hits all foes)
 MOVE_LASH_OUT,Lash Out,DARK,Physical,75,Y,SELECTED,1,N,FRONT,contact move
 MOVE_POLTERGEIST,Poltergeist,GHOST,Physical,110,N,SELECTED,1,N,ANY,ghostly attacks phase past the front
-MOVE_CORROSIVE_GAS,Corrosive Gas,POISON,Status,,N,FOES_AND_ALLY,3,Y,ANY,hits everything around the user (canon)
+MOVE_CORROSIVE_GAS,Corrosive Gas,POISON,Status,,N,FOES_AND_ALLY,3,N,ANY,hits all three foes; never the user's allies (hack rule)
 MOVE_FLIP_TURN,Flip Turn,WATER,Physical,60,Y,SELECTED,1,N,ANY,"hits and retreats, can pick any foe"
 MOVE_TRIPLE_AXEL,Triple Axel,ICE,Physical,20,Y,SELECTED,1,N,FRONT,contact move
 MOVE_DUAL_WINGBEAT,Dual Wingbeat,FLYING,Physical,40,Y,SELECTED,1,N,ANY,attacks from the air

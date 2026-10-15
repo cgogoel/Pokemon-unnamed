@@ -173,20 +173,22 @@ TRIPLE_BATTLE_TEST("Triple battles: 3-target moves hit every foe for 75%")
     }
 }
 
-TRIPLE_BATTLE_TEST("Triple battles: 3-target moves that hit allies hit every other battler")
+TRIPLE_BATTLE_TEST("Triple battles: moves never hit the user's allies")
 {
     GIVEN {
         ASSUME(GetTripleMoveInfo(MOVE_SURF)->aoe == 3);
-        ASSUME(GetTripleMoveInfo(MOVE_SURF)->hitsAllies == TRUE);
+        ASSUME(GetMoveTarget(MOVE_SURF) == TARGET_FOES_AND_ALLY);
         TRIPLE_PARTIES
     } WHEN {
         TURN { MOVE(playerLeft, MOVE_SURF); }
     } SCENE {
         HP_BAR(opponentLeft);
-        HP_BAR(playerRight);
         HP_BAR(opponentRight);
-        HP_BAR(playerMiddle);
         HP_BAR(opponentMiddle);
+        NONE_OF {
+            HP_BAR(playerRight);
+            HP_BAR(playerMiddle);
+        }
     }
 }
 

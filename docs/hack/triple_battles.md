@@ -29,7 +29,8 @@ Custom battle mode for Act 2 onward. Not the Gen 5 Triple Battle: **only one Pok
       the player picks both targets.
     - Reach `FRONT` (travels out from the user, e.g. fire, seeds, sprays): always hits the front and middle foes, no choice.
   - **3:** hits all foes for **75%** each.
-  - `hits_allies = Y` moves (Earthquake, Explosion, ...) also hit the user's own allies, as in canon.
+  - No move hits the user's own allies: canon ally-hitting moves (Earthquake, Surf, Explosion, ...) hit only the 3 foes.
+    The `hits_allies` column is kept (all `N`) in case a move should hit allies again.
 - Per-move data lives in **`src/data/triple_battle_moves.csv`** (`aoe`, `hits_allies`, `reach` columns), hand-editable.
   The first pass was derived from canon targets, contact flags, descriptions and anime lore; each row has a `reason`.
   Moves not in the file (self/field/ally moves, Z/Max moves) keep their normal targeting.
@@ -43,7 +44,6 @@ Shown with each move in the battle move menu (next to type/PP) and in the summar
 - **Reach outline (red):**
   - `FRONT`: only the first square has a red outline.
   - `ANY`: every square has a red outline.
-- **Ally marker:** a small extra icon (e.g. red "!") when the move also hits the user's own allies (`hits_allies = Y`).
 
 ### Field layout
 - Each team stands on a diagonal: rear Pokémon on the left, front Pokémon on the right, so the two front Pokémon face off

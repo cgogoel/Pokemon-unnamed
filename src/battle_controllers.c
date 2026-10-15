@@ -3490,6 +3490,8 @@ void SetFinalChosenTarget(enum BattlerId battler, bool32 checkPartner)
         chosenTarget = battler;
         break;
     case TARGET_BOTH:
+        if (IsTripleBattle() && IsTripleTwoTargetChoiceMove(chosenMove))
+            break; // The AI's chosen foe is the main target
         if (checkPartner)
         {
             chosenTarget = GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT);
@@ -3509,16 +3511,21 @@ void SetFinalChosenTarget(enum BattlerId battler, bool32 checkPartner)
 
     gBattlerTarget = chosenTarget;
 
+    // Triple battles: 2-target moves aimed at the middle foe carry the second target in the target byte
+    u32 targetByte = chosenTarget;
+    if (IsTripleBattle())
+        targetByte |= GetTripleAiSecondTargetByte(battler, chosenTarget, chosenMoveIndex);
+
     enum Gimmick usableGimmick = gBattleStruct->gimmick.usableGimmick[battler];
     bool32 isAIUsingGimmick = gAiBattleData->aiUsingGimmick & (1u << battler);
     if (usableGimmick != GIMMICK_NONE && isAIUsingGimmick && !HasTrainerUsedGimmick(battler, usableGimmick))
     {
         gBattleStruct->gimmick.toActivate |= 1u << battler;
-        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, (chosenMoveIndex) | (RET_GIMMICK) | (chosenTarget << 8));
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, (chosenMoveIndex) | (RET_GIMMICK) | (targetByte << 8));
     }
     else
     {
         SetAIUsingGimmick(battler, NO_GIMMICK);
-        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, (chosenMoveIndex) | (chosenTarget << 8));
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, (chosenMoveIndex) | (targetByte << 8));
     }
 }

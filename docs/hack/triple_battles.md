@@ -36,7 +36,8 @@ Custom battle mode for Act 2 onward. Not the Gen 5 Triple Battle: **only one Pok
   - **2:** the main target takes full damage, the second takes **50%**.
     - Reach `ANY` (lore says it can come from any direction: wind/Flying, electric, psychic, sound, falling from above, homing):
       the second target is next to the main one in the foes' line. Aiming at the front or rear foe also hits the middle
-      foe; aiming at the middle foe, the player picks the front or the rear one (the front one by default, e.g. for the AI).
+      foe; aiming at the middle foe, the player picks the front or the rear one (the front one by default). The AI picks its
+      main target and, for the middle foe, the neighbour it can knock out, else the one losing the biggest share of its HP.
     - Reach `FRONT` (travels out from the user, e.g. fire, seeds, sprays): always hits the front and middle foes, no choice.
   - **3:** hits all foes for **75%** each.
   - No move hits the user's own allies: canon ally-hitting moves (Earthquake, Surf, Explosion, ...) hit only the 3 foes.
@@ -72,7 +73,8 @@ Shown with each move in the battle move menu, before the move type (`ShowTripleM
   the 1v1 platforms painted out. A solid base oval under the rear Pokémon, a half-shaded section out to the middle one
   and an outlined outer ring out to the front one. Colors come from the location's floor color (same hue,
   more saturated, dark base oval to pale outer section; `sFloorShadeSteps`). The oval tiles use BG palette 7 (`TRIPLE_FLOOR_BG_PALETTE`), a copy of
-  the floor palette with these colors added. Not drawn while a terrain (Electric Terrain...) replaces the background.
+  the floor palette with these colors added. Also drawn on a terrain's background (Electric Terrain...), with colors
+  from it.
 
 ### HP bars and name tags
 - A short HP bar floats over each Pokémon's head, with a small status pill (`triple_status_pills.png`) on its left when
@@ -88,6 +90,7 @@ The prompt reads "What will Pikachu do?" with a hint line: `L R Pick`, `SELECT O
   automatically (`StepTowardTriplePickedActor`).
 - **SELECT**: move the selected Pokémon one spot forward in the formation (front wraps to back). Free.
 - **B** (middle/right): go back to the previous Pokémon in the engine's order.
+- The move menu's MOVE INFO (L) prompt sits on the left edge between the two teams.
 - Moves: FRONT and 3-target moves skip target selection; 2-target ANY moves aimed at the middle foe then pick the front
   or rear one.
 - Target cursor: Left/Right move along a row of Pokémon by their place on screen, Up/Down switch between the foes' row
@@ -114,7 +117,8 @@ The prompt reads "What will Pikachu do?" with a hint line: `L R Pick`, `SELECT O
   `python3 tools/screen_dump/render_screen_dump.py <make check log> <out dir>`.
 - Animation check: set `T_SHOULD_RUN_MOVE_ANIM` to `TRUE` in `include/config/test.h` and run
   `make check TESTS="Move Animations don't leak when used - Triples"` (every move used by a middle battler, from the front
-  and from the back row; several minutes). Set it back to `FALSE` afterwards.
+  and from the back row; several minutes). 2v2: `"Move Animations don't leak when used - Triples 2v2"`.
+  Set it back to `FALSE` afterwards.
 
 ## Engine approach
 - New flag `BATTLE_TYPE_TRIPLE` (reuses the free bit 14) with `IsTripleBattle()`. It is included in

@@ -3285,6 +3285,7 @@ static const struct SpriteSheet sSpriteSheet_MoveInfoWindow =
 #define LAST_BALL_WIN_X_F       (LAST_USED_BALL_X_F - 0)
 #define LAST_BALL_WIN_X_0       (LAST_USED_BALL_X_0 - 0)
 #define LAST_USED_WIN_Y         (LAST_USED_BALL_Y - 8)
+#define TRIPLE_MOVE_INFO_RAISE  42
 
 #define sHide  data[0]
 #define sTimer  data[1]
@@ -3393,7 +3394,9 @@ void TryToAddMoveInfoWindow(void)
 
     if (gBattleStruct->moveInfoSpriteId == MAX_SPRITES)
     {
-        gBattleStruct->moveInfoSpriteId = CreateSprite(&sSpriteTemplate_MoveInfoWindow, LAST_BALL_WIN_X_0, LAST_USED_WIN_Y + 32, 6);
+        // Triple battles: up in the gap between the two teams' floors, clear of the player's rear Pokémon
+        s16 y = IsTripleBattle() ? LAST_USED_WIN_Y + 32 - TRIPLE_MOVE_INFO_RAISE : LAST_USED_WIN_Y + 32;
+        gBattleStruct->moveInfoSpriteId = CreateSprite(&sSpriteTemplate_MoveInfoWindow, LAST_BALL_WIN_X_0, y, 6);
         gSprites[gBattleStruct->moveInfoSpriteId].sHide = FALSE;
     }
 }

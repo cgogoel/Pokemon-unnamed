@@ -447,6 +447,32 @@ bool32 IsTripleAiPassing(enum BattlerId battler)
     return gBattleStruct->tripleAiDecidedTurn[side] == gBattleTurnCounter + 1 && gBattleStruct->tripleAiActor[side] != battler;
 }
 
+// AI: for a 2-target move aimed at the middle foe, the neighbour to also hit (for half damage), encoded for the chosen
+// target byte: one it can knock out, otherwise the one losing the biggest share of its HP. 0 if there's no choice.
+u32 GetTripleAiSecondTargetByte(enum BattlerId battlerAtk, enum BattlerId mainTarget, u32 moveIndex)
+{
+    enum BattlerId choices[2];
+    s32 bestScore = -1;
+    enum BattlerId best = MAX_BATTLERS_COUNT;
+
+    if (moveIndex >= MAX_MON_MOVES || !IsTripleTwoTargetChoiceMove(gBattleMons[battlerAtk].moves[moveIndex])
+     || GetTripleSecondTargetChoices(battlerAtk, mainTarget, choices) < 2)
+        return 0;
+
+    for (u32 i = 0; i < 2; i++)
+    {
+        u32 hp = max(gBattleMons[choices[i]].hp, 1);
+        u32 damage = gAiLogicData->simulatedDmg[battlerAtk][choices[i]][moveIndex].median / 2;
+        s32 score = (damage >= hp) ? 1000 : (damage * 100) / hp;
+        if (score > bestScore)
+        {
+            bestScore = score;
+            best = choices[i];
+        }
+    }
+    return TRIPLE_TARGET_ENCODE_SECOND(best);
+}
+
 // AI: a FRONT move aimed at a foe that isn't in front would hit the front foe instead, so it's worthless against that foe.
 void RemoveUnreachableTripleMoveScores(enum BattlerId battlerAtk, enum BattlerId battlerDef, s32 *scores)
 {

@@ -228,7 +228,7 @@ static void DoublesWhen(enum Move move, struct BattlePokemon *attacker, struct B
 {
     enum BattleMoveEffects effect = GetMoveEffect(move);
     // Triple battles: one more party member on the field, and the foe hits back with a move that reaches past the front.
-    u32 benchIndex = (triple != NULL) ? 3 : 2;
+    u32 benchIndex = (triple != NULL && HasTripleMiddleBattlers()) ? 3 : 2;
     enum Move hitBackMove = (triple != NULL) ? MOVE_AERIAL_ACE : MOVE_POUND;
     bool32 formationPending = (triple != NULL && triple->attackerFormation[0] != NULL);
     // Setup turn
@@ -1788,6 +1788,86 @@ TRIPLE_BATTLE_TEST("Move Animations don't leak when used - Triples (opponentMidd
         DoublesWhen(move, opponentMiddle, playerLeft, NULL, NULL, variation, &triple);
     } SCENE {
         DoublesScene(move, opponentMiddle, MOVE_AERIAL_ACE);
+    } THEN {
+        FORCE_MOVE_ANIM(FALSE);
+        if (gLoadFail || gSpriteAllocs != 0)
+            DebugPrintf("Move failed: %S (%u)", GetMoveName(move), move);
+        EXPECT_EQ(gLoadFail, FALSE);
+        EXPECT_EQ(gSpriteAllocs, 0);
+    }
+}
+
+// 2v2 with the 3v3 rules: the rear battler of each side uses every move on the foes' front battler.
+TRIPLE_2V2_BATTLE_TEST("Move Animations don't leak when used - Triples 2v2 (playerRight at the back to opponentLeft in front)")
+{
+    u32 j = ANIM_TEST_START_MOVE;
+    enum Move move = MOVE_NONE;
+    enum Species species = SPECIES_NONE;
+    u32 k = 0, variation = 0, variationsNumber;
+    u32 friendship = 0, tempFriendship;
+    enum Move tempMove;
+    enum Species tempSpecies;
+    FORCE_MOVE_ANIM(TRUE);
+    for (; j <= ANIM_TEST_END_MOVE; j++) {
+        variationsNumber = GetVariationsNumber(j, TRUE);
+        for (k = 0; k < variationsNumber; k++) {
+            ParametrizeMovesAndSpecies(j, &tempMove, &tempSpecies, k);
+            tempFriendship = ParametrizeFriendship(j, k);
+            PARAMETRIZE { move = tempMove; species = tempSpecies; variation = k; friendship = tempFriendship; }
+        }
+    }
+    GIVEN {
+        // Starting formation: left near, right far.
+        PLAYER(SPECIES_WOBBUFFET) TRIPLE_ANIM_ALLY_MON
+        PLAYER(species) TRIPLE_ANIM_ATTACKER_MON
+        PLAYER(SPECIES_WOBBUFFET) TRIPLE_ANIM_BENCH_MON
+        OPPONENT(SPECIES_WOBBUFFET) TRIPLE_ANIM_FOE_MON
+        OPPONENT(SPECIES_WOBBUFFET) TRIPLE_ANIM_FOE_MON
+        OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
+    } WHEN {
+        struct TripleAnimSetup triple = {0};
+        DoublesWhen(move, playerRight, opponentLeft, NULL, NULL, variation, &triple);
+    } SCENE {
+        DoublesScene(move, playerRight, MOVE_AERIAL_ACE);
+    } THEN {
+        FORCE_MOVE_ANIM(FALSE);
+        if (gLoadFail || gSpriteAllocs != 0)
+            DebugPrintf("Move failed: %S (%u)", GetMoveName(move), move);
+        EXPECT_EQ(gLoadFail, FALSE);
+        EXPECT_EQ(gSpriteAllocs, 0);
+    }
+}
+
+TRIPLE_2V2_BATTLE_TEST("Move Animations don't leak when used - Triples 2v2 (opponentRight at the back to playerLeft in front)")
+{
+    u32 j = ANIM_TEST_START_MOVE;
+    enum Move move = MOVE_NONE;
+    enum Species species = SPECIES_NONE;
+    u32 k = 0, variation = 0, variationsNumber;
+    u32 friendship = 0, tempFriendship;
+    enum Move tempMove;
+    enum Species tempSpecies;
+    FORCE_MOVE_ANIM(TRUE);
+    for (; j <= ANIM_TEST_END_MOVE; j++) {
+        variationsNumber = GetVariationsNumber(j, TRUE);
+        for (k = 0; k < variationsNumber; k++) {
+            ParametrizeMovesAndSpecies(j, &tempMove, &tempSpecies, k);
+            tempFriendship = ParametrizeFriendship(j, k);
+            PARAMETRIZE { move = tempMove; species = tempSpecies; variation = k; friendship = tempFriendship; }
+        }
+    }
+    GIVEN {
+        OPPONENT(SPECIES_WOBBUFFET) TRIPLE_ANIM_ALLY_MON
+        OPPONENT(species) TRIPLE_ANIM_ATTACKER_MON
+        OPPONENT(SPECIES_WOBBUFFET) TRIPLE_ANIM_BENCH_MON
+        PLAYER(SPECIES_WOBBUFFET) TRIPLE_ANIM_FOE_MON
+        PLAYER(SPECIES_WOBBUFFET) TRIPLE_ANIM_FOE_MON
+        PLAYER(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
+    } WHEN {
+        struct TripleAnimSetup triple = {0};
+        DoublesWhen(move, opponentRight, playerLeft, NULL, NULL, variation, &triple);
+    } SCENE {
+        DoublesScene(move, opponentRight, MOVE_AERIAL_ACE);
     } THEN {
         FORCE_MOVE_ANIM(FALSE);
         if (gLoadFail || gSpriteAllocs != 0)

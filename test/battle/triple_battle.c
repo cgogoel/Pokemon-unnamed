@@ -484,6 +484,30 @@ AI_TRIPLE_BATTLE_TEST("Triple battles: the AI doesn't aim FRONT moves past the f
     }
 }
 
+AI_TRIPLE_BATTLE_TEST("Triple battles: the AI picks the second target of a 2-target move it can knock out")
+{
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_ROCK_SLIDE)->aoe == 2);
+        ASSUME(GetTripleMoveInfo(MOVE_ROCK_SLIDE)->reach == TRIPLE_REACH_ANY);
+        AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT);
+        // Formation: playerLeft front, playerRight middle, playerMiddle rear
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET) { HP(1); }
+        PLAYER(SPECIES_WOBBUFFET) { HP(1); }
+        PLAYER(SPECIES_WYNAUT);
+        PLAYER(SPECIES_WYNAUT);
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_ROCK_SLIDE); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+    } WHEN {
+        TURN { EXPECT_MOVE(opponentLeft, MOVE_ROCK_SLIDE); SEND_OUT(playerRight, 3); SEND_OUT(playerMiddle, 4); }
+    } SCENE {
+        HP_BAR(playerRight);
+        HP_BAR(playerMiddle);
+        NOT HP_BAR(playerLeft);
+    }
+}
+
 TRIPLE_BATTLE_TEST("Triple battles: the send out message names all three Pokémon")
 {
     GIVEN {

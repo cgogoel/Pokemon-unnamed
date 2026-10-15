@@ -70,6 +70,7 @@ void ChooseTripleAiActor(enum BattlerId battler, bool32 (*isAiBattler)(enum Batt
 bool32 IsTripleAiPassing(enum BattlerId battler);
 u32 GetTripleTrainerBattleTypeFlags(u16 trainerId);
 u32 GetTripleBattleTypeFlagsForFoes(u32 foePartySize);
+u32 GetTripleAiSecondTargetByte(enum BattlerId battlerAtk, enum BattlerId mainTarget, u32 moveIndex);
 void RemoveUnreachableTripleMoveScores(enum BattlerId battlerAtk, enum BattlerId battlerDef, s32 *scores);
 // triple_battle_ui.c
 #define TRIPLE_INDICATOR_TEXT_X 30 // Pixels before the move type name when the area of effect indicator is shown

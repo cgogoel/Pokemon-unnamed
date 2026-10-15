@@ -1365,7 +1365,11 @@ bool8 LoadChosenBattleElement(u8 caseId)
 void DrawTerrainTypeBattleBackground(void)
 {
     if (gFieldTimers.terrain != B_TERRAIN_NONE)
+    {
         LoadMoveBg(gBattleTerrainInfo[gFieldTimers.terrain].battleBackground);
+        if (IsTripleBattle()) // The floor ovals go on the terrain's background too
+            DrawTripleBattleFloor();
+    }
     else
         DrawMainBattleBackground();
 }

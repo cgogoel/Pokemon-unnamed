@@ -504,6 +504,55 @@ static void MoveTargetCursor(enum BattlerId battler, enum Move move, enum MoveTa
         MoveSelectionDisplayMoveEffectiveness(CheckTypeEffectiveness(battler, gMultiUsePlayerCursor), battler);
 }
 
+// Triple battles: Left/Right move along a row of Pokémon by their place on screen, Up/Down switch between the foes'
+// row and the player's.
+static void MoveTripleTargetCursor(enum BattlerId battler, enum Move move, enum MoveTarget moveTarget, s32 dx, bool32 switchRow)
+{
+    enum BattleSide side = GetBattlerSide(gMultiUsePlayerCursor);
+    enum BattlerPosition layout = GetBattlerLayoutPosition(gMultiUsePlayerCursor);
+    const enum BattlerPosition spots[TRIPLE_RANK_COUNT] = { B_POSITION_PLAYER_LEFT, B_POSITION_PLAYER_MIDDLE, B_POSITION_PLAYER_RIGHT };
+    s32 index;
+
+    for (index = 0; index < TRIPLE_RANK_COUNT && spots[index] != (layout & ~BIT_SIDE); index++)
+        ;
+    if (index == TRIPLE_RANK_COUNT)
+        index = 0;
+
+    if (switchRow)
+    {
+        // The closest valid Pokémon in the other row
+        static const s8 sTryOrder[] = { 0, -1, 1, -2, 2 };
+        side ^= BIT_SIDE;
+        for (u32 i = 0; i < ARRAY_COUNT(sTryOrder); i++)
+        {
+            s32 tryIndex = index + sTryOrder[i];
+            if (tryIndex < 0 || tryIndex >= TRIPLE_RANK_COUNT)
+                continue;
+            enum BattlerId target = GetBattlerAtLayoutPosition(spots[tryIndex] | side);
+            if (target < gBattlersCount && IsValidTargetForCursor(battler, target, move, moveTarget))
+            {
+                gMultiUsePlayerCursor = target;
+                break;
+            }
+        }
+    }
+    else
+    {
+        for (u32 i = 1; i < TRIPLE_RANK_COUNT; i++)
+        {
+            enum BattlerId target = GetBattlerAtLayoutPosition(spots[(index + dx * i + 2 * TRIPLE_RANK_COUNT) % TRIPLE_RANK_COUNT] | side);
+            if (target < gBattlersCount && IsValidTargetForCursor(battler, target, move, moveTarget))
+            {
+                gMultiUsePlayerCursor = target;
+                break;
+            }
+        }
+    }
+
+    if (B_SHOW_EFFECTIVENESS)
+        MoveSelectionDisplayMoveEffectiveness(CheckTypeEffectiveness(battler, gMultiUsePlayerCursor), battler);
+}
+
 void HandleInputChooseTarget(enum BattlerId battler)
 {
     enum BattlerId i;
@@ -585,6 +634,13 @@ void HandleInputChooseTarget(enum BattlerId battler)
         DoBounceEffect(battler, BOUNCE_HEALTHBOX, 7, 1);
         DoBounceEffect(battler, BOUNCE_MON, 7, 1);
         EndBounceEffect(gMultiUsePlayerCursor, BOUNCE_HEALTHBOX);
+    }
+    else if (IsTripleBattle() && JOY_NEW(DPAD_ANY))
+    {
+        PlaySE(SE_SELECT);
+        gSprites[gBattlerSpriteIds[gMultiUsePlayerCursor]].callback = SpriteCB_HideAsMoveTarget;
+        MoveTripleTargetCursor(battler, move, moveTarget, JOY_NEW(DPAD_LEFT) ? -1 : 1, JOY_NEW(DPAD_UP | DPAD_DOWN) != 0);
+        gSprites[gBattlerSpriteIds[gMultiUsePlayerCursor]].callback = SpriteCB_ShowAsMoveTarget;
     }
     else if (JOY_NEW(DPAD_LEFT | DPAD_UP))
     {
@@ -737,6 +793,9 @@ void HandleInputChooseMove(enum BattlerId battler)
         gMultiUsePlayerCursor = GetDefaultSelectionTarget(battler, moveTarget);
         
         enum BattlerId partner = GetPartnerBattler(battler);
+        enum TripleTargetChoice tripleChoice = TRIPLE_TARGET_CHOICE_CANON;
+        if (IsTripleBattle() && moveInfo->currentPP[gMoveSelectionCursor[battler]] != 0)
+            tripleChoice = GetTripleTargetChoice(moveInfo->moves[gMoveSelectionCursor[battler]], moveTarget);
 
         if (gBattleResources->bufferA[battler][1]) // a double battle
         {
@@ -755,7 +814,8 @@ void HandleInputChooseMove(enum BattlerId battler)
                 canSelectTarget = 0;
             }
 
-            if (B_SHOW_TARGETS == TRUE)
+            // Triple battles pick their targets below, unless the move keeps its canon targeting
+            if (B_SHOW_TARGETS == TRUE && tripleChoice == TRIPLE_TARGET_CHOICE_CANON)
             {
                 // Show all available targets for multi-target moves
                 if (moveTarget == TARGET_ALL_BATTLERS || moveTarget == TARGET_FIELD)
@@ -779,7 +839,7 @@ void HandleInputChooseMove(enum BattlerId battler)
         if (IsTripleBattle() && moveInfo->currentPP[gMoveSelectionCursor[battler]] != 0)
         {
             gBattleStruct->tripleFirstTarget[battler] = 0;
-            switch (GetTripleTargetChoice(moveInfo->moves[gMoveSelectionCursor[battler]], moveTarget))
+            switch (tripleChoice)
             {
             case TRIPLE_TARGET_CHOICE_NONE:
                 gMultiUsePlayerCursor = GetTripleFoeAtRank(battler, 0);

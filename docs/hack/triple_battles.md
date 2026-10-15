@@ -76,6 +76,8 @@ The prompt reads "What will Pikachu do?" with a hint line: `L R Pick`, `SELECT O
 - **SELECT**: move the selected Pokémon one spot forward in the formation (front wraps to back). Free.
 - **B** (middle/right): go back to the previous Pokémon in the engine's order.
 - Moves: FRONT and 3-target moves skip target selection; 2-target ANY moves pick two different foes.
+- Target cursor: Left/Right move along a row of Pokémon by their place on screen, Up/Down switch between the foes' row
+  and the player's.
 
 ### Trying it
 - Debug menu (hold R + START in the overworld) → Party → *Start Debug Battle* starts a 3v3 against `DEBUG_TRAINER_AI`

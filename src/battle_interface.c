@@ -816,9 +816,12 @@ static void SpriteCB_HealthBar(struct Sprite *sprite)
         sprite->x = gSprites[healthboxSpriteId].x + 8;
         sprite->y = gSprites[healthboxSpriteId].y;
         break;
-    case 3: // Triple battles: the bar sits under the compact healthbox
+    case 3: // Triple battles: the bar sits under the compact healthbox (the name tag), or above it at the top of the screen
         sprite->x = gSprites[healthboxSpriteId].x + TRIPLE_HEALTHBAR_X;
-        sprite->y = gSprites[healthboxSpriteId].y + TRIPLE_HEALTHBAR_Y;
+        if (IsTripleNameTagBelowBar(gSprites[healthboxSpriteId].hMain_Battler))
+            sprite->y = gSprites[healthboxSpriteId].y - TRIPLE_NAME_TAG_BELOW_BAR;
+        else
+            sprite->y = gSprites[healthboxSpriteId].y + TRIPLE_HEALTHBAR_Y;
         break;
     }
 

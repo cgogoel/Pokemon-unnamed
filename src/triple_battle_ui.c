@@ -300,16 +300,34 @@ static u32 GetTriplePicTopRow(enum BattlerId battler)
     return MON_PIC_HEIGHT / 2;
 }
 
-// The HP bar floats just above the Pokémon's head; the name tag (the healthbox) sits right above the bar.
-// x, y are the healthbox's left half centre (the tag is 64 pixels wide, two 32x16 halves).
+static EWRAM_DATA u8 sTripleNameTagBelowBar = 0; // Bit per battler
+
+// Whether the battler's name tag goes under its HP bar, because there's no room above it at the top of the screen.
+bool32 IsTripleNameTagBelowBar(enum BattlerId battler)
+{
+    return (sTripleNameTagBelowBar & (1u << battler)) != 0;
+}
+
+// The HP bar floats just above the Pokémon's head; the name tag (the healthbox) sits right above the bar, or right
+// under it near the top of the screen. x, y are the healthbox's left half centre (the tag is 64x16, two 32x16 halves).
 void GetTripleHealthboxCoords(enum BattlerId battler, s16 *x, s16 *y)
 {
     s32 headY = GetBattlerSpriteDefault_Y(battler) - MON_PIC_HEIGHT / 2 + GetTriplePicTopRow(battler);
+    s32 barTop = headY - TRIPLE_HEAD_GAP;
 
+    if (barTop < 1)
+        barTop = 1;
     *x = GetBattlerSpriteCoord(battler, BATTLER_COORD_X) - 16;
-    *y = headY - TRIPLE_HEAD_GAP - TRIPLE_HEALTHBAR_OFFSET_Y;
-    if (*y < TRIPLE_HEALTHBOX_MIN_Y)
-        *y = TRIPLE_HEALTHBOX_MIN_Y;
+    if (barTop - TRIPLE_HEALTHBAR_OFFSET_Y - 8 >= 0)
+    {
+        *y = barTop - TRIPLE_HEALTHBAR_OFFSET_Y;
+        sTripleNameTagBelowBar &= ~(1u << battler);
+    }
+    else
+    {
+        *y = barTop + TRIPLE_NAME_TAG_BELOW_BAR;
+        sTripleNameTagBelowBar |= 1u << battler;
+    }
 }
 
 // Battle floor for triple battles: each team stands on nested ovals along its diagonal. The base oval (solid) is under

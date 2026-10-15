@@ -98,6 +98,7 @@ The prompt reads "What will Pikachu do?" with a hint line: `L R Pick`, `SELECT O
   down the left (name, level, HP bar and numbers), the bench on the right, centered vertically.
 - The short box is built from the normal box's tiles one pixel row at a time (`sSlotTripleSourceRows`).
 - Left/Right move between a field Pokémon and the bench row beside it; Up/Down go through the slots in order.
+- 2v2 uses the doubles layout: the 2 Pokémon on the field on the left, the 4 bench slots on the right.
 
 ### Trying it
 - Debug menu (hold R + START in the overworld) → Party → *Start Debug Battle* starts a 3v3 against `DEBUG_TRAINER_AI`

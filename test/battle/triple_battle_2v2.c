@@ -151,3 +151,24 @@ AI_TRIPLE_2V2_BATTLE_TEST("Triple battles 2v2: the AI acts with one battler")
         TURN { EXPECT_MOVE(opponentRight, MOVE_THUNDERBOLT, target: playerLeft); }
     }
 }
+
+TRIPLE_2V2_BATTLE_TEST("Triple battles 2v2: a switch updates the party menu order of both battlers on the side")
+{
+    GIVEN {
+        PLAYER(SPECIES_PIKACHU);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_VENUSAUR);
+        PLAYER(SPECIES_LAPRAS);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { SWITCH(playerLeft, 3); }
+    } SCENE {
+        SWITCH_OUT_MESSAGE("Pikachu");
+    } THEN {
+        // The Pokémon menu lists the 2 on the field first (Lapras now, Pikachu on the bench), then the 4 on the bench
+        EXPECT_EQ(gBattleStruct->battlerPartyOrders[B_BATTLER_0][0] >> 4, 3);
+        EXPECT_EQ(gBattleStruct->battlerPartyOrders[B_BATTLER_0][0] & 0xF, 1);
+        EXPECT_EQ(memcmp(gBattleStruct->battlerPartyOrders[B_BATTLER_2], gBattleStruct->battlerPartyOrders[B_BATTLER_0], sizeof(gBattleStruct->battlerPartyOrders[0])), 0);
+    }
+}

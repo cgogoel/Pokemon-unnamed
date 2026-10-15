@@ -293,8 +293,6 @@ enum
     FLOOR_SHADE_COUNT,
 };
 
-// Brightness of each shade, out of 16
-static const u8 sFloorShadeBrightness[FLOOR_SHADE_COUNT] = { [FLOOR_HALF] = 12, [FLOOR_BASE] = 9, [FLOOR_OUTLINE] = 7 };
 
 struct FloorOval
 {
@@ -390,45 +388,50 @@ static u32 GetFloorShade(const struct FloorTeam *teams, s32 px, s32 py)
     return shade;
 }
 
-// Shades are drawn with colors written into palette slots the environment background doesn't use (flat colors, darker
-// versions of the floor's average color). If a palette has no 3 free slots, each pixel takes the closest darker color.
+// The ovals are drawn with sFloorColors written into palette slots the environment background doesn't use. If a palette
+// has no 3 free slots, they take the closest colors it has.
 struct FloorShades
 {
-    bool8 reserved[3];
-    u8 index[3][FLOOR_SHADE_COUNT];       // Reserved slots
-    u8 nearest[3][FLOOR_SHADE_COUNT][16]; // Fallback
+    bool8 reserved[3];                     // Painted tiles of this environment palette use FLOOR_PALETTE
+    u8 index[FLOOR_SHADE_COUNT];           // Slots of FLOOR_PALETTE holding sFloorColors
+    u8 nearest[3][FLOOR_SHADE_COUNT][16];  // Fallback: closest colors of the environment palette
 };
 
-// Brightness of the reserved shade colors, out of 32: the middle section is halfway between the floor and the base oval
-static const u8 sFloorReservedBrightness[FLOOR_SHADE_COUNT] = { [FLOOR_HALF] = 26, [FLOOR_BASE] = 20, [FLOOR_OUTLINE] = 14 };
+// The oval tiles use their own BG palette: a copy of the floor's environment palette with the oval colors added in
+// slots the floor tiles don't use. Palette 6 is only used by the link battle VS screen.
+#define FLOOR_PALETTE 6
+
+// Colors of the ovals: a dark gray base oval and outlines, a green middle section
+static const u16 sFloorColors[FLOOR_SHADE_COUNT] =
+{
+    [FLOOR_HALF]    = RGB(15, 21, 13),
+    [FLOOR_BASE]    = RGB(9, 10, 10),
+    [FLOOR_OUTLINE] = RGB(7, 8, 8),
+};
+
+static u16 GetFloorSourceEntry(const u16 *tilemap, u32 row)
+{
+    return tilemap[row * 32 + ((row < FLOOR_SPLIT_ROW) ? 0 : FLOOR_COLS - 1)];
+}
 
 static void BuildFloorShades(struct FloorShades *shades, const u16 *tilemap, const u8 *tiles)
 {
     u16 usedColors[3] = {0};
-    u32 sum[3][3] = {0}, count[3] = {0};
+    u32 sum[3][3] = {0}, count[3] = {0}, rows[3] = {0};
 
-    // Colors used by the environment background, per palette
-    for (u32 i = 0; i < 32 * 64; i++)
-    {
-        u32 entry = tilemap[i], palette = entry >> 12, tile = entry & 0x3FF;
-        if (palette < 2 || palette > 4 || tile >= FLOOR_FIRST_TILE)
-            continue;
-        for (u32 b = 0; b < TILE_SIZE_4BPP; b++)
-        {
-            u8 byte = tiles[tile * TILE_SIZE_4BPP + b];
-            usedColors[palette - 2] |= (1 << (byte & 0xF)) | (1 << (byte >> 4));
-        }
-    }
-    // Average color of the floor rows (the backgrounds used under the ovals)
+    // Colors of the floor tiles (the backgrounds the ovals are painted on) and their average, per palette
     for (u32 row = 0; row < FLOOR_ROWS; row++)
     {
-        u32 entry = tilemap[row * 32 + ((row < FLOOR_SPLIT_ROW) ? 0 : FLOOR_COLS - 1)], palette = entry >> 12, tile = entry & 0x3FF;
+        u32 entry = GetFloorSourceEntry(tilemap, row), palette = entry >> 12, tile = entry & 0x3FF;
         if (palette < 2 || palette > 4)
             continue;
+        rows[palette - 2]++;
         for (u32 b = 0; b < TILE_SIZE_4BPP * 2; b++)
         {
             u8 byte = tiles[tile * TILE_SIZE_4BPP + b / 2];
-            u16 color = gPlttBufferUnfaded[BG_PLTT_ID(palette) + ((b & 1) ? (byte >> 4) : (byte & 0xF))];
+            u32 index = (b & 1) ? (byte >> 4) : (byte & 0xF);
+            u16 color = gPlttBufferUnfaded[BG_PLTT_ID(palette) + index];
+            usedColors[palette - 2] |= 1 << index;
             sum[palette - 2][0] += GET_R(color);
             sum[palette - 2][1] += GET_G(color);
             sum[palette - 2][2] += GET_B(color);
@@ -436,38 +439,37 @@ static void BuildFloorShades(struct FloorShades *shades, const u16 *tilemap, con
         }
     }
 
+    // The palette most floor rows use gets the copy with the exact oval colors
+    u32 main = (rows[1] > rows[0]) ? 1 : 0;
+    if (rows[2] > rows[main])
+        main = 2;
+    if (count[main] != 0)
+        sTripleHazeColor = RGB(sum[main][0] / count[main], sum[main][1] / count[main], sum[main][2] / count[main]);
+
+    for (u32 p = 0; p < 3; p++)
+        shades->reserved[p] = FALSE;
+    u32 free = 0;
+    for (u32 i = 1; i < 16 && free < FLOOR_SHADE_COUNT - 1; i++)
+    {
+        if (!(usedColors[main] & (1 << i)))
+            shades->index[FLOOR_HALF + free++] = i;
+    }
+    if (free == FLOOR_SHADE_COUNT - 1 && rows[main] != 0)
+    {
+        shades->reserved[main] = TRUE;
+        LoadPalette(&gPlttBufferUnfaded[BG_PLTT_ID(2 + main)], BG_PLTT_ID(FLOOR_PALETTE), PLTT_SIZE_4BPP);
+        for (u32 shade = FLOOR_HALF; shade < FLOOR_SHADE_COUNT; shade++)
+            LoadPalette(&sFloorColors[shade], BG_PLTT_ID(FLOOR_PALETTE) + shades->index[shade], PLTT_SIZEOF(1));
+    }
+
     for (u32 p = 0; p < 3; p++)
     {
         const u16 *colors = &gPlttBufferUnfaded[BG_PLTT_ID(2 + p)];
-        u32 free = 0;
-
-        shades->reserved[p] = FALSE;
-        for (u32 i = 1; i < 16 && free < FLOOR_SHADE_COUNT - 1; i++)
-        {
-            if (!(usedColors[p] & (1 << i)))
-                shades->index[p][FLOOR_HALF + free++] = i;
-        }
-        if (p == 0 && count[p] != 0)
-            sTripleHazeColor = RGB(sum[p][0] / count[p], sum[p][1] / count[p], sum[p][2] / count[p]);
-        if (free == FLOOR_SHADE_COUNT - 1 && count[p] != 0)
-        {
-            shades->reserved[p] = TRUE;
-            for (u32 shade = FLOOR_HALF; shade < FLOOR_SHADE_COUNT; shade++)
-            {
-                u16 color = RGB(sum[p][0] * sFloorReservedBrightness[shade] / (32 * count[p]),
-                                sum[p][1] * sFloorReservedBrightness[shade] / (32 * count[p]),
-                                sum[p][2] * sFloorReservedBrightness[shade] / (32 * count[p]));
-                LoadPalette(&color, BG_PLTT_ID(2 + p) + shades->index[p][shade], PLTT_SIZEOF(1));
-            }
-        }
-
         for (u32 shade = 0; shade < FLOOR_SHADE_COUNT; shade++)
         {
             for (u32 i = 0; i < 16; i++)
             {
-                s32 r = GET_R(colors[i]) * sFloorShadeBrightness[shade] / 16;
-                s32 g = GET_G(colors[i]) * sFloorShadeBrightness[shade] / 16;
-                s32 b = GET_B(colors[i]) * sFloorShadeBrightness[shade] / 16;
+                s32 r = GET_R(sFloorColors[shade]), g = GET_G(sFloorColors[shade]), b = GET_B(sFloorColors[shade]);
                 u32 best = i, bestDistance = 0xFFFFFFFF;
                 if (shade == FLOOR_NONE)
                 {
@@ -507,7 +509,7 @@ void DrawTripleBattleFloor(void)
     for (u32 row = 0; row < FLOOR_ROWS; row++)
     {
         // The plain background for this row, away from the 1v1 platforms
-        u16 source = tilemap[row * 32 + ((row < FLOOR_SPLIT_ROW) ? 0 : FLOOR_COLS - 1)];
+        u16 source = GetFloorSourceEntry(tilemap, row);
         u32 sourceTile = source & 0x3FF, palette = source >> 12;
         bool32 hFlip = (source & 0x400) != 0, vFlip = (source & 0x800) != 0;
 
@@ -529,7 +531,7 @@ void DrawTripleBattleFloor(void)
                     if (shade != FLOOR_NONE && palette >= 2 && palette <= 4)
                     {
                         if (shades->reserved[palette - 2])
-                            color = shades->index[palette - 2][shade];
+                            color = shades->index[shade];
                         else
                             color = shades->nearest[palette - 2][shade][color];
                         painted = TRUE;
@@ -563,7 +565,10 @@ void DrawTripleBattleFloor(void)
                 CpuCopy32(words, (void *)(tiles + (FLOOR_FIRST_TILE + tile) * TILE_SIZE_4BPP), sizeof(words));
                 newTiles++;
             }
-            tilemap[row * 32 + col] = (FLOOR_FIRST_TILE + tile) | (palette << 12);
+            if (palette >= 2 && palette <= 4 && shades->reserved[palette - 2])
+                tilemap[row * 32 + col] = (FLOOR_FIRST_TILE + tile) | (FLOOR_PALETTE << 12);
+            else
+                tilemap[row * 32 + col] = (FLOOR_FIRST_TILE + tile) | (palette << 12);
         }
     }
     Free(shades);

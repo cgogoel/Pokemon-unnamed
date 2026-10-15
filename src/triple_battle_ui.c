@@ -3,6 +3,7 @@
 #include "battle_anim.h"
 #include "battle_interface.h"
 #include "palette.h"
+#include "util.h"
 #include "decompress.h"
 #include "sprite.h"
 #include "triple_battle.h"
@@ -145,9 +146,28 @@ bool32 ShowTripleMoveIndicator(enum Move move)
 // Indexed by side, then layout position / 2 (left = rear, right = front, middle). 256 = full size.
 static const u16 sTripleSpriteScale[NUM_BATTLE_SIDES][3] =
 {
-    [B_SIDE_PLAYER]   = { [B_POSITION_PLAYER_LEFT / 2] = 220, [B_POSITION_PLAYER_RIGHT / 2] = 174, [B_POSITION_PLAYER_MIDDLE / 2] = 200 },
+    [B_SIDE_PLAYER]   = { [B_POSITION_PLAYER_LEFT / 2] = 256, [B_POSITION_PLAYER_RIGHT / 2] = 180, [B_POSITION_PLAYER_MIDDLE / 2] = 215 },
     [B_SIDE_OPPONENT] = { [B_POSITION_PLAYER_LEFT / 2] = 148, [B_POSITION_PLAYER_RIGHT / 2] = 180, [B_POSITION_PLAYER_MIDDLE / 2] = 164 },
 };
+
+// Haze: farther Pokémon fade toward the floor color (out of 16). Same indexing as sTripleSpriteScale.
+static const u8 sTripleHaze[NUM_BATTLE_SIDES][3] =
+{
+    [B_SIDE_PLAYER]   = { [B_POSITION_PLAYER_LEFT / 2] = 0, [B_POSITION_PLAYER_RIGHT / 2] = 4, [B_POSITION_PLAYER_MIDDLE / 2] = 2 },
+    [B_SIDE_OPPONENT] = { [B_POSITION_PLAYER_LEFT / 2] = 5, [B_POSITION_PLAYER_RIGHT / 2] = 1, [B_POSITION_PLAYER_MIDDLE / 2] = 3 },
+};
+
+static EWRAM_DATA u16 sTripleHazeColor = 0; // Set when the floor is drawn
+
+// Fades the battler's sprite palette by its depth. Called after its palette is loaded.
+void ApplyTripleHaze(enum BattlerId battler)
+{
+    u32 coeff = sTripleHaze[GetBattlerSide(battler)][GetBattlerLayoutPosition(battler) / 2];
+    if (coeff == 0)
+        return;
+    BlendPalette(OBJ_PLTT_ID(battler), 16, coeff, sTripleHazeColor);
+    CpuCopy32(&gPlttBufferFaded[OBJ_PLTT_ID(battler)], &gPlttBufferUnfaded[OBJ_PLTT_ID(battler)], PLTT_SIZEOF(16));
+}
 
 u32 GetTripleSpriteScale(enum BattlerId battler)
 {
@@ -259,7 +279,8 @@ void GetTripleHealthboxCoords(enum BattlerId battler, s16 *x, s16 *y)
 #define FLOOR_ROWS 14        // Rows above the text box
 #define FLOOR_COLS (DISPLAY_WIDTH / 8)
 #define FLOOR_SPLIT_ROW 10   // Rows above take their background from column 0, rows below from the last column
-#define FLOOR_GROUND_OFFSET 28 // From a battler's sprite centre to its feet
+#define FLOOR_GROUND_OFFSET 28        // From a foe's sprite centre to its feet
+#define FLOOR_PLAYER_GROUND_OFFSET 20 // The player's back sprites are cut off by the text box: their ovals sit just above it
 #define FLOOR_OVAL_PAD 22    // How far an oval reaches past the Pokémon at its ends
 #define FLOOR_TEAM_SPLIT_Y 68 // Each team's ovals stay on its own side of this line
 
@@ -319,7 +340,7 @@ static void InitFloorTeam(struct FloorTeam *team, enum BattleSide side)
     for (u32 i = 0; i < TRIPLE_RANK_COUNT; i++)
     {
         x[i] = sBattlerCoords[BATTLE_COORDS_TRIPLES][spots[i]].x;
-        y[i] = sBattlerCoords[BATTLE_COORDS_TRIPLES][spots[i]].y + FLOOR_GROUND_OFFSET;
+        y[i] = sBattlerCoords[BATTLE_COORDS_TRIPLES][spots[i]].y + ((side == B_SIDE_PLAYER) ? FLOOR_PLAYER_GROUND_OFFSET : FLOOR_GROUND_OFFSET);
     }
 
     s32 dx = x[2] - x[0], dy = y[2] - y[0];
@@ -426,6 +447,8 @@ static void BuildFloorShades(struct FloorShades *shades, const u16 *tilemap, con
             if (!(usedColors[p] & (1 << i)))
                 shades->index[p][FLOOR_HALF + free++] = i;
         }
+        if (p == 0 && count[p] != 0)
+            sTripleHazeColor = RGB(sum[p][0] / count[p], sum[p][1] / count[p], sum[p][2] / count[p]);
         if (free == FLOOR_SHADE_COUNT - 1 && count[p] != 0)
         {
             shades->reserved[p] = TRUE;

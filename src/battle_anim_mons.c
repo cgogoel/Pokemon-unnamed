@@ -55,9 +55,10 @@ const struct UCoords8 sBattlerCoords[BATTLE_COORDS_COUNT][MAX_BATTLERS_COUNT] =
     // Each team stands on a diagonal with its rear Pokémon on the left and its front Pokémon on the right.
     [BATTLE_COORDS_TRIPLES] =
     {
-        [B_POSITION_PLAYER_LEFT]     = { 40, 76 },
-        [B_POSITION_PLAYER_MIDDLE]   = { 118, 72 },
-        [B_POSITION_PLAYER_RIGHT]    = { 196, 68 },
+        // The player's back sprites are cut off at the bottom: the cut stays behind the text box, the rear one lowest
+        [B_POSITION_PLAYER_LEFT]     = { 40, 86 },
+        [B_POSITION_PLAYER_MIDDLE]   = { 118, 83 },
+        [B_POSITION_PLAYER_RIGHT]    = { 196, 80 },
         [B_POSITION_OPPONENT_LEFT]   = { 40, 8 },
         [B_POSITION_OPPONENT_MIDDLE] = { 112, 16 },
         [B_POSITION_OPPONENT_RIGHT]  = { 188, 24 },

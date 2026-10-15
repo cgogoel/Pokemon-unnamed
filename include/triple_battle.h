@@ -77,6 +77,7 @@ u32 ScaleTripleMonPic(u8 *pic, enum BattlerId battler);
 void GetTripleHealthboxCoords(enum BattlerId battler, s16 *x, s16 *y);
 void SetTripleNameTags(u32 battlerMask);
 void DrawTripleBattleFloor(void);
+void ApplyTripleHaze(enum BattlerId battler);
 
 uq4_12_t GetTripleTargetDamageModifier(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, u32 targetCount);
 

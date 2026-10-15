@@ -685,6 +685,8 @@ void BattleLoadMonSpriteGfx(struct Pokemon *mon, enum BattlerId battler)
 
     LoadPalette(paletteData, paletteOffset, PLTT_SIZE_4BPP);
     LoadPalette(paletteData, BG_PLTT_ID(8) + BG_PLTT_ID(battler), PLTT_SIZE_4BPP);
+    if (IsTripleBattle())
+        ApplyTripleHaze(battler);
 
     // transform's pink color
     if (gBattleMons[battler].volatiles.transformed)
@@ -986,6 +988,8 @@ void HandleSpeciesGfxDataChange(enum BattlerId battlerAtk, enum BattlerId battle
     paletteOffset = OBJ_PLTT_ID(battlerAtk);
     paletteData = GetMonSpritePalFromSpeciesAndPersonality(targetSpecies, isShiny, personalityValue);
     LoadPalette(paletteData, paletteOffset, PLTT_SIZE_4BPP);
+    if (IsTripleBattle() && !IsContest())
+        ApplyTripleHaze(battlerAtk);
 
     if (changeType == SPECIES_GFX_CHANGE_GHOST_UNVEIL)
     {

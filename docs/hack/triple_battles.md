@@ -52,6 +52,9 @@ Shown with each move in the battle move menu (next to type/PP) and in the summar
 - Sprites are shrunk by depth (`sTripleSpriteScale`, `src/triple_battle_ui.c`): the player's rear Pokémon (closest to the
   camera) is biggest, the foes' rear Pokémon smallest. The pic is scaled in memory when it loads, so animations still use
   the normal sprite.
+- The player's back sprites are cut off at the bottom (as in every Pokémon game), so the player's team is bottom-aligned
+  with the cut behind the text box; its ovals sit in the strip just above the text box.
+- Haze (`sTripleHaze`): farther Pokémon fade toward the floor color, strongest for the foes' rear Pokémon.
 - Floor (`DrawTripleBattleFloor`): nested ovals along each team's diagonal on top of the location's background, with
   the 1v1 platforms painted out. A solid base oval under the rear Pokémon, a half-shaded section out to the middle one
   and an outlined outer ring out to the front one. Shades use free palette slots of the background (darker versions of its

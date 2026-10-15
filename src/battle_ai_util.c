@@ -6266,14 +6266,32 @@ bool32 IsPartyMonOnFieldOrChosenToSwitch(enum BattlerId battler, u32 partyIndex,
     if ((partyIndex == gBattleStruct->monToSwitchIntoId[battlerIn1] && BattlersShareParty(battler, battlerIn1))
             || (partyIndex == gBattleStruct->monToSwitchIntoId[battlerIn2] && BattlersShareParty(battler, battlerIn2)))
         return TRUE;
+    // Triple battles: the third Pokémon on the field (and whoever it's switching to)
+    if (IsTripleBattle())
+    {
+        for (enum BattlerId i = 0; i < gBattlersCount; i++)
+        {
+            if (!IsBattlerAlly(i, battler) || !BattlersShareParty(battler, i))
+                continue;
+            if (partyIndex == gBattlerPartyIndexes[i] || partyIndex == gBattleStruct->monToSwitchIntoId[i])
+                return TRUE;
+        }
+    }
     return FALSE;
 }
 
 bool32 IsPartyMonPlannedToBeSwitchedInByPartner(u32 partyIndex, enum BattlerId battler)
 {
-    enum BattlerId battlerPartner = GetPartnerBattler(battler);
-    if (partyIndex == gAiLogicData->mostSuitableMonId[battlerPartner] && (gAiLogicData->shouldSwitch & (1u << battlerPartner)) && BattlersShareParty(battler, battlerPartner))
-        return TRUE;
+    for (enum BattlerId battlerPartner = 0; battlerPartner < gBattlersCount; battlerPartner++)
+    {
+        // Any ally in triple battles, the partner otherwise
+        if (battlerPartner == battler || !IsBattlerAlly(battlerPartner, battler))
+            continue;
+        if (!IsTripleBattle() && battlerPartner != GetPartnerBattler(battler))
+            continue;
+        if (partyIndex == gAiLogicData->mostSuitableMonId[battlerPartner] && (gAiLogicData->shouldSwitch & (1u << battlerPartner)) && BattlersShareParty(battler, battlerPartner))
+            return TRUE;
+    }
     return FALSE;
 }
 

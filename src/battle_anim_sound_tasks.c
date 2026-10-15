@@ -164,7 +164,7 @@ void SoundTask_PlayCryHighPitch(u8 taskId)
             battler = GetPartnerBattler(gBattleAnimAttacker);
             break;
         default:
-            battler = GetPartnerBattler(gBattleAnimTarget);
+            battler = GetAnimTargetPartner();
             break;
         }
 
@@ -217,7 +217,7 @@ void SoundTask_PlayDoubleCry(u8 taskId)
             battler = GetPartnerBattler(gBattleAnimAttacker);
             break;
         default:
-            battler = GetPartnerBattler(gBattleAnimTarget);
+            battler = GetAnimTargetPartner();
             break;
         }
 

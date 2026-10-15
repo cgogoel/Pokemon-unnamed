@@ -55,9 +55,12 @@ bool32 IsTripleTwoTargetChoiceMove(enum Move move);
 enum TripleTargetChoice GetTripleTargetChoice(enum Move move, enum MoveTarget canonTarget);
 enum BattlerId GetTriplePreviousChoosingBattler(enum BattlerId battler);
 u8 GetTripleFormationMovingUp(enum BattlerId battler);
+bool32 DoesTripleBattlerChooseLater(enum BattlerId battlerFrom, enum BattlerId battlerTo);
+enum BattlerId GetTripleScreenNeighbor(enum BattlerId battler, s32 step);
 void UpdateTripleFormationGraphics(enum BattleSide side);
 enum BattlerId GetTripleFoeAtRank(enum BattlerId battlerAtk, u32 aliveIndex);
 enum MoveTarget GetTripleMoveTargetType(enum Move move, enum MoveTarget canonTarget);
+u32 GetTripleSecondTargetChoices(enum BattlerId battlerAtk, enum BattlerId mainTarget, enum BattlerId *choices);
 enum BattlerId SetTripleMoveTargets(enum BattlerId battlerAtk, enum Move move, enum BattlerId battlerDef);
 void MarkTripleExcludedTargets(enum BattlerId battlerAtk, enum Move move);
 u32 CountTripleSpreadTargets(enum BattlerId battlerAtk);
@@ -73,10 +76,14 @@ u32 GetTripleSpriteScale(enum BattlerId battler);
 u32 ScaleTripleMonPic(u8 *pic, enum BattlerId battler);
 #define TRIPLE_HEALTHBAR_OFFSET_Y 7 // From the healthbox to the HP bar under it
 #define TRIPLE_HEAD_GAP 6           // Between the top of the HP bar and the Pokémon's head
-#define TRIPLE_HEALTHBOX_MIN_Y (-6) // Keeps the HP bar on screen; the name tag can go partly off the top
+#define TRIPLE_NAME_TAG_BELOW_BAR 16 // From the HP bar to the name tag when the tag goes under the bar
 void GetTripleHealthboxCoords(enum BattlerId battler, s16 *x, s16 *y);
+bool32 IsTripleNameTagBelowBar(enum BattlerId battler);
 void SetTripleNameTags(u32 battlerMask);
 void DrawTripleBattleFloor(void);
+// The floor ovals' tiles; blended with the battle background in animations. Palette 7 is only used by the Old Man /
+// tutorial and Battle Arena windows (6 is the level up banner's).
+#define TRIPLE_FLOOR_BG_PALETTE 7
 void ApplyTripleHaze(enum BattlerId battler);
 
 uq4_12_t GetTripleTargetDamageModifier(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, u32 targetCount);

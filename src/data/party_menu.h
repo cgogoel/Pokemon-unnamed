@@ -59,6 +59,20 @@ static const struct PartyMenuBoxInfoRects sPartyBoxInfoRects[] =
         },
         77, 4, 64, 16        // Description text
     },
+    [PARTY_BOX_LEFT_COLUMN_TRIPLE] =
+    {
+        BlitBitmapToPartyWindow_LeftColumnTriple,
+        {
+            // See above comment
+            24,  0, 40, 13, // Nickname
+            32,  8, 32,  8, // Level
+            64,  8,  8,  8, // Gender
+            38, 23, 24,  8, // HP
+            53, 23, 24,  8, // Max HP
+            24, 21, 48,  3  // HP bar
+        },
+        12, 18, 64, 16      // Description text
+    },
 };
 
 
@@ -138,6 +152,15 @@ static const u8 sPartyMenuSpriteCoords[PARTY_LAYOUT_COUNT][PARTY_SIZE][4 * 2] =
         {104,  66, 108,  76, 136,  75, 102,  73},
         {104,  90, 108, 100, 136,  99, 102,  97},
         {104, 114, 108, 124, 136, 123, 102, 121},
+    },
+    [PARTY_LAYOUT_TRIPLE] =
+    {
+        {16, 10, 20, 20, 50, 16, 16, 8},
+        {16, 50, 20, 60, 50, 56, 16, 48},
+        {16, 90, 20, 100, 50, 96, 16, 88},
+        {104, 26, 108, 36, 136, 35, 102, 33},
+        {104, 58, 108, 68, 136, 67, 102, 65},
+        {104, 90, 108, 100, 136, 99, 102, 97},
     },
 };
 
@@ -280,6 +303,75 @@ static const struct WindowTemplate sDoublePartyMenuWindowTemplate[] =
         .height = 3,
         .paletteNum = 8,
         .baseBlock = 0x191,
+    },
+    [WIN_MSG] = {
+        .bg = 2,
+        .tilemapLeft = 1,
+        .tilemapTop = 15,
+        .width = 28,
+        .height = 4,
+        .paletteNum = 14,
+        .baseBlock = 0x1DF,
+    },
+    DUMMY_WIN_TEMPLATE
+};
+
+// 3v3 battles: three short boxes on the left for the Pokémon on the field, the bench centered on the right
+static const struct WindowTemplate sTriplePartyMenuWindowTemplate[] =
+{
+    { // Party mon 1
+        .bg = 0,
+        .tilemapLeft = 1,
+        .tilemapTop = 0,
+        .width = 10,
+        .height = 5,
+        .paletteNum = 3,
+        .baseBlock = 0x63,
+    },
+    { // Party mon 2
+        .bg = 0,
+        .tilemapLeft = 1,
+        .tilemapTop = 5,
+        .width = 10,
+        .height = 5,
+        .paletteNum = 4,
+        .baseBlock = 0x95,
+    },
+    { // Party mon 3
+        .bg = 0,
+        .tilemapLeft = 1,
+        .tilemapTop = 10,
+        .width = 10,
+        .height = 5,
+        .paletteNum = 5,
+        .baseBlock = 0xC7,
+    },
+    { // Party mon 4
+        .bg = 0,
+        .tilemapLeft = 12,
+        .tilemapTop = 2,
+        .width = 18,
+        .height = 3,
+        .paletteNum = 6,
+        .baseBlock = 0xF9,
+    },
+    { // Party mon 5
+        .bg = 0,
+        .tilemapLeft = 12,
+        .tilemapTop = 6,
+        .width = 18,
+        .height = 3,
+        .paletteNum = 7,
+        .baseBlock = 0x12F,
+    },
+    { // Party mon 6
+        .bg = 0,
+        .tilemapLeft = 12,
+        .tilemapTop = 10,
+        .width = 18,
+        .height = 3,
+        .paletteNum = 8,
+        .baseBlock = 0x165,
     },
     [WIN_MSG] = {
         .bg = 2,
@@ -693,6 +785,17 @@ static const struct WindowTemplate sUnusedWindowTemplate2 =
 // There is no empty version of the main slot because it shouldn't ever be empty.
 static const u8 sSlotTilemap_Main[]      = INCBIN_U8("graphics/party_menu/slot_main.bin");
 static const u8 sSlotTilemap_MainNoHP[]  = INCBIN_U8("graphics/party_menu/slot_main_no_hp.bin");
+// 3v3 battles: the left column's box squeezed to 40 pixels. For each pixel row, the row of sSlotTilemap_Main
+// (in pixels) it is copied from: top border, the name/level area, the HP bar row, the HP numbers, bottom border.
+#define TRIPLE_SLOT_HEIGHT 40
+static const u8 sSlotTripleSourceRows[TRIPLE_SLOT_HEIGHT] =
+{
+     0,  1,  2,  3,  4,  5,  6,  7,             // Top border
+     8,  9, 10, 11, 12, 13, 14, 15, 16, 17,     // Name and level
+    32, 33, 34, 35, 36, 37, 38, 39,             // HP bar
+    40, 41, 42, 43, 44, 45,                     // HP numbers
+    48, 49, 50, 51, 52, 53, 54, 55,             // Bottom border
+};
 static const u8 sSlotTilemap_Wide[]      = INCBIN_U8("graphics/party_menu/slot_wide.bin");
 static const u8 sSlotTilemap_WideNoHP[]  = INCBIN_U8("graphics/party_menu/slot_wide_no_hp.bin");
 static const u8 sSlotTilemap_WideEmpty[] = INCBIN_U8("graphics/party_menu/slot_wide_empty.bin");

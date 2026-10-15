@@ -4068,7 +4068,7 @@ void AnimTask_ShrinkTargetCopy(u8 taskId)
         gSprites[spriteId].oam.priority = GetBattlerSpriteBGPriority(gBattleAnimTarget);
         spriteId = GetAnimBattlerSpriteId(ANIM_DEF_PARTNER);
         gTasks[taskId].data[15] = gSprites[spriteId].oam.priority;
-        gSprites[spriteId].oam.priority = GetBattlerSpriteBGPriority(GetPartnerBattler(gBattleAnimTarget));
+        gSprites[spriteId].oam.priority = GetBattlerSpriteBGPriority(GetAnimTargetPartner());
         gTasks[taskId].data[0] = cmd->unk0;
         gTasks[taskId].data[1] = cmd->unk1;
         gTasks[taskId].data[11] = 0x100;
@@ -4420,7 +4420,7 @@ static void AnimItemSteal(struct Sprite *sprite)
     InitSpritePosToAnimTarget(sprite, FALSE);
     attackerX = GetBattlerSpriteCoord(gBattleAnimAttacker, BATTLER_COORD_X);
     attackerY = GetBattlerSpriteCoord(gBattleAnimAttacker, BATTLER_COORD_Y);
-    if (GetPartnerBattler(gBattleAnimTarget) == gBattleAnimAttacker)
+    if (GetAnimTargetPartner() == gBattleAnimAttacker)
     {
         sprite->data[6] = attackerX;
         sprite->data[7] = attackerY + 10;
@@ -5148,16 +5148,16 @@ static void AnimAirCutterSlice(struct Sprite *sprite)
     switch (cmd->unk3)
     {
     case 1:
-        x = GetBattlerSpriteCoord(GetPartnerBattler(gBattleAnimTarget), BATTLER_COORD_X);
-        y = GetBattlerSpriteCoord(GetPartnerBattler(gBattleAnimTarget), BATTLER_COORD_Y);
+        x = GetBattlerSpriteCoord(GetAnimTargetPartner(), BATTLER_COORD_X);
+        y = GetBattlerSpriteCoord(GetAnimTargetPartner(), BATTLER_COORD_Y);
         break;
     case 2:
         x = GetBattlerSpriteCoord(gBattleAnimTarget, BATTLER_COORD_X);
         y = GetBattlerSpriteCoord(gBattleAnimTarget, BATTLER_COORD_Y);
-        if (IsBattlerSpriteVisible(GetPartnerBattler(gBattleAnimTarget)))
+        if (IsBattlerSpriteVisible(GetAnimTargetPartner()))
         {
-            x = (GetBattlerSpriteCoord(GetPartnerBattler(gBattleAnimTarget), BATTLER_COORD_X) + x) / 2;
-            y = (GetBattlerSpriteCoord(GetPartnerBattler(gBattleAnimTarget), BATTLER_COORD_Y) + y) / 2;
+            x = (GetBattlerSpriteCoord(GetAnimTargetPartner(), BATTLER_COORD_X) + x) / 2;
+            y = (GetBattlerSpriteCoord(GetAnimTargetPartner(), BATTLER_COORD_Y) + y) / 2;
         }
         break;
     case 0:

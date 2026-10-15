@@ -136,6 +136,7 @@ enum {
 enum {
     PARTY_BOX_LEFT_COLUMN,
     PARTY_BOX_RIGHT_COLUMN,
+    PARTY_BOX_LEFT_COLUMN_TRIPLE,
 };
 
 enum {
@@ -454,6 +455,8 @@ static void Task_BattlePyramidChooseMonHeldItems(u8);
 static void ShiftMoveSlot(struct BoxPokemon *, u8, u8);
 static void BlitBitmapToPartyWindow_LeftColumn(u8, u8, u8, u8, u8, bool8);
 static void BlitBitmapToPartyWindow_RightColumn(u8, u8, u8, u8, u8, bool8);
+static void BlitBitmapToPartyWindow_LeftColumnTriple(u8, u8, u8, u8, u8, bool8);
+static void UpdatePartySelectionTripleLayout(s8 *, s8);
 static void CursorCb_Summary(u8);
 static void CursorCb_Switch(u8);
 static void CursorCb_Cancel1(u8);
@@ -995,6 +998,9 @@ static void LoadPartyMenuBoxes(enum PartyMenuLayout layout)
         sPartyMenuBoxes[3].infoRects = &sPartyBoxInfoRects[PARTY_BOX_LEFT_COLUMN];
     else if (layout == PARTY_LAYOUT_DOUBLE || layout == PARTY_LAYOUT_MULTI)
         sPartyMenuBoxes[1].infoRects = &sPartyBoxInfoRects[PARTY_BOX_LEFT_COLUMN];
+    else if (layout == PARTY_LAYOUT_TRIPLE)
+        for (i = 0; i < 3; i++)
+            sPartyMenuBoxes[i].infoRects = &sPartyBoxInfoRects[PARTY_BOX_LEFT_COLUMN_TRIPLE];
 }
 
 static void RenderPartyMenuBox(u8 slot)
@@ -1817,6 +1823,10 @@ static void UpdateCurrentPartySelection(s8 *slotPtr, s8 movementDir)
     {
         UpdatePartySelectionSingleLayout(slotPtr, movementDir);
     }
+    else if (layout == PARTY_LAYOUT_TRIPLE)
+    {
+        UpdatePartySelectionTripleLayout(slotPtr, movementDir);
+    }
     else
     {
         UpdatePartySelectionDoubleLayout(slotPtr, movementDir);
@@ -1997,6 +2007,46 @@ static s8 GetNewSlotDoubleLayout(s8 slotId, s8 movementDir)
             return -1;
         if (GetMonData(GetPartyMonFromPartyMenuId(slotId), MON_DATA_SPECIES) != SPECIES_NONE)
             return slotId;
+    }
+}
+
+static bool32 IsPartyMenuSlotFilled(s8 slotId)
+{
+    return GetMonData(GetPartyMonFromPartyMenuId(slotId), MON_DATA_SPECIES) != SPECIES_NONE;
+}
+
+// 3v3: slots 0-2 (on the field) on the left, 3-5 (bench) on the right, each right row next to the same left row.
+// Up and down step through the slots in order like the doubles layout.
+static void UpdatePartySelectionTripleLayout(s8 *slotPtr, s8 movementDir)
+{
+    s8 slotId;
+
+    switch (movementDir)
+    {
+    case MENU_DIR_RIGHT:
+        if (*slotPtr < 0 || *slotPtr > 2)
+            return;
+        if (sPartyMenuInternal->lastSelectedSlot >= 3 && sPartyMenuInternal->lastSelectedSlot - 3 == *slotPtr)
+            slotId = sPartyMenuInternal->lastSelectedSlot;
+        else
+            slotId = *slotPtr + 3;
+        while (slotId >= 3 && !IsPartyMenuSlotFilled(slotId))
+            slotId--;
+        if (slotId >= 3)
+            *slotPtr = slotId;
+        break;
+    case MENU_DIR_LEFT:
+        if (*slotPtr < 3 || *slotPtr >= PARTY_SIZE)
+            return;
+        sPartyMenuInternal->lastSelectedSlot = *slotPtr;
+        slotId = *slotPtr - 3;
+        while (slotId > 0 && !IsPartyMenuSlotFilled(slotId))
+            slotId--;
+        *slotPtr = slotId;
+        break;
+    default:
+        UpdatePartySelectionDoubleLayout(slotPtr, movementDir);
+        break;
     }
 }
 
@@ -2376,6 +2426,9 @@ static void InitPartyMenuWindows(enum PartyMenuLayout layout)
     case PARTY_LAYOUT_MULTI:
         InitWindows(sMultiPartyMenuWindowTemplate);
         break;
+    case PARTY_LAYOUT_TRIPLE:
+        InitWindows(sTriplePartyMenuWindowTemplate);
+        break;
     default: // Singles and full-party multibattle menus
         InitWindows(sSinglePartyMenuWindowTemplate);
         break;
@@ -2485,6 +2538,33 @@ static void BlitBitmapToPartyWindow_RightColumn(u8 windowId, u8 x, u8 y, u8 widt
         BlitBitmapToPartyWindow(windowId, sSlotTilemap_Wide, 18, x, y, width, height);
     else
         BlitBitmapToPartyWindow(windowId, sSlotTilemap_WideNoHP, 18, x, y, width, height);
+}
+
+static void BlitBitmapToPartyWindow_LeftColumnTriple(u8 windowId, u8 x, u8 y, u8 width, u8 height, bool8 hideHP)
+{
+    const u8 *tilemap = hideHP ? sSlotTilemap_MainNoHP : sSlotTilemap_Main;
+    u8 *pixels = AllocZeroed(10 * TRIPLE_SLOT_HEIGHT * 4);
+    u32 row, col;
+
+    if (pixels == NULL)
+        return;
+    if (width == 0 && height == 0)
+    {
+        width = 10;
+        height = TRIPLE_SLOT_HEIGHT / 8;
+    }
+    // Build the whole box as 4bpp tiles, one pixel row (4 bytes per tile) at a time
+    for (row = 0; row < TRIPLE_SLOT_HEIGHT; row++)
+    {
+        u32 srcRow = sSlotTripleSourceRows[row];
+        for (col = 0; col < 10; col++)
+        {
+            const u8 *src = GetPartyMenuBgTile(tilemap[(srcRow / 8) * 10 + col]) + (srcRow % 8) * 4;
+            CpuCopy16(src, &pixels[((row / 8) * 10 + col) * 32 + (row % 8) * 4], 4);
+        }
+    }
+    BlitBitmapRectToWindow(windowId, pixels, x * 8, y * 8, 10 * 8, TRIPLE_SLOT_HEIGHT, x * 8, y * 8, width * 8, height * 8);
+    Free(pixels);
 }
 
 static void DrawEmptySlot(u8 windowId)
@@ -7487,6 +7567,8 @@ static u8 GetPartyLayoutFromBattleType(void)
         return PARTY_LAYOUT_MULTI_FULL;
     if (!IsDoubleBattle() || gPartiesCount[B_TRAINER_PLAYER] == 1) // Draw the single layout in a double battle where the player has only one Pokémon.
         return PARTY_LAYOUT_SINGLE;
+    if (IsTripleBattle() && gPartiesCount[B_TRAINER_PLAYER] >= 3)
+        return PARTY_LAYOUT_TRIPLE;
     return PARTY_LAYOUT_DOUBLE;
 }
 

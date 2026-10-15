@@ -1,5 +1,6 @@
 #include "global.h"
 #include "battle_anim.h"
+#include "triple_battle.h"
 #include "battle_anim_internal.h"
 #include "palette.h"
 #include "random.h"
@@ -601,7 +602,11 @@ void AnimTask_BlendColorCycleExclude(u8 taskId)
     }
 
     if (cmd->unk0 == 1)
+    {
         selectedPalettes |= 0xE;
+        if (IsTripleBattle())
+            selectedPalettes |= 1 << TRIPLE_FLOOR_BG_PALETTE;
+    }
 
     gTasks[taskId].tPalSelectorHi = selectedPalettes >> 16;
     gTasks[taskId].tPalSelectorLo = selectedPalettes & 0xFF;
@@ -855,8 +860,8 @@ void AnimTask_InvertScreenColor(u8 taskId)
         selectedPalettes |= (0x10000 << gBattleAnimAttacker);
     if (cmd->flagsScenery & 0x4)
         selectedPalettes |= (0x10000 << gBattleAnimTarget);
-    if (cmd->flagsScenery & 0x8 && IsBattlerAlive(GetPartnerBattler(gBattleAnimTarget)))
-        selectedPalettes |= (0x10000 << GetPartnerBattler(gBattleAnimTarget));
+    if (cmd->flagsScenery & 0x8 && IsBattlerAlive(GetAnimTargetPartner()))
+        selectedPalettes |= (0x10000 << GetAnimTargetPartner());
     if (cmd->flagsScenery & 0x10 && IsBattlerAlive(GetPartnerBattler(gBattleAnimAttacker)))
         selectedPalettes |= (0x10000 << GetPartnerBattler(gBattleAnimAttacker));
 

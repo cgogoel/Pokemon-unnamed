@@ -108,6 +108,8 @@ static const u8 sText_LinkTrainerSentOutPkmn2[] = _("{B_LINK_OPPONENT1_NAME} sen
 static const u8 sText_LinkTrainerMultiSentOutPkmn[] = _("{B_LINK_SCR_TRAINER_NAME} sent out {B_BUFF1}!");
 static const u8 sText_GoPkmn[] = _("Go! {B_PLAYER_MON1_NAME}!");
 static const u8 sText_GoTwoPkmn[] = _("Go! {B_PLAYER_MON1_NAME} and {B_PLAYER_MON2_NAME}!");
+static const u8 sText_GoThreePkmn[] = _("Go! {B_PLAYER_MON1_NAME}, {B_PLAYER_MON2_NAME} and {B_PLAYER_MON3_NAME}!");
+static const u8 sText_Trainer1SentOutThreePkmn[] = _("{B_TRAINER1_NAME_WITH_CLASS} sent out {B_OPPONENT_MON1_NAME}, {B_OPPONENT_MON2_NAME} and {B_OPPONENT_MON3_NAME}!");
 static const u8 sText_GoPkmn2[] = _("Go! {B_BUFF1}!");
 static const u8 sText_DoItPkmn[] = _("You're in charge, {B_BUFF1}!");
 static const u8 sText_GoForItPkmn[] = _("Go for it, {B_BUFF1}!");
@@ -1470,6 +1472,9 @@ const u8 gText_PkmnStoppedEvolving[] = _("Huh? {STR_VAR_1}\nstopped evolving!\p"
 const u8 gText_EllipsisQuestionMark[] = _("……?\p");
 const u8 gText_WhatWillPkmnDo[] = _("What will\n{B_BUFF1} do?");
 const u8 gText_WhatWillPkmnDo2[] = _("What will\n{B_PLAYER_NAME} do?");
+// Triple battles: L/R pick which Pokémon acts, Select moves it forward in the formation
+const u8 gText_WhatWillPkmnDoTriple[] = _("{FONT_NARROW}What will {B_BUFF1} do?\n{L_BUTTON}{R_BUTTON}Pick {SELECT_BUTTON}Order");
+const u8 gText_WhatWillPkmnDoTripleLongName[] = _("{FONT_NARROWER}What will {B_BUFF1} do?\n{FONT_NARROW}{L_BUTTON}{R_BUTTON}Pick {SELECT_BUTTON}Order");
 const u8 gText_WhatWillWallyDo[] = _("What will\nWALLY do?");
 const u8 gText_LinkStandby[] = _("{PAUSE 16}Link standby…");
 const u8 gText_BattleMenu[] = _("Battle{CLEAR_TO 56}Bag\nPokémon{CLEAR_TO 56}Run");
@@ -2541,6 +2546,10 @@ void BufferStringBattle(enum StringID stringID, enum BattlerId battler)
                 {
                     stringPtr = sText_BeCarefulPkmn;
                 }
+                else if (IsTripleBattle() && IsValidForBattle(GetBattlerMon(GetBattlerAtPosition(B_POSITION_PLAYER_MIDDLE))))
+                {
+                    stringPtr = sText_GoThreePkmn;
+                }
                 else
                 {
                     stringPtr = sText_GoTwoPkmn;
@@ -2553,7 +2562,11 @@ void BufferStringBattle(enum StringID stringID, enum BattlerId battler)
         }
         else
         {
-            if (IsDoubleBattle() && IsValidForBattle(GetBattlerMon(GetPartnerBattler(battler))))
+            if (IsTripleBattle() && IsValidForBattle(GetBattlerMon(GetBattlerAtPosition(B_POSITION_OPPONENT_MIDDLE))))
+            {
+                stringPtr = sText_Trainer1SentOutThreePkmn;
+            }
+            else if (IsDoubleBattle() && IsValidForBattle(GetBattlerMon(GetPartnerBattler(battler))))
             {
                 if (gBattleTypeFlags & BATTLE_TYPE_RECORDED_LINK && BATTLE_TWO_VS_ONE_OPPONENT)
                     stringPtr = sText_LinkTrainerSentOutTwoPkmn;
@@ -3167,6 +3180,14 @@ u32 BattleStringExpandPlaceholders(const u8 *src, u8 *dst, u32 dstSize)
                 break;
             case B_TXT_OPPONENT_MON2_NAME: // second enemy poke name
                 GetBattlerNick(GetBattlerAtPosition(B_POSITION_OPPONENT_RIGHT), text);
+                toCpy = text;
+                break;
+            case B_TXT_PLAYER_MON3_NAME: // third player poke name (triple battles)
+                GetBattlerNick(GetBattlerAtPosition(B_POSITION_PLAYER_MIDDLE), text);
+                toCpy = text;
+                break;
+            case B_TXT_OPPONENT_MON3_NAME: // third enemy poke name (triple battles)
+                GetBattlerNick(GetBattlerAtPosition(B_POSITION_OPPONENT_MIDDLE), text);
                 toCpy = text;
                 break;
             case B_TXT_LINK_PLAYER_MON1_NAME: // link first player poke name

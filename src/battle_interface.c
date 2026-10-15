@@ -816,9 +816,12 @@ static void SpriteCB_HealthBar(struct Sprite *sprite)
         sprite->x = gSprites[healthboxSpriteId].x + 8;
         sprite->y = gSprites[healthboxSpriteId].y;
         break;
-    case 3: // Triple battles: the bar sits under the compact healthbox
+    case 3: // Triple battles: the bar sits under the compact healthbox (the name tag), or above it at the top of the screen
         sprite->x = gSprites[healthboxSpriteId].x + TRIPLE_HEALTHBAR_X;
-        sprite->y = gSprites[healthboxSpriteId].y + TRIPLE_HEALTHBAR_Y;
+        if (IsTripleNameTagBelowBar(gSprites[healthboxSpriteId].hMain_Battler))
+            sprite->y = gSprites[healthboxSpriteId].y - TRIPLE_NAME_TAG_BELOW_BAR;
+        else
+            sprite->y = gSprites[healthboxSpriteId].y + TRIPLE_HEALTHBAR_Y;
         break;
     }
 
@@ -1528,7 +1531,9 @@ u8 CreatePartyStatusSummarySprites(enum BattlerId battler, struct HpAndStatus *p
         {
             isOpponent = FALSE;
             bar_X = 136;
-            if (BattleSideHasTwoTrainers(B_SIDE_PLAYER))
+            if (IsTripleBattle()) // In the empty band between the two teams' floor ovals, under the foe trainer's feet
+                bar_Y = 80;
+            else if (BattleSideHasTwoTrainers(B_SIDE_PLAYER))
                 bar_Y = GetBattlerPosition(battler) == B_POSITION_PLAYER_LEFT ? 90 : 106;
             else
                 bar_Y = 96;
@@ -1539,7 +1544,11 @@ u8 CreatePartyStatusSummarySprites(enum BattlerId battler, struct HpAndStatus *p
         {
             isOpponent = TRUE;
 
-            if (GetBattlerCoordsIndex(battler) == BATTLE_COORDS_SINGLES)
+            if (IsTripleBattle()) // Above the foes' floor ovals
+            {
+                bar_X = 104, bar_Y = 14;
+            }
+            else if (GetBattlerCoordsIndex(battler) == BATTLE_COORDS_SINGLES)
             {
                 bar_X = 104, bar_Y = 24;
                 if (GetBattlerPosition(battler) == B_POSITION_OPPONENT_LEFT)
@@ -1562,7 +1571,9 @@ u8 CreatePartyStatusSummarySprites(enum BattlerId battler, struct HpAndStatus *p
     {
         isOpponent = TRUE;
         bar_X = 104, bar_Y = 40;
-        if (GetBattlerCoordsIndex(battler) != BATTLE_COORDS_SINGLES && GetBattlerPosition(battler) == B_POSITION_OPPONENT_LEFT)
+        if (IsTripleBattle())
+            bar_Y = 14;
+        else if (GetBattlerCoordsIndex(battler) != BATTLE_COORDS_SINGLES && GetBattlerPosition(battler) == B_POSITION_OPPONENT_LEFT)
             bar_Y = 24;
         bar_pos2_X = -100;
         bar_data0 = 5;

@@ -87,6 +87,8 @@
 #define B_TXT_ATK_TRAINER_NAME_WITH_CLASS 0x45
 #define B_TXT_EFF_TEAM1 0x46
 #define B_TXT_EFF_TEAM2 0x47
+#define B_TXT_PLAYER_MON3_NAME 0x48   // Triple battles: the middle battler
+#define B_TXT_OPPONENT_MON3_NAME 0x49
 
 #define B_BUFF_STRING                       0
 #define B_BUFF_NUMBER                       1
@@ -271,6 +273,8 @@ extern const u8 gText_PkmnStoppedEvolving[];
 extern const u8 gText_EllipsisQuestionMark[];
 extern const u8 gText_WhatWillPkmnDo[];
 extern const u8 gText_WhatWillPkmnDo2[];
+extern const u8 gText_WhatWillPkmnDoTriple[];
+extern const u8 gText_WhatWillPkmnDoTripleLongName[];
 extern const u8 gText_WhatWillWallyDo[];
 extern const u8 gText_LinkStandby[];
 extern const u8 gText_BattleMenu[];

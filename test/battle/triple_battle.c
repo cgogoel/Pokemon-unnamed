@@ -150,6 +150,53 @@ TRIPLE_BATTLE_TEST("Triple battles: 2-target ANY moves hit the two chosen foes")
     }
 }
 
+TRIPLE_BATTLE_TEST("Triple battles: 2-target ANY moves aimed at the front or rear foe also hit the middle foe")
+{
+    s16 mainDamage, secondDamage;
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_ROCK_SLIDE)->aoe == 2);
+        TRIPLE_PARTIES
+    } WHEN {
+        // The rear foe isn't next to the front one, so the middle foe is hit instead
+        TURN { MOVE(playerLeft, MOVE_ROCK_SLIDE, target: opponentLeft, secondTarget: opponentMiddle, WITH_RNG(RNG_HOLD_EFFECT_FLINCH, FALSE)); }
+    } SCENE {
+        HP_BAR(opponentLeft, captureDamage: &mainDamage);
+        HP_BAR(opponentRight, captureDamage: &secondDamage);
+        NOT HP_BAR(opponentMiddle);
+    } THEN {
+        EXPECT_MUL_EQ(mainDamage, UQ_4_12(0.5), secondDamage);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: 2-target ANY moves aimed at the middle foe hit the chosen neighbour")
+{
+    bool32 pickRear;
+    PARAMETRIZE { pickRear = FALSE; }
+    PARAMETRIZE { pickRear = TRUE; }
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_ROCK_SLIDE)->aoe == 2);
+        TRIPLE_PARTIES
+    } WHEN {
+        if (pickRear)
+            TURN { MOVE(playerLeft, MOVE_ROCK_SLIDE, target: opponentRight, secondTarget: opponentMiddle, WITH_RNG(RNG_HOLD_EFFECT_FLINCH, FALSE)); }
+        else // No pick: the front foe
+            TURN { MOVE(playerLeft, MOVE_ROCK_SLIDE, target: opponentRight, WITH_RNG(RNG_HOLD_EFFECT_FLINCH, FALSE)); }
+    } SCENE {
+        if (pickRear)
+        {
+            HP_BAR(opponentRight);
+            HP_BAR(opponentMiddle);
+            NOT HP_BAR(opponentLeft);
+        }
+        else
+        {
+            HP_BAR(opponentLeft);
+            HP_BAR(opponentRight);
+            NOT HP_BAR(opponentMiddle);
+        }
+    }
+}
+
 TRIPLE_BATTLE_TEST("Triple battles: 3-target moves hit every foe for 75%")
 {
     s16 spreadDamage[3];
@@ -374,6 +421,33 @@ TRIPLE_BATTLE_TEST("Triple battles: switching in a benched Pokémon uses the sid
     }
 }
 
+TRIPLE_BATTLE_TEST("Triple battles: a switch updates the party menu order of all three battlers on the side")
+{
+    GIVEN {
+        PLAYER(SPECIES_PIKACHU);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_VENUSAUR);
+        PLAYER(SPECIES_LAPRAS);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { SWITCH(playerLeft, 3); }
+    } SCENE {
+        SWITCH_OUT_MESSAGE("Pikachu");
+    } THEN {
+        // The party menu lists the battlers' Pokémon first: Lapras now, with Pikachu on the bench
+        enum BattlerId battler;
+        for (battler = 0; battler < gBattlersCount; battler++)
+        {
+            if (!IsOnPlayerSide(battler))
+                continue;
+            EXPECT_EQ(gBattleStruct->battlerPartyOrders[battler][0] >> 4, 3);
+            EXPECT_EQ(memcmp(gBattleStruct->battlerPartyOrders[battler], gBattleStruct->battlerPartyOrders[B_BATTLER_0], sizeof(gBattleStruct->battlerPartyOrders[0])), 0);
+        }
+    }
+}
+
 AI_TRIPLE_BATTLE_TEST("Triple battles: the AI acts with the battler that has the best move")
 {
     GIVEN {
@@ -407,5 +481,43 @@ AI_TRIPLE_BATTLE_TEST("Triple battles: the AI doesn't aim FRONT moves past the f
         OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
     } WHEN {
         TURN { EXPECT_MOVE(opponentLeft, MOVE_TACKLE, target: playerLeft); }
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: the send out message names all three Pokémon")
+{
+    GIVEN {
+        PLAYER(SPECIES_PIKACHU);
+        PLAYER(SPECIES_MACHAMP);
+        PLAYER(SPECIES_VENUSAUR);
+        OPPONENT(SPECIES_SNORLAX);
+        OPPONENT(SPECIES_ALAKAZAM);
+        OPPONENT(SPECIES_ARCANINE);
+    } WHEN {
+        TURN {}
+    } SCENE {
+        MESSAGE("Go! Pikachu, Machamp and Venusaur!");
+    }
+}
+
+AI_TRIPLE_BATTLE_TEST("Triple battles: the AI never switches to a Pokémon already on the field")
+{
+    GIVEN {
+        AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT | AI_FLAG_SMART_SWITCHING | AI_FLAG_SMART_MON_CHOICES);
+        PLAYER(SPECIES_GENGAR) { Moves(MOVE_SHADOW_BALL); }
+        PLAYER(SPECIES_GENGAR) { Moves(MOVE_SHADOW_BALL); }
+        PLAYER(SPECIES_GENGAR) { Moves(MOVE_SHADOW_BALL); }
+        // Nothing on the field can hurt the Gengar; the best counter (Tyranitar) is already out in the middle, asleep
+        OPPONENT(SPECIES_SNORLAX) { Moves(MOVE_BODY_SLAM); }
+        OPPONENT(SPECIES_SNORLAX) { Moves(MOVE_BODY_SLAM); }
+        OPPONENT(SPECIES_TYRANITAR) { Moves(MOVE_CRUNCH); Status1(STATUS1_SLEEP_TURN(3)); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_TACKLE); }
+    } WHEN {
+        TURN { MOVE(playerLeft, MOVE_SHADOW_BALL, target: opponentLeft); }
+    } THEN {
+        // Only the middle battler is the Tyranitar
+        EXPECT_NE(opponentLeft->species, SPECIES_TYRANITAR);
+        EXPECT_NE(opponentRight->species, SPECIES_TYRANITAR);
+        EXPECT_EQ(opponentMiddle->species, SPECIES_TYRANITAR);
     }
 }

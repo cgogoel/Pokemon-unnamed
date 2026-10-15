@@ -57,6 +57,7 @@ static void PlayerHandleTrainerSlideBack(enum BattlerId battler);
 static void PlayerHandlePaletteFade(enum BattlerId battler);
 static void PlayerHandlePause(enum BattlerId battler);
 static void PlayerHandleChooseAction(enum BattlerId battler);
+static void StepTowardTriplePickedActor(enum BattlerId battler);
 static void PlayerHandleYesNoBox(enum BattlerId battler);
 static void PlayerHandleChooseItem(enum BattlerId battler);
 static void PlayerHandleChoosePokemon(enum BattlerId battler);
@@ -370,15 +371,19 @@ static void HandleInputChooseAction(enum BattlerId battler)
             ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
         }
     }
-    else if (IsTripleBattle() && JOY_NEW(R_BUTTON))
+    else if (IsTripleBattle() && JOY_NEW(L_BUTTON | R_BUTTON))
     {
-        // Triple battles: this Pokémon doesn't act, the next one chooses.
-        PlaySE(SE_SELECT);
-        TryHideLastUsedBall();
-        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_PASS, 0);
-        BtlController_Complete(battler);
+        // Triple battles: pick the Pokémon to the left / right on screen to act instead
+        enum BattlerId picked = GetTripleScreenNeighbor(battler, JOY_NEW(R_BUTTON) ? 1 : -1);
+        if (picked != MAX_BATTLERS_COUNT)
+        {
+            PlaySE(SE_SELECT);
+            TryHideLastUsedBall();
+            gBattleStruct->triplePickedActor = picked + 1;
+            StepTowardTriplePickedActor(battler);
+        }
     }
-    else if (IsTripleBattle() && JOY_NEW(L_BUTTON))
+    else if (IsTripleBattle() && JOY_NEW(SELECT_BUTTON))
     {
         // Triple battles: move this Pokémon one spot forward in the formation. Free; the same Pokémon chooses again.
         PlaySE(SE_SELECT);
@@ -461,9 +466,16 @@ static bool32 IsValidTargetForCursor(enum BattlerId battler, enum BattlerId targ
         return FALSE;
     if (IsTripleBattle() && IsTripleTwoTargetChoiceMove(move))
     {
-        // Both targets of a 2-target move are foes, and different ones.
-        if (IsBattlerAlly(battler, target) || target + 1 == gBattleStruct->tripleFirstTarget[battler])
+        // 2-target moves aim at foes; the second target is a neighbour of the first in the foes' line.
+        if (IsBattlerAlly(battler, target))
             return FALSE;
+        if (gBattleStruct->tripleFirstTarget[battler] != 0)
+        {
+            enum BattlerId choices[2];
+            u32 count = GetTripleSecondTargetChoices(battler, gBattleStruct->tripleFirstTarget[battler] - 1, choices);
+            if (!((count > 0 && choices[0] == target) || (count > 1 && choices[1] == target)))
+                return FALSE;
+        }
     }
     return TRUE;
 }
@@ -494,6 +506,55 @@ static void MoveTargetCursor(enum BattlerId battler, enum Move move, enum MoveTa
             gMultiUsePlayerCursor = IsTripleBattle() ? GetBattlerAtLayoutPosition(sTargetCursorOrder[i]) : GetBattlerAtPosition(sTargetCursorOrder[i]);
         } while (gMultiUsePlayerCursor >= gBattlersCount);
     } while (!IsValidTargetForCursor(battler, gMultiUsePlayerCursor, move, moveTarget) && ++tries < 2 * MAX_BATTLERS_COUNT);
+
+    if (B_SHOW_EFFECTIVENESS)
+        MoveSelectionDisplayMoveEffectiveness(CheckTypeEffectiveness(battler, gMultiUsePlayerCursor), battler);
+}
+
+// Triple battles: Left/Right move along a row of Pokémon by their place on screen, Up/Down switch between the foes'
+// row and the player's.
+static void MoveTripleTargetCursor(enum BattlerId battler, enum Move move, enum MoveTarget moveTarget, s32 dx, bool32 switchRow)
+{
+    enum BattleSide side = GetBattlerSide(gMultiUsePlayerCursor);
+    enum BattlerPosition layout = GetBattlerLayoutPosition(gMultiUsePlayerCursor);
+    const enum BattlerPosition spots[TRIPLE_RANK_COUNT] = { B_POSITION_PLAYER_LEFT, B_POSITION_PLAYER_MIDDLE, B_POSITION_PLAYER_RIGHT };
+    s32 index;
+
+    for (index = 0; index < TRIPLE_RANK_COUNT && spots[index] != (layout & ~BIT_SIDE); index++)
+        ;
+    if (index == TRIPLE_RANK_COUNT)
+        index = 0;
+
+    if (switchRow)
+    {
+        // The closest valid Pokémon in the other row
+        static const s8 sTryOrder[] = { 0, -1, 1, -2, 2 };
+        side ^= BIT_SIDE;
+        for (u32 i = 0; i < ARRAY_COUNT(sTryOrder); i++)
+        {
+            s32 tryIndex = index + sTryOrder[i];
+            if (tryIndex < 0 || tryIndex >= TRIPLE_RANK_COUNT)
+                continue;
+            enum BattlerId target = GetBattlerAtLayoutPosition(spots[tryIndex] | side);
+            if (target < gBattlersCount && IsValidTargetForCursor(battler, target, move, moveTarget))
+            {
+                gMultiUsePlayerCursor = target;
+                break;
+            }
+        }
+    }
+    else
+    {
+        for (u32 i = 1; i < TRIPLE_RANK_COUNT; i++)
+        {
+            enum BattlerId target = GetBattlerAtLayoutPosition(spots[(index + dx * i + 2 * TRIPLE_RANK_COUNT) % TRIPLE_RANK_COUNT] | side);
+            if (target < gBattlersCount && IsValidTargetForCursor(battler, target, move, moveTarget))
+            {
+                gMultiUsePlayerCursor = target;
+                break;
+            }
+        }
+    }
 
     if (B_SHOW_EFFECTIVENESS)
         MoveSelectionDisplayMoveEffectiveness(CheckTypeEffectiveness(battler, gMultiUsePlayerCursor), battler);
@@ -532,12 +593,19 @@ void HandleInputChooseTarget(enum BattlerId battler)
         PlaySE(SE_SELECT);
         if (IsTripleBattle() && IsTripleTwoTargetChoiceMove(move) && gBattleStruct->tripleFirstTarget[battler] == 0)
         {
-            // First of two targets: keep it highlighted and pick the second one.
-            gBattleStruct->tripleFirstTarget[battler] = gMultiUsePlayerCursor + 1;
-            EndBounceEffect(gMultiUsePlayerCursor, BOUNCE_HEALTHBOX);
-            MoveTargetCursor(battler, move, moveTarget, 1);
-            gSprites[gBattlerSpriteIds[gMultiUsePlayerCursor]].callback = SpriteCB_ShowAsMoveTarget;
-            return;
+            // The second target is next to the first in the foes' line. Only the middle foe has two neighbours, so
+            // only then does the player pick the second target (the front or the rear foe).
+            enum BattlerId choices[2];
+            if (GetTripleSecondTargetChoices(battler, gMultiUsePlayerCursor, choices) == 2)
+            {
+                gBattleStruct->tripleFirstTarget[battler] = gMultiUsePlayerCursor + 1;
+                EndBounceEffect(gMultiUsePlayerCursor, BOUNCE_HEALTHBOX);
+                gMultiUsePlayerCursor = choices[0];
+                if (B_SHOW_EFFECTIVENESS)
+                    MoveSelectionDisplayMoveEffectiveness(CheckTypeEffectiveness(battler, gMultiUsePlayerCursor), battler);
+                gSprites[gBattlerSpriteIds[gMultiUsePlayerCursor]].callback = SpriteCB_ShowAsMoveTarget;
+                return;
+            }
         }
         if (IsTripleBattle() && gBattleStruct->tripleFirstTarget[battler] != 0)
         {
@@ -580,6 +648,13 @@ void HandleInputChooseTarget(enum BattlerId battler)
         DoBounceEffect(battler, BOUNCE_HEALTHBOX, 7, 1);
         DoBounceEffect(battler, BOUNCE_MON, 7, 1);
         EndBounceEffect(gMultiUsePlayerCursor, BOUNCE_HEALTHBOX);
+    }
+    else if (IsTripleBattle() && JOY_NEW(DPAD_ANY))
+    {
+        PlaySE(SE_SELECT);
+        gSprites[gBattlerSpriteIds[gMultiUsePlayerCursor]].callback = SpriteCB_HideAsMoveTarget;
+        MoveTripleTargetCursor(battler, move, moveTarget, JOY_NEW(DPAD_LEFT) ? -1 : 1, JOY_NEW(DPAD_UP | DPAD_DOWN) != 0);
+        gSprites[gBattlerSpriteIds[gMultiUsePlayerCursor]].callback = SpriteCB_ShowAsMoveTarget;
     }
     else if (JOY_NEW(DPAD_LEFT | DPAD_UP))
     {
@@ -732,6 +807,9 @@ void HandleInputChooseMove(enum BattlerId battler)
         gMultiUsePlayerCursor = GetDefaultSelectionTarget(battler, moveTarget);
         
         enum BattlerId partner = GetPartnerBattler(battler);
+        enum TripleTargetChoice tripleChoice = TRIPLE_TARGET_CHOICE_CANON;
+        if (IsTripleBattle() && moveInfo->currentPP[gMoveSelectionCursor[battler]] != 0)
+            tripleChoice = GetTripleTargetChoice(moveInfo->moves[gMoveSelectionCursor[battler]], moveTarget);
 
         if (gBattleResources->bufferA[battler][1]) // a double battle
         {
@@ -750,7 +828,8 @@ void HandleInputChooseMove(enum BattlerId battler)
                 canSelectTarget = 0;
             }
 
-            if (B_SHOW_TARGETS == TRUE)
+            // Triple battles pick their targets below, unless the move keeps its canon targeting
+            if (B_SHOW_TARGETS == TRUE && tripleChoice == TRIPLE_TARGET_CHOICE_CANON)
             {
                 // Show all available targets for multi-target moves
                 if (moveTarget == TARGET_ALL_BATTLERS || moveTarget == TARGET_FIELD)
@@ -774,7 +853,7 @@ void HandleInputChooseMove(enum BattlerId battler)
         if (IsTripleBattle() && moveInfo->currentPP[gMoveSelectionCursor[battler]] != 0)
         {
             gBattleStruct->tripleFirstTarget[battler] = 0;
-            switch (GetTripleTargetChoice(moveInfo->moves[gMoveSelectionCursor[battler]], moveTarget))
+            switch (tripleChoice)
             {
             case TRIPLE_TARGET_CHOICE_NONE:
                 gMultiUsePlayerCursor = GetTripleFoeAtRank(battler, 0);
@@ -2066,9 +2145,32 @@ static void HandleChooseActionAfterDma3(enum BattlerId battler)
     }
 }
 
+// Triple battles: the engine asks the player's Pokémon in a fixed order. Until the one picked with L/R is asked, each
+// one asked passes (picked one later) or hands back to the one before it (picked one earlier).
+static void StepTowardTriplePickedActor(enum BattlerId battler)
+{
+    enum BattlerId picked = gBattleStruct->triplePickedActor - 1;
+
+    if (DoesTripleBattlerChooseLater(battler, picked))
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_PASS, 0);
+    else
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_CANCEL_PARTNER, 0);
+    BtlController_Complete(battler);
+}
+
 static void PlayerHandleChooseAction(enum BattlerId battler)
 {
     s32 i;
+
+    if (IsTripleBattle() && gBattleStruct->triplePickedActor != 0)
+    {
+        if (gBattleStruct->triplePickedActor - 1 != battler)
+        {
+            StepTowardTriplePickedActor(battler);
+            return;
+        }
+        gBattleStruct->triplePickedActor = 0;
+    }
 
     gBattlerControllerFuncs[battler] = HandleChooseActionAfterDma3;
     BattleTv_ClearExplosionFaintCause();
@@ -2080,7 +2182,21 @@ static void PlayerHandleChooseAction(enum BattlerId battler)
     TryRestoreLastUsedBall();
     ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
     PREPARE_MON_NICK_BUFFER(gBattleTextBuff1, battler, gBattlerPartyIndexes[battler]);
-    BattleStringExpandPlaceholdersToDisplayedString(gText_WhatWillPkmnDo);
+    if (IsTripleBattle())
+    {
+        // Two lines: the question, then the L/R and Select hints. Long names use a narrower font.
+        u8 nickname[POKEMON_NAME_LENGTH + 1];
+        GetMonData(GetBattlerMon(battler), MON_DATA_NICKNAME, nickname);
+        StringGet_Nickname(nickname);
+        if (GetStringWidth(FONT_NARROW, nickname, 0) > 48)
+            BattleStringExpandPlaceholdersToDisplayedString(gText_WhatWillPkmnDoTripleLongName);
+        else
+            BattleStringExpandPlaceholdersToDisplayedString(gText_WhatWillPkmnDoTriple);
+    }
+    else
+    {
+        BattleStringExpandPlaceholdersToDisplayedString(gText_WhatWillPkmnDo);
+    }
 
     enum BattlerId partner = GetBattlerAtPosition(B_POSITION_PLAYER_RIGHT);
     if (B_SHOW_PARTNER_TARGET && gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER && IsBattlerAlive(partner))

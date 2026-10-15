@@ -138,6 +138,44 @@ enum BattlerId GetTriplePreviousChoosingBattler(enum BattlerId battler)
     return MAX_BATTLERS_COUNT;
 }
 
+// Order in which a side's battlers choose their action.
+static s32 GetTripleChoosingIndex(enum BattlerId battler)
+{
+    enum BattlerPosition position = GetBattlerPosition(battler);
+    if ((position & ~BIT_SIDE) == B_POSITION_PLAYER_LEFT)
+        return 0;
+    if ((position & ~BIT_SIDE) == B_POSITION_PLAYER_MIDDLE)
+        return 1;
+    return 2;
+}
+
+// Whether battlerTo chooses after battlerFrom.
+bool32 DoesTripleBattlerChooseLater(enum BattlerId battlerFrom, enum BattlerId battlerTo)
+{
+    return GetTripleChoosingIndex(battlerTo) > GetTripleChoosingIndex(battlerFrom);
+}
+
+// The ally on screen to the left (step = -1, toward the rear) or right (step = 1, toward the front), wrapping around;
+// MAX_BATTLERS_COUNT if there's none.
+enum BattlerId GetTripleScreenNeighbor(enum BattlerId battler, s32 step)
+{
+    enum BattleSide side = GetBattlerSide(battler);
+    const enum BattlerPosition spots[TRIPLE_RANK_COUNT] = { B_POSITION_PLAYER_LEFT | side, B_POSITION_PLAYER_MIDDLE | side, B_POSITION_PLAYER_RIGHT | side };
+    s32 index;
+
+    for (index = 0; index < TRIPLE_RANK_COUNT && GetBattlerAtLayoutPosition(spots[index]) != battler; index++)
+        ;
+    if (index == TRIPLE_RANK_COUNT)
+        return MAX_BATTLERS_COUNT;
+    for (s32 i = 1; i < TRIPLE_RANK_COUNT; i++)
+    {
+        enum BattlerId neighbor = GetBattlerAtLayoutPosition(spots[(index + step * i + 2 * TRIPLE_RANK_COUNT) % TRIPLE_RANK_COUNT]);
+        if (neighbor < gBattlersCount && !(gAbsentBattlerFlags & (1u << neighbor)) && IsBattlerAlive(neighbor))
+            return neighbor;
+    }
+    return MAX_BATTLERS_COUNT;
+}
+
 // The formation after moving a battler one spot forward (the near battler wraps around to the far spot).
 u8 GetTripleFormationMovingUp(enum BattlerId battler)
 {
@@ -238,6 +276,31 @@ static bool32 IsAliveFoe(enum BattlerId battlerAtk, enum BattlerId battlerDef)
     return battlerDef < gBattlersCount && !IsBattlerAlly(battlerAtk, battlerDef) && IsBattlerAlive(battlerDef);
 }
 
+// The foes a 2-target move can hit along with the main target: its neighbours in the foes' line (counting only foes
+// still standing). Returns how many (0-2); the one nearer the front comes first.
+u32 GetTripleSecondTargetChoices(enum BattlerId battlerAtk, enum BattlerId mainTarget, enum BattlerId *choices)
+{
+    enum BattlerId line[TRIPLE_RANK_COUNT];
+    u32 count = 0, mainIndex = TRIPLE_RANK_COUNT, choiceCount = 0;
+
+    for (u32 rank = 0; rank < TRIPLE_RANK_COUNT; rank++)
+    {
+        enum BattlerId foe = GetTripleFoeAtRank(battlerAtk, rank);
+        if (foe == MAX_BATTLERS_COUNT)
+            break;
+        if (foe == mainTarget)
+            mainIndex = count;
+        line[count++] = foe;
+    }
+    if (mainIndex == TRIPLE_RANK_COUNT)
+        return 0;
+    if (mainIndex > 0)
+        choices[choiceCount++] = line[mainIndex - 1];
+    if (mainIndex + 1 < count)
+        choices[choiceCount++] = line[mainIndex + 1];
+    return choiceCount;
+}
+
 // Picks the targets of a listed move from its reach and the chosen target, and returns the main target.
 enum BattlerId SetTripleMoveTargets(enum BattlerId battlerAtk, enum Move move, enum BattlerId battlerDef)
 {
@@ -264,10 +327,13 @@ enum BattlerId SetTripleMoveTargets(enum BattlerId battlerAtk, enum Move move, e
         main = IsAliveFoe(battlerAtk, battlerDef) ? battlerDef : front;
         if (info->aoe == 2)
         {
-            if (chosenSecond != 0 && IsAliveFoe(battlerAtk, chosenSecond - 1) && chosenSecond - 1 != main)
-                second = chosenSecond - 1;
-            else
-                second = (main == front) ? GetTripleFoeAtRank(battlerAtk, 1) : front;
+            // The second target is next to the main one in the foes' line: the middle foe for the front or rear one,
+            // and for the middle foe whichever neighbour was picked (the front one by default).
+            enum BattlerId choices[2];
+            u32 count = GetTripleSecondTargetChoices(battlerAtk, main, choices);
+            second = (count == 0) ? MAX_BATTLERS_COUNT : choices[0];
+            if (count == 2 && chosenSecond != 0 && chosenSecond - 1 == choices[1])
+                second = choices[1];
         }
     }
 

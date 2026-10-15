@@ -26,7 +26,8 @@ Custom battle mode for Act 2 onward. Not the Gen 5 Triple Battle: **only one Pok
 - Each move hits **1**, **2** or **3** foes.
   - **2:** the main target takes full damage, the second takes **50%**.
     - Reach `ANY` (lore says it can come from any direction: wind/Flying, electric, psychic, sound, falling from above, homing):
-      the player picks both targets.
+      the second target is next to the main one in the foes' line. Aiming at the front or rear foe also hits the middle
+      foe; aiming at the middle foe, the player picks the front or the rear one (the front one by default, e.g. for the AI).
     - Reach `FRONT` (travels out from the user, e.g. fire, seeds, sprays): always hits the front and middle foes, no choice.
   - **3:** hits all foes for **75%** each.
   - No move hits the user's own allies: canon ally-hitting moves (Earthquake, Surf, Explosion, ...) hit only the 3 foes.
@@ -58,7 +59,7 @@ Shown with each move in the battle move menu, before the move type (`ShowTripleM
 - Floor (`DrawTripleBattleFloor`): nested ovals along each team's diagonal on top of the location's background, with
   the 1v1 platforms painted out. A solid base oval under the rear Pokémon, a half-shaded section out to the middle one
   and an outlined outer ring out to the front one. Colors come from the location's floor color (same hue,
-  more saturated, dark base oval to pale outer section; `sFloorShadeSteps`). The oval tiles use BG palette 6, a copy of
+  more saturated, dark base oval to pale outer section; `sFloorShadeSteps`). The oval tiles use BG palette 7 (`TRIPLE_FLOOR_BG_PALETTE`), a copy of
   the floor palette with these colors added. Not drawn while a terrain (Electric Terrain...) replaces the background.
 
 ### HP bars and name tags
@@ -69,10 +70,22 @@ Shown with each move in the battle move menu, before the move type (`ShowTripleM
 - These keep sprite memory free for move animations: six full healthboxes left too little.
 
 ### Player controls (action menu)
-- **R**: this Pokémon passes; the next one (left → middle → right) chooses.
-- **L**: move this Pokémon one spot forward in the formation (front wraps to back). Free.
-- **B** (middle/right): go back to the previous Pokémon.
-- Moves: FRONT and 3-target moves skip target selection; 2-target ANY moves pick two different foes.
+The prompt reads "What will Pikachu do?" with a hint line: `L R Pick`, `SELECT Order`.
+- **L / R**: pick the Pokémon to the left / right on screen (toward the rear / the front) to act instead; wraps around.
+  The engine still asks the side's Pokémon in battler order; the ones not picked pass or hand the choice back
+  automatically (`StepTowardTriplePickedActor`).
+- **SELECT**: move the selected Pokémon one spot forward in the formation (front wraps to back). Free.
+- **B** (middle/right): go back to the previous Pokémon in the engine's order.
+- Moves: FRONT and 3-target moves skip target selection; 2-target ANY moves aimed at the middle foe then pick the front
+  or rear one.
+- Target cursor: Left/Right move along a row of Pokémon by their place on screen, Up/Down switch between the foes' row
+  and the player's.
+
+### Pokémon menu in battle
+- `PARTY_LAYOUT_TRIPLE` (`src/party_menu.c`, `src/data/party_menu.h`): the 3 Pokémon on the field in shorter boxes
+  down the left (name, level, HP bar and numbers), the bench on the right, centered vertically.
+- The short box is built from the normal box's tiles one pixel row at a time (`sSlotTripleSourceRows`).
+- Left/Right move between a field Pokémon and the bench row beside it; Up/Down go through the slots in order.
 
 ### Trying it
 - Debug menu (hold R + START in the overworld) → Party → *Start Debug Battle* starts a 3v3 against `DEBUG_TRAINER_AI`
@@ -82,7 +95,8 @@ Shown with each move in the battle move menu, before the move type (`ShowTripleM
 ### Development aids
 - Tests: `TRIPLE_BATTLE_TEST`, `AI_TRIPLE_BATTLE_TEST`, `MOVE(..., secondTarget: x)`, `FORMATION(near, middle, far)`
   (see `test/battle/triple_battle.c`).
-- Screenshots without an emulator window: `SCREEN_DUMP(turn)` or `UI_PREVIEW("A.D>D")` in a scratch test, then
+- Screenshots without an emulator window: `SCREEN_DUMP(turn)`, `SCREEN_DUMP_FRAME(frame)` (a frame from the battle's
+  start, e.g. the opening) or `UI_PREVIEW("A.D>D")` in a scratch test, then
   `python3 tools/screen_dump/render_screen_dump.py <make check log> <out dir>`.
 - Animation check: set `T_SHOULD_RUN_MOVE_ANIM` to `TRUE` in `include/config/test.h` and run
   `make check TESTS="Move Animations don't leak when used - Triples"` (every move used by a middle battler, from the front
@@ -118,6 +132,5 @@ Shown with each move in the battle move menu, before the move type (`ShowTripleM
 - [x] Phase 2 (engine rules, covered by test/battle/triple_battle.c)
 - [x] Phase 3 (AI picks its best actor; respects FRONT reach)
 - [ ] Phase 4 (in progress: diagonal field layout with depth scaling, oval floor, floating HP bars and name tags,
-  controls, target selection, move indicator and the animation check done; the in-battle party menu lists the 3 active
-  Pokémon first but still uses the doubles layout)
+  controls, target selection, move indicator, the in-battle Pokémon menu and the animation check done)
 - [ ] Phase 5 (in progress: `Battle Type: Triples` and the debug battle work; Act gating still to do)

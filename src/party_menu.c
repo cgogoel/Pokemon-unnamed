@@ -7651,9 +7651,11 @@ static void BufferBattlePartyOrder(u8 *partyBattleOrder, u8 flankId)
         j = 2;
         partyIds[0] = gBattlerPartyIndexes[GetBattlerAtPosition(B_POSITION_PLAYER_LEFT)];
         partyIds[1] = gBattlerPartyIndexes[GetBattlerAtPosition(B_POSITION_PLAYER_RIGHT)];
+        if (IsTripleBattle()) // The middle battler's Pokémon comes third
+            partyIds[j++] = gBattlerPartyIndexes[GetBattlerAtPosition(B_POSITION_PLAYER_MIDDLE)];
         for (i = 0; i < PARTY_SIZE; i++)
         {
-            if (i != partyIds[0] && i != partyIds[1])
+            if (i != partyIds[0] && i != partyIds[1] && !(IsTripleBattle() && i == partyIds[2]))
             {
                 partyIds[j] = i;
                 j++;
@@ -7728,9 +7730,11 @@ static void BufferBattlePartyOrderBySide(u8 *partyBattleOrder, u8 flankId, enum 
         j = 2;
         partyIndexes[0] = gBattlerPartyIndexes[leftBattler];
         partyIndexes[1] = gBattlerPartyIndexes[rightBattler];
+        if (IsTripleBattle()) // The middle battler's Pokémon comes third
+            partyIndexes[j++] = gBattlerPartyIndexes[GetBattlerAtPosition(IsOnPlayerSide(battler) ? B_POSITION_PLAYER_MIDDLE : B_POSITION_OPPONENT_MIDDLE)];
         for (i = 0; i < PARTY_SIZE; i++)
         {
-            if (i != partyIndexes[0] && i != partyIndexes[1])
+            if (i != partyIndexes[0] && i != partyIndexes[1] && !(IsTripleBattle() && i == partyIndexes[2]))
             {
                 partyIndexes[j] = i;
                 j++;

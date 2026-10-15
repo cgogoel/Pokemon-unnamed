@@ -208,7 +208,7 @@ static u32 GetVariationsNumber(enum Move move, bool8 isDouble)
     return variationsNumber;
 }
 
-static void DoublesWhen(enum Move move, struct BattlePokemon *attacker, struct BattlePokemon *target, struct BattlePokemon *ignore1, struct BattlePokemon *ignore2, u32 variation)
+static void DoublesWhen(enum Move move, struct BattlePokemon *attacker, struct BattlePokemon *target, struct BattlePokemon *ignore1, struct BattlePokemon *ignore2, u32 variation, u32 benchIndex)
 {
     enum BattleMoveEffects effect = GetMoveEffect(move);
     // Setup turn
@@ -312,12 +312,12 @@ static void DoublesWhen(enum Move move, struct BattlePokemon *attacker, struct B
         else if (effect == EFFECT_OHKO)
         { // Opponent needs to send out a different team member
             MOVE(attacker, move, target: target);
-            SEND_OUT(target, 2);
+            SEND_OUT(target, benchIndex);
         }
         else if (AttackerHasToSwitch(move))
         { // Player needs to send out a different team member
             MOVE(attacker, move, target: target);
-            SEND_OUT(attacker, 2);
+            SEND_OUT(attacker, benchIndex);
         }
         else if (UserHasToGoFirst(move))
         { // Player needs to go first
@@ -327,13 +327,15 @@ static void DoublesWhen(enum Move move, struct BattlePokemon *attacker, struct B
         else if (effect == EFFECT_AFTER_YOU)
         { // Player goes first, opponent third
             MOVE(attacker, move, target: target);
-            MOVE(ignore1, MOVE_CELEBRATE);
+            if (ignore1 != NULL) // Triple battles: only the attacker acts on its side
+                MOVE(ignore1, MOVE_CELEBRATE);
             MOVE(target, MOVE_POUND, target: attacker);
-            MOVE(ignore2, MOVE_CELEBRATE);
+            if (ignore2 != NULL)
+                MOVE(ignore2, MOVE_CELEBRATE);
         }
         else if (effect == EFFECT_REVIVAL_BLESSING)
         { // Player selects party member
-            MOVE(attacker, move, partyIndex: 2);
+            MOVE(attacker, move, partyIndex: benchIndex);
             MOVE(target, MOVE_LAST_RESORT, target: attacker); // Last Resort, so there's no anim on the opponent's side.
         }
         else if (effect == EFFECT_UPPER_HAND)
@@ -383,7 +385,7 @@ static void DoublesWhen(enum Move move, struct BattlePokemon *attacker, struct B
             MOVE(target, MOVE_LAST_RESORT, target: attacker); // Last Resort, so there's no anim on the opponent's side.
             MOVE(attacker, move, target: target);
         }
-        if (effect != EFFECT_AFTER_YOU)
+        if (effect != EFFECT_AFTER_YOU && ignore1 != NULL)
         {
             // Actions for the remaining battlers
             MOVE(ignore1, MOVE_CELEBRATE);
@@ -819,7 +821,7 @@ DOUBLE_BATTLE_TEST("Move Animations don't leak when used - Doubles (playerLeft t
         }
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
     } SCENE {
         DoublesScene(move, attacker);
     } THEN {
@@ -894,7 +896,7 @@ DOUBLE_BATTLE_TEST("Move Animations don't leak when used - Doubles (opponentLeft
         }
         PLAYER(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
     } SCENE {
         DoublesScene(move, attacker);
     } THEN {
@@ -969,7 +971,7 @@ DOUBLE_BATTLE_TEST("Move Animations don't leak when used - Doubles (playerLeft t
         }
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
     } SCENE {
         DoublesScene(move, attacker);
     } THEN {
@@ -1044,7 +1046,7 @@ DOUBLE_BATTLE_TEST("Move Animations don't leak when used - Doubles (opponentRigh
         }
         PLAYER(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
     } SCENE {
         DoublesScene(move, attacker);
     } THEN {
@@ -1119,7 +1121,7 @@ DOUBLE_BATTLE_TEST("Move Animations don't leak when used - Doubles (playerRight 
         }
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
     } SCENE {
         DoublesScene(move, attacker);
     } THEN {
@@ -1194,7 +1196,7 @@ DOUBLE_BATTLE_TEST("Move Animations don't leak when used - Doubles (opponentLeft
         }
         PLAYER(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
     } SCENE {
         DoublesScene(move, attacker);
     } THEN {
@@ -1269,7 +1271,7 @@ DOUBLE_BATTLE_TEST("Move Animations don't leak when used - Doubles (playerRight 
         }
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
     } SCENE {
         DoublesScene(move, attacker);
     } THEN {
@@ -1344,7 +1346,7 @@ DOUBLE_BATTLE_TEST("Move Animations don't leak when used - Doubles (opponentRigh
         }
         PLAYER(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
     } SCENE {
         DoublesScene(move, attacker);
     } THEN {
@@ -1659,6 +1661,108 @@ SINGLE_BATTLE_TEST("Move Animations occur before their stat change animations - 
             }
         }
         SceneSingles(move, player);
+    } THEN {
+        FORCE_MOVE_ANIM(FALSE);
+        if (gLoadFail || gSpriteAllocs != 0)
+            DebugPrintf("Move failed: %S (%u)", GetMoveName(move), move);
+        EXPECT_EQ(gLoadFail, FALSE);
+        EXPECT_EQ(gSpriteAllocs, 0);
+    }
+}
+
+// Triple battles: the middle battlers (4 and 5) use every move. See docs/hack/triple_battles.md
+#define TRIPLE_ANIM_ATTACKER_MON                                                                    \
+    {                                                                                               \
+        Level(GetParametrizedLevel(move, variation));                                               \
+        HP(GetParametrizedHP(move, variation)); MaxHP(9999); Item(GetParametrizedItem(move, variation)); \
+        if (species == SPECIES_WOBBUFFET) Gender(MON_FEMALE);                                       \
+        if (GetMoveEffect(move) == EFFECT_LAST_RESORT) Moves(move, MOVE_POUND);                     \
+        if (species == SPECIES_KLINKLANG) Ability(ABILITY_PLUS);                                    \
+        if (friendship) Friendship(friendship);                                                     \
+        if (GetParametrizedShinyness(move, variation)) Shiny(TRUE);                                 \
+    }
+#define TRIPLE_ANIM_ALLY_MON { Gender(MON_MALE); HP(9998); MaxHP(9999); Moves(MOVE_POUND, MOVE_CELEBRATE); }
+#define TRIPLE_ANIM_BENCH_MON { Gender(MON_MALE); MaxHP(9999); Moves(MOVE_POUND); HP(GetMoveEffect(move) == EFFECT_REVIVAL_BLESSING ? 0 : 9998); }
+#define TRIPLE_ANIM_FOE_MON                                                                         \
+    {                                                                                               \
+        Gender(MON_MALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); Ability(ABILITY_TELEPATHY); \
+        if (GetMoveEffect(move) != EFFECT_BESTOW)                                                   \
+            Item(ITEM_ORAN_BERRY);                                                                  \
+    }
+
+TRIPLE_BATTLE_TEST("Move Animations don't leak when used - Triples (playerMiddle to opponentMiddle, both in front)")
+{
+    u32 j = ANIM_TEST_START_MOVE;
+    enum Move move = MOVE_NONE;
+    enum Species species = SPECIES_NONE;
+    u32 k = 0, variation = 0, variationsNumber;
+    u32 friendship = 0, tempFriendship;
+    enum Move tempMove;
+    enum Species tempSpecies;
+    FORCE_MOVE_ANIM(TRUE);
+    for (; j <= ANIM_TEST_END_MOVE; j++) {
+        variationsNumber = GetVariationsNumber(j, TRUE);
+        for (k = 0; k < variationsNumber; k++) {
+            ParametrizeMovesAndSpecies(j, &tempMove, &tempSpecies, k);
+            tempFriendship = ParametrizeFriendship(j, k);
+            PARAMETRIZE { move = tempMove; species = tempSpecies; variation = k; friendship = tempFriendship; }
+        }
+    }
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET) TRIPLE_ANIM_ALLY_MON
+        PLAYER(SPECIES_WOBBUFFET) TRIPLE_ANIM_ALLY_MON
+        PLAYER(species) TRIPLE_ANIM_ATTACKER_MON
+        PLAYER(SPECIES_WOBBUFFET) TRIPLE_ANIM_BENCH_MON
+        OPPONENT(SPECIES_WOBBUFFET) TRIPLE_ANIM_FOE_MON
+        OPPONENT(SPECIES_WOBBUFFET) TRIPLE_ANIM_FOE_MON
+        OPPONENT(SPECIES_WOBBUFFET) TRIPLE_ANIM_FOE_MON
+        OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
+    } WHEN {
+        TURN { FORMATION(playerMiddle, playerLeft, playerRight); FORMATION(opponentMiddle, opponentLeft, opponentRight); }
+        DoublesWhen(move, playerMiddle, opponentMiddle, NULL, NULL, variation, 3);
+    } SCENE {
+        DoublesScene(move, playerMiddle);
+    } THEN {
+        FORCE_MOVE_ANIM(FALSE);
+        if (gLoadFail || gSpriteAllocs != 0)
+            DebugPrintf("Move failed: %S (%u)", GetMoveName(move), move);
+        EXPECT_EQ(gLoadFail, FALSE);
+        EXPECT_EQ(gSpriteAllocs, 0);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Move Animations don't leak when used - Triples (opponentMiddle at the back to playerRight)")
+{
+    u32 j = ANIM_TEST_START_MOVE;
+    enum Move move = MOVE_NONE;
+    enum Species species = SPECIES_NONE;
+    u32 k = 0, variation = 0, variationsNumber;
+    u32 friendship = 0, tempFriendship;
+    enum Move tempMove;
+    enum Species tempSpecies;
+    FORCE_MOVE_ANIM(TRUE);
+    for (; j <= ANIM_TEST_END_MOVE; j++) {
+        variationsNumber = GetVariationsNumber(j, TRUE);
+        for (k = 0; k < variationsNumber; k++) {
+            ParametrizeMovesAndSpecies(j, &tempMove, &tempSpecies, k);
+            tempFriendship = ParametrizeFriendship(j, k);
+            PARAMETRIZE { move = tempMove; species = tempSpecies; variation = k; friendship = tempFriendship; }
+        }
+    }
+    GIVEN {
+        // Starting formation: left near, right middle, middle far.
+        OPPONENT(SPECIES_WOBBUFFET) TRIPLE_ANIM_ALLY_MON
+        OPPONENT(SPECIES_WOBBUFFET) TRIPLE_ANIM_ALLY_MON
+        OPPONENT(species) TRIPLE_ANIM_ATTACKER_MON
+        OPPONENT(SPECIES_WOBBUFFET) TRIPLE_ANIM_BENCH_MON
+        PLAYER(SPECIES_WOBBUFFET) TRIPLE_ANIM_FOE_MON
+        PLAYER(SPECIES_WOBBUFFET) TRIPLE_ANIM_FOE_MON
+        PLAYER(SPECIES_WOBBUFFET) TRIPLE_ANIM_FOE_MON
+        PLAYER(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
+    } WHEN {
+        DoublesWhen(move, opponentMiddle, playerRight, NULL, NULL, variation, 3);
+    } SCENE {
+        DoublesScene(move, opponentMiddle);
     } THEN {
         FORCE_MOVE_ANIM(FALSE);
         if (gLoadFail || gSpriteAllocs != 0)
@@ -2411,7 +2515,7 @@ DOUBLE_BATTLE_TEST("Move Animations work 1")
         }
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
     } SCENE {
         DoublesScene(move, attacker);
     } THEN {
@@ -2486,7 +2590,7 @@ DOUBLE_BATTLE_TEST("Move Animations work 2")
         }
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
     } SCENE {
         DoublesScene(move, attacker);
     } THEN {
@@ -2561,7 +2665,7 @@ DOUBLE_BATTLE_TEST("Move Animations work 3")
         }
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
     } SCENE {
         DoublesScene(move, attacker);
     } THEN {
@@ -2636,7 +2740,7 @@ DOUBLE_BATTLE_TEST("Move Animations work 4")
         }
         OPPONENT(SPECIES_WOBBUFFET) { Gender(MON_FEMALE); HP(9998); MaxHP(9999); SpDefense(9999); Defense(9999); }
     } WHEN {
-        DoublesWhen(move, attacker, target, ignore1, ignore2, variation);
+        DoublesWhen(move, attacker, target, ignore1, ignore2, variation, 2);
     } SCENE {
         DoublesScene(move, attacker);
     } THEN {

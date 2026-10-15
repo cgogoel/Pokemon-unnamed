@@ -2040,15 +2040,25 @@ u8 GetBattlerSpriteBGPriority(enum BattlerId battler)
 
 u8 GetBattlerSpriteBGPriorityRank(enum BattlerId battler)
 {
-    if (!IsContest())
-    {
-        enum BattlerPosition position = GetBattlerPosition(battler);
-        if (position == B_POSITION_PLAYER_LEFT || position == B_POSITION_OPPONENT_RIGHT)
-            return 2;
-        else
-            return 1;
-    }
-    return 1;
+    return IsBattlerOnAnimBg2(battler) ? 2 : 1;
+}
+
+// Whether monbg puts the battler on BG2 (or BG1). Triple battles go by where the battler stands on screen.
+bool32 IsBattlerOnAnimBg2(enum BattlerId battler)
+{
+    if (IsContest())
+        return FALSE;
+
+    enum BattlerPosition position = IsTripleBattle() ? GetBattlerLayoutPosition(battler) : GetBattlerPosition(battler);
+    return position == B_POSITION_PLAYER_LEFT || position == B_POSITION_OPPONENT_RIGHT;
+}
+
+// The ally that monbg moves to the other background along with the battler.
+enum BattlerId GetAnimBgPartner(enum BattlerId battler)
+{
+    if (IsTripleBattle())
+        return GetPartnerBattler(battler);
+    return battler ^ BIT_FLANK;
 }
 
 // Create Pokémon sprite to be used for a move animation effect (e.g. Role Play / Snatch)

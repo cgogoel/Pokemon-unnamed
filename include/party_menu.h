@@ -14,6 +14,7 @@ enum PartyMenuLayout
     PARTY_LAYOUT_MULTI_FULL_PARTNER,
     PARTY_LAYOUT_MULTI_FULL_SHOWCASE,           // The layout used to present player team in full-teams multi battle
     PARTY_LAYOUT_MULTI_FULL_SHOWCASE_PARTNER,   // The layout used to present partner team in full-teams multi battle
+    PARTY_LAYOUT_TRIPLE,                        // 3v3 battles: the 3 Pokémon on the field on the left, the bench on the right
     PARTY_LAYOUT_COUNT,
     KEEP_PARTY_LAYOUT
 };

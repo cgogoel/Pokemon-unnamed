@@ -81,6 +81,12 @@ The prompt reads "What will Pikachu do?" with a hint line: `L R Pick`, `SELECT O
 - Target cursor: Left/Right move along a row of Pokémon by their place on screen, Up/Down switch between the foes' row
   and the player's.
 
+### Pokémon menu in battle
+- `PARTY_LAYOUT_TRIPLE` (`src/party_menu.c`, `src/data/party_menu.h`): the 3 Pokémon on the field in shorter boxes
+  down the left (name, level, HP bar and numbers), the bench on the right, centered vertically.
+- The short box is built from the normal box's tiles one pixel row at a time (`sSlotTripleSourceRows`).
+- Left/Right move between a field Pokémon and the bench row beside it; Up/Down go through the slots in order.
+
 ### Trying it
 - Debug menu (hold R + START in the overworld) → Party → *Start Debug Battle* starts a 3v3 against `DEBUG_TRAINER_AI`
   (`src/data/debug_trainers.party`).
@@ -126,6 +132,5 @@ The prompt reads "What will Pikachu do?" with a hint line: `L R Pick`, `SELECT O
 - [x] Phase 2 (engine rules, covered by test/battle/triple_battle.c)
 - [x] Phase 3 (AI picks its best actor; respects FRONT reach)
 - [ ] Phase 4 (in progress: diagonal field layout with depth scaling, oval floor, floating HP bars and name tags,
-  controls, target selection, move indicator and the animation check done; the in-battle party menu lists the 3 active
-  Pokémon first but still uses the doubles layout)
+  controls, target selection, move indicator, the in-battle Pokémon menu and the animation check done)
 - [ ] Phase 5 (in progress: `Battle Type: Triples` and the debug battle work; Act gating still to do)

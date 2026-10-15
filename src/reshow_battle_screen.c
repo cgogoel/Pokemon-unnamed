@@ -108,7 +108,7 @@ static void CB2_ReshowBattleScreenAfterMenu(void)
             gBattleScripting.reshowMainState--;
         break;
     case 10:
-        if (!LoadBattlerSpriteGfx(3))
+        if (!LoadBattlerSpriteGfx(3) || !LoadBattlerSpriteGfx(B_BATTLER_4) || !LoadBattlerSpriteGfx(B_BATTLER_5))
             gBattleScripting.reshowMainState--;
         break;
     case 11:
@@ -122,6 +122,8 @@ static void CB2_ReshowBattleScreenAfterMenu(void)
         break;
     case 14:
         CreateBattlerSprite(3);
+        CreateBattlerSprite(B_BATTLER_4); // Triple battles' middle battlers
+        CreateBattlerSprite(B_BATTLER_5);
         break;
     case 15:
         CreateHealthboxSprite(0);
@@ -134,6 +136,8 @@ static void CB2_ReshowBattleScreenAfterMenu(void)
         break;
     case 18:
         CreateHealthboxSprite(3);
+        CreateHealthboxSprite(B_BATTLER_4);
+        CreateHealthboxSprite(B_BATTLER_5);
         break;
     case 19:
         {
@@ -149,6 +153,12 @@ static void CB2_ReshowBattleScreenAfterMenu(void)
             if (IsDoubleBattle())
             {
                 opponentBattler = GetBattlerAtPosition(B_POSITION_OPPONENT_RIGHT);
+                species = GetMonData(GetBattlerMon(opponentBattler), MON_DATA_SPECIES);
+                SetBattlerShadowSpriteCallback(opponentBattler, species);
+            }
+            if (IsTripleBattle())
+            {
+                opponentBattler = GetBattlerAtPosition(B_POSITION_OPPONENT_MIDDLE);
                 species = GetMonData(GetBattlerMon(opponentBattler), MON_DATA_SPECIES);
                 SetBattlerShadowSpriteCallback(opponentBattler, species);
             }
@@ -238,7 +248,7 @@ static void CB2_ReshowBlankBattleScreenAfterMenu(void)
             gBattleScripting.reshowMainState--;
         break;
     case 9:
-        if (!LoadBattlerSpriteGfx(3))
+        if (!LoadBattlerSpriteGfx(3) || !LoadBattlerSpriteGfx(B_BATTLER_4) || !LoadBattlerSpriteGfx(B_BATTLER_5))
             gBattleScripting.reshowMainState--;
         break;
     case 10:

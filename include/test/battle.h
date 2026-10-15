@@ -800,7 +800,7 @@ struct BattleTestData
     u8 uiPreviewPos;
     u16 uiPreviewFrame;
     u8 uiPreviewDumps;
-    char uiPreviewScript[48]; // Triple battles: party index + 1 of a SEND_OUT recorded after the turn's passes
+    char uiPreviewScript[128]; // UI_PREVIEW: keys to press, one every few frames
     u8 currentPartyIndex;
     struct Pokemon *currentMon;
     u8 gender;

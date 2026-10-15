@@ -12,53 +12,51 @@
 #include "malloc.h"
 
 // Move info indicator for triple battles, shown on the move type line of the move menu (docs/hack/triple_battles.md):
-// - 3 squares for the damage each target takes: dark = full, gray = reduced, white = not hit
-// - Red outlines for reach: only the first square for FRONT moves, every square for ANY moves
-// - A red "!" when the move also hits the user's allies
+// a small copy of the foes' floor ovals (rear on the left, front on the right) with each section shaded by the damage
+// that foe takes (dark = full, gray = reduced, white = not hit), and red arrows for reach: over the front section for
+// FRONT moves, over all three for ANY moves, none for moves that hit all three foes.
 
 #define TAG_TRIPLE_INDICATOR 0xD7F4
 
+// Screen position of the indicator's top left corner, at the start of the move type window
+#define INDICATOR_X 167
+#define INDICATOR_Y 138
+#define INDICATOR_WIDTH 32
+#define INDICATOR_HEIGHT 16
+#define INDICATOR_OVALS_Y 4 // Arrows above, ovals below
+
+// Palette: 1 red, 2 dark, 3 gray, 4 white, 5 black
 enum
 {
-    INDICATOR_TILE_DARK,
-    INDICATOR_TILE_GRAY,
-    INDICATOR_TILE_WHITE,
-    INDICATOR_TILE_OUTLINED, // Added to the three above
-    INDICATOR_TILE_ALLY_MARKER = INDICATOR_TILE_OUTLINED + 3,
-    INDICATOR_TILE_COUNT,
+    INDICATOR_COLOR_RED = 1,
+    INDICATOR_COLOR_DARK,
+    INDICATOR_COLOR_GRAY,
+    INDICATOR_COLOR_WHITE,
+    INDICATOR_COLOR_OUTLINE,
 };
 
-#define INDICATOR_SQUARES 3
-#define INDICATOR_SPRITES (INDICATOR_SQUARES + 1)
-
-// Screen position of the first square, at the start of the move type window.
-#define INDICATOR_X 172
-#define INDICATOR_Y 145
-
-// Palette: 1 red, 2 dark, 3 gray, 4 white, 5 black.
 static const u16 sIndicatorPalette[16] =
 {
-    RGB(0, 0, 0), RGB(31, 0, 0), RGB(7, 7, 7), RGB(19, 19, 19), RGB(31, 31, 31), RGB(0, 0, 0),
+    RGB(0, 0, 0), RGB(29, 0, 0), RGB(7, 7, 7), RGB(19, 19, 19), RGB(31, 31, 31), RGB(3, 3, 3),
 };
 
-static const u32 sIndicatorTiles[INDICATOR_TILE_COUNT * 8] =
+// Nested ovals in tenths of a pixel (centre x, centre y, radius x, radius y): base (rear), middle, outer (front)
+static const s16 sIndicatorOvals[TRIPLE_RANK_COUNT][4] =
 {
-    0x05555555, 0x05222225, 0x05222225, 0x05222225, 0x05222225, 0x05222225, 0x05555555, 0x00000000, // Dark
-    0x05555555, 0x05333335, 0x05333335, 0x05333335, 0x05333335, 0x05333335, 0x05555555, 0x00000000, // Gray
-    0x05555555, 0x05444445, 0x05444445, 0x05444445, 0x05444445, 0x05444445, 0x05555555, 0x00000000, // White
-    0x01111111, 0x01222221, 0x01222221, 0x01222221, 0x01222221, 0x01222221, 0x01111111, 0x00000000, // Dark, red outline
-    0x01111111, 0x01333331, 0x01333331, 0x01333331, 0x01333331, 0x01333331, 0x01111111, 0x00000000, // Gray, red outline
-    0x01111111, 0x01444441, 0x01444441, 0x01444441, 0x01444441, 0x01444441, 0x01111111, 0x00000000, // White, red outline
-    0x00000110, 0x00000110, 0x00000110, 0x00000110, 0x00000110, 0x00000000, 0x00000110, 0x00000000, // Ally marker
+    { 50, 60, 50, 32 },
+    { 95, 60, 95, 43 },
+    { 140, 60, 140, 55 },
 };
 
-static const struct SpriteSheet sIndicatorSpriteSheet = { sIndicatorTiles, sizeof(sIndicatorTiles), TAG_TRIPLE_INDICATOR };
+// Arrow centres over the rear, middle and front sections
+static const u8 sIndicatorArrowX[TRIPLE_RANK_COUNT] = { 4, 13, 23 };
+
 static const struct SpritePalette sIndicatorSpritePalette = { sIndicatorPalette, TAG_TRIPLE_INDICATOR };
 
 static const struct OamData sOamData_Indicator =
 {
-    .shape = SPRITE_SHAPE(8x8),
-    .size = SPRITE_SIZE(8x8),
+    .shape = SPRITE_SHAPE(32x16),
+    .size = SPRITE_SIZE(32x16),
     .priority = 0,
 };
 
@@ -73,72 +71,116 @@ static const struct SpriteTemplate sIndicatorSpriteTemplate =
     .callback = SpriteCallbackDummy,
 };
 
-static EWRAM_DATA u8 sIndicatorSpriteIds[INDICATOR_SPRITES] = {0};
+static EWRAM_DATA u8 sIndicatorSpriteId = 0;
 
 void ResetTripleMoveIndicator(void)
 {
-    for (u32 i = 0; i < INDICATOR_SPRITES; i++)
-        sIndicatorSpriteIds[i] = MAX_SPRITES;
+    sIndicatorSpriteId = MAX_SPRITES;
 }
 
 void HideTripleMoveIndicator(void)
 {
-    if (sIndicatorSpriteIds[0] == MAX_SPRITES)
+    if (sIndicatorSpriteId == MAX_SPRITES)
         return;
-    for (u32 i = 0; i < INDICATOR_SPRITES; i++)
-    {
-        if (sIndicatorSpriteIds[i] != MAX_SPRITES)
-            DestroySprite(&gSprites[sIndicatorSpriteIds[i]]);
-        sIndicatorSpriteIds[i] = MAX_SPRITES;
-    }
+    DestroySprite(&gSprites[sIndicatorSpriteId]);
+    sIndicatorSpriteId = MAX_SPRITES;
     FreeSpriteTilesByTag(TAG_TRIPLE_INDICATOR);
     FreeSpritePaletteByTag(TAG_TRIPLE_INDICATOR);
+}
+
+static bool32 IsInIndicatorOval(u32 oval, s32 x, s32 y)
+{
+    s32 dx = x * 10 + 5 - sIndicatorOvals[oval][0], dy = y * 10 + 5 - sIndicatorOvals[oval][1];
+    s32 rx = sIndicatorOvals[oval][2], ry = sIndicatorOvals[oval][3];
+    return dx * dx * ry * ry + dy * dy * rx * rx <= rx * rx * ry * ry;
+}
+
+static bool32 IsIndicatorOvalEdge(u32 oval, s32 x, s32 y)
+{
+    return IsInIndicatorOval(oval, x, y)
+        && (!IsInIndicatorOval(oval, x - 1, y) || !IsInIndicatorOval(oval, x + 1, y)
+         || !IsInIndicatorOval(oval, x, y - 1) || !IsInIndicatorOval(oval, x, y + 1));
+}
+
+static void SetIndicatorPixel(u8 *tiles, u32 x, u32 y, u32 color)
+{
+    // 32x16 sprite in 1D tile order: 4 tiles per row
+    u8 *byte = &tiles[((y / 8) * (INDICATOR_WIDTH / 8) + x / 8) * TILE_SIZE_4BPP + (y % 8) * 4 + (x % 8) / 2];
+    if (x & 1)
+        *byte = (*byte & 0x0F) | (color << 4);
+    else
+        *byte = (*byte & 0xF0) | color;
+}
+
+// fills: color of the rear, middle and front sections. arrows: bit per section.
+static void DrawIndicator(u8 *tiles, const u8 *fills, u32 arrows)
+{
+    for (s32 y = 0; y < INDICATOR_HEIGHT - INDICATOR_OVALS_Y; y++)
+    {
+        for (s32 x = 0; x < INDICATOR_WIDTH; x++)
+        {
+            u32 section;
+            for (section = 0; section < TRIPLE_RANK_COUNT && !IsInIndicatorOval(section, x, y); section++)
+                ;
+            if (section == TRIPLE_RANK_COUNT)
+                continue;
+            bool32 edge = IsIndicatorOvalEdge(0, x, y) || IsIndicatorOvalEdge(1, x, y) || IsIndicatorOvalEdge(2, x, y);
+            SetIndicatorPixel(tiles, x, y + INDICATOR_OVALS_Y, edge ? INDICATOR_COLOR_OUTLINE : fills[section]);
+        }
+    }
+    for (u32 section = 0; section < TRIPLE_RANK_COUNT; section++)
+    {
+        if (!(arrows & (1 << section)))
+            continue;
+        for (s32 row = 0; row < 3; row++)
+        {
+            for (s32 dx = -(2 - row); dx <= 2 - row; dx++)
+                SetIndicatorPixel(tiles, sIndicatorArrowX[section] + dx, row, INDICATOR_COLOR_RED);
+        }
+    }
 }
 
 // Returns whether the indicator is shown, i.e. whether the move type line should leave room for it.
 bool32 ShowTripleMoveIndicator(enum Move move)
 {
     const struct TripleMoveInfo *info = GetTripleMoveInfo(move);
-    u32 fills[INDICATOR_SQUARES];
+    u8 fills[TRIPLE_RANK_COUNT];
+    u32 arrows;
 
     HideTripleMoveIndicator();
     if (!IsTripleBattle() || info->aoe == 0)
         return FALSE;
 
+    // The main target is shown as the front foe; ANY moves can pick any of them.
     switch (info->aoe)
     {
     case 1:
-        fills[0] = INDICATOR_TILE_DARK, fills[1] = INDICATOR_TILE_WHITE, fills[2] = INDICATOR_TILE_WHITE;
+        fills[0] = INDICATOR_COLOR_WHITE, fills[1] = INDICATOR_COLOR_WHITE, fills[2] = INDICATOR_COLOR_DARK;
         break;
     case 2:
-        fills[0] = INDICATOR_TILE_DARK, fills[1] = INDICATOR_TILE_GRAY, fills[2] = INDICATOR_TILE_WHITE;
+        fills[0] = INDICATOR_COLOR_WHITE, fills[1] = INDICATOR_COLOR_GRAY, fills[2] = INDICATOR_COLOR_DARK;
         break;
     default:
-        fills[0] = INDICATOR_TILE_GRAY, fills[1] = INDICATOR_TILE_GRAY, fills[2] = INDICATOR_TILE_GRAY;
+        fills[0] = INDICATOR_COLOR_GRAY, fills[1] = INDICATOR_COLOR_GRAY, fills[2] = INDICATOR_COLOR_GRAY;
         break;
     }
+    if (info->aoe == 3)
+        arrows = 0; // Every foe is hit, reach doesn't matter
+    else if (info->reach == TRIPLE_REACH_ANY)
+        arrows = (1 << TRIPLE_RANK_COUNT) - 1;
+    else
+        arrows = 1 << 2;
 
-    LoadSpriteSheet(&sIndicatorSpriteSheet);
-    LoadSpritePalette(&sIndicatorSpritePalette);
-    u32 tileStart = GetSpriteTileStartByTag(TAG_TRIPLE_INDICATOR);
-    if (tileStart == 0xFFFF)
+    u32 *tiles = AllocZeroed(INDICATOR_WIDTH * INDICATOR_HEIGHT / 2);
+    if (tiles == NULL)
         return FALSE;
+    DrawIndicator((u8 *)tiles, fills, arrows);
+    struct SpriteSheet sheet = { tiles, INDICATOR_WIDTH * INDICATOR_HEIGHT / 2, TAG_TRIPLE_INDICATOR };
+    LoadSpriteSheet(&sheet);
+    Free(tiles);
+    LoadSpritePalette(&sIndicatorSpritePalette);
 
-    for (u32 i = 0; i < INDICATOR_SQUARES; i++)
-    {
-        bool32 outlined = (info->reach == TRIPLE_REACH_ANY || i == 0);
-        u32 tile = fills[i] + (outlined ? INDICATOR_TILE_OUTLINED : 0);
-        sIndicatorSpriteIds[i] = CreateSprite(&sIndicatorSpriteTemplate, INDICATOR_X + 8 * i, INDICATOR_Y, 0);
-        if (sIndicatorSpriteIds[i] != MAX_SPRITES)
-            gSprites[sIndicatorSpriteIds[i]].oam.tileNum = tileStart + tile;
-    }
-
-    if (info->hitsAllies)
-    {
-        sIndicatorSpriteIds[INDICATOR_SQUARES] = CreateSprite(&sIndicatorSpriteTemplate, INDICATOR_X + 8 * INDICATOR_SQUARES, INDICATOR_Y, 0);
-        if (sIndicatorSpriteIds[INDICATOR_SQUARES] != MAX_SPRITES)
-            gSprites[sIndicatorSpriteIds[INDICATOR_SQUARES]].oam.tileNum = tileStart + INDICATOR_TILE_ALLY_MARKER;
-    }
+    sIndicatorSpriteId = CreateSprite(&sIndicatorSpriteTemplate, INDICATOR_X + INDICATOR_WIDTH / 2, INDICATOR_Y + INDICATOR_HEIGHT / 2, 0);
     return TRUE;
 }
 

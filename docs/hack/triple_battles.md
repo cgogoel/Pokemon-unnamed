@@ -37,13 +37,13 @@ Custom battle mode for Act 2 onward. Not the Gen 5 Triple Battle: **only one Pok
 - Out of scope: link battles, recorded battles, Battle Frontier facilities in triple mode.
 
 ### Move info indicator (UI)
-Shown with each move in the battle move menu (next to type/PP) and in the summary screen's move description.
-- **Damage squares:** 3 small squares, one per target slot.
-  - Dark = 100% damage, gray = reduced (50% or 75%), white = not hit.
-  - 1 target: dark, white, white. 2 targets: dark, gray, white. 3 targets: gray, gray, gray.
-- **Reach outline (red):**
-  - `FRONT`: only the first square has a red outline.
-  - `ANY`: every square has a red outline.
+Shown with each move in the battle move menu, before the move type (`ShowTripleMoveIndicator`, `src/triple_battle_ui.c`).
+- A small copy of the foes' floor ovals: rear section on the left, middle, front section on the right.
+- Each section is shaded by the damage that foe takes: dark = full, gray = reduced (50% or 75%), white = not hit.
+  1 target: front dark. 2 targets: front dark, middle gray. 3 targets: all gray. (For ANY moves the dark section is
+  whichever foe is picked.)
+- Red arrows for reach: over the front section for `FRONT` moves, over all three for `ANY` moves, none for moves that
+  hit all three foes.
 
 ### Field layout
 - Each team stands on a diagonal: rear Pokémon on the left, front Pokémon on the right, so the two front Pokémon face off

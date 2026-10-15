@@ -4,6 +4,9 @@
 #include "battle_controllers.h"
 #include "battle_interface.h"
 #include "battle_message.h"
+#include "befriend.h"
+#include "recorded_battle.h"
+#include "string_util.h"
 #include "bg.h"
 #include "data.h"
 #include "item_menu.h"
@@ -116,9 +119,33 @@ static void SafariBufferRunCommand(enum BattlerId battler)
     }
 }
 
+static void HandleInputChooseBefriendAct(enum BattlerId battler);
+static void ShowBefriendActMenu(enum BattlerId battler);
+
 static void HandleInputChooseAction(enum BattlerId battler)
 {
-    if (JOY_NEW(A_BUTTON))
+    if (JOY_NEW(A_BUTTON) && IsBefriendBattle())
+    {
+        PlaySE(SE_SELECT);
+        switch (gActionSelectionCursor[battler])
+        {
+        case 0: // Act: pick one of the actions
+            ShowBefriendActMenu(battler);
+            gBattlerControllerFuncs[battler] = HandleInputChooseBefriendAct;
+            return;
+        case 1: // Item: choose one from the bag to offer
+            BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_BEFRIEND_ITEM, ITEM_NONE);
+            break;
+        case 2:
+            BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_BEFRIEND_WATCH, 0);
+            break;
+        case 3: // Leave
+            BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_SAFARI_RUN, 0);
+            break;
+        }
+        BtlController_Complete(battler);
+    }
+    else if (JOY_NEW(A_BUTTON))
     {
         PlaySE(SE_SELECT);
 
@@ -293,9 +320,97 @@ static void HandleChooseActionAfterDma3(enum BattlerId battler)
     }
 }
 
+// Befriending battles: the Act list, in the action menu window for now (2 columns, like the action menu)
+static void ShowBefriendActMenu(enum BattlerId battler)
+{
+    u8 *text = gDisplayedStringBattle;
+
+    for (u32 i = 0; i < 4; i++)
+        ActionSelectionDestroyCursorAt(i);
+    text = StringCopy(text, COMPOUND_STRING("{FONT_NARROW}"));
+    for (u32 i = 0; i < BEFRIEND_ACTION_COUNT; i++)
+    {
+        text = StringAppend(text, GetBefriendActionName(i));
+        if (i == 0 || i == 2)
+            text = StringAppend(text, COMPOUND_STRING("{CLEAR_TO 56}"));
+        else if (i == 1)
+            text = StringAppend(text, COMPOUND_STRING("\n"));
+    }
+    BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_ACTION_MENU);
+    ActionSelectionCreateCursorAt(gBattleStruct->befriendActCursor, 0);
+}
+
+static void HandleInputChooseBefriendAct(enum BattlerId battler)
+{
+    u32 cursor = gBattleStruct->befriendActCursor;
+
+    if (JOY_NEW(A_BUTTON))
+    {
+        PlaySE(SE_SELECT);
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_BEFRIEND_ACT, cursor);
+        BtlController_Complete(battler);
+        return;
+    }
+    if (JOY_NEW(B_BUTTON))
+    {
+        PlaySE(SE_SELECT);
+        ActionSelectionDestroyCursorAt(cursor);
+        BattlePutTextOnWindow(gText_BefriendMenu, B_WIN_ACTION_MENU);
+        ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
+        gBattlerControllerFuncs[battler] = HandleInputChooseAction;
+        return;
+    }
+    if (JOY_NEW(DPAD_LEFT) && (cursor & 1))
+        cursor ^= 1;
+    else if (JOY_NEW(DPAD_RIGHT) && !(cursor & 1))
+        cursor ^= 1;
+    else if (JOY_NEW(DPAD_UP) && (cursor & 2))
+        cursor ^= 2;
+    else if (JOY_NEW(DPAD_DOWN) && !(cursor & 2))
+        cursor ^= 2;
+    if (cursor != gBattleStruct->befriendActCursor)
+    {
+        PlaySE(SE_SELECT);
+        ActionSelectionDestroyCursorAt(gBattleStruct->befriendActCursor);
+        gBattleStruct->befriendActCursor = cursor;
+        ActionSelectionCreateCursorAt(cursor, 0);
+    }
+}
+
+// Befriending battles: tests replay the player's recorded choices
+static void BefriendRecordedChooseAction(enum BattlerId battler)
+{
+    u32 action = RecordedBattle_GetBattlerAction(RECORDED_ACTION_TYPE, battler);
+    u32 data = 0;
+
+    if (action == B_ACTION_BEFRIEND_ACT || action == B_ACTION_BEFRIEND_ITEM)
+    {
+        data = RecordedBattle_GetBattlerAction(RECORDED_ITEM_ID, battler) << 8;
+        data |= RecordedBattle_GetBattlerAction(RECORDED_ITEM_ID, battler);
+    }
+    BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, action, data);
+    BtlController_Complete(battler);
+}
+
 static void SafariHandleChooseAction(enum BattlerId battler)
 {
     s32 i;
+
+    if (IsBefriendBattle())
+    {
+        if (gBattleTypeFlags & BATTLE_TYPE_RECORDED)
+        {
+            BefriendRecordedChooseAction(battler);
+            return;
+        }
+        gBattlerControllerFuncs[battler] = HandleChooseActionAfterDma3;
+        BattlePutTextOnWindow(gText_BefriendMenu, B_WIN_ACTION_MENU);
+        for (i = 0; i < 4; i++)
+            ActionSelectionDestroyCursorAt(i);
+        ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
+        BattlePutTextOnWindow(gText_BefriendPrompt, B_WIN_ACTION_PROMPT);
+        return;
+    }
 
     gBattlerControllerFuncs[battler] = HandleChooseActionAfterDma3;
     BattlePutTextOnWindow(IS_FRLG ? gText_SafariZoneMenuFrlg : gText_SafariZoneMenu, B_WIN_ACTION_MENU);
@@ -353,6 +468,11 @@ static void SafariHandleFaintingCry(enum BattlerId battler)
 
 static void SafariHandleIntroTrainerBallThrow(enum BattlerId battler)
 {
+    if (IsBefriendBattle()) // No healthbox for the player
+    {
+        BtlController_Complete(battler);
+        return;
+    }
     UpdateHealthboxAttribute(gHealthboxSpriteIds[battler], GetBattlerMon(battler), HEALTHBOX_SAFARI_ALL_TEXT);
     StartHealthboxSlideIn(battler);
     SetHealthboxSpriteVisible(gHealthboxSpriteIds[battler]);

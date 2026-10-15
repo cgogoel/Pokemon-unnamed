@@ -342,3 +342,58 @@ BattleScript_ActionThrowBait::
 	waitmessage B_WAIT_TIME_LONG
 	playanimation BS_ATTACKER, B_ANIM_POKEBLOCK_THROW
 	end
+
+@ Befriending battles (Act 1), see docs/hack/befriending.md. The Pokémon's HP bar is its aggression.
+BattleScript_BefriendAct::
+	printstring STRINGID_BEFRIENDACT
+	waitmessage B_WAIT_TIME_LONG
+	printfromtable gBefriendActionReactionStringIds
+	goto BattleScript_BefriendReaction
+
+BattleScript_BefriendItem::
+	printstring STRINGID_BEFRIENDOFFER
+	waitmessage B_WAIT_TIME_LONG
+	printfromtable gBefriendItemReactionStringIds
+BattleScript_BefriendReaction:
+	waitmessage B_WAIT_TIME_LONG
+	healthbarupdate BS_TARGET
+	datahpupdate BS_TARGET, ASSURANCE_IGNORE
+	callnative BS_BefriendFinish
+	end
+
+BattleScript_BefriendWatch::
+	printstring STRINGID_BEFRIENDWATCH
+	waitmessage B_WAIT_TIME_LONG
+	callnative BS_BefriendFinish
+	end
+
+BattleScript_BefriendImpatient::
+	printstring STRINGID_BEFRIENDIMPATIENT
+	waitmessage B_WAIT_TIME_LONG
+BattleScript_BefriendEnd::
+	end
+
+BattleScript_BefriendFled::
+	printstring STRINGID_BEFRIENDFLED
+	waitmessage B_WAIT_TIME_LONG
+	setbyte gBattleOutcome, B_OUTCOME_MON_FLED
+	finishturn
+
+BattleScript_BefriendSuccess::
+	printstring STRINGID_BEFRIENDDONE
+	waitmessage B_WAIT_TIME_LONG
+	callnative BS_BefriendRestoreHp
+	setbyte sMON_CAUGHT, TRUE
+	jumpifbattletype BATTLE_TYPE_RECORDED, BattleScript_BefriendGiveMon
+	trysetcaughtmondexflags BattleScript_BefriendGiveMon
+	printstring STRINGID_PKMNDATAADDEDTODEX
+	waitstate
+	setbyte gBattleCommunication, 0
+	displaydexinfo
+BattleScript_BefriendGiveMon:
+	givecaughtmon BattleScript_BefriendSuccessEnd
+	printfromtable gCaughtMonStringIds
+	waitmessage B_WAIT_TIME_LONG
+BattleScript_BefriendSuccessEnd:
+	setbyte gBattleOutcome, B_OUTCOME_CAUGHT
+	finishturn

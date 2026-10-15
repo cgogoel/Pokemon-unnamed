@@ -59,6 +59,9 @@ enum BattleAction
     B_ACTION_TRIPLE_FORMATION, // Triple battles: rearrange the side's formation, then choose the real action
     B_ACTION_DEBUG = 20,
     B_ACTION_THROW_BALL, // R to throw last used ball
+    B_ACTION_BEFRIEND_ACT,   // Befriending battles: do an action (data: enum BefriendAction)
+    B_ACTION_BEFRIEND_ITEM,  // Befriending battles: offer an item (data: item)
+    B_ACTION_BEFRIEND_WATCH, // Befriending battles: watch for a clue
     B_ACTION_NONE = 0xFF
 };
 
@@ -629,6 +632,10 @@ struct BattleStruct
     u8 safariPkblThrowCounter;
     u8 safariEscapeFactor;
     u8 safariCatchFactor;
+    u8 befriendPatience;          // Befriending battles: choices left before the Pokémon runs away
+    bool8 befriendLovedActionUsed;
+    u16 befriendChoice;           // The chosen action or offered item
+    u8 befriendActCursor;
     u8 linkBattleVsSpriteId_V; // The letter "V"
     u8 linkBattleVsSpriteId_S; // The letter "S"
     u8 chosenMovePositions[MAX_BATTLERS_COUNT];

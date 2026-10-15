@@ -906,6 +906,18 @@ const u8 *const gBattleStringsTable[STRINGID_COUNT] =
     [STRINGID_S]                                    = COMPOUND_STRING("s"),
     [STRINGID_LOSTSOMEOFITSHP]                      = COMPOUND_STRING("{B_ATK_NAME_WITH_PREFIX} lost some of its HP!"),
     [STRINGID_BELCHCANTUSE]                         = COMPOUND_STRING("{B_ATK_NAME_WITH_PREFIX} hasn't eaten any held Berries, so it can't possibly belch!\p"),
+    [STRINGID_BEFRIENDACT] = COMPOUND_STRING("You {B_COPY_VAR_2}."),
+    [STRINGID_BEFRIENDOFFER] = COMPOUND_STRING("You offered the {B_LAST_ITEM}."),
+    [STRINGID_BEFRIENDLOVED] = COMPOUND_STRING("{B_DEF_NAME} relaxed a lot!\nIt really likes that!"),
+    [STRINGID_BEFRIENDNEUTRAL] = COMPOUND_STRING("{B_DEF_NAME} doesn't seem\nto mind."),
+    [STRINGID_BEFRIENDDISLIKED] = COMPOUND_STRING("{B_DEF_NAME} didn't like that!\nIt's getting agitated!"),
+    [STRINGID_BEFRIENDLOVEDITEM] = COMPOUND_STRING("{B_DEF_NAME} happily took\nthe {B_LAST_ITEM}!"),
+    [STRINGID_BEFRIENDNEUTRALITEM] = COMPOUND_STRING("{B_DEF_NAME} sniffed the\n{B_LAST_ITEM}."),
+    [STRINGID_BEFRIENDDISLIKEDITEM] = COMPOUND_STRING("{B_DEF_NAME} growled at\nthe {B_LAST_ITEM}!"),
+    [STRINGID_BEFRIENDWATCH] = COMPOUND_STRING("You watched {B_DEF_NAME} closely.\p{B_COPY_VAR_1}"),
+    [STRINGID_BEFRIENDIMPATIENT] = COMPOUND_STRING("{B_DEF_NAME} looks ready to bolt!"),
+    [STRINGID_BEFRIENDFLED] = COMPOUND_STRING("{PLAY_SE SE_FLEE}{B_DEF_NAME} ran away!"),
+    [STRINGID_BEFRIENDDONE] = COMPOUND_STRING("{B_DEF_NAME} is comfortable\naround you now!"),
 };
 
 const u16 gTrainerUsedItemStringIds[] =
@@ -1337,6 +1349,17 @@ const u16 gSafariReactionStringIds[NUM_SAFARI_REACTIONS] =
     [B_MSG_MON_EATING]   = STRINGID_PKMNEATING
 };
 
+// Befriending battles: by enum BefriendReaction (loved, neutral, disliked)
+const u16 gBefriendActionReactionStringIds[] =
+{
+    STRINGID_BEFRIENDLOVED, STRINGID_BEFRIENDNEUTRAL, STRINGID_BEFRIENDDISLIKED,
+};
+
+const u16 gBefriendItemReactionStringIds[] =
+{
+    STRINGID_BEFRIENDLOVEDITEM, STRINGID_BEFRIENDNEUTRALITEM, STRINGID_BEFRIENDDISLIKEDITEM,
+};
+
 const u16 gSafariGetNearStringIds[] =
 {
     [B_MSG_CREPT_CLOSER]    = STRINGID_CREPTCLOSER,
@@ -1478,6 +1501,9 @@ const u8 gText_WhatWillPkmnDoTripleLongName[] = _("{FONT_NARROWER}What will {B_B
 const u8 gText_WhatWillWallyDo[] = _("What will\nWALLY do?");
 const u8 gText_LinkStandby[] = _("{PAUSE 16}Link standby…");
 const u8 gText_BattleMenu[] = _("Battle{CLEAR_TO 56}Bag\nPokémon{CLEAR_TO 56}Run");
+// Befriending battles
+const u8 gText_BefriendMenu[] = _("Act{CLEAR_TO 56}Item\nWatch{CLEAR_TO 56}Leave");
+const u8 gText_BefriendPrompt[] = _("What will\nyou do?");
 const u8 gText_SafariZoneMenu[] = _("Ball{CLEAR_TO 56}{POKEBLOCK}\nGo Near{CLEAR_TO 56}Run");
 const u8 gText_SafariZoneMenuFrlg[] = _("{PALETTE 5}{COLOR_HIGHLIGHT_SHADOW 13 14 15}BALL{CLEAR_TO 56}BAIT\nROCK{CLEAR_TO 56}RUN");
 const u8 gText_MoveInterfacePP[] = _("PP ");

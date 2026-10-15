@@ -378,8 +378,8 @@ struct FloorShades
     u8 nearest[3][FLOOR_SHADE_COUNT][16]; // Fallback
 };
 
-// Brightness of the reserved shade colors, out of 16
-static const u8 sFloorReservedBrightness[FLOOR_SHADE_COUNT] = { [FLOOR_HALF] = 13, [FLOOR_BASE] = 10, [FLOOR_OUTLINE] = 7 };
+// Brightness of the reserved shade colors, out of 32: the middle section is halfway between the floor and the base oval
+static const u8 sFloorReservedBrightness[FLOOR_SHADE_COUNT] = { [FLOOR_HALF] = 26, [FLOOR_BASE] = 20, [FLOOR_OUTLINE] = 14 };
 
 static void BuildFloorShades(struct FloorShades *shades, const u16 *tilemap, const u8 *tiles)
 {
@@ -431,9 +431,9 @@ static void BuildFloorShades(struct FloorShades *shades, const u16 *tilemap, con
             shades->reserved[p] = TRUE;
             for (u32 shade = FLOOR_HALF; shade < FLOOR_SHADE_COUNT; shade++)
             {
-                u16 color = RGB(sum[p][0] * sFloorReservedBrightness[shade] / (16 * count[p]),
-                                sum[p][1] * sFloorReservedBrightness[shade] / (16 * count[p]),
-                                sum[p][2] * sFloorReservedBrightness[shade] / (16 * count[p]));
+                u16 color = RGB(sum[p][0] * sFloorReservedBrightness[shade] / (32 * count[p]),
+                                sum[p][1] * sFloorReservedBrightness[shade] / (32 * count[p]),
+                                sum[p][2] * sFloorReservedBrightness[shade] / (32 * count[p]));
                 LoadPalette(&color, BG_PLTT_ID(2 + p) + shades->index[p][shade], PLTT_SIZEOF(1));
             }
         }

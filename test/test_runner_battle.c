@@ -3588,8 +3588,17 @@ static void DumpRegisters(char tag, const u16 *values, u32 count)
 
 static void DumpScreen(void);
 
+void ScreenDumpFrame_(u32 sourceLine, u32 frame)
+{
+    INVALID_IF(frame == 0, "SCREEN_DUMP_FRAME frames start at 1");
+    DATA.screenDumpFrame = frame;
+    DATA.screenDumpFrameCounter = 0;
+}
+
 void TestRunner_Battle_TryDumpScreen(bool32 atActionSelection)
 {
+    if (DATA.screenDumpFrame != 0 && ++DATA.screenDumpFrameCounter == DATA.screenDumpFrame)
+        DumpScreen();
     if (DATA.screenDumpTurn == 0 || DATA.screenDumpDone || !atActionSelection || gBattleTurnCounter + 1 != DATA.screenDumpTurn)
         return;
     DATA.screenDumpDone = TRUE;

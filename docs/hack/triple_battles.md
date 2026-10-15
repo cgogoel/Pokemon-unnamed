@@ -82,7 +82,8 @@ Shown with each move in the battle move menu, before the move type (`ShowTripleM
 ### Development aids
 - Tests: `TRIPLE_BATTLE_TEST`, `AI_TRIPLE_BATTLE_TEST`, `MOVE(..., secondTarget: x)`, `FORMATION(near, middle, far)`
   (see `test/battle/triple_battle.c`).
-- Screenshots without an emulator window: `SCREEN_DUMP(turn)` or `UI_PREVIEW("A.D>D")` in a scratch test, then
+- Screenshots without an emulator window: `SCREEN_DUMP(turn)`, `SCREEN_DUMP_FRAME(frame)` (a frame from the battle's
+  start, e.g. the opening) or `UI_PREVIEW("A.D>D")` in a scratch test, then
   `python3 tools/screen_dump/render_screen_dump.py <make check log> <out dir>`.
 - Animation check: set `T_SHOULD_RUN_MOVE_ANIM` to `TRUE` in `include/config/test.h` and run
   `make check TESTS="Move Animations don't leak when used - Triples"` (every move used by a middle battler, from the front

@@ -793,6 +793,8 @@ struct BattleTestData
     u16 battlerTrainers; // 2 bits per battler
     u8 tripleDeferredSendOut[MAX_BATTLERS_COUNT];
     u8 screenDumpTurn; // SCREEN_DUMP: turn whose action selection is dumped (0 = none)
+    u16 screenDumpFrame; // SCREEN_DUMP_FRAME: frame of the battle (from its start) that is dumped (0 = none)
+    u16 screenDumpFrameCounter;
     bool8 screenDumpDone;
     bool8 uiPreview;
     u8 uiPreviewPos;
@@ -1194,6 +1196,7 @@ enum { TURN_CLOSED, TURN_OPEN, TURN_CLOSING };
 // Development aid: prints the screen (VRAM, OAM, palettes, BG registers) when the given turn's action selection starts.
 // Render it with tools/screen_dump/render_screen_dump.py.
 #define SCREEN_DUMP(turn) ScreenDump_(__LINE__, turn)
+#define SCREEN_DUMP_FRAME(frame) ScreenDumpFrame_(__LINE__, frame)
 // Development aid: the player's battlers take real input from a key script once the first turn starts.
 // Keys: A B L R S(elect) T(start) < > ^ v, '.' waits, 'D' dumps the screen. The test ends after the script.
 #define UI_PREVIEW(script) UiPreview_(__LINE__, script)
@@ -1258,6 +1261,7 @@ void ForcedMove(u32 sourceLine, struct BattlePokemon *);
 void Switch(u32 sourceLine, struct BattlePokemon *, u32 partyIndex);
 void Formation(u32 sourceLine, struct BattlePokemon *near, struct BattlePokemon *middle, struct BattlePokemon *far);
 void ScreenDump_(u32 sourceLine, u32 turn);
+void ScreenDumpFrame_(u32 sourceLine, u32 frame);
 void UiPreview_(u32 sourceLine, const char *script);
 void SkipTurn(u32 sourceLine, struct BattlePokemon *);
 void UseItem(u32 sourceLine, struct BattlePokemon *, struct ItemContext);

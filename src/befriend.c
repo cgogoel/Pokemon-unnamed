@@ -30,7 +30,7 @@ static const u8 *const sBefriendActionNames[BEFRIEND_ACTION_COUNT] =
 {
     [BEFRIEND_ACTION_CROUCH]        = COMPOUND_STRING("Crouch down"),
     [BEFRIEND_ACTION_HUM]           = COMPOUND_STRING("Hum a tune"),
-    [BEFRIEND_ACTION_HOLD_OUT_HAND] = COMPOUND_STRING("Hold out a hand"),
+    [BEFRIEND_ACTION_HOLD_OUT_HAND] = COMPOUND_STRING("Reach out"),
     [BEFRIEND_ACTION_APPROACH]      = COMPOUND_STRING("Approach"),
 };
 

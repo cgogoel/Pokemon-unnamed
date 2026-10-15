@@ -366,7 +366,7 @@ static void InitBtlControllersInternal(void)
             // Development aid: the player's battlers take scripted input in UI preview tests.
             if (TESTING && TestRunner_Battle_IsUiPreview())
             {
-                SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_0), SetControllerToPlayer);
+                SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_0), IsBefriendBattle() ? SetControllerToSafari : SetControllerToPlayer);
                 if (isDouble)
                     SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_2), SetControllerToPlayer);
             }

@@ -384,6 +384,7 @@ static const TaskFunc sContextMenuFuncs[] =
     [ITEMMENULOCATION_PCBOX]                    = Task_ItemContext_GiveToPC,
     [ITEMMENULOCATION_BERRY_TREE_MULCH]         = Task_FadeAndCloseBagMenuIfMulch,
     [ITEMMENULOCATION_RAIDEND]                  = Task_ItemContext_Normal,
+    [ITEMMENULOCATION_BEFRIEND]                 = Task_FadeAndCloseBagMenu,
 };
 
 static const struct YesNoFuncTable sYesNoTossFunctions = {ConfirmToss, CancelToss};
@@ -607,6 +608,12 @@ void CB2_BagMenuFromBattle(void)
 void CB2_ChooseBerry(void)
 {
     GoToBagMenu(ITEMMENULOCATION_BERRY_TREE, POCKET_BERRIES, CB2_ReturnToFieldContinueScript);
+}
+
+// Befriending battles: choosing an item to offer (any pocket)
+void CB2_ChooseBefriendItem(void)
+{
+    GoToBagMenu(ITEMMENULOCATION_BEFRIEND, POCKET_BERRIES, CB2_SetUpReshowBattleScreenAfterMenu2);
 }
 
 // Choosing mulch to use

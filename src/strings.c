@@ -127,6 +127,7 @@ const u8 *const gBagMenu_ReturnToStrings[] =
     [ITEMMENULOCATION_WALLY]               = gText_TheBattle,
     [ITEMMENULOCATION_PCBOX]               = gText_ThePC,
     [ITEMMENULOCATION_BERRY_TREE_MULCH]    = gText_TheField,
+    [ITEMMENULOCATION_BEFRIEND]            = gText_TheBattle,
 };
 
 const u8 *const gPyramidBagMenu_ReturnToStrings[] =

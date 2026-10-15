@@ -492,6 +492,15 @@ Debug_EventScript_SetFriendship::
 	releaseall
 	end
 
+@ Befriending battle (Act 1) with Eevee, with a few berries to offer
+Debug_EventScript_BefriendEevee::
+	additem ITEM_ORAN_BERRY, 3
+	additem ITEM_PECHA_BERRY, 3
+	additem ITEM_LEPPA_BERRY, 3
+	befriendbattle SPECIES_EEVEE, 5
+	releaseall
+	end
+
 Debug_EventScript_GivePokerus::
 	special ChoosePartyMon
 	callnative DebugNative_Party_SetPokerus

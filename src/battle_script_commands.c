@@ -9172,6 +9172,7 @@ void BS_BefriendFinish(void)
 {
     NATIVE_ARGS();
     const u8 *next = TakeBefriendNextScript();
+    UpdateBefriendPatienceInHealthbox(GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT));
     gBattlescriptCurrInstr = (next != NULL) ? next : cmd->nextInstr;
 }
 

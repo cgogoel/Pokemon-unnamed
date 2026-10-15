@@ -149,6 +149,7 @@ void TryToAddMoveInfoWindow(void);
 void TryToHideMoveInfoWindow(void);
 void TryAddPokeballIconToHealthbox(u8 healthboxSpriteId, bool8 noStatus);
 void UpdateNickInHealthbox(u8 healthboxSpriteId, struct Pokemon *mon);
+void UpdateBefriendPatienceInHealthbox(enum BattlerId battler);
 void CreateItemPopUp(enum BattlerId battlerId);
 void FreeAbilityPopUpGfx(void);
 

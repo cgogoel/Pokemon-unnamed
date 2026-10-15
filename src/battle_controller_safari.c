@@ -7,6 +7,7 @@
 #include "befriend.h"
 #include "recorded_battle.h"
 #include "string_util.h"
+#include "test_runner.h"
 #include "bg.h"
 #include "data.h"
 #include "item_menu.h"
@@ -121,6 +122,8 @@ static void SafariBufferRunCommand(enum BattlerId battler)
 
 static void HandleInputChooseBefriendAct(enum BattlerId battler);
 static void ShowBefriendActMenu(enum BattlerId battler);
+static void BefriendOpenBag(enum BattlerId battler);
+static void SafariHandleChooseAction(enum BattlerId battler);
 
 static void HandleInputChooseAction(enum BattlerId battler)
 {
@@ -134,8 +137,10 @@ static void HandleInputChooseAction(enum BattlerId battler)
             gBattlerControllerFuncs[battler] = HandleInputChooseBefriendAct;
             return;
         case 1: // Item: choose one from the bag to offer
-            BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_BEFRIEND_ITEM, ITEM_NONE);
-            break;
+            BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 0x10, RGB_BLACK);
+            gBattlerControllerFuncs[battler] = BefriendOpenBag;
+            gBattlerInMenuId = battler;
+            return;
         case 2:
             BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_BEFRIEND_WATCH, 0);
             break;
@@ -320,24 +325,31 @@ static void HandleChooseActionAfterDma3(enum BattlerId battler)
     }
 }
 
-// Befriending battles: the Act list, in the action menu window for now (2 columns, like the action menu)
+// Befriending battles: the Act list, laid out like the move menu, with the Pokémon's patience on the right
 static void ShowBefriendActMenu(enum BattlerId battler)
 {
-    u8 *text = gDisplayedStringBattle;
+    u8 *text;
 
     for (u32 i = 0; i < 4; i++)
         ActionSelectionDestroyCursorAt(i);
-    text = StringCopy(text, COMPOUND_STRING("{FONT_NARROW}"));
+    gBattle_BG0_X = 0;
+    gBattle_BG0_Y = DISPLAY_HEIGHT * 2;
     for (u32 i = 0; i < BEFRIEND_ACTION_COUNT; i++)
     {
-        text = StringAppend(text, GetBefriendActionName(i));
-        if (i == 0 || i == 2)
-            text = StringAppend(text, COMPOUND_STRING("{CLEAR_TO 56}"));
-        else if (i == 1)
-            text = StringAppend(text, COMPOUND_STRING("\n"));
+        // Like the move menu: clear each cursor spot before printing, since the first name's window is wide
+        MoveSelectionDestroyCursorAt(i);
+        StringCopy(gDisplayedStringBattle, GetBefriendActionName(i));
+        BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_MOVE_NAME_1 + i);
     }
-    BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_ACTION_MENU);
-    ActionSelectionCreateCursorAt(gBattleStruct->befriendActCursor, 0);
+    // "Patience 4/5" on the bottom line of the right box
+    BattlePutTextOnWindow(gText_EmptyString3, B_WIN_PP);
+    BattlePutTextOnWindow(gText_EmptyString3, B_WIN_PP_REMAINING);
+    text = StringCopy(gDisplayedStringBattle, COMPOUND_STRING("{FONT_NARROW}Patience "));
+    text = ConvertIntToDecimalStringN(text, gBattleStruct->befriendPatience, STR_CONV_MODE_LEFT_ALIGN, 2);
+    *text++ = CHAR_SLASH;
+    ConvertIntToDecimalStringN(text, GetBefriendInfo(gBattleMons[GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT)].species)->patience, STR_CONV_MODE_LEFT_ALIGN, 2);
+    BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_MOVE_TYPE);
+    MoveSelectionCreateCursorAt(gBattleStruct->befriendActCursor, 0);
 }
 
 static void HandleInputChooseBefriendAct(enum BattlerId battler)
@@ -347,6 +359,7 @@ static void HandleInputChooseBefriendAct(enum BattlerId battler)
     if (JOY_NEW(A_BUTTON))
     {
         PlaySE(SE_SELECT);
+        MoveSelectionDestroyCursorAt(cursor);
         BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_BEFRIEND_ACT, cursor);
         BtlController_Complete(battler);
         return;
@@ -354,8 +367,8 @@ static void HandleInputChooseBefriendAct(enum BattlerId battler)
     if (JOY_NEW(B_BUTTON))
     {
         PlaySE(SE_SELECT);
-        ActionSelectionDestroyCursorAt(cursor);
-        BattlePutTextOnWindow(gText_BefriendMenu, B_WIN_ACTION_MENU);
+        MoveSelectionDestroyCursorAt(cursor);
+        gBattle_BG0_Y = DISPLAY_HEIGHT;
         ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
         gBattlerControllerFuncs[battler] = HandleInputChooseAction;
         return;
@@ -371,9 +384,33 @@ static void HandleInputChooseBefriendAct(enum BattlerId battler)
     if (cursor != gBattleStruct->befriendActCursor)
     {
         PlaySE(SE_SELECT);
-        ActionSelectionDestroyCursorAt(gBattleStruct->befriendActCursor);
+        MoveSelectionDestroyCursorAt(gBattleStruct->befriendActCursor);
         gBattleStruct->befriendActCursor = cursor;
-        ActionSelectionCreateCursorAt(cursor, 0);
+        MoveSelectionCreateCursorAt(cursor, 0);
+    }
+}
+
+static void BefriendCompleteWhenChoseItem(enum BattlerId battler)
+{
+    if (gMain.callback2 == BattleMainCB2 && !gPaletteFade.active)
+    {
+        if (gSpecialVar_ItemId == ITEM_NONE) // Backed out: choose again
+        {
+            SafariHandleChooseAction(battler);
+            return;
+        }
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_BEFRIEND_ITEM, gSpecialVar_ItemId);
+        BtlController_Complete(battler);
+    }
+}
+
+static void BefriendOpenBag(enum BattlerId battler)
+{
+    if (!gPaletteFade.active)
+    {
+        gBattlerControllerFuncs[battler] = BefriendCompleteWhenChoseItem;
+        CloseMainBattleScreen();
+        SetMainCallback2(CB2_ChooseBefriendItem);
     }
 }
 
@@ -398,7 +435,7 @@ static void SafariHandleChooseAction(enum BattlerId battler)
 
     if (IsBefriendBattle())
     {
-        if (gBattleTypeFlags & BATTLE_TYPE_RECORDED)
+        if ((gBattleTypeFlags & BATTLE_TYPE_RECORDED) && !TestRunner_Battle_IsUiPreview())
         {
             BefriendRecordedChooseAction(battler);
             return;
@@ -470,6 +507,7 @@ static void SafariHandleIntroTrainerBallThrow(enum BattlerId battler)
 {
     if (IsBefriendBattle()) // No healthbox for the player
     {
+        UpdateBefriendPatienceInHealthbox(GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT));
         BtlController_Complete(battler);
         return;
     }

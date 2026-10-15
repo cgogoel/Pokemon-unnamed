@@ -40,8 +40,8 @@ Custom battle mode for Act 2 onward. Not the Gen 5 Triple Battle: **only one Pok
 Shown with each move in the battle move menu, before the move type (`ShowTripleMoveIndicator`, `src/triple_battle_ui.c`).
 - A small copy of the foes' floor ovals: rear section on the left, middle, front section on the right.
 - Each section is shaded by the damage that foe takes: dark = full, gray = reduced (50% or 75%), white = not hit.
-  `FRONT` moves: 1 target = front dark, 2 targets = front dark and middle gray. 3 targets: all gray. `ANY` moves that pick
-  their targets leave every section white, since any foe can be the one hit.
+  1 target: front dark. 2 targets: front dark, middle gray. 3 targets: all gray. (For ANY moves the dark section is
+  whichever foe is picked.)
 - Red arrows for reach: over the front section for `FRONT` moves, over all three for `ANY` moves, none for moves that
   hit all three foes.
 

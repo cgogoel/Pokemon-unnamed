@@ -11188,9 +11188,9 @@ enum BattlerId GetTargetFromSlotId(enum BattlerId battlerAtk, enum BattlerId bat
         return GetBattlerRightFoe(battlerAtk);
     // Slots 4 and 5 only resolve to a battler in triple battles.
     case B_BATTLER_4:
-        return IsTripleBattle() ? GetBattlerMiddleFoe(battlerAtk) : MAX_BATTLERS_COUNT;
+        return HasTripleMiddleBattlers() ? GetBattlerMiddleFoe(battlerAtk) : MAX_BATTLERS_COUNT;
     case B_BATTLER_5:
-        return IsTripleBattle() ? GetSecondAllyBattler(battlerAtk) : MAX_BATTLERS_COUNT;
+        return HasTripleMiddleBattlers() ? GetSecondAllyBattler(battlerAtk) : MAX_BATTLERS_COUNT;
     default:
         errorf("Illegal battler");
         return B_BATTLER_0;

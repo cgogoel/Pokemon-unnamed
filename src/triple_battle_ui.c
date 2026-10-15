@@ -51,6 +51,20 @@ static const s16 sIndicatorOvals[TRIPLE_RANK_COUNT][4] =
 // Arrow centres over the rear, middle and front sections
 static const u8 sIndicatorArrowX[TRIPLE_RANK_COUNT] = { 4, 13, 23 };
 
+// 2v2: base (rear) and outer (front) only
+static const s16 sIndicatorOvals2v2[2][4] =
+{
+    { 68, 60, 68, 38 },
+    { 140, 60, 140, 55 },
+};
+static const u8 sIndicatorArrowX2v2[2] = { 6, 23 };
+
+// The ovals for the battle's side size
+static const s16 (*GetIndicatorOvals(void))[4]
+{
+    return (GetTripleSideSize() == 2) ? sIndicatorOvals2v2 : sIndicatorOvals;
+}
+
 static const struct SpritePalette sIndicatorSpritePalette = { sIndicatorPalette, TAG_TRIPLE_INDICATOR };
 
 static const struct OamData sOamData_Indicator =
@@ -90,8 +104,9 @@ void HideTripleMoveIndicator(void)
 
 static bool32 IsInIndicatorOval(u32 oval, s32 x, s32 y)
 {
-    s32 dx = x * 10 + 5 - sIndicatorOvals[oval][0], dy = y * 10 + 5 - sIndicatorOvals[oval][1];
-    s32 rx = sIndicatorOvals[oval][2], ry = sIndicatorOvals[oval][3];
+    const s16 (*ovals)[4] = GetIndicatorOvals();
+    s32 dx = x * 10 + 5 - ovals[oval][0], dy = y * 10 + 5 - ovals[oval][1];
+    s32 rx = ovals[oval][2], ry = ovals[oval][3];
     return dx * dx * ry * ry + dy * dy * rx * rx <= rx * rx * ry * ry;
 }
 
@@ -112,30 +127,32 @@ static void SetIndicatorPixel(u8 *tiles, u32 x, u32 y, u32 color)
         *byte = (*byte & 0xF0) | color;
 }
 
-// fills: color of the rear, middle and front sections. arrows: bit per section.
-static void DrawIndicator(u8 *tiles, const u8 *fills, u32 arrows)
+// fills: color of each section from the rear (count sections). arrows: bit per section.
+static void DrawIndicator(u8 *tiles, const u8 *fills, u32 arrows, u32 count, const u8 *arrowX)
 {
     for (s32 y = 0; y < INDICATOR_HEIGHT - INDICATOR_OVALS_Y; y++)
     {
         for (s32 x = 0; x < INDICATOR_WIDTH; x++)
         {
             u32 section;
-            for (section = 0; section < TRIPLE_RANK_COUNT && !IsInIndicatorOval(section, x, y); section++)
+            bool32 edge = FALSE;
+            for (section = 0; section < count && !IsInIndicatorOval(section, x, y); section++)
                 ;
-            if (section == TRIPLE_RANK_COUNT)
+            if (section == count)
                 continue;
-            bool32 edge = IsIndicatorOvalEdge(0, x, y) || IsIndicatorOvalEdge(1, x, y) || IsIndicatorOvalEdge(2, x, y);
+            for (u32 i = 0; i < count; i++)
+                edge |= IsIndicatorOvalEdge(i, x, y);
             SetIndicatorPixel(tiles, x, y + INDICATOR_OVALS_Y, edge ? INDICATOR_COLOR_OUTLINE : fills[section]);
         }
     }
-    for (u32 section = 0; section < TRIPLE_RANK_COUNT; section++)
+    for (u32 section = 0; section < count; section++)
     {
         if (!(arrows & (1 << section)))
             continue;
         for (s32 row = 0; row < 3; row++)
         {
             for (s32 dx = -(2 - row); dx <= 2 - row; dx++)
-                SetIndicatorPixel(tiles, sIndicatorArrowX[section] + dx, row, INDICATOR_COLOR_RED);
+                SetIndicatorPixel(tiles, arrowX[section] + dx, row, INDICATOR_COLOR_RED);
         }
     }
 }
@@ -152,29 +169,28 @@ bool32 ShowTripleMoveIndicator(enum Move move)
         return FALSE;
 
     // The main target is shown as the front foe; ANY moves can pick any of them.
-    switch (info->aoe)
+    // Sections from the rear: front = count - 1. 2-target moves also hit the one behind it.
+    u32 count = GetTripleSideSize();
+    for (u32 i = 0; i < count; i++)
     {
-    case 1:
-        fills[0] = INDICATOR_COLOR_WHITE, fills[1] = INDICATOR_COLOR_WHITE, fills[2] = INDICATOR_COLOR_DARK;
-        break;
-    case 2:
-        fills[0] = INDICATOR_COLOR_WHITE, fills[1] = INDICATOR_COLOR_GRAY, fills[2] = INDICATOR_COLOR_DARK;
-        break;
-    default:
-        fills[0] = INDICATOR_COLOR_GRAY, fills[1] = INDICATOR_COLOR_GRAY, fills[2] = INDICATOR_COLOR_GRAY;
-        break;
+        if (info->aoe >= 3 || (info->aoe == 2 && i == count - 2))
+            fills[i] = INDICATOR_COLOR_GRAY;
+        else if (i == count - 1)
+            fills[i] = (info->aoe == 2 || info->aoe == 1) ? INDICATOR_COLOR_DARK : INDICATOR_COLOR_GRAY;
+        else
+            fills[i] = INDICATOR_COLOR_WHITE;
     }
     if (info->aoe == 3)
         arrows = 0; // Every foe is hit, reach doesn't matter
     else if (info->reach == TRIPLE_REACH_ANY)
-        arrows = (1 << TRIPLE_RANK_COUNT) - 1;
+        arrows = (1 << count) - 1;
     else
-        arrows = 1 << 2;
+        arrows = 1 << (count - 1);
 
     u32 *tiles = AllocZeroed(INDICATOR_WIDTH * INDICATOR_HEIGHT / 2);
     if (tiles == NULL)
         return FALSE;
-    DrawIndicator((u8 *)tiles, fills, arrows);
+    DrawIndicator((u8 *)tiles, fills, arrows, count, (count == 2) ? sIndicatorArrowX2v2 : sIndicatorArrowX);
     struct SpriteSheet sheet = { tiles, INDICATOR_WIDTH * INDICATOR_HEIGHT / 2, TAG_TRIPLE_INDICATOR };
     LoadSpriteSheet(&sheet);
     Free(tiles);
@@ -199,12 +215,26 @@ static const u8 sTripleHaze[NUM_BATTLE_SIDES][3] =
     [B_SIDE_OPPONENT] = { [B_POSITION_PLAYER_LEFT / 2] = 5, [B_POSITION_PLAYER_RIGHT / 2] = 1, [B_POSITION_PLAYER_MIDDLE / 2] = 3 },
 };
 
+// 2v2: the rear and front spots only, a little bigger than in 3v3. Same indexing.
+static const u16 sTripleSpriteScale2v2[NUM_BATTLE_SIDES][2] =
+{
+    [B_SIDE_PLAYER]   = { [B_POSITION_PLAYER_LEFT / 2] = 256, [B_POSITION_PLAYER_RIGHT / 2] = 200 },
+    [B_SIDE_OPPONENT] = { [B_POSITION_PLAYER_LEFT / 2] = 160, [B_POSITION_PLAYER_RIGHT / 2] = 192 },
+};
+
+static const u8 sTripleHaze2v2[NUM_BATTLE_SIDES][2] =
+{
+    [B_SIDE_PLAYER]   = { [B_POSITION_PLAYER_LEFT / 2] = 0, [B_POSITION_PLAYER_RIGHT / 2] = 3 },
+    [B_SIDE_OPPONENT] = { [B_POSITION_PLAYER_LEFT / 2] = 4, [B_POSITION_PLAYER_RIGHT / 2] = 1 },
+};
+
 static EWRAM_DATA u16 sTripleHazeColor = 0; // Set when the floor is drawn
 
 // Fades the battler's sprite palette by its depth. Called after its palette is loaded.
 void ApplyTripleHaze(enum BattlerId battler)
 {
-    u32 coeff = sTripleHaze[GetBattlerSide(battler)][GetBattlerLayoutPosition(battler) / 2];
+    u32 coeff = HasTripleMiddleBattlers() ? sTripleHaze[GetBattlerSide(battler)][GetBattlerLayoutPosition(battler) / 2]
+                                          : sTripleHaze2v2[GetBattlerSide(battler)][GetBattlerLayoutPosition(battler) / 2];
     if (coeff == 0)
         return;
     BlendPalette(OBJ_PLTT_ID(battler), 16, coeff, sTripleHazeColor);
@@ -213,6 +243,8 @@ void ApplyTripleHaze(enum BattlerId battler)
 
 u32 GetTripleSpriteScale(enum BattlerId battler)
 {
+    if (!HasTripleMiddleBattlers())
+        return sTripleSpriteScale2v2[GetBattlerSide(battler)][GetBattlerLayoutPosition(battler) / 2];
     return sTripleSpriteScale[GetBattlerSide(battler)][GetBattlerLayoutPosition(battler) / 2];
 }
 
@@ -364,10 +396,9 @@ struct FloorTeam
 {
     s32 cos, sin; // Q8 direction of the team's diagonal
     s32 yMin, yMax;
-    struct FloorOval ovals[TRIPLE_RANK_COUNT]; // Base, middle, outer
+    u32 count;
+    struct FloorOval ovals[TRIPLE_RANK_COUNT]; // Base, middle, outer (2v2: base, outer)
 };
-
-extern const struct UCoords8 sBattlerCoords[][MAX_BATTLERS_COUNT];
 
 static u32 FloorSqrt(u32 n)
 {
@@ -392,31 +423,36 @@ static u32 FloorSqrt(u32 n)
 
 static void InitFloorTeam(struct FloorTeam *team, enum BattleSide side)
 {
-    // Rear, middle and front spots (see GetBattlerLayoutPosition)
-    const enum BattlerPosition spots[TRIPLE_RANK_COUNT] = { B_POSITION_PLAYER_LEFT | side, B_POSITION_PLAYER_MIDDLE | side, B_POSITION_PLAYER_RIGHT | side };
+    // Spots from the rear to the front (see GetBattlerLayoutPosition)
+    enum BattlerPosition spots[TRIPLE_RANK_COUNT];
     s32 x[TRIPLE_RANK_COUNT], y[TRIPLE_RANK_COUNT];
+    u32 count = GetTripleScreenSpots(side, spots);
 
-    for (u32 i = 0; i < TRIPLE_RANK_COUNT; i++)
+    team->count = count;
+    for (u32 i = 0; i < count; i++)
     {
-        x[i] = sBattlerCoords[BATTLE_COORDS_TRIPLES][spots[i]].x;
-        y[i] = sBattlerCoords[BATTLE_COORDS_TRIPLES][spots[i]].y + ((side == B_SIDE_PLAYER) ? FLOOR_PLAYER_GROUND_OFFSET : FLOOR_GROUND_OFFSET);
+        x[i] = GetTripleSpotCoords(spots[i])->x;
+        y[i] = GetTripleSpotCoords(spots[i])->y + ((side == B_SIDE_PLAYER) ? FLOOR_PLAYER_GROUND_OFFSET : FLOOR_GROUND_OFFSET);
     }
 
-    s32 dx = x[2] - x[0], dy = y[2] - y[0];
+    s32 dx = x[count - 1] - x[0], dy = y[count - 1] - y[0];
     s32 length = FloorSqrt(dx * dx + dy * dy);
     team->cos = (dx * 256) / length;
     team->sin = (dy * 256) / length;
     team->yMin = (side == B_SIDE_PLAYER) ? FLOOR_TEAM_SPLIT_Y : 0;
     team->yMax = (side == B_SIDE_PLAYER) ? FLOOR_ROWS * 8 : FLOOR_TEAM_SPLIT_Y;
 
-    for (u32 i = 0; i < TRIPLE_RANK_COUNT; i++)
+    for (u32 i = 0; i < count; i++)
     {
-        // Distance along the diagonal from the rear Pokémon to this one
+        // Distance along the diagonal from the rear Pokémon to this one. In 2v2 the base oval reaches partway to the
+        // front Pokémon, standing in for the 3v3 middle section.
         s32 distance = ((x[i] - x[0]) * team->cos + (y[i] - y[0]) * team->sin) / 256;
+        if (count == 2 && i == 0)
+            distance = ((x[1] - x[0]) * team->cos + (y[1] - y[0]) * team->sin) / 256 * 2 / 5;
         team->ovals[i].cx = x[0] + (team->cos * distance) / 512;
         team->ovals[i].cy = y[0] + (team->sin * distance) / 512;
         team->ovals[i].rx = distance / 2 + FLOOR_OVAL_PAD;
-        team->ovals[i].ry = 7 + 4 * i;
+        team->ovals[i].ry = 7 + 4 * i * (TRIPLE_RANK_COUNT - 1) / (count - 1);
     }
 }
 
@@ -437,13 +473,14 @@ static u32 GetFloorShade(const struct FloorTeam *teams, s32 px, s32 py)
         const struct FloorTeam *team = &teams[t];
         if (py < team->yMin || py >= team->yMax)
             continue;
-        for (s32 i = TRIPLE_RANK_COUNT - 1; i >= 0; i--)
+        for (s32 i = team->count - 1; i >= 0; i--)
         {
             if (!IsInFloorOval(team, &team->ovals[i], 0, 0, px, py))
                 break; // Ovals are nested: outside this one means outside the smaller ones
             if (!IsInFloorOval(team, &team->ovals[i], 2, 1, px, py))
                 return FLOOR_OUTLINE;
-            shade = (i == 0) ? FLOOR_BASE : (i == 1) ? FLOOR_HALF : FLOOR_LIGHT;
+            // Base under the rear Pokémon, the outer section pale; 3v3 has a half shade between them
+            shade = (i == 0) ? FLOOR_BASE : (i == (s32)team->count - 1) ? FLOOR_LIGHT : FLOOR_HALF;
         }
     }
     return shade;

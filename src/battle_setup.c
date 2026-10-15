@@ -6,6 +6,7 @@
 #include "battle_pike.h"
 #include "battle_pyramid.h"
 #include "battle_setup.h"
+#include "triple_battle.h"
 #include "battle_special.h"
 #include "battle_partner.h"
 #include "battle_tower.h"
@@ -1502,13 +1503,10 @@ void BattleSetup_StartTrainerBattle(void)
 
         SetHillTrainerFlag();
     }
-    else if (GetTrainerBattleType(TRAINER_BATTLE_PARAM.opponentA) == TRAINER_BATTLE_TYPE_DOUBLES)
+    else if (GetTrainerBattleType(TRAINER_BATTLE_PARAM.opponentA) == TRAINER_BATTLE_TYPE_DOUBLES
+          || GetTrainerBattleType(TRAINER_BATTLE_PARAM.opponentA) == TRAINER_BATTLE_TYPE_TRIPLES)
     {
-        gBattleTypeFlags |= BATTLE_TYPE_DOUBLE;
-    }
-    else if (GetTrainerBattleType(TRAINER_BATTLE_PARAM.opponentA) == TRAINER_BATTLE_TYPE_TRIPLES)
-    {
-        gBattleTypeFlags |= BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE;
+        gBattleTypeFlags |= GetTripleTrainerBattleTypeFlags(TRAINER_BATTLE_PARAM.opponentA);
     }
 
     sNoOfPossibleTrainerRetScripts = gNoOfApproachingTrainers;
@@ -1661,10 +1659,9 @@ static void CB2_EndRematchBattle(void)
 void BattleSetup_StartRematchBattle(void)
 {
     gBattleTypeFlags = BATTLE_TYPE_TRAINER;
-    if (GetTrainerBattleType(TRAINER_BATTLE_PARAM.opponentA) == TRAINER_BATTLE_TYPE_DOUBLES)
-        gBattleTypeFlags |= BATTLE_TYPE_DOUBLE;
-    else if (GetTrainerBattleType(TRAINER_BATTLE_PARAM.opponentA) == TRAINER_BATTLE_TYPE_TRIPLES)
-        gBattleTypeFlags |= BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE;
+    if (GetTrainerBattleType(TRAINER_BATTLE_PARAM.opponentA) == TRAINER_BATTLE_TYPE_DOUBLES
+     || GetTrainerBattleType(TRAINER_BATTLE_PARAM.opponentA) == TRAINER_BATTLE_TYPE_TRIPLES)
+        gBattleTypeFlags |= GetTripleTrainerBattleTypeFlags(TRAINER_BATTLE_PARAM.opponentA);
     
     gMain.savedCallback = CB2_EndRematchBattle;
     DoTrainerBattle();

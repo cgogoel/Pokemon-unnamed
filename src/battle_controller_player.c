@@ -517,12 +517,13 @@ static void MoveTripleTargetCursor(enum BattlerId battler, enum Move move, enum 
 {
     enum BattleSide side = GetBattlerSide(gMultiUsePlayerCursor);
     enum BattlerPosition layout = GetBattlerLayoutPosition(gMultiUsePlayerCursor);
-    const enum BattlerPosition spots[TRIPLE_RANK_COUNT] = { B_POSITION_PLAYER_LEFT, B_POSITION_PLAYER_MIDDLE, B_POSITION_PLAYER_RIGHT };
+    enum BattlerPosition spots[TRIPLE_RANK_COUNT];
+    s32 count = GetTripleScreenSpots(B_SIDE_PLAYER, spots); // Same spots on both sides, from the rear
     s32 index;
 
-    for (index = 0; index < TRIPLE_RANK_COUNT && spots[index] != (layout & ~BIT_SIDE); index++)
+    for (index = 0; index < count && spots[index] != (layout & ~BIT_SIDE); index++)
         ;
-    if (index == TRIPLE_RANK_COUNT)
+    if (index == count)
         index = 0;
 
     if (switchRow)
@@ -533,7 +534,7 @@ static void MoveTripleTargetCursor(enum BattlerId battler, enum Move move, enum 
         for (u32 i = 0; i < ARRAY_COUNT(sTryOrder); i++)
         {
             s32 tryIndex = index + sTryOrder[i];
-            if (tryIndex < 0 || tryIndex >= TRIPLE_RANK_COUNT)
+            if (tryIndex < 0 || tryIndex >= count)
                 continue;
             enum BattlerId target = GetBattlerAtLayoutPosition(spots[tryIndex] | side);
             if (target < gBattlersCount && IsValidTargetForCursor(battler, target, move, moveTarget))
@@ -545,9 +546,9 @@ static void MoveTripleTargetCursor(enum BattlerId battler, enum Move move, enum 
     }
     else
     {
-        for (u32 i = 1; i < TRIPLE_RANK_COUNT; i++)
+        for (s32 i = 1; i < count; i++)
         {
-            enum BattlerId target = GetBattlerAtLayoutPosition(spots[(index + dx * i + 2 * TRIPLE_RANK_COUNT) % TRIPLE_RANK_COUNT] | side);
+            enum BattlerId target = GetBattlerAtLayoutPosition(spots[(index + dx * i + 2 * count) % count] | side);
             if (target < gBattlersCount && IsValidTargetForCursor(battler, target, move, moveTarget))
             {
                 gMultiUsePlayerCursor = target;

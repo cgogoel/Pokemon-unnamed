@@ -7567,7 +7567,7 @@ static u8 GetPartyLayoutFromBattleType(void)
         return PARTY_LAYOUT_MULTI_FULL;
     if (!IsDoubleBattle() || gPartiesCount[B_TRAINER_PLAYER] == 1) // Draw the single layout in a double battle where the player has only one Pokémon.
         return PARTY_LAYOUT_SINGLE;
-    if (IsTripleBattle() && gPartiesCount[B_TRAINER_PLAYER] >= 3)
+    if (HasTripleMiddleBattlers() && gPartiesCount[B_TRAINER_PLAYER] >= 3)
         return PARTY_LAYOUT_TRIPLE;
     return PARTY_LAYOUT_DOUBLE;
 }
@@ -7733,11 +7733,11 @@ static void BufferBattlePartyOrder(u8 *partyBattleOrder, u8 flankId)
         j = 2;
         partyIds[0] = gBattlerPartyIndexes[GetBattlerAtPosition(B_POSITION_PLAYER_LEFT)];
         partyIds[1] = gBattlerPartyIndexes[GetBattlerAtPosition(B_POSITION_PLAYER_RIGHT)];
-        if (IsTripleBattle()) // The middle battler's Pokémon comes third
+        if (HasTripleMiddleBattlers()) // The middle battler's Pokémon comes third
             partyIds[j++] = gBattlerPartyIndexes[GetBattlerAtPosition(B_POSITION_PLAYER_MIDDLE)];
         for (i = 0; i < PARTY_SIZE; i++)
         {
-            if (i != partyIds[0] && i != partyIds[1] && !(IsTripleBattle() && i == partyIds[2]))
+            if (i != partyIds[0] && i != partyIds[1] && !(HasTripleMiddleBattlers() && i == partyIds[2]))
             {
                 partyIds[j] = i;
                 j++;
@@ -7812,11 +7812,11 @@ static void BufferBattlePartyOrderBySide(u8 *partyBattleOrder, u8 flankId, enum 
         j = 2;
         partyIndexes[0] = gBattlerPartyIndexes[leftBattler];
         partyIndexes[1] = gBattlerPartyIndexes[rightBattler];
-        if (IsTripleBattle()) // The middle battler's Pokémon comes third
+        if (HasTripleMiddleBattlers()) // The middle battler's Pokémon comes third
             partyIndexes[j++] = gBattlerPartyIndexes[GetBattlerAtPosition(IsOnPlayerSide(battler) ? B_POSITION_PLAYER_MIDDLE : B_POSITION_OPPONENT_MIDDLE)];
         for (i = 0; i < PARTY_SIZE; i++)
         {
-            if (i != partyIndexes[0] && i != partyIndexes[1] && !(IsTripleBattle() && i == partyIndexes[2]))
+            if (i != partyIndexes[0] && i != partyIndexes[1] && !(HasTripleMiddleBattlers() && i == partyIndexes[2]))
             {
                 partyIndexes[j] = i;
                 j++;

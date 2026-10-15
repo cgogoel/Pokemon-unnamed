@@ -57,6 +57,8 @@ enum BattlerId GetTriplePreviousChoosingBattler(enum BattlerId battler);
 u8 GetTripleFormationMovingUp(enum BattlerId battler);
 bool32 DoesTripleBattlerChooseLater(enum BattlerId battlerFrom, enum BattlerId battlerTo);
 enum BattlerId GetTripleScreenNeighbor(enum BattlerId battler, s32 step);
+u32 GetTripleScreenSpots(enum BattleSide side, enum BattlerPosition *spots);
+const struct UCoords8 *GetTripleSpotCoords(enum BattlerPosition layoutPosition);
 void UpdateTripleFormationGraphics(enum BattleSide side);
 enum BattlerId GetTripleFoeAtRank(enum BattlerId battlerAtk, u32 aliveIndex);
 enum MoveTarget GetTripleMoveTargetType(enum Move move, enum MoveTarget canonTarget);
@@ -66,6 +68,9 @@ void MarkTripleExcludedTargets(enum BattlerId battlerAtk, enum Move move);
 u32 CountTripleSpreadTargets(enum BattlerId battlerAtk);
 void ChooseTripleAiActor(enum BattlerId battler, bool32 (*isAiBattler)(enum BattlerId));
 bool32 IsTripleAiPassing(enum BattlerId battler);
+u32 GetTripleTrainerBattleTypeFlags(u16 trainerId);
+u32 GetTripleBattleTypeFlagsForFoes(u32 foePartySize);
+u32 GetTripleAiSecondTargetByte(enum BattlerId battlerAtk, enum BattlerId mainTarget, u32 moveIndex);
 void RemoveUnreachableTripleMoveScores(enum BattlerId battlerAtk, enum BattlerId battlerDef, s32 *scores);
 // triple_battle_ui.c
 #define TRIPLE_INDICATOR_TEXT_X 30 // Pixels before the move type name when the area of effect indicator is shown

@@ -217,7 +217,7 @@ static void InitBtlControllersInternal(void)
     if (!isLink || isMaster)
         gBattleMainFunc = BeginBattleIntro;
 
-    if (IsTripleBattle())
+    if (HasTripleMiddleBattlers())
         gBattlersCount = MAX_BATTLERS_COUNT;
     else if (isDouble)
         gBattlersCount = 4;
@@ -247,7 +247,7 @@ static void InitBtlControllersInternal(void)
             gBattlerPositions[B_BATTLER_2] = isPlayerPrimary ? B_POSITION_PLAYER_RIGHT : B_POSITION_OPPONENT_RIGHT;
             gBattlerPositions[B_BATTLER_3] = isPlayerPrimary ? B_POSITION_OPPONENT_RIGHT : B_POSITION_PLAYER_RIGHT;
         }
-        if (IsTripleBattle())
+        if (HasTripleMiddleBattlers())
         {
             gBattlerPositions[B_BATTLER_4] = isPlayerPrimary ? B_POSITION_PLAYER_MIDDLE : B_POSITION_OPPONENT_MIDDLE;
             gBattlerPositions[B_BATTLER_5] = isPlayerPrimary ? B_POSITION_OPPONENT_MIDDLE : B_POSITION_PLAYER_MIDDLE;
@@ -369,7 +369,7 @@ static void InitBtlControllersInternal(void)
             }
 
             // The middle battlers are controlled the same way as the right flank of their side.
-            if (IsTripleBattle())
+            if (HasTripleMiddleBattlers())
             {
                 SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_4), gBattlerControllerFuncs[GetBattlerPosition(B_BATTLER_2)]);
                 SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_5), gBattlerControllerFuncs[GetBattlerPosition(B_BATTLER_3)]);
@@ -2898,7 +2898,7 @@ enum BattlerId GetIntroThirdBattler(enum BattlerId battler)
 {
     enum BattlerId third;
 
-    if (!IsTripleBattle() || GetBattlerPosition(battler) >= B_POSITION_PLAYER_RIGHT)
+    if (!HasTripleMiddleBattlers() || GetBattlerPosition(battler) >= B_POSITION_PLAYER_RIGHT)
         return MAX_BATTLERS_COUNT;
     third = GetSecondAllyBattler(battler);
     if (third >= gBattlersCount || !IsValidForBattle(GetBattlerMon(third)))
@@ -3490,6 +3490,8 @@ void SetFinalChosenTarget(enum BattlerId battler, bool32 checkPartner)
         chosenTarget = battler;
         break;
     case TARGET_BOTH:
+        if (IsTripleBattle() && IsTripleTwoTargetChoiceMove(chosenMove))
+            break; // The AI's chosen foe is the main target
         if (checkPartner)
         {
             chosenTarget = GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT);
@@ -3509,16 +3511,21 @@ void SetFinalChosenTarget(enum BattlerId battler, bool32 checkPartner)
 
     gBattlerTarget = chosenTarget;
 
+    // Triple battles: 2-target moves aimed at the middle foe carry the second target in the target byte
+    u32 targetByte = chosenTarget;
+    if (IsTripleBattle())
+        targetByte |= GetTripleAiSecondTargetByte(battler, chosenTarget, chosenMoveIndex);
+
     enum Gimmick usableGimmick = gBattleStruct->gimmick.usableGimmick[battler];
     bool32 isAIUsingGimmick = gAiBattleData->aiUsingGimmick & (1u << battler);
     if (usableGimmick != GIMMICK_NONE && isAIUsingGimmick && !HasTrainerUsedGimmick(battler, usableGimmick))
     {
         gBattleStruct->gimmick.toActivate |= 1u << battler;
-        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, (chosenMoveIndex) | (RET_GIMMICK) | (chosenTarget << 8));
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, (chosenMoveIndex) | (RET_GIMMICK) | (targetByte << 8));
     }
     else
     {
         SetAIUsingGimmick(battler, NO_GIMMICK);
-        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, (chosenMoveIndex) | (chosenTarget << 8));
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, (chosenMoveIndex) | (targetByte << 8));
     }
 }

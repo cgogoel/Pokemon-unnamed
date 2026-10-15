@@ -287,6 +287,7 @@ void GetTripleHealthboxCoords(enum BattlerId battler, s16 *x, s16 *y)
 enum
 {
     FLOOR_NONE,
+    FLOOR_LIGHT,   // Outer section
     FLOOR_HALF,    // Middle section
     FLOOR_BASE,    // Base oval
     FLOOR_OUTLINE,
@@ -382,7 +383,7 @@ static u32 GetFloorShade(const struct FloorTeam *teams, s32 px, s32 py)
                 break; // Ovals are nested: outside this one means outside the smaller ones
             if (!IsInFloorOval(team, &team->ovals[i], 2, 1, px, py))
                 return FLOOR_OUTLINE;
-            shade = (i == 0) ? FLOOR_BASE : (i == 1) ? FLOOR_HALF : FLOOR_NONE;
+            shade = (i == 0) ? FLOOR_BASE : (i == 1) ? FLOOR_HALF : FLOOR_LIGHT;
         }
     }
     return shade;
@@ -401,9 +402,10 @@ struct FloorShades
 // slots the floor tiles don't use. Palette 6 is only used by the link battle VS screen.
 #define FLOOR_PALETTE 6
 
-// Colors of the ovals: a dark gray base oval and outlines, a green middle section
+// Colors of the ovals: a dark gray base oval and outlines, a green middle section and a pale green outer section
 static const u16 sFloorColors[FLOOR_SHADE_COUNT] =
 {
+    [FLOOR_LIGHT]   = RGB(24, 28, 22),
     [FLOOR_HALF]    = RGB(15, 21, 13),
     [FLOOR_BASE]    = RGB(9, 10, 10),
     [FLOOR_OUTLINE] = RGB(7, 8, 8),
@@ -452,13 +454,13 @@ static void BuildFloorShades(struct FloorShades *shades, const u16 *tilemap, con
     for (u32 i = 1; i < 16 && free < FLOOR_SHADE_COUNT - 1; i++)
     {
         if (!(usedColors[main] & (1 << i)))
-            shades->index[FLOOR_HALF + free++] = i;
+            shades->index[FLOOR_LIGHT + free++] = i;
     }
     if (free == FLOOR_SHADE_COUNT - 1 && rows[main] != 0)
     {
         shades->reserved[main] = TRUE;
         LoadPalette(&gPlttBufferUnfaded[BG_PLTT_ID(2 + main)], BG_PLTT_ID(FLOOR_PALETTE), PLTT_SIZE_4BPP);
-        for (u32 shade = FLOOR_HALF; shade < FLOOR_SHADE_COUNT; shade++)
+        for (u32 shade = FLOOR_LIGHT; shade < FLOOR_SHADE_COUNT; shade++)
             LoadPalette(&sFloorColors[shade], BG_PLTT_ID(FLOOR_PALETTE) + shades->index[shade], PLTT_SIZEOF(1));
     }
 

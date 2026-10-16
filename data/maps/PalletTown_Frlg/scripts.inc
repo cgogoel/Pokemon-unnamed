@@ -552,3 +552,18 @@ PalletTown_EventScript_ToFarmyard::
 	warp MAP_FARMYARD, 12, 1
 	waitstate
 	end
+
+@ Act 1: the player can't leave Pallet Town yet (VAR_STORY_ACT is STORY_ACT_CHILDHOOD). Listed before Oak's trigger on
+@ the same tiles, so his scene doesn't start in Act 1.
+PalletTown_EventScript_Act1Boundary::
+	lockall
+	msgbox PalletTown_Text_Act1TooFar, MSGBOX_DEFAULT
+	closemessage
+	applymovement OBJ_EVENT_ID_PLAYER, Common_Movement_WalkDown
+	waitmovement 0
+	releaseall
+	end
+
+PalletTown_Text_Act1TooFar:
+	.string "It's too far to go on my own.\n"
+	.string "Better stay close to home.$"

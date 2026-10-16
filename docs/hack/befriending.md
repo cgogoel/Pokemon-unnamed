@@ -70,6 +70,8 @@ Paradox Pokémon, Megas/Gigantamax and battle or cosmetic forms are left out; re
 - A new game starts in the farmyard, in front of the farmhouse the player grew up in (`FARMYARD_START_X/Y`,
   `include/constants/farmyard.h`; the farmhouse is the placeholder layout's left house and can't be entered yet).
 - The farmyard's top exit still leads to Pallet Town for now, and Pallet Town's left edge (x 2, y 8-9) back in.
+- Act 1 stays in Pallet Town: its north exit to Route 1 turns the player back ("It's too far to go on my own."), on
+  triggers listed before Oak's so his scene doesn't start. The south is water, and there's no Surf in Act 1.
 
 **Porymap:** both maps are placeholders: the Farmyard is a copy of Pallet Town's layout and the Woods a copy of
 Viridian Forest's (with their warps removed; the map changes are script triggers). Redraw them in Porymap, then move

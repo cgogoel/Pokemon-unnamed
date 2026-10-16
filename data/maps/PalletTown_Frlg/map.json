@@ -102,6 +102,24 @@
       "x": 12,
       "y": 1,
       "elevation": 3,
+      "var": "VAR_STORY_ACT",
+      "var_value": "0",
+      "script": "PalletTown_EventScript_Act1Boundary"
+    },
+    {
+      "type": "trigger",
+      "x": 13,
+      "y": 1,
+      "elevation": 3,
+      "var": "VAR_STORY_ACT",
+      "var_value": "0",
+      "script": "PalletTown_EventScript_Act1Boundary"
+    },
+    {
+      "type": "trigger",
+      "x": 12,
+      "y": 1,
+      "elevation": 3,
       "var": "VAR_MAP_SCENE_PALLET_TOWN_OAK",
       "var_value": "0",
       "script": "PalletTown_EventScript_OakTriggerLeft"

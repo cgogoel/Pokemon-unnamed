@@ -9323,6 +9323,32 @@
       "border_filepath": "data/layouts/OneIsland_KindleRoad_EmberSpa_Frlg/border.bin",
       "blockdata_filepath": "data/layouts/OneIsland_KindleRoad_EmberSpa_Frlg/map.bin",
       "layout_version": "frlg"
+    },
+    {
+      "id": "LAYOUT_FARMYARD",
+      "name": "Farmyard_Layout",
+      "width": 24,
+      "height": 20,
+      "border_width": 2,
+      "border_height": 2,
+      "primary_tileset": "gTileset_General_Frlg",
+      "secondary_tileset": "gTileset_PalletTown",
+      "border_filepath": "data/layouts/Farmyard/border.bin",
+      "blockdata_filepath": "data/layouts/Farmyard/map.bin",
+      "layout_version": "frlg"
+    },
+    {
+      "id": "LAYOUT_WOODS",
+      "name": "Woods_Layout",
+      "width": 54,
+      "height": 69,
+      "border_width": 3,
+      "border_height": 2,
+      "primary_tileset": "gTileset_General_Frlg",
+      "secondary_tileset": "gTileset_ViridianForest",
+      "border_filepath": "data/layouts/Woods/border.bin",
+      "blockdata_filepath": "data/layouts/Woods/map.bin",
+      "layout_version": "frlg"
     }
   ]
 }

@@ -55,6 +55,24 @@ Scores are heuristics from the species data: Pokédex entry and category keyword
 friendship, catch rate, size, base stats, types, egg groups and abilities. Legendaries, mythicals, Ultra Beasts,
 Paradox Pokémon, Megas/Gigantamax and battle or cosmetic forms are left out; regional forms are kept.
 
+## The Act 1 loop
+- The player has at most **one** Pokémon in Act 1, and it follows them (`OW_FOLLOWERS_ENABLED`). A befriended Pokémon
+  joins the party, so it starts following right after the battle.
+- While one is following, another befriending encounter doesn't start: "You should take Blipbug home to the farmyard
+  first." (`IsBefriendAllowed`, `src/farmyard.c`; `befriendbattle` then sets `VAR_RESULT` to `BEFRIEND_RESULT_BLOCKED`).
+- **Farmyard** (`data/maps/Farmyard`): walking in through the gate (coord triggers at its top entrance) drops the
+  follower off: it leaves the party and starts wandering the farmyard. Farm Pokémon are kept in the last PC box
+  (`FARM_BOX`, named FARM); the first 8 are shown as the map's first 8 object events (graphics `VAR_OBJ_GFX_ID_0..7`,
+  hidden by `FLAG_TEMP_1..8` while empty, set by `SetupFarmyardMons` on map load).
+- **Woods** (`data/maps/Woods`): reached only from the farmyard (its bottom-right corner). All five Act 1 Pokémon live
+  there; talking to one starts its befriending encounter, and once befriended it's gone from the Woods
+  (`FLAG_BEFRIENDED_*`). Levels: Blipbug 3, Tynamo 5, Hatenna 5, Teddiursa 6, Jangmo-o 10.
+- Getting there for now: Pallet Town's left edge next to the player's house (x 2, y 8-9) leads to the farmyard.
+
+**Porymap:** both maps are placeholders: the Farmyard is a copy of Pallet Town's layout and the Woods a copy of
+Viridian Forest's (with their warps removed; the map changes are script triggers). Redraw them in Porymap, then move
+the triggers, the farm spots and the Woods Pokémon to fit.
+
 ## Starting one
 In a map script:
 

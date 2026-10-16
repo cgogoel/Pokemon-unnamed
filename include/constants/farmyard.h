@@ -1,0 +1,14 @@
+#ifndef GUARD_CONSTANTS_FARMYARD_H
+#define GUARD_CONSTANTS_FARMYARD_H
+
+// The last PC box holds the farmyard's Pokémon (see src/farmyard.c)
+#define FARM_BOX            (TOTAL_BOXES_COUNT - 1)
+// How many of them are shown wandering on the Farmyard map. Its first FARM_SHOWN_COUNT object events are these, with
+// graphics VAR_OBJ_GFX_ID_0.. and hidden by FLAG_TEMP_1.. while their spot is empty.
+#define FARM_SHOWN_COUNT    8
+// DepositFollowerInFarm: nothing was deposited
+#define FARM_DEPOSIT_NONE   0xFF
+// befriendbattle: VAR_RESULT when the encounter didn't start because a Pokémon is still following (Act 1)
+#define BEFRIEND_RESULT_BLOCKED 0xFE
+
+#endif // GUARD_CONSTANTS_FARMYARD_H

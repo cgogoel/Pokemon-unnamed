@@ -8,7 +8,7 @@ The new-game scene (`src/oak_speech.c`, texts in `data/text/new_game_intro_frlg.
 3. **Oak** introduces himself and Pokémon (unchanged), then asks the player's name. There's no boy/girl question:
    the player is always a boy.
 4. After the name, **Oak comes back** (`gOakSpeech_Text_NotChosen`): the player wasn't chosen to get a Pokémon and
-   set out with Poké Balls, because they don't know how Pokémon moves work. They should go home to the farm and find
+   set out with Poké Balls, because they haven't shown an understanding of how to handle Pokémon. They should go home to the farm and find
    another path. He'll give them a Pokédex, waiting at his lab.
 5. There's no rival introduction or naming: the rival is always **BLUE** (`gNameChoice_Blue`).
 

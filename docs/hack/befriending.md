@@ -31,6 +31,18 @@ around them, and it joins them.
 clue. Unlisted species use `sBefriendDefault`. The entries there now (Eevee, Pidgey) are placeholders until the Act 1
 Pokémon are decided.
 
+## Choosing the Act 1 Pokémon
+`docs/hack/act1_befriend_rankings.csv` ranks every species in the base, regenerated with
+`python3 tools/hack/rank_befriend_candidates.py`. It holds three separate rankings (`ranking` column):
+- `three_stage_line`: 3-stage evolution lines, scored mostly on the base Pokémon (the one befriended). Act 1 uses at
+  least 3 of these.
+- `boss`: the most intimidating Pokémon, for the final one to befriend, which doesn't fit the lore.
+- `tutorial`: the easiest to befriend, for the tutorial encounter.
+
+Scores are heuristics from the species data: Pokédex entry and category keywords (`lore_for` / `lore_against`), base
+friendship, catch rate, size, base stats, types, egg groups and abilities. Legendaries, mythicals, Ultra Beasts,
+Paradox Pokémon, Megas/Gigantamax and battle or cosmetic forms are left out; regional forms are kept.
+
 ## Starting one
 In a map script:
 

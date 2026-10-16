@@ -179,3 +179,28 @@ Barn_Text_DadAnotherStone::
 Barn_Text_DadWellIllBe::
 	.string "DAD: You befriended JANGMO-O?!\n"
 	.string "…Well, I'll be.$"
+
+@ The farm's Miltank and Mareep live in the barn (not the farmyard: too many different POKéMON sprites there)
+Barn_EventScript_Miltank::
+	lock
+	faceplayer
+	playmoncry SPECIES_MILTANK, CRY_MODE_NORMAL
+	msgbox Barn_Text_Miltank
+	waitmoncry
+	release
+	end
+
+Barn_EventScript_Mareep::
+	lock
+	faceplayer
+	playmoncry SPECIES_MAREEP, CRY_MODE_NORMAL
+	msgbox Barn_Text_Mareep
+	waitmoncry
+	release
+	end
+
+Barn_Text_Miltank:
+	.string "MILTANK: Mooo!$"
+
+Barn_Text_Mareep:
+	.string "MAREEP: Baaah!$"

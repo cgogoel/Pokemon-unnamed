@@ -96,21 +96,8 @@ Farmyard_Movement_StepBack:
 	walk_right
 	step_end
 
-@ The farm's own POKéMON, there from the start: they can't be befriended, but they'll call back
-Farmyard_EventScript_Miltank::
-	lock
-	faceplayer
-	playmoncry SPECIES_MILTANK, CRY_MODE_NORMAL
-	msgbox Farmyard_Text_Miltank
-	goto Farmyard_EventScript_FarmAnimalEnd
-
-Farmyard_EventScript_Mareep::
-	lock
-	faceplayer
-	playmoncry SPECIES_MAREEP, CRY_MODE_NORMAL
-	msgbox Farmyard_Text_Mareep
-	goto Farmyard_EventScript_FarmAnimalEnd
-
+@ The farm's own POKéMON, there from the start: they can't be befriended, but they'll call back. Miltank and Mareep
+@ live in the barn: more different POKéMON than this on the map run out of sprite memory.
 Farmyard_EventScript_Tauros::
 	lock
 	faceplayer
@@ -144,9 +131,12 @@ Farmyard_EventScript_FarmMonHappy:
 @ ---------------------------------------------------------------------------------------------------------------------
 @ The end of Act 1 (docs/hack/act1_story.md)
 
+@ Fades that come back to the same map use fadescreenswapbuffers: a plain fadescreen there re-applies the time-of-day
+@ tint on the way back in, so the scene looked like another time of day.
+
 @ Coming home with Jangmo-o: Mom and Dad can't believe it, then send the player to bed
 Farmyard_EventScript_JangmoOHome:
-	fadescreen FADE_TO_BLACK
+	fadescreenswapbuffers FADE_TO_BLACK
 	setvar VAR_0x8004, LOCALID_FARMYARD_MOM
 	setvar VAR_0x8005, LOCALID_FARMYARD_DAD
 	special Act1_PlaceNearPlayer
@@ -155,7 +145,7 @@ Farmyard_EventScript_JangmoOHome:
 	applymovement LOCALID_FARMYARD_MOM, Farmyard_Movement_FacePlayer
 	applymovement LOCALID_FARMYARD_DAD, Farmyard_Movement_FacePlayer
 	waitmovement 0
-	fadescreen FADE_FROM_BLACK
+	fadescreenswapbuffers FADE_FROM_BLACK
 	msgbox Farmyard_Text_MomWasThatJangmoO
 	msgbox Farmyard_Text_DadItFollowedYouHome
 	msgbox Farmyard_Text_MomSpecialUnderstanding
@@ -183,7 +173,7 @@ Farmyard_EventScript_OakArrives::
 	msgbox Farmyard_Text_PlayerExplains
 	msgbox Farmyard_Text_OakCeladonUniversity
 	closemessage
-	fadescreen FADE_TO_BLACK
+	fadescreenswapbuffers FADE_TO_BLACK
 	setvar VAR_0x8004, LOCALID_FARMYARD_MOM
 	setvar VAR_0x8005, LOCALID_FARMYARD_DAD
 	special Act1_PlaceNearPlayer
@@ -192,7 +182,7 @@ Farmyard_EventScript_OakArrives::
 	applymovement LOCALID_FARMYARD_MOM, Farmyard_Movement_FacePlayer
 	applymovement LOCALID_FARMYARD_DAD, Farmyard_Movement_FacePlayer
 	waitmovement 0
-	fadescreen FADE_FROM_BLACK
+	fadescreenswapbuffers FADE_FROM_BLACK
 	msgbox Farmyard_Text_ParentsSurprised
 Farmyard_EventScript_AskReallyWant:
 	msgbox Farmyard_Text_MomReallyWant, MSGBOX_YESNO
@@ -234,14 +224,14 @@ Farmyard_EventScript_ChooseFriendEnd:
 @ Both chosen: Oak's last words, then the prologue ends (src/prologue_end.c)
 Farmyard_EventScript_PrologueEnds:
 	closemessage
-	fadescreen FADE_TO_BLACK
+	fadescreenswapbuffers FADE_TO_BLACK
 	setvar VAR_0x8004, LOCALID_FARMYARD_OAK
 	setvar VAR_0x8005, 0
 	special Act1_PlaceNearPlayer
 	addobject LOCALID_FARMYARD_OAK
 	applymovement LOCALID_FARMYARD_OAK, Farmyard_Movement_FacePlayer
 	waitmovement 0
-	fadescreen FADE_FROM_BLACK
+	fadescreenswapbuffers FADE_FROM_BLACK
 	msgbox Farmyard_Text_OakNewPhase
 	closemessage
 	special Act1_FinishChoosing
@@ -327,12 +317,6 @@ Farmyard_Text_WoodsNotYetMom:
 Farmyard_Text_WoodsNotYetDad:
 	.string "Mom said Dad wanted to see me in\n"
 	.string "the storage shed.$"
-
-Farmyard_Text_Miltank:
-	.string "MILTANK: Mooo!$"
-
-Farmyard_Text_Mareep:
-	.string "MAREEP: Baaah!$"
 
 Farmyard_Text_Tauros:
 	.string "TAUROS snorted and stamped\n"

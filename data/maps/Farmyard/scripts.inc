@@ -9,7 +9,7 @@ Farmyard_OnTransition:
 	special SetupFarmyardMons
 	end
 
-@ The gates, just inside each entrance: the following Pokémon is dropped off and starts wandering the farmyard
+@ The gates, across each entrance: the following Pokémon is dropped off and starts wandering the farmyard
 Farmyard_EventScript_Gate::
 	lockall
 	special Special_DepositFollowerInFarm
@@ -22,14 +22,14 @@ Farmyard_EventScript_GateEnd:
 	releaseall
 	end
 
+@ The Woods' edge is still solid, so its side is a warp for now (Pallet Town's side is a map connection)
 Farmyard_EventScript_ToWoods::
 	warp MAP_WOODS, 49, 58
 	waitstate
 	end
 
-Farmyard_EventScript_Exit::
-	warp MAP_PALLET_TOWN, 3, 8
-	waitstate
+Farmyard_EventScript_Sign::
+	msgbox Farmyard_Text_Sign, MSGBOX_SIGN
 	end
 
 Farmyard_EventScript_FarmMon::
@@ -45,3 +45,6 @@ Farmyard_Text_RanOffToPlay:
 
 Farmyard_Text_LooksHappy:
 	.string "It looks happy here.$"
+
+Farmyard_Text_Sign:
+	.string "Quincy Farm$"

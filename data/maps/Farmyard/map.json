@@ -3,7 +3,6 @@
   "name": "Farmyard",
   "layout": "LAYOUT_FARMYARD",
   "music": "MUS_RG_PALLET",
-  "region": "REGION_KANTO",
   "region_map_section": "MAPSEC_PALLET_TOWN",
   "requires_flash": false,
   "weather": "WEATHER_SUNNY",
@@ -14,14 +13,25 @@
   "show_map_name": false,
   "floor_number": 0,
   "battle_scene": "MAP_BATTLE_SCENE_NORMAL",
-  "connections": null,
+  "connections": [
+    {
+      "map": "MAP_PALLET_TOWN",
+      "offset": 0,
+      "direction": "right"
+    },
+    {
+      "map": "MAP_WOODS",
+      "offset": 0,
+      "direction": "left"
+    }
+  ],
   "object_events": [
     {
       "local_id": "LOCALID_FARMYARD_MON_1",
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_VAR_0",
-      "x": 4,
-      "y": 9,
+      "x": 8,
+      "y": 11,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
       "movement_range_x": 2,
@@ -35,7 +45,7 @@
       "local_id": "LOCALID_FARMYARD_MON_2",
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_VAR_1",
-      "x": 9,
+      "x": 14,
       "y": 9,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
@@ -51,11 +61,11 @@
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_VAR_2",
       "x": 17,
-      "y": 9,
+      "y": 4,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
-      "movement_range_x": 2,
-      "movement_range_y": 2,
+      "movement_range_x": 1,
+      "movement_range_y": 0,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
       "script": "Farmyard_EventScript_FarmMon",
@@ -66,11 +76,11 @@
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_VAR_3",
       "x": 5,
-      "y": 15,
+      "y": 14,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
       "movement_range_x": 2,
-      "movement_range_y": 2,
+      "movement_range_y": 0,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
       "script": "Farmyard_EventScript_FarmMon",
@@ -80,7 +90,7 @@
       "local_id": "LOCALID_FARMYARD_MON_5",
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_VAR_4",
-      "x": 11,
+      "x": 12,
       "y": 15,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
@@ -96,7 +106,7 @@
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_VAR_5",
       "x": 18,
-      "y": 17,
+      "y": 18,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
       "movement_range_x": 2,
@@ -125,8 +135,8 @@
       "local_id": "LOCALID_FARMYARD_MON_8",
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_VAR_7",
-      "x": 15,
-      "y": 18,
+      "x": 19,
+      "y": 11,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
       "movement_range_x": 2,
@@ -137,20 +147,26 @@
       "flag": "FLAG_TEMP_8"
     }
   ],
-  "warp_events": [],
+  "warp_events": [
+    {
+      "x": 6,
+      "y": 7,
+      "elevation": 0,
+      "dest_map": "MAP_PALLET_TOWN_PLAYERS_HOUSE_1F_FRLG_FARM",
+      "dest_warp_id": "0"
+    },
+    {
+      "x": 16,
+      "y": 16,
+      "elevation": 0,
+      "dest_map": "MAP_PALLET_TOWN_FARM_BARN",
+      "dest_warp_id": "0"
+    }
+  ],
   "coord_events": [
     {
       "type": "trigger",
-      "x": 4,
-      "y": 8,
-      "elevation": 3,
-      "var": "VAR_TEMP_9",
-      "var_value": "0",
-      "script": "Farmyard_EventScript_Gate"
-    },
-    {
-      "type": "trigger",
-      "x": 4,
+      "x": 1,
       "y": 9,
       "elevation": 3,
       "var": "VAR_TEMP_9",
@@ -159,7 +175,25 @@
     },
     {
       "type": "trigger",
-      "x": 19,
+      "x": 1,
+      "y": 10,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_Gate"
+    },
+    {
+      "type": "trigger",
+      "x": 1,
+      "y": 11,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_Gate"
+    },
+    {
+      "type": "trigger",
+      "x": 22,
       "y": 8,
       "elevation": 3,
       "var": "VAR_TEMP_9",
@@ -168,7 +202,7 @@
     },
     {
       "type": "trigger",
-      "x": 19,
+      "x": 22,
       "y": 9,
       "elevation": 3,
       "var": "VAR_TEMP_9",
@@ -177,8 +211,26 @@
     },
     {
       "type": "trigger",
-      "x": 2,
-      "y": 8,
+      "x": 22,
+      "y": 10,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_Gate"
+    },
+    {
+      "type": "trigger",
+      "x": 22,
+      "y": 11,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_Gate"
+    },
+    {
+      "type": "trigger",
+      "x": 0,
+      "y": 9,
       "elevation": 3,
       "var": "VAR_TEMP_9",
       "var_value": "0",
@@ -186,8 +238,8 @@
     },
     {
       "type": "trigger",
-      "x": 2,
-      "y": 9,
+      "x": 0,
+      "y": 10,
       "elevation": 3,
       "var": "VAR_TEMP_9",
       "var_value": "0",
@@ -195,22 +247,23 @@
     },
     {
       "type": "trigger",
-      "x": 21,
-      "y": 8,
+      "x": 0,
+      "y": 11,
       "elevation": 3,
       "var": "VAR_TEMP_9",
       "var_value": "0",
-      "script": "Farmyard_EventScript_Exit"
-    },
-    {
-      "type": "trigger",
-      "x": 21,
-      "y": 9,
-      "elevation": 3,
-      "var": "VAR_TEMP_9",
-      "var_value": "0",
-      "script": "Farmyard_EventScript_Exit"
+      "script": "Farmyard_EventScript_ToWoods"
     }
   ],
-  "bg_events": []
+  "bg_events": [
+    {
+      "type": "sign",
+      "x": 20,
+      "y": 8,
+      "elevation": 0,
+      "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
+      "script": "Farmyard_EventScript_Sign"
+    }
+  ],
+  "region": "REGION_KANTO"
 }

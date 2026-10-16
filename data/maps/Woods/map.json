@@ -3,7 +3,6 @@
   "name": "Woods",
   "layout": "LAYOUT_WOODS",
   "music": "MUS_RG_VIRIDIAN_FOREST",
-  "region": "REGION_KANTO",
   "region_map_section": "MAPSEC_PALLET_TOWN",
   "requires_flash": false,
   "weather": "WEATHER_SHADE",
@@ -14,7 +13,13 @@
   "show_map_name": false,
   "floor_number": 0,
   "battle_scene": "MAP_BATTLE_SCENE_NORMAL",
-  "connections": null,
+  "connections": [
+    {
+      "map": "MAP_FARMYARD",
+      "offset": 0,
+      "direction": "right"
+    }
+  ],
   "object_events": [
     {
       "local_id": "LOCALID_WOODS_BLIPBUG",
@@ -113,5 +118,6 @@
       "script": "Woods_EventScript_ToFarmyard"
     }
   ],
-  "bg_events": []
+  "bg_events": [],
+  "region": "REGION_KANTO"
 }

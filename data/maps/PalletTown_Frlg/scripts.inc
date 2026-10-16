@@ -473,8 +473,10 @@ PalletTown_Text_CanStoreItemsAndMonsInPC::
 PalletTown_Text_OakPokemonResearchLab::
 	.string "OAK POKéMON RESEARCH LAB$"
 
+@ Act 1-2: the original player's house is for sale (Act 3 has its own Pallet Town and house maps)
 PalletTown_Text_PlayersHouse::
-	.string "{PLAYER}'s house$"
+	.string "For Sale:\n"
+	.string "Move-in Ready Small Town Home$"
 
 PalletTown_Text_RivalsHouse::
 	.string "{RIVAL}'s house$"
@@ -548,11 +550,6 @@ PalletTown_Text_PressStartToOpenMenuCopy::
 
 
 @ Act 1: the path to the farmyard (placeholder spot on the town's left edge, docs/hack/befriending.md)
-PalletTown_EventScript_ToFarmyard::
-	warp MAP_FARMYARD, 20, 8
-	waitstate
-	end
-
 @ Act 1: the player can't leave Pallet Town yet (VAR_STORY_ACT is STORY_ACT_CHILDHOOD). Listed before Oak's trigger on
 @ the same tiles, so his scene doesn't start in Act 1.
 PalletTown_EventScript_Act1Boundary::

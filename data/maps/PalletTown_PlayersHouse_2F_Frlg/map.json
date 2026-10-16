@@ -3,7 +3,6 @@
   "name": "PalletTown_PlayersHouse_2F_Frlg",
   "layout": "LAYOUT_PALLET_TOWN_PLAYERS_HOUSE_2F_FRLG",
   "music": "MUS_RG_PALLET",
-  "region": "REGION_KANTO",
   "region_map_section": "MAPSEC_PALLET_TOWN",
   "requires_flash": false,
   "weather": "WEATHER_NONE",
@@ -26,30 +25,6 @@
     }
   ],
   "coord_events": [],
-  "bg_events": [
-    {
-      "type": "sign",
-      "x": 6,
-      "y": 5,
-      "elevation": 3,
-      "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
-      "script": "PalletTown_PlayersHouse_2F_EventScript_NES"
-    },
-    {
-      "type": "sign",
-      "x": 1,
-      "y": 1,
-      "elevation": 0,
-      "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
-      "script": "EventScript_PalletTown_PlayersHouse_2F_TurnOnPC"
-    },
-    {
-      "type": "sign",
-      "x": 11,
-      "y": 1,
-      "elevation": 0,
-      "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
-      "script": "PalletTown_PlayersHouse_2F_EventScript_Sign"
-    }
-  ]
+  "bg_events": [],
+  "region": "REGION_KANTO"
 }

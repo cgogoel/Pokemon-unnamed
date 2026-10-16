@@ -1088,7 +1088,7 @@ void InitBattlerHealthboxCoords(enum BattlerId battler)
 // "Aggression" label with its own shorter bar instead of the HP bar. Coordinates are across the box's two sprites
 // (the second starts at x 64).
 #define BEFRIEND_BOX_SPLIT       64
-#define BEFRIEND_PIPS_X          63
+#define BEFRIEND_PIPS_RIGHT      89 // The pips end here, however many there are
 #define BEFRIEND_PIPS_Y          7
 #define BEFRIEND_PIP_SIZE        4
 #define BEFRIEND_PIP_STEP        5
@@ -1126,10 +1126,12 @@ static void DrawBefriendPatience(u8 healthboxSpriteId)
     u32 total = GetBefriendInfo(gBattleMons[gSprites[healthboxSpriteId].hMain_Battler].species)->patience;
     u32 left = (gBattleStruct != NULL) ? gBattleStruct->befriendPatience : total;
 
-    FillBefriendBoxRect(healthboxSpriteId, BEFRIEND_PIPS_X, 5, 28, 11, HEALTHBOX_BG_INDEX);
+    s32 start = BEFRIEND_PIPS_RIGHT - total * BEFRIEND_PIP_STEP + 1;
+
+    FillBefriendBoxRect(healthboxSpriteId, start, 5, BEFRIEND_PIPS_RIGHT - start, 8, HEALTHBOX_BG_INDEX); // Above the bar
     for (u32 i = 0; i < total; i++)
     {
-        s32 x = BEFRIEND_PIPS_X + i * BEFRIEND_PIP_STEP;
+        s32 x = start + i * BEFRIEND_PIP_STEP;
         FillBefriendBoxRect(healthboxSpriteId, x, BEFRIEND_PIPS_Y, BEFRIEND_PIP_SIZE, BEFRIEND_PIP_SIZE, BEFRIEND_COLOR_OUTLINE);
         FillBefriendBoxRect(healthboxSpriteId, x + 1, BEFRIEND_PIPS_Y + 1, BEFRIEND_PIP_SIZE - 2, BEFRIEND_PIP_SIZE - 2,
                             (i < left) ? BEFRIEND_COLOR_PIP : HEALTHBOX_BG_INDEX);
@@ -2136,7 +2138,7 @@ void UpdateNickInHealthbox(u8 healthboxSpriteId, struct Pokemon *mon)
     gSprites[healthboxSpriteId].data[1] = healthboxSpriteId2;
     gSprites[healthboxSpriteId2].data[1] = SPRITE_NONE;
 
-    u32 fontId = GetFontIdToFit(gDisplayedStringBattle, FONT_SMALL, 0, IsBefriendTargetHealthbox(healthboxSpriteId) ? 52 : 55);
+    u32 fontId = GetFontIdToFit(gDisplayedStringBattle, FONT_SMALL, 0, IsBefriendTargetHealthbox(healthboxSpriteId) ? 48 : 55);
 
     if (GetBattlerCoordsIndex(gSprites[healthboxSpriteId].hMain_Battler) == BATTLE_COORDS_TRIPLES)
     {
@@ -2565,7 +2567,14 @@ s32 MoveBattleBar(enum BattlerId battler, u8 healthboxSpriteId, u8 whichBar, u8 
     }
 
     if (whichBar == HEALTH_BAR && IsBefriendTargetHealthbox(healthboxSpriteId))
-        DrawBefriendAggressionBar(healthboxSpriteId, gBattleSpritesDataPtr->battleBars[battler].currValue, gBattleSpritesDataPtr->battleBars[battler].maxValue);
+    {
+        // The animated value is in 1/256ths when the max is below the bar's width in pixels (see CalcNewBarValue)
+        s32 value = gBattleSpritesDataPtr->battleBars[battler].currValue;
+        s32 maxValue = gBattleSpritesDataPtr->battleBars[battler].maxValue;
+        if (maxValue < B_HEALTHBAR_PIXELS)
+            value = (value + 128) >> 8;
+        DrawBefriendAggressionBar(healthboxSpriteId, value, maxValue);
+    }
     else if (whichBar == EXP_BAR || (whichBar == HEALTH_BAR && ShouldShowHealthbar(battler)))
         MoveBattleBarGraphically(battler, whichBar);
 

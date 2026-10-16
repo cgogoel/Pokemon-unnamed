@@ -438,12 +438,13 @@ static void OpponentHandleChooseAction(enum BattlerId battler)
 
 static void OpponentHandleChooseMove(enum BattlerId battler)
 {
-    // Befriending battles: the Pokémon only reacts to what the player does
+    // Befriending battles: the Pokémon only reacts to what the player does. As a move choice only actions 4-9 are
+    // taken as actions (B_ACTION_PASS would read as a switch), so it "watches carefully", which does nothing here.
     if (IsBefriendBattle())
     {
         gAiBattleData->actionFlee = FALSE;
         gAiBattleData->choiceWatch = FALSE;
-        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_PASS, 0);
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_SAFARI_WATCH_CAREFULLY, 0);
         BtlController_Complete(battler);
         return;
     }

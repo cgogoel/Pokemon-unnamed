@@ -36,7 +36,8 @@ Progress is `VAR_ACT1_PROGRESS`, with stages `ACT1_*` in `include/constants/stor
   | Teddiursa | Honey | Woods (10,40) | Daisy, Blue's house |
 
   Hints start once Blipbug is befriended and stop once that Pokémon is.
-- **Jangmo-o** wanders. Until the player has the Hard Stone, it charges if it sees them (straight ahead, up to 4
+- **Jangmo-o** wanders anywhere in the Woods (no range limit; when it's far off-screen the game respawns it at its
+  starting spot). Until the player has the Hard Stone, it charges if it sees them (straight ahead, up to 4
   tiles, `src/act1_story.c`) or is talked to: the player blacks out and wakes up at home next to Mom
   (`Act1_EventScript_BlackOut`). With the stone, talking to it starts the encounter, where Hum a tune becomes
   **Throw stone**: Jangmo-o hits back ("Who throws a stone? Honestly! …") and the player blacks out, keeping the
@@ -56,7 +57,7 @@ Progress is `VAR_ACT1_PROGRESS`, with stages `ACT1_*` in `include/constants/stor
 
 - Dad's spot and sprite (barn), Blue's spot (his house), the four farm Pokémon.
 - The three item balls; the Woods is still Viridian Forest's layout, so its items, Pokémon and Jangmo-o's range
-  (wanders 3 tiles each way from (36,6)) need moving once it's redrawn.
+  (starting at (36,6)) need moving once it's redrawn.
 
 ## Base-game scenes are stripped
 

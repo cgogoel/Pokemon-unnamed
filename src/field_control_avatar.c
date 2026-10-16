@@ -394,7 +394,7 @@ static const u8 *GetInteractedObjectEventScript(struct MapPosition *position, u8
         break;
     }
 
-    // A Pokémon object at another height, like one in a pond (Act 1), lower than the shore: talk to it anyway
+    // A Pokémon object at another height than the player: talk to it anyway (Act 1's Pokémon are spoken to like NPCs)
     if (objectEventId == OBJECT_EVENTS_COUNT)
     {
         objectEventId = GetObjectEventIdByXY(position->x, position->y);

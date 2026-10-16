@@ -36,8 +36,9 @@ Progress is `VAR_ACT1_PROGRESS`, with stages `ACT1_*` in `include/constants/stor
   | Teddiursa | Honey | Woods: hidden in the tree at (5-6,42), found by checking either tile (nothing shows it) | Daisy, Blue's house: look for lots of flowers; flowers mean bees, bees mean Honey |
 
   Hints start once Blipbug is befriended and stop once that Pokémon is.
-- **Tynamo** roams its pond. The pond is lower than the shore, which keeps it in; Pokémon objects can be talked to
-  across a height difference (`GetInteractedObjectEventScript`). The farmyard's pond spot works the same way.
+- **Tynamo** roams its pond, which the player can walk into. A Pokémon object moving on its own stays in water or on
+  land, whichever it's on (`IsPokemonLeavingItsGround` in `src/event_object_movement.c`), so Tynamo stays in its pond
+  and the farm's Pokémon stay out of the farm pond; the farmyard's pond spot is Tynamo's there.
 - **Jangmo-o** wanders anywhere in the Woods (no range limit). It has a spawn area near each of the other three
   (`sJangmoOSpawns` in `src/act1_story.c`: (15,32) by Tynamo's pond, (36,6) by Hatenna, (48,38) by Teddiursa): while
   it's off-screen, it's moved to the one nearest the player that's still out of view, so it turns up wherever the

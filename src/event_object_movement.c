@@ -6374,10 +6374,27 @@ enum Collision GetSidewaysStairsCollision(struct ObjectEvent *objectEvent, enum 
     return collision;
 }
 
+static bool32 IsWaterAt(s16 x, s16 y)
+{
+    u32 behavior = MapGridGetMetatileBehaviorAt(x, y);
+    return MetatileBehavior_IsPuddle(behavior) || MetatileBehavior_IsSurfableWaterOrUnderwater(behavior);
+}
+
+// A Pokémon object moving on its own (not the follower) stays in water or on land, whichever it's on: Act 1's
+// ponds are walkable, so this keeps Tynamo in them and the farm's Pokémon out (docs/hack/act1_story.md)
+static bool32 IsPokemonLeavingItsGround(struct ObjectEvent *objectEvent, s16 x, s16 y)
+{
+    if (!(objectEvent->graphicsId & OBJ_EVENT_MON) || objectEvent->localId == OBJ_EVENT_ID_FOLLOWER)
+        return FALSE;
+    return IsWaterAt(objectEvent->currentCoords.x, objectEvent->currentCoords.y) != IsWaterAt(x, y);
+}
+
 static enum Collision GetVanillaCollision(struct ObjectEvent *objectEvent, s16 x, s16 y, enum Direction direction)
 {
     if (IsCoordOutsideObjectEventMovementRange(objectEvent, x, y))
         return COLLISION_OUTSIDE_RANGE;
+    else if (IsPokemonLeavingItsGround(objectEvent, x, y))
+        return COLLISION_IMPASSABLE;
     else if (MapGridGetCollisionAt(x, y) || GetMapBorderIdAt(x, y) == CONNECTION_INVALID || IsMetatileDirectionallyImpassable(objectEvent, x, y, direction))
         return COLLISION_IMPASSABLE;
     else if (objectEvent->trackedByCamera && !CanCameraMoveInDirection(direction))

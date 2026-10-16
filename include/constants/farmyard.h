@@ -6,6 +6,10 @@
 // How many of them are shown wandering on the Farmyard map. Its first FARM_SHOWN_COUNT object events are these, with
 // graphics VAR_OBJ_GFX_ID_0.. and hidden by FLAG_TEMP_1.. while their spot is empty.
 #define FARM_SHOWN_COUNT    8
+// The spot in the farmyard pond (LOCALID_FARMYARD_MON_3): only Tynamo and its evolutions go there, and they go nowhere
+// else. Everyone else fills the other spots in farm box order.
+#define FARM_WATER_SPOT     2
+#define FARM_SPOT_NONE      0xFF
 // DepositFollowerInFarm: nothing was deposited
 #define FARM_DEPOSIT_NONE   0xFF
 // befriendbattle: VAR_RESULT when the encounter didn't start because a Pokémon is still following (Act 1)

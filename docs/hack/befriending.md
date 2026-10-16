@@ -62,8 +62,9 @@ Paradox Pokémon, Megas/Gigantamax and battle or cosmetic forms are left out; re
   first." (`IsBefriendAllowed`, `src/farmyard.c`; `befriendbattle` then sets `VAR_RESULT` to `BEFRIEND_RESULT_BLOCKED`).
 - **Farmyard** (`data/maps/Farmyard`): walking in through a gate (coord triggers across its left entrance from the
   Woods, x 1, and its right entrance from Pallet Town, x 22) drops the follower off: it leaves the party and starts wandering the farmyard. Farm Pokémon are kept in the last PC box
-  (`FARM_BOX`, named FARM); the first 8 are shown as the map's first 8 object events (graphics `VAR_OBJ_GFX_ID_0..7`,
-  hidden by `FLAG_TEMP_1..8` while empty, set by `SetupFarmyardMons` on map load).
+  (`FARM_BOX`, named FARM) and shown at the map's first 8 object events (graphics `VAR_OBJ_GFX_ID_0..7`, hidden by
+  `FLAG_TEMP_1..8` while empty, set by `SetupFarmyardMons` on map load). Spot 3 is in the pond and only for Tynamo
+  and its evolutions (`FARM_WATER_SPOT`); the others fill the other 7 spots in box order (`GetFarmSpot`).
 - **Woods** (`data/maps/Woods`): reached only from the farmyard: the farmyard's left edge leads to the Woods' right edge (for now a warp: stepping on
   the farmyard's x 0 goes to the Woods, and the Woods' exit returns to (0, 10), one step before the gate). All five Act 1 Pokémon live
   there; talking to one starts its befriending encounter, and once befriended it's gone from the Woods

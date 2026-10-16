@@ -54,17 +54,51 @@ TEST("Farmyard: each farm Pokémon is shown on the map, empty spots are hidden")
 {
     ZeroPlayerPartyMons();
     ClearFarm();
-    RUN_OVERWORLD_SCRIPT( givemon SPECIES_TYNAMO, 5; );
-    DepositFollowerInFarm();
     RUN_OVERWORLD_SCRIPT( givemon SPECIES_HATENNA, 5; );
+    DepositFollowerInFarm();
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_TEDDIURSA, 5; );
     DepositFollowerInFarm();
 
     SetupFarmyardMons();
-    EXPECT_EQ(VarGet(VAR_OBJ_GFX_ID_0) & ~(OBJ_EVENT_MON | OBJ_EVENT_MON_SHINY | OBJ_EVENT_MON_FEMALE), SPECIES_TYNAMO);
-    EXPECT_EQ(VarGet(VAR_OBJ_GFX_ID_1) & ~(OBJ_EVENT_MON | OBJ_EVENT_MON_SHINY | OBJ_EVENT_MON_FEMALE), SPECIES_HATENNA);
+    EXPECT_EQ(VarGet(VAR_OBJ_GFX_ID_0) & ~(OBJ_EVENT_MON | OBJ_EVENT_MON_SHINY | OBJ_EVENT_MON_FEMALE), SPECIES_HATENNA);
+    EXPECT_EQ(VarGet(VAR_OBJ_GFX_ID_1) & ~(OBJ_EVENT_MON | OBJ_EVENT_MON_SHINY | OBJ_EVENT_MON_FEMALE), SPECIES_TEDDIURSA);
     EXPECT(VarGet(VAR_OBJ_GFX_ID_0) & OBJ_EVENT_MON);
     EXPECT(!FlagGet(FLAG_TEMP_1));
     EXPECT(!FlagGet(FLAG_TEMP_2));
-    EXPECT(FlagGet(FLAG_TEMP_3));
+    EXPECT(FlagGet(FLAG_TEMP_1 + FARM_WATER_SPOT));
     EXPECT(FlagGet(FLAG_TEMP_1 + FARM_SHOWN_COUNT - 1));
+}
+
+TEST("Farmyard: Tynamo goes to the pond spot, whenever it was dropped off")
+{
+    ZeroPlayerPartyMons();
+    ClearFarm();
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_TYNAMO, 5; );
+    DepositFollowerInFarm();
+    EXPECT_EQ(GetFarmSpot(0), FARM_WATER_SPOT);
+
+    SetupFarmyardMons();
+    EXPECT_EQ(VarGet(VAR_OBJ_GFX_ID_0 + FARM_WATER_SPOT) & ~(OBJ_EVENT_MON | OBJ_EVENT_MON_SHINY | OBJ_EVENT_MON_FEMALE), SPECIES_TYNAMO);
+    EXPECT(!FlagGet(FLAG_TEMP_1 + FARM_WATER_SPOT));
+    EXPECT(FlagGet(FLAG_TEMP_1));
+}
+
+TEST("Farmyard: no other Pokémon takes the pond spot, even when the farm is full")
+{
+    static const u16 species[] = { SPECIES_BLIPBUG, SPECIES_HATENNA, SPECIES_TEDDIURSA, SPECIES_JANGMO_O,
+                                   SPECIES_DOTTLER, SPECIES_HATTREM, SPECIES_URSARING, SPECIES_HAKAMO_O, SPECIES_ORBEETLE };
+    ClearFarm();
+    for (u32 i = 0; i < ARRAY_COUNT(species); i++)
+    {
+        struct Pokemon mon;
+        CreateRandomMon(&mon, species[i], 5);
+        SetBoxMonAt(FARM_BOX, i, &mon.box);
+    }
+
+    for (u32 slot = 0; slot < ARRAY_COUNT(species); slot++)
+        EXPECT_NE(GetFarmSpot(slot), FARM_WATER_SPOT);
+    EXPECT_EQ(GetFarmSpot(0), 0);
+    EXPECT_EQ(GetFarmSpot(2), 3); // Skips the pond
+    EXPECT_EQ(GetFarmSpot(6), FARM_SHOWN_COUNT - 1);
+    EXPECT_EQ(GetFarmSpot(7), FARM_SPOT_NONE); // 7 land spots
 }

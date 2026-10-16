@@ -41,6 +41,9 @@ Farmyard_EventScript_GateEnd:
 Farmyard_EventScript_ToWoods::
 	goto_if_lt VAR_ACT1_PROGRESS, ACT1_DAD_SENT_TO_WOODS, Farmyard_EventScript_WoodsNotYet
 	goto_if_ge VAR_ACT1_PROGRESS, ACT1_RESTED, Farmyard_EventScript_WoodsShowOak
+	goto_if_ge VAR_ACT1_PROGRESS, ACT1_GOT_HARD_STONE, Farmyard_EventScript_EnterWoods
+	goto_if_ge VAR_ACT1_PROGRESS, ACT1_BEFRIENDED_THREE, Farmyard_EventScript_WoodsTalkToParents
+Farmyard_EventScript_EnterWoods:
 	warp MAP_WOODS, 49, 58
 	waitstate
 	end
@@ -56,6 +59,23 @@ Farmyard_EventScript_WoodsNotYet::
 
 Farmyard_EventScript_WoodsNotYetPokedex::
 	msgbox Farmyard_Text_WoodsNotYetPokedex
+	goto Farmyard_EventScript_WoodsTurnBack
+
+@ After the other three: the Woods wait until Dad and Mom have talked about Jangmo-o and Dad has given the Hard Stone
+Farmyard_EventScript_WoodsTalkToParents::
+	lockall
+	switch VAR_ACT1_PROGRESS
+	case ACT1_BEFRIENDED_THREE, Farmyard_EventScript_WoodsTellDad
+	case ACT1_DAD_SAYS_TOO_DANGEROUS, Farmyard_EventScript_WoodsSeeMom
+	msgbox Farmyard_Text_WoodsSeeDadAgain
+	goto Farmyard_EventScript_WoodsTurnBack
+
+Farmyard_EventScript_WoodsTellDad::
+	msgbox Farmyard_Text_WoodsTellDad
+	goto Farmyard_EventScript_WoodsTurnBack
+
+Farmyard_EventScript_WoodsSeeMom::
+	msgbox Farmyard_Text_WoodsSeeMom
 	goto Farmyard_EventScript_WoodsTurnBack
 
 Farmyard_EventScript_WoodsShowOak::
@@ -441,3 +461,13 @@ Farmyard_Text_MomChooseCarefully:
 Farmyard_Text_DadChooseCarefully:
 	.string "DAD: The farm will be quiet without\n"
 	.string "you, kiddo.$"
+
+Farmyard_Text_WoodsTellDad:
+	.string "I should go tell Dad about all my\n"
+	.string "new friends first.$"
+
+Farmyard_Text_WoodsSeeMom:
+	.string "Dad said Mom wanted to see me.$"
+
+Farmyard_Text_WoodsSeeDadAgain:
+	.string "Mom said to go talk to Dad again.$"

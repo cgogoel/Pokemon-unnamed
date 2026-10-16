@@ -13,7 +13,7 @@ Progress is `VAR_ACT1_PROGRESS`, with stages `ACT1_*` in `include/constants/stor
 | `ACT1_DAD_SENT_TO_WOODS` | Talking to Dad | Dad: he never caught the farm's Pokémon; kindness and patience; Blipbug at the Woods entrance. Gives an Oran Berry. **The Woods open.** |
 | `ACT1_BEFRIENDED_BLIPBUG` | Befriending Blipbug | Mom: Dad wants to talk again. Hint NPCs start. |
 | `ACT1_DAD_WARNED_JANGMO_O` | Talking to Dad | Dad: well done; others in the Woods; avoid the angry Jangmo-o. **Tynamo, Hatenna and Teddiursa can be befriended.** Mom: the folks in town might know about the Woods' Pokémon. |
-| `ACT1_BEFRIENDED_THREE` | Befriending all three | Mom: go show Dad. |
+| `ACT1_BEFRIENDED_THREE` | Befriending all three | Mom: go show Dad. **The Woods close until Dad gives the Hard Stone** (the edge says who to see next). |
 | `ACT1_DAD_SAYS_TOO_DANGEROUS` | Talking to Dad | Dad: Jangmo-o is still too dangerous; go see Mom. |
 | `ACT1_MOM_SAYS_FOLLOW_HEART` | Talking to Mom | Mom: Dad's scared for you, but follow your heart; your kindness may reach Jangmo-o. |
 | `ACT1_GOT_HARD_STONE` | Talking to Dad | Dad gives the Hard Stone, "throw it if it attacks". **Talking to Jangmo-o starts its encounter.** |

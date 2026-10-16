@@ -32,6 +32,7 @@
 #include "constants/field_poison.h"
 #include "constants/field_specials.h"
 #include "constants/field_tasks.h"
+#include "constants/farmyard.h"
 #include "constants/field_weather.h"
 #include "constants/flags.h"
 #include "constants/follower_npc.h"
@@ -793,6 +794,8 @@ gStdScripts_End::
 	.include "data/maps/BirthIsland_Harbor_Frlg/scripts.inc"
 	.include "data/maps/NavelRock_Harbor_Frlg/scripts.inc"
 	.include "data/maps/PalletTown_Frlg/scripts.inc"
+	.include "data/maps/Farmyard/scripts.inc"
+	.include "data/maps/Woods/scripts.inc"
 	.include "data/maps/ViridianCity_Frlg/scripts.inc"
 	.include "data/maps/PewterCity_Frlg/scripts.inc"
 	.include "data/maps/CeruleanCity_Frlg/scripts.inc"
@@ -1739,3 +1742,14 @@ EventScript_PalletTown_PlayersHouse_2F_TurnOnPC::
 	.include "data/scripts/battle_frontier.inc"
 	.include "data/scripts/apricorn_tree.inc"
 	.include "data/scripts/wild_encounter.inc"
+	.include "data/scripts/befriend.inc"
+	.include "data/scripts/act1_story.inc"
+
+	.include "data/maps/PalletTown_PlayersHouse_1F_Frlg_Farm/scripts.inc"
+	.include "data/maps/PalletTown_PlayersHouse_1F_Frlg_Farm/text.inc"
+
+	.include "data/maps/PalletTown_PlayersHouse_2F_Frlg_Farm/scripts.inc"
+	.include "data/maps/PalletTown_PlayersHouse_2F_Frlg_Farm/text.inc"
+
+	.include "data/maps/PalletTown_Farm_Barn/scripts.inc"
+	.include "data/maps/PalletTown_Farm_Barn/text.inc"

@@ -1734,8 +1734,40 @@ static void CB2_HandleStartMultiBattle(void)
     }
 }
 
+// B_BATTLE_SPEED_1_5X: every other frame, an extra pass of the battle's logic (3 updates in 2 frames). New button
+// presses are left out of it so none counts twice; sound and drawing stay at their usual pace. Text isn't part of
+// it: text runs at 3x everywhere already (TEXT_SPEED_*_MODIFIER in include/config/text.h).
+static bool32 RunExtraBattleFrame(void)
+{
+    static EWRAM_DATA bool8 sExtraFrame = FALSE;
+    u16 newKeys = gMain.newKeys;
+    u16 newAndRepeatedKeys = gMain.newAndRepeatedKeys;
+
+    if (!B_BATTLE_SPEED_1_5X || TESTING || (gBattleTypeFlags & BATTLE_TYPE_LINK))
+        return TRUE;
+    sExtraFrame ^= TRUE;
+    if (!sExtraFrame)
+        return TRUE;
+
+    gMain.newKeys = 0;
+    gMain.newAndRepeatedKeys = 0;
+    if (gMain.callback1 != NULL)
+        gMain.callback1();
+    if (gMain.callback2 == BattleMainCB2)
+    {
+        AnimateSprites();
+        UpdatePaletteFade();
+        RunTasks();
+    }
+    gMain.newKeys = newKeys;
+    gMain.newAndRepeatedKeys = newAndRepeatedKeys;
+    return gMain.callback2 == BattleMainCB2; // Unless the battle moved on during the extra pass
+}
+
 void BattleMainCB2(void)
 {
+    if (!RunExtraBattleFrame())
+        return;
     AnimateSprites();
     BuildOamBuffer();
     RunTextPrinters();

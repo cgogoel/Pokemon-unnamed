@@ -367,6 +367,17 @@ BattleScript_BefriendWatch::
 	callnative BS_BefriendFinish
 	end
 
+@ Jangmo-o with the Hard Stone in the bag: Throw stone (src/befriend.c). It hits back and the player blacks out.
+BattleScript_BefriendThrowStone::
+	printstring STRINGID_BEFRIENDTHROWSTONE
+	waitmessage B_WAIT_TIME_LONG
+	printstring STRINGID_BEFRIENDSTONEHURTS
+	waitmessage B_WAIT_TIME_LONG
+	printstring STRINGID_BEFRIENDBLACKEDOUT
+	waitmessage B_WAIT_TIME_LONG
+	setbyte gBattleOutcome, B_OUTCOME_LOST
+	finishturn
+
 BattleScript_BefriendImpatient::
 	printstring STRINGID_BEFRIENDIMPATIENT
 	waitmessage B_WAIT_TIME_LONG

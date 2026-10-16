@@ -54,6 +54,7 @@
 #include "shop.h"
 #include "slot_machine.h"
 #include "sound.h"
+#include "constants/songs.h"
 #include "string_util.h"
 #include "text.h"
 #include "text_window.h"
@@ -1187,11 +1188,27 @@ static bool8 WaitForFanfareFinish(void)
     return IsFanfareTaskInactive();
 }
 
+// Hack: a message shown with a fanfare ("Obtained X!") stays up until A or B, rather than going away when the music
+// ends: with fast text it was easy to miss. Only when a finished message is on screen.
+static bool8 WaitForFanfareAndButton(void)
+{
+    if (!WaitForFanfareFinish())
+        return FALSE;
+    if (IsFieldMessageBoxHidden() || IsTextPrinterActiveOnWindow(0) || TESTING)
+        return TRUE;
+    if (JOY_NEW(A_BUTTON | B_BUTTON))
+    {
+        PlaySE(SE_SELECT);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 bool8 ScrCmd_waitfanfare(struct ScriptContext *ctx)
 {
     Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
 
-    SetupNativeScript(ctx, WaitForFanfareFinish);
+    SetupNativeScript(ctx, WaitForFanfareAndButton);
     return TRUE;
 }
 

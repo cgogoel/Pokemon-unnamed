@@ -1,0 +1,483 @@
+{
+  "id": "MAP_FARMYARD",
+  "name": "Farmyard",
+  "layout": "LAYOUT_FARMYARD",
+  "music": "MUS_RG_PALLET",
+  "region_map_section": "MAPSEC_PALLET_TOWN",
+  "requires_flash": false,
+  "weather": "WEATHER_SUNNY",
+  "map_type": "MAP_TYPE_TOWN",
+  "allow_cycling": true,
+  "allow_escaping": false,
+  "allow_running": true,
+  "show_map_name": false,
+  "floor_number": 0,
+  "battle_scene": "MAP_BATTLE_SCENE_NORMAL",
+  "connections": [
+    {
+      "map": "MAP_PALLET_TOWN",
+      "offset": 0,
+      "direction": "right"
+    }
+  ],
+  "object_events": [
+    {
+      "local_id": "LOCALID_FARMYARD_MON_1",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_VAR_0",
+      "x": 8,
+      "y": 11,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
+      "movement_range_x": 2,
+      "movement_range_y": 2,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Farmyard_EventScript_FarmMon",
+      "flag": "FLAG_TEMP_1"
+    },
+    {
+      "local_id": "LOCALID_FARMYARD_MON_2",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_VAR_1",
+      "x": 14,
+      "y": 9,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
+      "movement_range_x": 2,
+      "movement_range_y": 2,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Farmyard_EventScript_FarmMon",
+      "flag": "FLAG_TEMP_2"
+    },
+    {
+      "local_id": "LOCALID_FARMYARD_MON_3",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_VAR_2",
+      "x": 17,
+      "y": 4,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
+      "movement_range_x": 0,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Farmyard_EventScript_FarmMon",
+      "flag": "FLAG_TEMP_3"
+    },
+    {
+      "local_id": "LOCALID_FARMYARD_MON_4",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_VAR_3",
+      "x": 5,
+      "y": 14,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
+      "movement_range_x": 2,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Farmyard_EventScript_FarmMon",
+      "flag": "FLAG_TEMP_4"
+    },
+    {
+      "local_id": "LOCALID_FARMYARD_MON_5",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_VAR_4",
+      "x": 12,
+      "y": 15,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
+      "movement_range_x": 2,
+      "movement_range_y": 2,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Farmyard_EventScript_FarmMon",
+      "flag": "FLAG_TEMP_5"
+    },
+    {
+      "local_id": "LOCALID_FARMYARD_MON_6",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_VAR_5",
+      "x": 18,
+      "y": 18,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
+      "movement_range_x": 2,
+      "movement_range_y": 2,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Farmyard_EventScript_FarmMon",
+      "flag": "FLAG_TEMP_6"
+    },
+    {
+      "local_id": "LOCALID_FARMYARD_MON_7",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_VAR_6",
+      "x": 7,
+      "y": 18,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
+      "movement_range_x": 2,
+      "movement_range_y": 2,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Farmyard_EventScript_FarmMon",
+      "flag": "FLAG_TEMP_7"
+    },
+    {
+      "local_id": "LOCALID_FARMYARD_MON_8",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_VAR_7",
+      "x": 19,
+      "y": 11,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
+      "movement_range_x": 2,
+      "movement_range_y": 2,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Farmyard_EventScript_FarmMon",
+      "flag": "FLAG_TEMP_8"
+    },
+    {
+      "local_id": "LOCALID_FARMYARD_TAUROS",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_SPECIES(TAUROS)",
+      "x": 8,
+      "y": 14,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Farmyard_EventScript_Tauros",
+      "flag": "0"
+    },
+    {
+      "local_id": "LOCALID_FARMYARD_DODUO",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_SPECIES(DODUO)",
+      "x": 20,
+      "y": 16,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Farmyard_EventScript_Doduo",
+      "flag": "0"
+    },
+    {
+      "local_id": "LOCALID_FARMYARD_MOM",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_MOM_FRLG",
+      "x": 5,
+      "y": 8,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
+      "movement_range_x": 0,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Farmyard_EventScript_MomWaiting",
+      "flag": "FLAG_TEMP_A"
+    },
+    {
+      "local_id": "LOCALID_FARMYARD_DAD",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_HIKER_FRLG",
+      "x": 7,
+      "y": 8,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
+      "movement_range_x": 0,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Farmyard_EventScript_DadWaiting",
+      "flag": "FLAG_TEMP_B"
+    },
+    {
+      "local_id": "LOCALID_FARMYARD_OAK",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_PROF_OAK",
+      "x": 20,
+      "y": 10,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_LEFT",
+      "movement_range_x": 0,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Farmyard_EventScript_OakWaiting",
+      "flag": "FLAG_TEMP_C"
+    }
+  ],
+  "warp_events": [
+    {
+      "x": 6,
+      "y": 7,
+      "elevation": 0,
+      "dest_map": "MAP_PALLET_TOWN_PLAYERS_HOUSE_1F_FRLG_FARM",
+      "dest_warp_id": "0"
+    },
+    {
+      "x": 16,
+      "y": 16,
+      "elevation": 0,
+      "dest_map": "MAP_PALLET_TOWN_FARM_BARN",
+      "dest_warp_id": "0"
+    }
+  ],
+  "coord_events": [
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 8,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "11",
+      "script": "Farmyard_EventScript_OakArrives"
+    },
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 9,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "11",
+      "script": "Farmyard_EventScript_OakArrives"
+    },
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 10,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "11",
+      "script": "Farmyard_EventScript_OakArrives"
+    },
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 11,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "11",
+      "script": "Farmyard_EventScript_OakArrives"
+    },
+    {
+      "type": "trigger",
+      "x": 2,
+      "y": 8,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingLeft"
+    },
+    {
+      "type": "trigger",
+      "x": 2,
+      "y": 9,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingLeft"
+    },
+    {
+      "type": "trigger",
+      "x": 2,
+      "y": 10,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingLeft"
+    },
+    {
+      "type": "trigger",
+      "x": 2,
+      "y": 11,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingLeft"
+    },
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 8,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingRight"
+    },
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 9,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingRight"
+    },
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 10,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingRight"
+    },
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 11,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingRight"
+    },
+    {
+      "type": "trigger",
+      "x": 6,
+      "y": 8,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingDoor"
+    },
+    {
+      "type": "trigger",
+      "x": 16,
+      "y": 17,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingDoor"
+    },
+    {
+      "type": "trigger",
+      "x": 1,
+      "y": 9,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_Gate"
+    },
+    {
+      "type": "trigger",
+      "x": 1,
+      "y": 10,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_Gate"
+    },
+    {
+      "type": "trigger",
+      "x": 1,
+      "y": 11,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_Gate"
+    },
+    {
+      "type": "trigger",
+      "x": 22,
+      "y": 8,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_Gate"
+    },
+    {
+      "type": "trigger",
+      "x": 22,
+      "y": 9,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_Gate"
+    },
+    {
+      "type": "trigger",
+      "x": 22,
+      "y": 10,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_Gate"
+    },
+    {
+      "type": "trigger",
+      "x": 22,
+      "y": 11,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_Gate"
+    },
+    {
+      "type": "trigger",
+      "x": 0,
+      "y": 9,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_ToWoods"
+    },
+    {
+      "type": "trigger",
+      "x": 0,
+      "y": 10,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_ToWoods"
+    },
+    {
+      "type": "trigger",
+      "x": 0,
+      "y": 11,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_ToWoods"
+    },
+    {
+      "type": "trigger",
+      "x": 1,
+      "y": 8,
+      "elevation": 0,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_Gate"
+    },
+    {
+      "type": "trigger",
+      "x": 0,
+      "y": 8,
+      "elevation": 0,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_ToWoods"
+    }
+  ],
+  "bg_events": [
+    {
+      "type": "sign",
+      "x": 20,
+      "y": 8,
+      "elevation": 0,
+      "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
+      "script": "Farmyard_EventScript_Sign"
+    }
+  ],
+  "region": "REGION_KANTO"
+}

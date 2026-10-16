@@ -1188,14 +1188,14 @@
 #define FLAG_HIDDEN_ITEM_SSANNE_EXTERIOR_LAVA_COOKIE                       (FLAG_HIDDEN_ITEMS_START + 190)
 
 // Unused hidden item flags
-#define FLAG_UNUSED_0x4A7               0x4A7 // Unused Flag
-#define FLAG_UNUSED_0x4A8               0x4A8 // Unused Flag
-#define FLAG_UNUSED_0x4A9               0x4A9 // Unused Flag
-#define FLAG_UNUSED_0x4AA               0x4AA // Unused Flag
-#define FLAG_UNUSED_0x4AB               0x4AB // Unused Flag
-#define FLAG_UNUSED_0x4AC               0x4AC // Unused Flag
-#define FLAG_UNUSED_0x4AD               0x4AD // Unused Flag
-#define FLAG_UNUSED_0x4AE               0x4AE // Unused Flag
+#define FLAG_BEFRIENDED_BLIPBUG      0x4A7 // Act 1: befriended in the Woods
+#define FLAG_BEFRIENDED_TYNAMO       0x4A8 // Act 1: befriended in the Woods
+#define FLAG_BEFRIENDED_HATENNA      0x4A9 // Act 1: befriended in the Woods
+#define FLAG_BEFRIENDED_TEDDIURSA    0x4AA // Act 1: befriended in the Woods
+#define FLAG_BEFRIENDED_JANGMO_O     0x4AB // Act 1: befriended in the Woods
+#define FLAG_ACT1_ITEM_CHERI_BERRY   0x4AC // Act 1: Tynamo's favorite, found in Pallet Town
+#define FLAG_ACT1_ITEM_CHESTO_BERRY  0x4AD // Act 1: Hatenna's favorite, found in the Woods
+#define FLAG_ACT1_ITEM_HONEY         0x4AE // Act 1: Teddiursa's favorite, found in the Woods
 #define FLAG_UNUSED_0x4AF               0x4AF // Unused Flag
 
 // Boss clear flags, 1200

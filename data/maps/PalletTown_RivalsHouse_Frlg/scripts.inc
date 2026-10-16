@@ -5,37 +5,73 @@ PalletTown_RivalsHouse_Frlg_MapScripts::
 	.byte 0
 
 PalletTown_RivalsHouse_OnTransition::
-	call_if_lt VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE, 2, PalletTown_RivalsHouse_EventScript_MoveDaisyToTable
-	call_if_ge VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE, 2, PalletTown_RivalsHouse_EventScript_AlreadyReceivedTownMap
+	call PalletTown_RivalsHouse_EventScript_MoveDaisyToTable
+	call_if_ne VAR_STORY_ACT, STORY_ACT_CHILDHOOD, PalletTown_RivalsHouse_EventScript_HideBlue
 	end
+
+@ BLUE is only home in Act 1 (docs/hack/act1_story.md)
+PalletTown_RivalsHouse_EventScript_HideBlue::
+	setflag FLAG_TEMP_1
+	return
+
+PalletTown_RivalsHouse_EventScript_Blue::
+	msgbox PalletTown_RivalsHouse_Text_BlueOldEnoughSoon, MSGBOX_NPC
+	end
+
+PalletTown_RivalsHouse_Text_BlueOldEnoughSoon::
+	.string "{RIVAL}: Gramps didn't pick you,\n"
+	.string "huh, {PLAYER}?\p"
+	.string "Well, I'll be old enough to be a\n"
+	.string "TRAINER soon.\p"
+	.string "And I won't get passed over like\n"
+	.string "you did. Smell ya later!$"
 
 PalletTown_RivalsHouse_EventScript_MoveDaisyToTable::
 	setobjectmovementtype LOCALID_DAISY, MOVEMENT_TYPE_FACE_RIGHT
 	setobjectxyperm LOCALID_DAISY, 5, 4
 	return
 
-PalletTown_RivalsHouse_EventScript_AlreadyReceivedTownMap::
-	setvar RECEIVED_TOWN_MAP, TRUE
-	return
+PalletTown_RivalsHouse_EventScript_DaisyAct1::
+	goto_if_lt VAR_ACT1_PROGRESS, ACT1_BEFRIENDED_BLIPBUG, PalletTown_RivalsHouse_EventScript_DaisyAct1Default
+	goto_if_set FLAG_BEFRIENDED_TEDDIURSA, PalletTown_RivalsHouse_EventScript_DaisyAct1Default
+	msgbox PalletTown_RivalsHouse_Text_DaisyTeddiursaHint
+	goto PalletTown_RivalsHouse_EventScript_DaisyAct1End
 
-PalletTown_RivalsHouse_EventScript_Daisy::
-	lock
-	faceplayer
-	famechecker FAMECHECKER_DAISY, FCPICKSTATE_COLORED, UpdatePickStateFromSpecialVar8005
-	goto_if_set FLAG_SYS_GAME_CLEAR, PalletTown_RivalsHouse_EventScript_GroomMon
-	goto_if_eq RECEIVED_TOWN_MAP, TRUE, PalletTown_RivalsHouse_EventScript_PleaseGiveMonsRest
-	goto_if_eq VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE, 2, PalletTown_RivalsHouse_EventScript_ExplainTownMap
-	goto_if_eq VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE, 1, PalletTown_RivalsHouse_EventScript_GiveTownMap
-	goto_if_ge VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 1, PalletTown_RivalsHouse_EventScript_HeardBattledRival
-	msgbox PalletTown_RivalsHouse_Text_HiBrothersAtLab
+PalletTown_RivalsHouse_EventScript_DaisyAct1Default::
+	msgbox PalletTown_RivalsHouse_Text_DaisyBlueWantsToBeTrainer
+PalletTown_RivalsHouse_EventScript_DaisyAct1End::
 	closemessage
 	applymovement LOCALID_DAISY, Common_Movement_FaceOriginalDirection
 	waitmovement 0
 	release
 	end
 
-PalletTown_RivalsHouse_EventScript_HeardBattledRival::
-	msgbox PalletTown_RivalsHouse_Text_HeardYouBattledRival
+PalletTown_RivalsHouse_Text_DaisyBlueWantsToBeTrainer::
+	.string "DAISY: Hi, {PLAYER}!\p"
+	.string "{RIVAL} won't stop talking about\n"
+	.string "becoming a TRAINER.\p"
+	.string "Don't let him get to you, okay?$"
+
+PalletTown_RivalsHouse_Text_DaisyTeddiursaHint::
+	.string "DAISY: A TEDDIURSA in the woods?\n"
+	.string "How cute!\p"
+	.string "They adore anything sweet,\n"
+	.string "especially HONEY.\p"
+	.string "Where there are lots of flowers,\n"
+	.string "there are bees…\p"
+	.string "…and where there are bees, there's\n"
+	.string "HONEY! Look for a patch of flowers.$"
+
+PalletTown_RivalsHouse_EventScript_Daisy::
+	lock
+	faceplayer
+	famechecker FAMECHECKER_DAISY, FCPICKSTATE_COLORED, UpdatePickStateFromSpecialVar8005
+	goto_if_eq VAR_STORY_ACT, STORY_ACT_CHILDHOOD, PalletTown_RivalsHouse_EventScript_DaisyAct1
+	goto_if_set FLAG_SYS_GAME_CLEAR, PalletTown_RivalsHouse_EventScript_GroomMon
+	msgbox PalletTown_RivalsHouse_Text_HiBrothersAtLab
+	closemessage
+	applymovement LOCALID_DAISY, Common_Movement_FaceOriginalDirection
+	waitmovement 0
 	release
 	end
 
@@ -120,38 +156,6 @@ PalletTown_RivalsHouse_EventScript_MonFriendshipHighest::
 	release
 	end
 
-PalletTown_RivalsHouse_EventScript_PleaseGiveMonsRest::
-	msgbox PalletTown_RivalsHouse_Text_PleaseGiveMonsRest
-	release
-	end
-
-PalletTown_RivalsHouse_EventScript_GiveTownMap::
-	msgbox PalletTown_RivalsHouse_Text_ErrandForGrandpaThisWillHelp
-	closemessage
-	checkitemspace ITEM_TOWN_MAP
-	goto_if_eq VAR_RESULT, FALSE, PalletTown_RivalsHouse_EventScript_NoRoomForTownMap
-	applymovement LOCALID_DAISY, Common_Movement_WalkInPlaceFasterRight
-	waitmovement 0
-	removeobject LOCALID_TOWN_MAP
-	setvar VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE, 2
-	delay 15
-	applymovement LOCALID_DAISY, Common_Movement_FacePlayer
-	waitmovement 0
-	delay 12
-	giveitem_msg PalletTown_RivalsHouse_Text_ReceivedTownMapFromDaisy, ITEM_TOWN_MAP, 1, MUS_RG_OBTAIN_KEY_ITEM
-	release
-	end
-
-PalletTown_RivalsHouse_EventScript_NoRoomForTownMap::
-	msgbox PalletTown_RivalsHouse_Text_DontHaveSpaceForThis
-	release
-	end
-
-PalletTown_RivalsHouse_EventScript_ExplainTownMap::
-	msgbox PalletTown_RivalsHouse_Text_ExplainTownMap
-	release
-	end
-
 PalletTown_RivalsHouse_EventScript_TownMap::
 	msgbox PalletTown_RivalsHouse_Text_ItsBigMapOfKanto, MSGBOX_NPC
 	end
@@ -168,36 +172,6 @@ PalletTown_RivalsHouse_Text_HiBrothersAtLab::
 	.string "DAISY: Hi, {PLAYER}!\p"
 	.string "My brother, {RIVAL}, is out at\n"
 	.string "Grandpa's LAB.$"
-
-PalletTown_RivalsHouse_Text_HeardYouBattledRival::
-	.string "DAISY: {PLAYER}, I heard you had\n"
-	.string "a battle against {RIVAL}.\p"
-	.string "I wish I'd seen that!$"
-
-PalletTown_RivalsHouse_Text_ErrandForGrandpaThisWillHelp::
-	.string "Grandpa asked you to run an\n"
-	.string "errand?\p"
-	.string "Gee, that's lazy of him.\n"
-	.string "Here, this will help you.$"
-
-PalletTown_RivalsHouse_Text_ReceivedTownMapFromDaisy::
-	.string "{PLAYER} received a TOWN MAP\n"
-	.string "from DAISY.$"
-
-PalletTown_RivalsHouse_Text_DontHaveSpaceForThis::
-	.string "You don't have space for this in\n"
-	.string "your BAG.$"
-
-PalletTown_RivalsHouse_Text_ExplainTownMap::
-	.string "You can use the TOWN MAP to find\n"
-	.string "out where you are, or check the\l"
-	.string "names of places.$"
-
-PalletTown_RivalsHouse_Text_PleaseGiveMonsRest::
-	.string "DAISY: Just like people, POKéMON\n"
-	.string "are living things.\p"
-	.string "When they get tired, please give\n"
-	.string "them a rest.$"
 
 PalletTown_RivalsHouse_Text_ItsBigMapOfKanto::
 	.string "It's a big map of the KANTO region.\n"

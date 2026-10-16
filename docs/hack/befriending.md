@@ -55,6 +55,35 @@ Scores are heuristics from the species data: Pokédex entry and category keyword
 friendship, catch rate, size, base stats, types, egg groups and abilities. Legendaries, mythicals, Ultra Beasts,
 Paradox Pokémon, Megas/Gigantamax and battle or cosmetic forms are left out; regional forms are kept.
 
+## The Act 1 loop
+- The player has at most **one** Pokémon in Act 1, and it follows them (`OW_FOLLOWERS_ENABLED`). A befriended Pokémon
+  joins the party, so it starts following right after the battle.
+- While one is following, another befriending encounter doesn't start: "You should take Blipbug home to the farmyard
+  first." (`IsBefriendAllowed`, `src/farmyard.c`; `befriendbattle` then sets `VAR_RESULT` to `BEFRIEND_RESULT_BLOCKED`).
+- **Farmyard** (`data/maps/Farmyard`): walking in through a gate (coord triggers across its left entrance from the
+  Woods, x 1, and its right entrance from Pallet Town, x 22) drops the follower off: it leaves the party and starts wandering the farmyard. Farm Pokémon are kept in the last PC box
+  (`FARM_BOX`, named FARM) and shown at the map's first 8 object events (graphics `VAR_OBJ_GFX_ID_0..7`, hidden by
+  `FLAG_TEMP_1..8` while empty, set by `SetupFarmyardMons` on map load). Spot 3 is in the pond and only for Tynamo
+  and its evolutions (`FARM_WATER_SPOT`); the others fill the other 7 spots in box order (`GetFarmSpot`).
+- **Woods** (`data/maps/Woods`): reached only from the farmyard: the farmyard's left edge leads to the Woods' right edge (for now a warp: stepping on
+  the farmyard's x 0 goes to the Woods, and the Woods' exit returns to (0, 10), one step before the gate). All five Act 1 Pokémon live
+  there; talking to one starts its befriending encounter, and once befriended it's gone from the Woods
+  (`FLAG_BEFRIENDED_*`). Levels: Blipbug 3, Tynamo 5, Hatenna 5, Teddiursa 6, Jangmo-o 10.
+- A new game starts in the farmyard, in front of the farmhouse the player grew up in (`FARMYARD_START_X/Y`,
+  `include/constants/farmyard.h`). Farmyard maps: the farmhouse (`PalletTown_PlayersHouse_1F/2F_Frlg_Farm`, Mom on 1F) and
+  the barn (`PalletTown_Farm_Barn`). `HEAL_LOCATION_PALLET_TOWN` points at the farmhouse door; whiting out puts the player
+  next to Mom in the farmhouse.
+- Pallet Town's left edge and the farmyard's right edge are a map connection (rows 8-11).
+- Acts 1-2: the original player's house in Pallet Town is empty and for sale. Act 3 gets its own Pallet Town and house maps.
+- Act 1 stays in Pallet Town: its north exit to Route 1 turns the player back ("It's too far to go on my own."), on
+  triggers listed before Oak's so his scene doesn't start. The south is water, and there's no Surf in Act 1.
+
+**Porymap:** the Farmyard and the Woods are drawn. They're joined by warp triggers, not a map connection: the game
+draws a connected map with the current map's tilesets, and the Woods (Viridian Forest tileset) would come out as
+garbled Pallet Town tiles next to the farmyard (Porymap draws each map with its own, so it looks fine there). A map
+connection only works between maps that share tilesets, like Pallet Town and the farmyard; otherwise only primary
+tileset metatiles may show near the shared edge.
+
 ## Starting one
 In a map script:
 

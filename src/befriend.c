@@ -34,6 +34,10 @@ static const u8 *const sBefriendActionNames[BEFRIEND_ACTION_COUNT] =
     [BEFRIEND_ACTION_APPROACH]      = COMPOUND_STRING("Approach"),
 };
 
+// Jangmo-o, while the player carries the Hard Stone Dad gave them "in case it attacks" (docs/hack/act1_story.md):
+// this Act slot becomes Throw stone. Jangmo-o hits back and the player blacks out; offering the stone works instead.
+#define BEFRIEND_THROW_STONE_SLOT BEFRIEND_ACTION_HUM
+
 // The battle script to continue with once the reaction is shown; see BS_BefriendFinish
 static EWRAM_DATA const u8 *sBefriendNextScript = NULL;
 
@@ -47,8 +51,20 @@ const struct BefriendInfo *GetBefriendInfo(u16 species)
     return &sBefriendDefault;
 }
 
+static enum BattlerId GetBefriendTarget(void)
+{
+    return GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT);
+}
+
+bool32 IsBefriendThrowStoneOffered(void)
+{
+    return gBattleMons[GetBefriendTarget()].species == SPECIES_JANGMO_O && CheckBagHasItem(ITEM_HARD_STONE, 1);
+}
+
 const u8 *GetBefriendActionName(enum BefriendAction action)
 {
+    if (action == BEFRIEND_THROW_STONE_SLOT && IsBefriendThrowStoneOffered())
+        return COMPOUND_STRING("Throw stone");
     return (action < BEFRIEND_ACTION_COUNT) ? sBefriendActionNames[action] : COMPOUND_STRING("");
 }
 
@@ -74,17 +90,14 @@ enum BefriendReaction GetBefriendItemReaction(const struct BefriendInfo *info, u
 }
 
 // In percent of max HP; negative calms it down, scaled by how easily this Pokémon calms down.
-s32 GetBefriendAggressionChange(const struct BefriendInfo *info, enum BefriendReaction reaction, bool32 isItem, bool32 repeatedLovedAction)
+s32 GetBefriendAggressionChange(const struct BefriendInfo *info, enum BefriendReaction reaction, bool32 isItem)
 {
     s32 change;
 
     switch (reaction)
     {
     case BEFRIEND_REACTION_LOVED:
-        if (isItem)
-            change = BEFRIEND_LOVED_ITEM;
-        else
-            change = repeatedLovedAction ? BEFRIEND_LOVED_ACTION_REPEAT : BEFRIEND_LOVED_ACTION_FIRST;
+        change = isItem ? BEFRIEND_LOVED_ITEM : BEFRIEND_LOVED_ACTION;
         break;
     case BEFRIEND_REACTION_DISLIKED:
         return BEFRIEND_DISLIKED;
@@ -93,11 +106,6 @@ s32 GetBefriendAggressionChange(const struct BefriendInfo *info, enum BefriendRe
         break;
     }
     return change * info->calmRate / 100;
-}
-
-static enum BattlerId GetBefriendTarget(void)
-{
-    return GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT);
 }
 
 static const struct BefriendInfo *GetTargetBefriendInfo(void)
@@ -146,17 +154,28 @@ void HandleAction_BefriendAct(void)
     const struct BefriendInfo *info = GetTargetBefriendInfo();
     enum BefriendAction action = gBattleStruct->befriendChoice;
     enum BefriendReaction reaction = GetBefriendActionReaction(info, action);
-    bool32 repeated = (reaction == BEFRIEND_REACTION_LOVED && gBattleStruct->befriendLovedActionUsed);
 
     gBattlerAttacker = gBattlerByTurnOrder[gCurrentTurnActionNumber];
     gBattle_BG0_X = 0;
     gBattle_BG0_Y = 0;
+    if (action == BEFRIEND_THROW_STONE_SLOT && IsBefriendThrowStoneOffered())
+    {
+        gBattlerTarget = GetBefriendTarget();
+        gBattlescriptCurrInstr = BattleScript_BefriendThrowStone;
+        gCurrentActionFuncId = B_ACTION_EXEC_SCRIPT;
+        return;
+    }
+    // The loved action only works its magic once
     if (reaction == BEFRIEND_REACTION_LOVED)
+    {
+        if (gBattleStruct->befriendLovedActionUsed)
+            reaction = BEFRIEND_REACTION_NEUTRAL;
         gBattleStruct->befriendLovedActionUsed = TRUE;
+    }
 
     StringCopy(gStringVar2, (action < BEFRIEND_ACTION_COUNT) ? sBefriendActionTexts[action] : sBefriendActionTexts[0]);
     gBattleCommunication[MULTISTRING_CHOOSER] = reaction;
-    SetBefriendOutcome(GetBefriendAggressionChange(info, reaction, FALSE, repeated));
+    SetBefriendOutcome(GetBefriendAggressionChange(info, reaction, FALSE));
     gBattlescriptCurrInstr = BattleScript_BefriendAct;
     gCurrentActionFuncId = B_ACTION_EXEC_SCRIPT;
 }
@@ -175,7 +194,7 @@ void HandleAction_BefriendItem(void)
         RemoveBagItem(item, 1); // Offered items are used up
 
     gBattleCommunication[MULTISTRING_CHOOSER] = reaction;
-    SetBefriendOutcome(GetBefriendAggressionChange(info, reaction, TRUE, FALSE));
+    SetBefriendOutcome(GetBefriendAggressionChange(info, reaction, TRUE));
     gBattlescriptCurrInstr = BattleScript_BefriendItem;
     gCurrentActionFuncId = B_ACTION_EXEC_SCRIPT;
 }

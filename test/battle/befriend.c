@@ -1,6 +1,7 @@
 #include "global.h"
 #include "test/battle.h"
 #include "befriend.h"
+#include "item.h"
 
 // Befriending battles (Act 1), see docs/hack/befriending.md. The wild Pokémon's HP is its aggression.
 // Teddiursa (src/data/befriend.h): loves a held-out hand and Honey, dislikes being approached and Rawst Berries.
@@ -22,7 +23,7 @@ BEFRIEND_BATTLE_TEST("Befriending: the loved action lowers aggression a lot")
     }
 }
 
-BEFRIEND_BATTLE_TEST("Befriending: the loved action works less the second time")
+BEFRIEND_BATTLE_TEST("Befriending: the loved action only works once, then it's like any other")
 {
     GIVEN {
         PLAYER(SPECIES_WOBBUFFET);
@@ -32,7 +33,27 @@ BEFRIEND_BATTLE_TEST("Befriending: the loved action works less the second time")
         TURN { ACT(BEFRIEND_ACTION_HOLD_OUT_HAND); }
     } SCENE {
         HP_BAR(opponent, damage: 40);
-        HP_BAR(opponent, damage: 15);
+        MESSAGE("Teddiursa doesn't seem\nto mind.");
+        HP_BAR(opponent, damage: 10);
+    }
+}
+
+BEFRIEND_BATTLE_TEST("Befriending: actions alone can't befriend a Pokémon whose loved item is out there to find")
+{
+    GIVEN {
+        ASSUME(GetBefriendInfo(SPECIES_TEDDIURSA)->patience == 5);
+        PLAYER(SPECIES_WOBBUFFET);
+        BEFRIEND_TEDDIURSA
+    } WHEN {
+        TURN { ACT(BEFRIEND_ACTION_HOLD_OUT_HAND); }
+        TURN { ACT(BEFRIEND_ACTION_HOLD_OUT_HAND); }
+        TURN { ACT(BEFRIEND_ACTION_CROUCH); }
+        TURN { ACT(BEFRIEND_ACTION_HUM); }
+        TURN { ACT(BEFRIEND_ACTION_HOLD_OUT_HAND); }
+    } SCENE {
+        MESSAGE("{PLAY_SE SE_FLEE}Teddiursa ran away!");
+    } THEN {
+        EXPECT_EQ(gBattleOutcome, B_OUTCOME_MON_FLED);
     }
 }
 
@@ -145,20 +166,51 @@ BEFRIEND_BATTLE_TEST("Befriending: the Pokémon runs away when it runs out of pa
     }
 }
 
-BEFRIEND_BATTLE_TEST("Befriending: the boss calms down at half the usual rate")
+BEFRIEND_BATTLE_TEST("Befriending: the boss is won over by boldness and the Hard Stone, offered")
 {
     GIVEN {
-        ASSUME(GetBefriendInfo(SPECIES_JANGMO_O)->calmRate == 50);
         ASSUME(GetBefriendInfo(SPECIES_JANGMO_O)->lovedAction == BEFRIEND_ACTION_APPROACH);
+        ASSUME(GetBefriendInfo(SPECIES_JANGMO_O)->lovedItem == ITEM_HARD_STONE);
         PLAYER(SPECIES_WOBBUFFET);
-        OPPONENT(SPECIES_JANGMO_O) { HP(60); MaxHP(100); }
+        OPPONENT(SPECIES_JANGMO_O) { HP(100); MaxHP(100); }
     } WHEN {
         TURN { ACT(BEFRIEND_ACTION_APPROACH); }
-        TURN { ACT(BEFRIEND_ACTION_CROUCH); }
+        TURN { OFFER(ITEM_HARD_STONE); }
     } SCENE {
-        HP_BAR(opponent, damage: 20);
+        HP_BAR(opponent, damage: 40);
+        MESSAGE("Jangmo-o happily took\nthe Hard Stone!");
+        MESSAGE("Jangmo-o is comfortable\naround you now!");
+    }
+}
+
+BEFRIEND_BATTLE_TEST("Befriending: with the Hard Stone in the bag, Jangmo-o's Throw stone blacks the player out")
+{
+    GIVEN {
+        GIVE_PLAYER_ITEM(ITEM_HARD_STONE, 1);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_JANGMO_O) { HP(100); MaxHP(100); }
+    } WHEN {
+        TURN { ACT(BEFRIEND_ACTION_HUM); }
+    } SCENE {
+        MESSAGE("You threw the Hard Stone at\nJangmo-o!");
+        MESSAGE("Who throws a stone? Honestly!\pThat really hurts!\pIt's going to have a lump there\nyou idiot.");
+        MESSAGE("Jangmo-o slammed into you!\pYou blacked out!");
+    } THEN {
+        EXPECT_EQ(gBattleOutcome, B_OUTCOME_LOST);
+        EXPECT(CheckBagHasItem(ITEM_HARD_STONE, 1)); // Kept, to offer it next time
+    }
+}
+
+BEFRIEND_BATTLE_TEST("Befriending: without the Hard Stone, Jangmo-o's Hum slot is just humming")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_JANGMO_O) { HP(50); MaxHP(100); }
+    } WHEN {
+        TURN { ACT(BEFRIEND_ACTION_HUM); }
+    } SCENE {
+        MESSAGE("You hummed a tune.");
         MESSAGE("Jangmo-o didn't like that!\nIt's getting agitated!");
-        HP_BAR(opponent, damage: -25); // Raising isn't scaled
     }
 }
 

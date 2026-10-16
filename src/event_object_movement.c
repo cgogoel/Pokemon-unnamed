@@ -53,6 +53,7 @@
 #include "constants/rgb.h"
 #include "constants/region_map_sections.h"
 #include "constants/songs.h"
+#include "constants/story.h"
 #include "constants/species.h"
 #include "constants/metatile_behaviors.h"
 #include "constants/trainer_types.h"
@@ -79,6 +80,7 @@ enum {
     MOVE_SPEED_FAST_2, // water current / acro bike
     MOVE_SPEED_FASTER, // mach bike's max speed
     MOVE_SPEED_FASTEST,
+    MOVE_SPEED_PLAYER_WALK, // the player's own walk, 1.5x normal (16 px in 11 frames; see AdjustWalkSpeed)
 };
 
 enum {
@@ -532,8 +534,8 @@ static const struct SpritePalette sObjectEventSpritePalettes[] = {
     {gObjectEventPal_RubySapphireBrendan,   OBJ_EVENT_PAL_TAG_RS_BRENDAN},
     {gObjectEventPal_RubySapphireMay,       OBJ_EVENT_PAL_TAG_RS_MAY},
 #if IS_FRLG
-    {gObjectEventPal_PlayerFrlg,            OBJ_EVENT_PAL_TAG_PLAYER_RED},
-    {gObjectEventPal_PlayerReflectionFrlg,  OBJ_EVENT_PAL_TAG_PLAYER_RED_REFLECTION},
+    {gObjectEventPal_PlayerBoy,             OBJ_EVENT_PAL_TAG_PLAYER_RED},
+    {gObjectEventPal_PlayerBoyReflection,   OBJ_EVENT_PAL_TAG_PLAYER_RED_REFLECTION},
     {gObjectEventPal_PlayerFrlg,            OBJ_EVENT_PAL_TAG_PLAYER_GREEN},
     {gObjectEventPal_PlayerReflectionFrlg,  OBJ_EVENT_PAL_TAG_PLAYER_GREEN_REFLECTION},
     {gObjectEventPal_NpcBlue,               OBJ_EVENT_PAL_TAG_NPC_BLUE},
@@ -3209,6 +3211,10 @@ const struct ObjectEventGraphicsInfo *GetObjectEventGraphicsInfo(u16 graphicsId)
 
     if (graphicsId >= NUM_OBJ_EVENT_GFX)
         graphicsId = OBJ_EVENT_GFX_NINJA_BOY;
+
+    // From Act 2 the player walks around as a Silph worker (docs/hack/opening.md)
+    if (graphicsId == PLAYER_AVATAR_GFX_MALE_NORMAL && VarGet(VAR_STORY_ACT) >= STORY_ACT_UNIVERSITY)
+        return &gObjectEventGraphicsInfo_PlayerWorker;
 
     return gObjectEventGraphicsInfoPointers[graphicsId];
 }
@@ -6369,10 +6375,27 @@ enum Collision GetSidewaysStairsCollision(struct ObjectEvent *objectEvent, enum 
     return collision;
 }
 
+static bool32 IsWaterAt(s16 x, s16 y)
+{
+    u32 behavior = MapGridGetMetatileBehaviorAt(x, y);
+    return MetatileBehavior_IsPuddle(behavior) || MetatileBehavior_IsSurfableWaterOrUnderwater(behavior);
+}
+
+// A Pokémon object moving on its own (not the follower) stays in water or on land, whichever it's on: Act 1's
+// ponds are walkable, so this keeps Tynamo in them and the farm's Pokémon out (docs/hack/act1_story.md)
+static bool32 IsPokemonLeavingItsGround(struct ObjectEvent *objectEvent, s16 x, s16 y)
+{
+    if (!(objectEvent->graphicsId & OBJ_EVENT_MON) || objectEvent->localId == OBJ_EVENT_ID_FOLLOWER)
+        return FALSE;
+    return IsWaterAt(objectEvent->currentCoords.x, objectEvent->currentCoords.y) != IsWaterAt(x, y);
+}
+
 static enum Collision GetVanillaCollision(struct ObjectEvent *objectEvent, s16 x, s16 y, enum Direction direction)
 {
     if (IsCoordOutsideObjectEventMovementRange(objectEvent, x, y))
         return COLLISION_OUTSIDE_RANGE;
+    else if (IsPokemonLeavingItsGround(objectEvent, x, y))
+        return COLLISION_IMPASSABLE;
     else if (MapGridGetCollisionAt(x, y) || GetMapBorderIdAt(x, y) == CONNECTION_INVALID || IsMetatileDirectionallyImpassable(objectEvent, x, y, direction))
         return COLLISION_IMPASSABLE;
     else if (objectEvent->trackedByCamera && !CanCameraMoveInDirection(direction))
@@ -6995,9 +7018,21 @@ void InitNpcForMovement(struct ObjectEvent *objectEvent, struct Sprite *sprite, 
     sprite->sActionFuncId = 1;
 }
 
+// The player walks at 1.5x the usual speed, and their follower keeps up. Only when the player is in control:
+// in scripted scenes they walk at the usual speed, in step with everyone else.
+static u8 AdjustWalkSpeed(struct ObjectEvent *objectEvent, u8 speed)
+{
+    if (speed == MOVE_SPEED_NORMAL && (objectEvent->isPlayer || objectEvent->localId == OBJ_EVENT_ID_FOLLOWER)
+     && !ArePlayerFieldControlsLocked())
+        return MOVE_SPEED_PLAYER_WALK;
+    return speed;
+}
+
 static void InitMovementNormal(struct ObjectEvent *objectEvent, struct Sprite *sprite, enum Direction direction, u8 speed)
 {
     u8 (*functions[ARRAY_COUNT(sDirectionAnimFuncsBySpeed)])(u8);
+
+    speed = AdjustWalkSpeed(objectEvent, speed);
 
     memcpy(functions, sDirectionAnimFuncsBySpeed, sizeof sDirectionAnimFuncsBySpeed);
     InitNpcForMovement(objectEvent, sprite, direction, speed);
@@ -10613,12 +10648,28 @@ static const SpriteStepFunc sStep8Funcs[] = {
     Step8,
 };
 
+// 1.5x walking: 2 and 1 px alternating, 16 px in 11 frames (as close to 10.67 as whole pixels get)
+static const SpriteStepFunc sStepPlayerWalkFuncs[] = {
+    Step2,
+    Step1,
+    Step2,
+    Step1,
+    Step2,
+    Step1,
+    Step2,
+    Step1,
+    Step2,
+    Step1,
+    Step1,
+};
+
 static const SpriteStepFunc *const sNpcStepFuncTables[] = {
     [MOVE_SPEED_NORMAL] = sStep1Funcs,
     [MOVE_SPEED_FAST_1] = sStep2Funcs,
     [MOVE_SPEED_FAST_2] = sStep3Funcs,
     [MOVE_SPEED_FASTER] = sStep4Funcs,
     [MOVE_SPEED_FASTEST] = sStep8Funcs,
+    [MOVE_SPEED_PLAYER_WALK] = sStepPlayerWalkFuncs,
 };
 
 static const s16 sStepTimes[] = {
@@ -10627,6 +10678,7 @@ static const s16 sStepTimes[] = {
     [MOVE_SPEED_FAST_2] = ARRAY_COUNT(sStep3Funcs),
     [MOVE_SPEED_FASTER] = ARRAY_COUNT(sStep4Funcs),
     [MOVE_SPEED_FASTEST] = ARRAY_COUNT(sStep8Funcs),
+    [MOVE_SPEED_PLAYER_WALK] = ARRAY_COUNT(sStepPlayerWalkFuncs),
 };
 
 static bool8 NpcTakeStep(struct Sprite *sprite)

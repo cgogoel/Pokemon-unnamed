@@ -1001,9 +1001,26 @@ static void UNUSED TestBattleTransition(u8 transitionId)
     SetMainCallback2(CB2_TestBattleTransition);
 }
 
+// B_BATTLE_SPEED_1_5X: the screen transition into a battle runs at 1.5x too. Every other frame, its tasks, sprites
+// and palette fade get an extra update (3 in 2 frames); scripts and the camera keep their pace.
+static void CB2_BattleTransitionOnField(void)
+{
+    static EWRAM_DATA bool8 sExtraFrame = FALSE;
+
+    CB2_OverworldBasic();
+    if (!B_BATTLE_SPEED_1_5X || TESTING || gMain.callback2 != CB2_BattleTransitionOnField)
+        return;
+    sExtraFrame ^= TRUE;
+    if (!sExtraFrame)
+        return;
+    RunTasks();
+    AnimateSprites();
+    UpdatePaletteFade();
+}
+
 void BattleTransition_StartOnField(u8 transitionId)
 {
-    gMain.callback2 = CB2_OverworldBasic;
+    gMain.callback2 = CB2_BattleTransitionOnField;
     LaunchBattleTransitionTask(transitionId);
 }
 

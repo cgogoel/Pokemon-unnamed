@@ -6,4 +6,25 @@
 #define STORY_ACT_UNIVERSITY    1 // Act 2: Poké Balls, teams of up to 3, 3v3 battles
 #define STORY_ACT_WORKFORCE     2 // Act 3: Silph Co.
 
+// Act 1's story so far, in VAR_ACT1_PROGRESS (docs/hack/act1_story.md). Map coord events use the numbers (11, 12 in
+// the Farmyard's map.json): map data doesn't see these names.
+#define ACT1_START                  0  // Oak didn't choose the player; the Pokédex waits at his lab
+#define ACT1_GOT_POKEDEX            1
+#define ACT1_MOM_SENT_TO_DAD        2  // Mom: go talk to Dad in the barn
+#define ACT1_DAD_SENT_TO_WOODS      3  // Dad: be kind and patient; an Oran Berry for Blipbug. The Woods open.
+#define ACT1_BEFRIENDED_BLIPBUG     4  // Mom: Dad wants to talk again
+#define ACT1_DAD_WARNED_JANGMO_O    5  // Dad: there are others in the Woods, but avoid Jangmo-o
+#define ACT1_BEFRIENDED_THREE       6  // Tynamo, Hatenna and Teddiursa befriended
+#define ACT1_DAD_SAYS_TOO_DANGEROUS 7  // Dad: Jangmo-o is still too dangerous; go see Mom
+#define ACT1_MOM_SAYS_FOLLOW_HEART  8  // Mom: follow your heart. Dad gives the Hard Stone next.
+#define ACT1_GOT_HARD_STONE         9  // Talking to Jangmo-o starts its encounter
+#define ACT1_BEFRIENDED_JANGMO_O    10 // Bringing it home: Mom and Dad can't believe it, and send the player to rest
+#define ACT1_RESTED                 11 // Mom and Dad: show the Pokédex to Oak. Oak arrives as the player leaves.
+#define ACT1_CHOOSING_FRIENDS       12 // Oak: Celadon University; choose two friends to bring. Then the prologue ends.
+
+// Where Act 2 starts (placeholder: a Celadon Condominiums room for the University dorms)
+#define ACT2_START_MAP              MAP_CELADON_CITY_CONDOMINIUMS_2F
+#define ACT2_START_X                6
+#define ACT2_START_Y                8
+
 #endif // GUARD_CONSTANTS_STORY_H

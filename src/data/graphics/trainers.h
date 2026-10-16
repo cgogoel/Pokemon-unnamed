@@ -472,7 +472,8 @@ const u16 gTrainerPalette_PainterFrlg[] = INCGFX_U16("graphics/trainers/palettes
 static const u8 gTrainerBackPic_None[] = INCGFX_U8("graphics/trainers/back_pics/none.png", ".4bpp");
 const u8 gTrainerBackPic_Brendan[] = INCGFX_U8("graphics/trainers/back_pics/brendan.png", ".4bpp");
 const u8 gTrainerBackPic_May[] = INCGFX_U8("graphics/trainers/back_pics/may.png", ".4bpp");
-const u8 gTrainerBackPic_Red[] = INCGFX_U8("graphics/trainers/back_pics/red.png", ".4bpp");
+// The player boy: Red with the Silph worker's hair color (tools/hack/compose_player_head.py)
+const u8 gTrainerBackPic_Red[] = INCGFX_U8("graphics/trainers/back_pics/player_boy.png", ".4bpp");
 const u8 gTrainerBackPic_Leaf[] = INCGFX_U8("graphics/trainers/back_pics/leaf.png", ".4bpp");
 const u8 gTrainerBackPic_RubySapphireBrendan[] = INCGFX_U8("graphics/trainers/back_pics/brendan_rs.png", ".4bpp");
 const u8 gTrainerBackPic_RubySapphireMay[] = INCGFX_U8("graphics/trainers/back_pics/may_rs.png", ".4bpp");
@@ -481,7 +482,7 @@ const u8 gTrainerBackPic_Steven[] = INCGFX_U8("graphics/trainers/back_pics/steve
 const u8 gTrainerBackPic_Pokedude[] = INCGFX_U8("graphics/trainers/back_pics/pokedude.png", ".4bpp");
 const u8 gTrainerBackPic_OldMan[] = INCGFX_U8("graphics/trainers/back_pics/old_man.png", ".4bpp");
 
-const u16 gTrainerBackPicPalette_Red[] = INCGFX_U16("graphics/trainers/back_pics/red.png", ".gbapal");
+const u16 gTrainerBackPicPalette_Red[] = INCGFX_U16("graphics/trainers/back_pics/player_boy.png", ".gbapal");
 const u16 gTrainerBackPicPalette_Leaf[] = INCGFX_U16("graphics/trainers/back_pics/leaf.png", ".gbapal");
 const u16 gTrainerBackPicPalette_Pokedude[] = INCGFX_U16("graphics/trainers/back_pics/pokedude.png", ".gbapal");
 const u16 gTrainerBackPicPalette_OldMan[] = INCGFX_U16("graphics/trainers/back_pics/old_man.png", ".gbapal");

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "act1_story.h"
 #include "battle_setup.h"
 #include "bike.h"
 #include "coord_event_weather.h"
@@ -173,6 +174,10 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
     metatileBehavior = MapGridGetMetatileBehaviorAt(position.x, position.y);
 
     if (CheckForTrainersWantingBattle() == TRUE)
+        return TRUE;
+
+    // Act 1: the Woods' Jangmo-o charges when it sees the player (docs/hack/act1_story.md)
+    if (TryStartWoodsJangmoOCharge() == TRUE)
         return TRUE;
 
     if (TryRunOnFrameMapScript() == TRUE)
@@ -387,6 +392,14 @@ static const u8 *GetInteractedObjectEventScript(struct MapPosition *position, u8
     default:
         objectEventId = GetObjectEventIdByPosition(position->x, position->y, position->elevation);
         break;
+    }
+
+    // A Pokémon object at another height than the player: talk to it anyway (Act 1's Pokémon are spoken to like NPCs)
+    if (objectEventId == OBJECT_EVENTS_COUNT)
+    {
+        objectEventId = GetObjectEventIdByXY(position->x, position->y);
+        if (objectEventId != OBJECT_EVENTS_COUNT && !(gObjectEvents[objectEventId].graphicsId & OBJ_EVENT_MON))
+            objectEventId = OBJECT_EVENTS_COUNT;
     }
 
     if (objectEventId == OBJECT_EVENTS_COUNT || gObjectEvents[objectEventId].localId == LOCALID_PLAYER)

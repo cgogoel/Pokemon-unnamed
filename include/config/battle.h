@@ -351,7 +351,7 @@
 #define B_FAST_INTRO_NO_SLIDE               FALSE      // If set to TRUE, the slide animation that happens at the beginning of battles is skipped.
 #define B_FAST_HP_DRAIN                     TRUE       // If set to TRUE, HP bars will move faster.
 #define B_FAST_EXP_GROW                     TRUE       // If set to TRUE, EXP bars will move faster.
-#define B_BATTLE_SPEED_1_5X                 TRUE       // Hack: battles run at 1.5x (intro, text, animations): every other frame runs the battle's logic twice. Not in link battles or tests.
+#define B_BATTLE_SPEED_1_5X                 TRUE       // Hack: battles run at 1.5x (intro slide-in, text, animations), and so does the screen transition into them: every other frame runs their logic twice. Not in link battles or tests.
 #define B_SHOW_TARGETS                      TRUE       // If set to TRUE, all available targets will be shown before selecting a move in Double Battles.
 #define B_SHOW_CATEGORY_ICON                TRUE       // If set to TRUE, an icon in the summary and move relearner will show a move's category.
 #define B_HIDE_HEALTHBOX_IN_ANIMS           TRUE       // If set to TRUE, healthboxes will be hidden during move animations.

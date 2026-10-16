@@ -9,7 +9,7 @@ Farmyard_OnTransition:
 	special SetupFarmyardMons
 	end
 
-@ The gate: the following Pokémon is dropped off and starts wandering the farmyard
+@ The gates, just inside each entrance: the following Pokémon is dropped off and starts wandering the farmyard
 Farmyard_EventScript_Gate::
 	lockall
 	special Special_DepositFollowerInFarm
@@ -23,7 +23,7 @@ Farmyard_EventScript_GateEnd:
 	end
 
 Farmyard_EventScript_ToWoods::
-	warp MAP_WOODS, 29, 60
+	warp MAP_WOODS, 49, 58
 	waitstate
 	end
 

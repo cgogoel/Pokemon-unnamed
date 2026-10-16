@@ -5,7 +5,7 @@ Woods_MapScripts::
 	.byte 0
 
 Woods_EventScript_ToFarmyard::
-	warp MAP_FARMYARD, 20, 18
+	warp MAP_FARMYARD, 3, 8
 	waitstate
 	end
 

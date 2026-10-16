@@ -20,7 +20,7 @@
       "local_id": "LOCALID_WOODS_BLIPBUG",
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_SPECIES(BLIPBUG)",
-      "x": 24,
+      "x": 44,
       "y": 58,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
@@ -96,8 +96,8 @@
   "coord_events": [
     {
       "type": "trigger",
-      "x": 28,
-      "y": 61,
+      "x": 50,
+      "y": 58,
       "elevation": 3,
       "var": "VAR_TEMP_9",
       "var_value": "0",
@@ -105,17 +105,8 @@
     },
     {
       "type": "trigger",
-      "x": 29,
-      "y": 61,
-      "elevation": 3,
-      "var": "VAR_TEMP_9",
-      "var_value": "0",
-      "script": "Woods_EventScript_ToFarmyard"
-    },
-    {
-      "type": "trigger",
-      "x": 30,
-      "y": 61,
+      "x": 50,
+      "y": 59,
       "elevation": 3,
       "var": "VAR_TEMP_9",
       "var_value": "0",

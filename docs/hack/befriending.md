@@ -60,16 +60,16 @@ Paradox Pokémon, Megas/Gigantamax and battle or cosmetic forms are left out; re
   joins the party, so it starts following right after the battle.
 - While one is following, another befriending encounter doesn't start: "You should take Blipbug home to the farmyard
   first." (`IsBefriendAllowed`, `src/farmyard.c`; `befriendbattle` then sets `VAR_RESULT` to `BEFRIEND_RESULT_BLOCKED`).
-- **Farmyard** (`data/maps/Farmyard`): walking in through the gate (coord triggers at its top entrance) drops the
-  follower off: it leaves the party and starts wandering the farmyard. Farm Pokémon are kept in the last PC box
+- **Farmyard** (`data/maps/Farmyard`): walking in through a gate (coord triggers just inside its left entrance from the
+  Woods and its right entrance from Pallet Town) drops the follower off: it leaves the party and starts wandering the farmyard. Farm Pokémon are kept in the last PC box
   (`FARM_BOX`, named FARM); the first 8 are shown as the map's first 8 object events (graphics `VAR_OBJ_GFX_ID_0..7`,
   hidden by `FLAG_TEMP_1..8` while empty, set by `SetupFarmyardMons` on map load).
-- **Woods** (`data/maps/Woods`): reached only from the farmyard (its bottom-right corner). All five Act 1 Pokémon live
+- **Woods** (`data/maps/Woods`): reached only from the farmyard: the farmyard's left edge leads to the Woods' right edge. All five Act 1 Pokémon live
   there; talking to one starts its befriending encounter, and once befriended it's gone from the Woods
   (`FLAG_BEFRIENDED_*`). Levels: Blipbug 3, Tynamo 5, Hatenna 5, Teddiursa 6, Jangmo-o 10.
 - A new game starts in the farmyard, in front of the farmhouse the player grew up in (`FARMYARD_START_X/Y`,
   `include/constants/farmyard.h`; the farmhouse is the placeholder layout's left house and can't be entered yet).
-- The farmyard's top exit still leads to Pallet Town for now, and Pallet Town's left edge (x 2, y 8-9) back in.
+- Pallet Town's left edge (x 2, y 8-9) leads to the farmyard's right edge, and back.
 - Act 1 stays in Pallet Town: its north exit to Route 1 turns the player back ("It's too far to go on my own."), on
   triggers listed before Oak's so his scene doesn't start. The south is water, and there's no Surf in Act 1.
 

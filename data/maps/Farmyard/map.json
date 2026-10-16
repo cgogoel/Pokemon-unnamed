@@ -141,8 +141,8 @@
   "coord_events": [
     {
       "type": "trigger",
-      "x": 12,
-      "y": 2,
+      "x": 4,
+      "y": 8,
       "elevation": 3,
       "var": "VAR_TEMP_9",
       "var_value": "0",
@@ -150,8 +150,8 @@
     },
     {
       "type": "trigger",
-      "x": 13,
-      "y": 2,
+      "x": 4,
+      "y": 9,
       "elevation": 3,
       "var": "VAR_TEMP_9",
       "var_value": "0",
@@ -159,26 +159,35 @@
     },
     {
       "type": "trigger",
-      "x": 12,
-      "y": 0,
+      "x": 19,
+      "y": 8,
       "elevation": 3,
       "var": "VAR_TEMP_9",
       "var_value": "0",
-      "script": "Farmyard_EventScript_Exit"
+      "script": "Farmyard_EventScript_Gate"
     },
     {
       "type": "trigger",
-      "x": 13,
-      "y": 0,
+      "x": 19,
+      "y": 9,
       "elevation": 3,
       "var": "VAR_TEMP_9",
       "var_value": "0",
-      "script": "Farmyard_EventScript_Exit"
+      "script": "Farmyard_EventScript_Gate"
     },
     {
       "type": "trigger",
-      "x": 20,
-      "y": 19,
+      "x": 2,
+      "y": 8,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_ToWoods"
+    },
+    {
+      "type": "trigger",
+      "x": 2,
+      "y": 9,
       "elevation": 3,
       "var": "VAR_TEMP_9",
       "var_value": "0",
@@ -187,11 +196,20 @@
     {
       "type": "trigger",
       "x": 21,
-      "y": 19,
+      "y": 8,
       "elevation": 3,
       "var": "VAR_TEMP_9",
       "var_value": "0",
-      "script": "Farmyard_EventScript_ToWoods"
+      "script": "Farmyard_EventScript_Exit"
+    },
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 9,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Farmyard_EventScript_Exit"
     }
   ],
   "bg_events": []

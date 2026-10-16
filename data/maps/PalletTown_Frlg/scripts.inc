@@ -549,7 +549,7 @@ PalletTown_Text_PressStartToOpenMenuCopy::
 
 @ Act 1: the path to the farmyard (placeholder spot on the town's left edge, docs/hack/befriending.md)
 PalletTown_EventScript_ToFarmyard::
-	warp MAP_FARMYARD, 12, 1
+	warp MAP_FARMYARD, 20, 8
 	waitstate
 	end
 

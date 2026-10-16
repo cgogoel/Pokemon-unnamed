@@ -2,10 +2,13 @@
 #include "act1_story.h"
 #include "event_data.h"
 #include "item.h"
+#include "farmyard.h"
+#include "pokemon_storage_system.h"
 #include "test/overworld_script.h"
 #include "test/test.h"
 #include "constants/story.h"
 #include "constants/items.h"
+#include "constants/pokeball.h"
 
 // Act 1's story, see docs/hack/act1_story.md
 
@@ -71,4 +74,40 @@ TEST("Act 1: nothing runs back when nobody is following")
     ZeroPlayerPartyMons();
     Act1_ReleaseFollowerToWoods();
     EXPECT_EQ(gSpecialVar_Result, FALSE);
+}
+
+TEST("Act 1: a chosen friend comes along in a Poke Ball, and leaves the farm when the prologue ends")
+{
+    ZeroPlayerPartyMons();
+    for (u32 i = 0; i < IN_BOX_COUNT; i++)
+        ZeroBoxMonAt(FARM_BOX, i);
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_BLIPBUG, 3; );
+    DepositFollowerInFarm();
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_HATENNA, 5; );
+    DepositFollowerInFarm();
+    AddBagItem(ITEM_POKE_BALL, 2);
+    VarSet(VAR_ACT1_CHOSEN_FRIENDS, 0);
+
+    gSpecialVar_LastTalked = GetFarmSpot(1) + 1; // Hatenna
+    Act1_GetFarmMonForChoice();
+    EXPECT_EQ(gSpecialVar_Result, TRUE);
+    EXPECT_EQ(gSpecialVar_0x8004, SPECIES_HATENNA);
+    Act1_TakeFarmMonWithYou();
+    EXPECT_EQ(gSpecialVar_Result, 1);
+    EXPECT_EQ(GetMonData(&gPlayerParty[0], MON_DATA_SPECIES), SPECIES_HATENNA);
+    EXPECT_EQ(GetMonData(&gPlayerParty[0], MON_DATA_POKEBALL), BALL_POKE);
+    EXPECT(CheckBagHasItem(ITEM_POKE_BALL, 1) && !CheckBagHasItem(ITEM_POKE_BALL, 2));
+
+    // Still in the farm box (so the other farm spots don't shift) but no longer shown or choosable
+    EXPECT_EQ(GetBoxMonDataAt(FARM_BOX, 1, MON_DATA_SPECIES), SPECIES_HATENNA);
+    Act1_GetFarmMonForChoice();
+    EXPECT_EQ(gSpecialVar_Result, FALSE);
+    SetupFarmyardMons();
+    EXPECT(FlagGet(FLAG_TEMP_1 + GetFarmSpot(1)));
+
+    Act1_FinishChoosing();
+    EXPECT_EQ(GetBoxMonDataAt(FARM_BOX, 1, MON_DATA_SPECIES), SPECIES_NONE);
+    EXPECT_EQ(GetBoxMonDataAt(FARM_BOX, 0, MON_DATA_SPECIES), SPECIES_BLIPBUG);
+    RemoveBagItem(ITEM_POKE_BALL, 1);
+    VarSet(VAR_ACT1_CHOSEN_FRIENDS, 0);
 }

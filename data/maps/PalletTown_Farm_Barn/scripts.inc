@@ -1,7 +1,17 @@
 @ The farm's storage shed, where Dad works. Act 1's story: docs/hack/act1_story.md
 
 PalletTown_Farm_Barn_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, Barn_OnTransition
 	.byte 0
+
+@ From the morning after Jangmo-o, Dad is in the house (FLAG_TEMP_1 hides him here)
+Barn_OnTransition:
+	call_if_ge VAR_ACT1_PROGRESS, ACT1_RESTED, Barn_EventScript_HideDad
+	end
+
+Barn_EventScript_HideDad:
+	setflag FLAG_TEMP_1
+	return
 
 Barn_EventScript_Dad::
 	lock

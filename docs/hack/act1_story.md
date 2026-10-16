@@ -17,7 +17,19 @@ Progress is `VAR_ACT1_PROGRESS`, with stages `ACT1_*` in `include/constants/stor
 | `ACT1_DAD_SAYS_TOO_DANGEROUS` | Talking to Dad | Dad: Jangmo-o is still too dangerous; go see Mom. |
 | `ACT1_MOM_SAYS_FOLLOW_HEART` | Talking to Mom | Mom: Dad's scared for you, but follow your heart; your kindness may reach Jangmo-o. |
 | `ACT1_GOT_HARD_STONE` | Talking to Dad | Dad gives the Hard Stone, "throw it if it attacks". **Talking to Jangmo-o starts its encounter.** |
-| `ACT1_BEFRIENDED_JANGMO_O` | Befriending Jangmo-o | The end of Act 1's story so far. |
+| `ACT1_BEFRIENDED_JANGMO_O` | Befriending Jangmo-o | Bringing it home through the farmyard gate: Mom and Dad can't believe it (the player must understand Pokémon), and send them to bed. |
+| `ACT1_RESTED` | Waking up in the farmhouse 2F | Mom and Dad (Dad's in the house now): show your Pokédex to Oak. The Woods are closed. Walking out toward Pallet Town (x 21), Oak arrives: Jangmo-o was pacified? Befriended, not battled? Not a trainer yet, but a distinguished youth scholar for Celadon University. Mom and Dad: is that what you want? (asked until yes). Oak: bring two friends, here are two Poké Balls. |
+| `ACT1_CHOOSING_FRIENDS` | Saying yes | The player stays in the farmyard (its exits and doors turn them back) and talks to the farm Pokémon they befriended: a picture and "Are you sure you want to bring X with you?". After the second, Oak's last words, then the prologue ends. |
+
+## The end of the prologue
+
+After the second friend: "End of Prologue", then "Years Later at Celadon University" (`src/prologue_end.c`, each on
+black for 3 seconds or until A/B). `VAR_STORY_ACT` becomes `STORY_ACT_UNIVERSITY` and the player wakes up at Act 2's
+start, `ACT2_START_MAP` in `include/constants/story.h`: a placeholder Celadon Condominiums room (2F) for the
+University dorms. The chosen friends are in the party (Poké Balls); the others stay on the farm.
+
+The scenes put Mom, Dad and Oak next to the player during a fade (`special Act1_PlaceNearPlayer`), so they work from
+any row of the farmyard's entrances; Oak walks in from the Pallet Town edge on the player's row.
 
 ## The Woods
 

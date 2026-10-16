@@ -1,8 +1,22 @@
 @ The farmhouse, where the player grew up. Act 1's story: docs/hack/act1_story.md
 
 PalletTown_PlayersHouse_1F_Frlg_Farm_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, Farmhouse1F_OnTransition
 	map_script MAP_SCRIPT_ON_FRAME_TABLE, Farmhouse1F_OnFrame
 	.byte 0
+
+@ Dad is home the morning after Jangmo-o (FLAG_TEMP_1 hides him otherwise)
+Farmhouse1F_OnTransition:
+	call_if_ne VAR_ACT1_PROGRESS, ACT1_RESTED, Farmhouse1F_EventScript_HideDad
+	end
+
+Farmhouse1F_EventScript_HideDad:
+	setflag FLAG_TEMP_1
+	return
+
+Farmhouse1F_EventScript_Dad::
+	msgbox Farmhouse1F_Text_DadShowOak, MSGBOX_NPC
+	end
 
 Farmhouse1F_OnFrame:
 	map_script_2 VAR_ACT1_WOKE_UP, 1, Farmhouse1F_EventScript_WokeUp
@@ -32,6 +46,7 @@ Farmhouse1F_EventScript_Mom::
 	case ACT1_DAD_SAYS_TOO_DANGEROUS, Farmhouse1F_EventScript_MomFollowYourHeart
 	case ACT1_MOM_SAYS_FOLLOW_HEART, Farmhouse1F_EventScript_MomGoTalkToDad
 	case ACT1_GOT_HARD_STONE, Farmhouse1F_EventScript_MomBeKind
+	case ACT1_RESTED, Farmhouse1F_EventScript_MomShowOak
 	msgbox Farmhouse1F_Text_MomKnewYouCould
 	goto Farmhouse1F_EventScript_MomEnd
 
@@ -71,6 +86,10 @@ Farmhouse1F_EventScript_MomFollowYourHeart::
 
 Farmhouse1F_EventScript_MomGoTalkToDad::
 	msgbox Farmhouse1F_Text_MomGoOnTalkToDad
+	goto Farmhouse1F_EventScript_MomEnd
+
+Farmhouse1F_EventScript_MomShowOak::
+	msgbox Farmhouse1F_Text_MomShowOak
 	goto Farmhouse1F_EventScript_MomEnd
 
 Farmhouse1F_EventScript_MomBeKind::
@@ -151,3 +170,18 @@ Farmhouse1F_Text_MomYoureAwake::
 	.string "Dad found you in the woods and\n"
 	.string "carried you all the way home.\p"
 	.string "Please be more careful!$"
+
+Farmhouse1F_Text_MomShowOak:
+	.string "MOM: Good morning, sleepyhead!\p"
+	.string "We still can't believe it. JANGMO-O,\n"
+	.string "of all POKéMON!\p"
+	.string "You should show your POKéDEX to\n"
+	.string "PROF. OAK. He'll want to hear\l"
+	.string "about this!$"
+
+Farmhouse1F_Text_DadShowOak:
+	.string "DAD: Morning, kiddo!\p"
+	.string "Hey, why don't you show PROF. OAK\n"
+	.string "your POKéDEX?\p"
+	.string "I bet he's never heard of anyone\n"
+	.string "calming down a JANGMO-O!$"

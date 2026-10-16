@@ -5,6 +5,7 @@
 #include "event_scripts.h"
 #include "fieldmap.h"
 #include "item.h"
+#include "farmyard.h"
 #include "overworld.h"
 #include "pokemon.h"
 #include "pokemon_storage_system.h"
@@ -12,6 +13,7 @@
 #include "script.h"
 #include "constants/event_objects.h"
 #include "constants/items.h"
+#include "constants/pokeball.h"
 #include "constants/species.h"
 #include "constants/map_event_ids.h"
 #include "constants/story.h"
@@ -188,5 +190,102 @@ void Act1_ReleaseFollowerToWoods(void)
             VarSet(VAR_ACT1_PROGRESS, sWoodsPokemon[i].previousStage);
         gSpecialVar_Result = TRUE;
         return;
+    }
+}
+
+// Scenes: puts objects (VAR_0x8004, then VAR_0x8005 if not 0) on free tiles next to the player, by setting their
+// template coords; the script then addobjects them (during a fade). An object already on screen is removed first.
+static const s8 sNearPlayerOffsets[][2] =
+{
+    {-1, 0}, {0, -1}, {0, 1}, {1, 0}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}, {-2, 0}, {0, -2}, {0, 2}, {2, 0},
+};
+
+static bool32 IsFreeTile(s16 x, s16 y, s16 takenX, s16 takenY)
+{
+    if (x < 0 || y < 0 || x >= gMapHeader.mapLayout->width || y >= gMapHeader.mapLayout->height)
+        return FALSE;
+    if (x == takenX && y == takenY)
+        return FALSE;
+    if (MapGridGetCollisionAt(x + MAP_OFFSET, y + MAP_OFFSET))
+        return FALSE;
+    return GetObjectEventIdByXY(x + MAP_OFFSET, y + MAP_OFFSET) == OBJECT_EVENTS_COUNT;
+}
+
+void Act1_PlaceNearPlayer(void)
+{
+    u16 localIds[] = { gSpecialVar_0x8004, gSpecialVar_0x8005 };
+    s16 takenX = -1, takenY = -1;
+
+    for (u32 i = 0; i < ARRAY_COUNT(localIds); i++)
+    {
+        if (localIds[i] == 0)
+            continue;
+        RemoveObjectEventByLocalIdAndMap(localIds[i], gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
+        for (u32 j = 0; j < ARRAY_COUNT(sNearPlayerOffsets); j++)
+        {
+            s16 x = gSaveBlock1Ptr->pos.x + sNearPlayerOffsets[j][0];
+            s16 y = gSaveBlock1Ptr->pos.y + sNearPlayerOffsets[j][1];
+            if (IsFreeTile(x, y, takenX, takenY))
+            {
+                SetObjEventTemplateCoords(localIds[i], x, y);
+                takenX = x;
+                takenY = y;
+                break;
+            }
+        }
+    }
+}
+
+// Oak walks in from the Pallet Town side of the farmyard, on the player's row
+void Act1_PlaceOakForArrival(void)
+{
+    SetObjEventTemplateCoords(LOCALID_FARMYARD_OAK, gMapHeader.mapLayout->width - 1, gSaveBlock1Ptr->pos.y);
+}
+
+// Choosing the friends to bring: the farm Pokémon talked to (VAR_LAST_TALKED is its farm spot + 1).
+// VAR_0x8004 its species, VAR_0x8005 its farm box slot, STR_VAR_1 its name; VAR_RESULT FALSE if there's none.
+void Act1_GetFarmMonForChoice(void)
+{
+    gSpecialVar_Result = FALSE;
+    for (u32 slot = 0; slot < IN_BOX_COUNT; slot++)
+    {
+        if (GetFarmSpot(slot) + 1 != gSpecialVar_LastTalked || (VarGet(VAR_ACT1_CHOSEN_FRIENDS) & (1 << slot)))
+            continue;
+        gSpecialVar_0x8004 = GetBoxMonDataAt(FARM_BOX, slot, MON_DATA_SPECIES);
+        gSpecialVar_0x8005 = slot;
+        GetBoxMonData(GetBoxedMonPtr(FARM_BOX, slot), MON_DATA_NICKNAME, gStringVar1);
+        StringGet_Nickname(gStringVar1);
+        gSpecialVar_Result = TRUE;
+        return;
+    }
+}
+
+// The chosen friend (farm box slot VAR_0x8005) goes into one of Oak's Poké Balls and joins the party.
+// VAR_RESULT: how many have been chosen. They stay in the farm box until Act1_FinishChoosing.
+void Act1_TakeFarmMonWithYou(void)
+{
+    u32 slot = gSpecialVar_0x8005;
+    u32 count = CalculatePlayerPartyCount();
+    u32 ball = BALL_POKE;
+    u16 chosen = VarGet(VAR_ACT1_CHOSEN_FRIENDS) | (1 << slot);
+
+    BoxMonToMon(GetBoxedMonPtr(FARM_BOX, slot), &gParties[B_TRAINER_PLAYER][count]);
+    SetMonData(&gParties[B_TRAINER_PLAYER][count], MON_DATA_POKEBALL, &ball);
+    CalculatePlayerPartyCount();
+    RemoveBagItem(ITEM_POKE_BALL, 1);
+    VarSet(VAR_ACT1_CHOSEN_FRIENDS, chosen);
+    UpdateFollowingPokemon();
+    gSpecialVar_Result = CalculatePlayerPartyCount();
+}
+
+// The chosen friends leave the farm for good
+void Act1_FinishChoosing(void)
+{
+    u16 chosen = VarGet(VAR_ACT1_CHOSEN_FRIENDS);
+
+    for (u32 slot = 0; slot < IN_BOX_COUNT; slot++)
+    {
+        if (chosen & (1 << slot))
+            ZeroBoxMonAt(FARM_BOX, slot);
     }
 }

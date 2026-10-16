@@ -200,6 +200,51 @@
       "trainer_sight_or_berry_tree_id": "0",
       "script": "Farmyard_EventScript_Doduo",
       "flag": "0"
+    },
+    {
+      "local_id": "LOCALID_FARMYARD_MOM",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_MOM_FRLG",
+      "x": 5,
+      "y": 8,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
+      "movement_range_x": 0,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Farmyard_EventScript_MomWaiting",
+      "flag": "FLAG_TEMP_A"
+    },
+    {
+      "local_id": "LOCALID_FARMYARD_DAD",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_HIKER_FRLG",
+      "x": 7,
+      "y": 8,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
+      "movement_range_x": 0,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Farmyard_EventScript_DadWaiting",
+      "flag": "FLAG_TEMP_B"
+    },
+    {
+      "local_id": "LOCALID_FARMYARD_OAK",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_PROF_OAK",
+      "x": 20,
+      "y": 10,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_LEFT",
+      "movement_range_x": 0,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Farmyard_EventScript_OakWaiting",
+      "flag": "FLAG_TEMP_C"
     }
   ],
   "warp_events": [
@@ -219,6 +264,132 @@
     }
   ],
   "coord_events": [
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 8,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "11",
+      "script": "Farmyard_EventScript_OakArrives"
+    },
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 9,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "11",
+      "script": "Farmyard_EventScript_OakArrives"
+    },
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 10,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "11",
+      "script": "Farmyard_EventScript_OakArrives"
+    },
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 11,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "11",
+      "script": "Farmyard_EventScript_OakArrives"
+    },
+    {
+      "type": "trigger",
+      "x": 2,
+      "y": 8,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingLeft"
+    },
+    {
+      "type": "trigger",
+      "x": 2,
+      "y": 9,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingLeft"
+    },
+    {
+      "type": "trigger",
+      "x": 2,
+      "y": 10,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingLeft"
+    },
+    {
+      "type": "trigger",
+      "x": 2,
+      "y": 11,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingLeft"
+    },
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 8,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingRight"
+    },
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 9,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingRight"
+    },
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 10,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingRight"
+    },
+    {
+      "type": "trigger",
+      "x": 21,
+      "y": 11,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingRight"
+    },
+    {
+      "type": "trigger",
+      "x": 6,
+      "y": 8,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingDoor"
+    },
+    {
+      "type": "trigger",
+      "x": 16,
+      "y": 17,
+      "elevation": 0,
+      "var": "VAR_ACT1_PROGRESS",
+      "var_value": "12",
+      "script": "Farmyard_EventScript_StayChoosingDoor"
+    },
     {
       "type": "trigger",
       "x": 1,

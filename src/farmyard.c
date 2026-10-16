@@ -128,8 +128,8 @@ void SetupFarmyardMons(void)
         u32 species = GetBoxMonData(boxMon, MON_DATA_SPECIES);
         u32 i = GetFarmSpot(slot);
 
-        if (i == FARM_SPOT_NONE)
-            continue;
+        if (i == FARM_SPOT_NONE || (VarGet(VAR_ACT1_CHOSEN_FRIENDS) & (1 << slot)))
+            continue; // Not shown, or chosen to come along at the end of Act 1 (docs/hack/act1_story.md)
         u32 gfx = species + OBJ_EVENT_MON;
         if (GetBoxMonData(boxMon, MON_DATA_IS_SHINY))
             gfx += OBJ_EVENT_MON_SHINY;

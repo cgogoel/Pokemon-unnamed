@@ -25,7 +25,7 @@ Woods_EventScript_Blipbug::
 Woods_EventScript_BlipbugBefriended:
 	setflag FLAG_BEFRIENDED_BLIPBUG
 	removeobject VAR_LAST_TALKED
-	msgbox Woods_Text_ShowMomAndDad
+	msgbox Woods_Text_GetBackToFarmyard
 	call_if_lt VAR_ACT1_PROGRESS, ACT1_BEFRIENDED_BLIPBUG, Woods_EventScript_SetBefriendedBlipbug
 	release
 	end
@@ -85,7 +85,7 @@ Woods_EventScript_TeddiursaBefriended:
 	setflag FLAG_BEFRIENDED_TEDDIURSA
 Woods_EventScript_OneOfThreeBefriended:
 	removeobject VAR_LAST_TALKED
-	msgbox Woods_Text_ShowMomAndDad
+	msgbox Woods_Text_GetBackToFarmyard
 	goto_if_unset FLAG_BEFRIENDED_TYNAMO, Woods_EventScript_BefriendedEnd
 	goto_if_unset FLAG_BEFRIENDED_HATENNA, Woods_EventScript_BefriendedEnd
 	goto_if_unset FLAG_BEFRIENDED_TEDDIURSA, Woods_EventScript_BefriendedEnd
@@ -114,7 +114,7 @@ Woods_EventScript_JangmoOBefriended:
 	setflag FLAG_BEFRIENDED_JANGMO_O
 	setvar VAR_ACT1_PROGRESS, ACT1_BEFRIENDED_JANGMO_O
 	removeobject VAR_LAST_TALKED
-	msgbox Woods_Text_ShowMomAndDad
+	msgbox Woods_Text_GetBackToFarmyard
 	release
 	end
 
@@ -216,5 +216,6 @@ Woods_Text_SignKeepOut:
 	.string "Danger: Keep Out$"
 
 @ After each befriending
-Woods_Text_ShowMomAndDad:
-	.string "Maybe I should show Mom and Dad!$"
+Woods_Text_GetBackToFarmyard:
+	.string "I should get this back to the\n"
+	.string "farmyard.$"

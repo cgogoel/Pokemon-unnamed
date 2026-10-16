@@ -1124,7 +1124,11 @@ static void FillBefriendBoxRect(u8 healthboxSpriteId, s32 x, s32 y, s32 width, s
 
 static void DrawBefriendPatience(u8 healthboxSpriteId)
 {
-    u32 total = GetBefriendInfo(gBattleMons[gSprites[healthboxSpriteId].hMain_Battler].species)->patience;
+    // From the party, not gBattleMons: the box is first drawn before gBattleMons is filled in, and drawing the
+    // default patience then left a stale extra pip next to a Pokémon with less patience (Hatenna)
+    enum BattlerId battler = gSprites[healthboxSpriteId].hMain_Battler;
+    u32 species = GetMonData(GetBattlerMon(battler), MON_DATA_SPECIES);
+    u32 total = GetBefriendInfo(species)->patience;
     u32 left = (gBattleStruct != NULL) ? gBattleStruct->befriendPatience : total;
 
     s32 start = BEFRIEND_PIPS_RIGHT - total * BEFRIEND_PIP_STEP + 1;

@@ -5317,6 +5317,14 @@ static void HandleEndTurn_MonFled(void)
 {
     gCurrentActionFuncId = 0;
 
+    // Befriending battles: "… ran away!" was already shown, and gBattlerAttacker is the player's side
+    if (IsBefriendBattle())
+    {
+        gCurrentActionFuncId = B_ACTION_FINISHED;
+        gBattleMainFunc = HandleEndTurn_FinishBattle;
+        return;
+    }
+
     PREPARE_MON_NICK_BUFFER(gBattleTextBuff1, gBattlerAttacker, gBattlerPartyIndexes[gBattlerAttacker]);
     gBattlescriptCurrInstr = BattleScript_WildMonFled;
 

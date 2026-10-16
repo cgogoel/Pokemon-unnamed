@@ -139,6 +139,7 @@ BEFRIEND_BATTLE_TEST("Befriending: the Pokémon runs away when it runs out of pa
     } SCENE {
         MESSAGE("Teddiursa looks ready to bolt!");
         MESSAGE("{PLAY_SE SE_FLEE}Teddiursa ran away!");
+        NOT MESSAGE("{PLAY_SE SE_FLEE}The wild Wobbuffet fled!"); // The engine's own message, about the wrong Pokémon
     } THEN {
         EXPECT_EQ(gBattleOutcome, B_OUTCOME_MON_FLED);
     }

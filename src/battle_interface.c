@@ -194,6 +194,7 @@ static void ClearTripleHealthbarLabel(u32 healthbarSpriteId);
 static void SpriteCB_HealthBar(struct Sprite *);
 static bool32 IsBefriendTargetHealthbox(u8 healthboxSpriteId);
 static void DrawBefriendLabel(u8 healthboxSpriteId);
+static void DrawBefriendPatience(u8 healthboxSpriteId);
 static void SpriteCB_StatusSummaryBar_Enter(struct Sprite *);
 static void SpriteCB_StatusSummaryBar_Exit(struct Sprite *);
 static void SpriteCB_StatusSummaryBalls_Enter(struct Sprite *);
@@ -2157,8 +2158,11 @@ void UpdateNickInHealthbox(u8 healthboxSpriteId, struct Pokemon *mon)
     {
         FillSpriteRectColor(healthboxSpriteId, 8, 5, 55, 11, HEALTHBOX_BG_INDEX);
         AddSpriteTextPrinterParameterized6(healthboxSpriteId, fontId, 8, 3, 0, 0, sHealthBoxTextColor, 0, gDisplayedStringBattle);
-        if (IsBefriendTargetHealthbox(healthboxSpriteId)) // Clearing the name's row cut into the label
+        if (IsBefriendTargetHealthbox(healthboxSpriteId)) // Clearing the name's row cut into the label and pips
+        {
             DrawBefriendLabel(healthboxSpriteId);
+            DrawBefriendPatience(healthboxSpriteId);
+        }
     }
 
     gSprites[healthboxSpriteId].data[1] = savedValue1;

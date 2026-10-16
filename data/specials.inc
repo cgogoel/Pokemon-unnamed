@@ -642,3 +642,4 @@ gSpecials::
 	def_special CheckBefriendAllowed
 	def_special Special_DepositFollowerInFarm
 	def_special SetupFarmyardMons
+	def_special Act1_RestockLovedItems

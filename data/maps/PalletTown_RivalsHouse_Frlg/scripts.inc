@@ -7,7 +7,25 @@ PalletTown_RivalsHouse_Frlg_MapScripts::
 PalletTown_RivalsHouse_OnTransition::
 	call_if_lt VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE, 2, PalletTown_RivalsHouse_EventScript_MoveDaisyToTable
 	call_if_ge VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE, 2, PalletTown_RivalsHouse_EventScript_AlreadyReceivedTownMap
+	call_if_ne VAR_STORY_ACT, STORY_ACT_CHILDHOOD, PalletTown_RivalsHouse_EventScript_HideBlue
 	end
+
+@ BLUE is only home in Act 1 (docs/hack/act1_story.md)
+PalletTown_RivalsHouse_EventScript_HideBlue::
+	setflag FLAG_TEMP_1
+	return
+
+PalletTown_RivalsHouse_EventScript_Blue::
+	msgbox PalletTown_RivalsHouse_Text_BlueOldEnoughSoon, MSGBOX_NPC
+	end
+
+PalletTown_RivalsHouse_Text_BlueOldEnoughSoon::
+	.string "{RIVAL}: Gramps didn't pick you,\n"
+	.string "huh, {PLAYER}?\p"
+	.string "Well, I'll be old enough to be a\n"
+	.string "TRAINER soon.\p"
+	.string "And I won't get passed over like\n"
+	.string "you did. Smell ya later!$"
 
 PalletTown_RivalsHouse_EventScript_MoveDaisyToTable::
 	setobjectmovementtype LOCALID_DAISY, MOVEMENT_TYPE_FACE_RIGHT
@@ -18,10 +36,41 @@ PalletTown_RivalsHouse_EventScript_AlreadyReceivedTownMap::
 	setvar RECEIVED_TOWN_MAP, TRUE
 	return
 
+@ Act 1: after BLIPBUG she has a hint for TEDDIURSA (docs/hack/act1_story.md)
+PalletTown_RivalsHouse_EventScript_DaisyAct1::
+	goto_if_lt VAR_ACT1_PROGRESS, ACT1_BEFRIENDED_BLIPBUG, PalletTown_RivalsHouse_EventScript_DaisyAct1Default
+	goto_if_set FLAG_BEFRIENDED_TEDDIURSA, PalletTown_RivalsHouse_EventScript_DaisyAct1Default
+	msgbox PalletTown_RivalsHouse_Text_DaisyTeddiursaHint
+	goto PalletTown_RivalsHouse_EventScript_DaisyAct1End
+
+PalletTown_RivalsHouse_EventScript_DaisyAct1Default::
+	msgbox PalletTown_RivalsHouse_Text_DaisyBlueWantsToBeTrainer
+PalletTown_RivalsHouse_EventScript_DaisyAct1End::
+	closemessage
+	applymovement LOCALID_DAISY, Common_Movement_FaceOriginalDirection
+	waitmovement 0
+	release
+	end
+
+PalletTown_RivalsHouse_Text_DaisyBlueWantsToBeTrainer::
+	.string "DAISY: Hi, {PLAYER}!\p"
+	.string "{RIVAL} won't stop talking about\n"
+	.string "becoming a TRAINER.\p"
+	.string "Don't let him get to you, okay?$"
+
+PalletTown_RivalsHouse_Text_DaisyTeddiursaHint::
+	.string "DAISY: A TEDDIURSA in the woods?\n"
+	.string "How cute!\p"
+	.string "They adore anything sweet,\n"
+	.string "especially HONEY.\p"
+	.string "I spotted some HONEY by a tree in\n"
+	.string "the woods the other day.$"
+
 PalletTown_RivalsHouse_EventScript_Daisy::
 	lock
 	faceplayer
 	famechecker FAMECHECKER_DAISY, FCPICKSTATE_COLORED, UpdatePickStateFromSpecialVar8005
+	goto_if_eq VAR_STORY_ACT, STORY_ACT_CHILDHOOD, PalletTown_RivalsHouse_EventScript_DaisyAct1
 	goto_if_set FLAG_SYS_GAME_CLEAR, PalletTown_RivalsHouse_EventScript_GroomMon
 	goto_if_eq RECEIVED_TOWN_MAP, TRUE, PalletTown_RivalsHouse_EventScript_PleaseGiveMonsRest
 	goto_if_eq VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE, 2, PalletTown_RivalsHouse_EventScript_ExplainTownMap

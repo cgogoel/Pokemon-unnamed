@@ -17,7 +17,13 @@ PalletTown_ProfessorOaksLab_OnTransition::
 	call_if_eq VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 7, PalletTown_ProfessorOaksLab_EventScript_ReadyOakForNationalDexScene
 	call_if_eq VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 8, PalletTown_ProfessorOaksLab_EventScript_SetNationalDexSceneFinished
 	call_if_set FLAG_GOT_POKEBALLS_FROM_OAK_AFTER_22_RIVAL, PalletTown_ProfessorOaksLab_EventScript_SetSkipPokeBallCheck
+	call_if_eq VAR_STORY_ACT, STORY_ACT_CHILDHOOD, PalletTown_ProfessorOaksLab_EventScript_Act1HideRival
 	end
+
+@ Act 1: BLUE is at home, not waiting in the lab (docs/hack/act1_story.md)
+PalletTown_ProfessorOaksLab_EventScript_Act1HideRival::
+	setflag FLAG_HIDE_RIVAL_IN_LAB
+	return
 
 PalletTown_ProfessorOaksLab_EventScript_SetSkipPokeBallCheck::
 	setflag FLAG_OAK_SKIP_22_RIVAL_CHECK
@@ -1067,6 +1073,7 @@ PalletTown_ProfessorOaksLab_Movement_RivalExit::
 PalletTown_ProfessorOaksLab_EventScript_BulbasaurBall::
 	lock
 	faceplayer
+	goto_if_eq VAR_STORY_ACT, STORY_ACT_CHILDHOOD, PalletTown_ProfessorOaksLab_EventScript_StarterBallsReserved
 	setvar PLAYER_STARTER_NUM, 0
 	setvar PLAYER_STARTER_SPECIES, SPECIES_BULBASAUR
 	setvar RIVAL_STARTER_SPECIES, SPECIES_CHARMANDER
@@ -1210,6 +1217,7 @@ PalletTown_ProfessorOaksLab_Movement_RivalWalksToBulbasaur::
 PalletTown_ProfessorOaksLab_EventScript_SquirtleBall::
 	lock
 	faceplayer
+	goto_if_eq VAR_STORY_ACT, STORY_ACT_CHILDHOOD, PalletTown_ProfessorOaksLab_EventScript_StarterBallsReserved
 	setvar PLAYER_STARTER_NUM, 1
 	setvar PLAYER_STARTER_SPECIES, SPECIES_SQUIRTLE
 	setvar RIVAL_STARTER_SPECIES, SPECIES_BULBASAUR
@@ -1223,6 +1231,7 @@ PalletTown_ProfessorOaksLab_EventScript_SquirtleBall::
 PalletTown_ProfessorOaksLab_EventScript_CharmanderBall::
 	lock
 	faceplayer
+	goto_if_eq VAR_STORY_ACT, STORY_ACT_CHILDHOOD, PalletTown_ProfessorOaksLab_EventScript_StarterBallsReserved
 	setvar PLAYER_STARTER_NUM, 2
 	setvar PLAYER_STARTER_SPECIES, SPECIES_CHARMANDER
 	setvar RIVAL_STARTER_SPECIES, SPECIES_SQUIRTLE
@@ -1242,16 +1251,14 @@ PalletTown_ProfessorOaksLab_EventScript_Aide1::
 	lock
 	faceplayer
 	goto_if_set FLAG_SYS_GAME_CLEAR, PalletTown_ProfessorOaksLab_EventScript_Aide1GameClear
-	call_if_unset FLAG_SYS_POKEDEX_GET, PalletTown_ProfessorOaksLab_EventScript_Aide1GivePokedex
-	goto_if_eq VAR_RESULT, TRUE, PalletTown_ProfessorOaksLab_EventScript_Aide1End
+	goto_if_eq VAR_STORY_ACT, STORY_ACT_CHILDHOOD, PalletTown_ProfessorOaksLab_EventScript_Aide1Act1
 	msgbox PalletTown_ProfessorOaksLab_Text_StudyAsOaksAide
 	release
 	end
 
-@ Act 1: the POKéDEX PROF. OAK promised in the intro (docs/hack/opening.md). VAR_RESULT is TRUE if it was given.
-PalletTown_ProfessorOaksLab_EventScript_Aide1GivePokedex::
-	setvar VAR_RESULT, FALSE
-	goto_if_ne VAR_STORY_ACT, STORY_ACT_CHILDHOOD, Common_EventScript_NopReturn
+@ Act 1: the POKéDEX PROF. OAK promised in the intro, then some advice (docs/hack/act1_story.md)
+PalletTown_ProfessorOaksLab_EventScript_Aide1Act1::
+	goto_if_set FLAG_SYS_POKEDEX_GET, PalletTown_ProfessorOaksLab_EventScript_Aide1OtherWays
 	msgbox PalletTown_ProfessorOaksLab_Text_Aide1OakLeftPokedex
 	textcolor NPC_TEXT_COLOR_NEUTRAL
 	playfanfare MUS_RG_OBTAIN_KEY_ITEM
@@ -1261,11 +1268,19 @@ PalletTown_ProfessorOaksLab_EventScript_Aide1GivePokedex::
 	call EventScript_RestorePrevTextColor
 	setflag FLAG_SYS_POKEDEX_GET
 	special SetUnlockedPokedexFlags
+	call_if_lt VAR_ACT1_PROGRESS, ACT1_GOT_POKEDEX, PalletTown_ProfessorOaksLab_EventScript_SetGotPokedex
 	msgbox PalletTown_ProfessorOaksLab_Text_Aide1PokedexRecordsMons
-	setvar VAR_RESULT, TRUE
+PalletTown_ProfessorOaksLab_EventScript_Aide1OtherWays::
+	msgbox PalletTown_ProfessorOaksLab_Text_Aide1OtherWaysToKnowMons
+	release
+	end
+
+PalletTown_ProfessorOaksLab_EventScript_SetGotPokedex::
+	setvar VAR_ACT1_PROGRESS, ACT1_GOT_POKEDEX
 	return
 
-PalletTown_ProfessorOaksLab_EventScript_Aide1End::
+PalletTown_ProfessorOaksLab_EventScript_StarterBallsReserved::
+	msgbox PalletTown_ProfessorOaksLab_Text_StarterBallsReserved
 	release
 	end
 
@@ -1279,6 +1294,14 @@ PalletTown_ProfessorOaksLab_EventScript_Aide2::
 	lock
 	faceplayer
 	goto_if_set FLAG_SYS_GAME_CLEAR, PalletTown_ProfessorOaksLab_EventScript_Aide2GameClear
+	goto_if_ne VAR_STORY_ACT, STORY_ACT_CHILDHOOD, PalletTown_ProfessorOaksLab_EventScript_Aide2Default
+	goto_if_lt VAR_ACT1_PROGRESS, ACT1_BEFRIENDED_BLIPBUG, PalletTown_ProfessorOaksLab_EventScript_Aide2Default
+	goto_if_set FLAG_BEFRIENDED_HATENNA, PalletTown_ProfessorOaksLab_EventScript_Aide2Default
+	msgbox PalletTown_ProfessorOaksLab_Text_Aide2HatennaHint
+	release
+	end
+
+PalletTown_ProfessorOaksLab_EventScript_Aide2Default::
 	msgbox PalletTown_ProfessorOaksLab_Text_StudyAsOaksAide
 	release
 	end
@@ -1598,9 +1621,30 @@ PalletTown_ProfessorOaksLab_Text_ReceivedPokedexFromAide::
 
 PalletTown_ProfessorOaksLab_Text_Aide1PokedexRecordsMons::
 	.string "It records data on every POKéMON\n"
-	.string "you meet.\p"
-	.string "Even without POKé BALLS, there's\n"
-	.string "plenty you can learn about them!$"
+	.string "you meet.$"
+
+PalletTown_ProfessorOaksLab_Text_Aide1OtherWaysToKnowMons::
+	.string "You know, battling isn't the only\n"
+	.string "way to get to know POKéMON.\p"
+	.string "Maybe try getting to know your\n"
+	.string "local POKéMON a bit better…\p"
+	.string "…and see what happens!$"
+
+@ Act 1 hint, after BLIPBUG (docs/hack/act1_story.md)
+PalletTown_ProfessorOaksLab_Text_Aide2HatennaHint::
+	.string "A HATENNA in the woods? They can\n"
+	.string "sense how people are feeling.\p"
+	.string "Anything loud or sudden upsets\n"
+	.string "them terribly.\p"
+	.string "I've read that a CHESTO BERRY helps\n"
+	.string "them settle down.\p"
+	.string "Some grow deep in the woods,\n"
+	.string "I believe.$"
+
+@ Act 1: these are for the TRAINERS PROF. OAK chose
+PalletTown_ProfessorOaksLab_Text_StarterBallsReserved::
+	.string "These POKé BALLS hold the POKéMON\n"
+	.string "for PROF. OAK's new TRAINERS.$"
 
 PalletTown_ProfessorOaksLab_Text_StudyAsOaksAide::
 	.string "I study POKéMON as PROF. OAK's\n"

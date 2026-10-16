@@ -1743,6 +1743,7 @@ EventScript_PalletTown_PlayersHouse_2F_TurnOnPC::
 	.include "data/scripts/apricorn_tree.inc"
 	.include "data/scripts/wild_encounter.inc"
 	.include "data/scripts/befriend.inc"
+	.include "data/scripts/act1_story.inc"
 
 	.include "data/maps/PalletTown_PlayersHouse_1F_Frlg_Farm/scripts.inc"
 	.include "data/maps/PalletTown_PlayersHouse_1F_Frlg_Farm/text.inc"

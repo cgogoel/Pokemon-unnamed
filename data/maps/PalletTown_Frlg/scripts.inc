@@ -7,6 +7,7 @@ PalletTown_Frlg_MapScripts::
 
 PalletTown_OnTransition::
 	setworldmapflag FLAG_WORLD_MAP_PALLET_TOWN
+	special Act1_RestockLovedItems
 	call_if_set FLAG_PALLET_LADY_NOT_BLOCKING_SIGN, PalletTown_EventScript_TryReadySignLady
 	call_if_eq VAR_MAP_SCENE_PALLET_TOWN_SIGN_LADY, 0, PalletTown_EventScript_SetSignLadyPos
 	call_if_eq VAR_MAP_SCENE_PALLET_TOWN_SIGN_LADY, 1, PalletTown_EventScript_SetSignLadyDone
@@ -387,8 +388,38 @@ PalletTown_Movement_SignLadyMoveOutOfWayLeft::
 	step_end
 
 PalletTown_EventScript_FatMan::
+	goto_if_eq VAR_STORY_ACT, STORY_ACT_CHILDHOOD, PalletTown_EventScript_FatManAct1
 	msgbox PalletTown_Text_CanStoreItemsAndMonsInPC, MSGBOX_NPC
 	end
+
+@ Act 1: after BLIPBUG he has a hint for TYNAMO (docs/hack/act1_story.md)
+PalletTown_EventScript_FatManAct1::
+	goto_if_lt VAR_ACT1_PROGRESS, ACT1_BEFRIENDED_BLIPBUG, PalletTown_EventScript_FatManAct1Default
+	goto_if_set FLAG_BEFRIENDED_TYNAMO, PalletTown_EventScript_FatManAct1Default
+	msgbox PalletTown_Text_FatManTynamoHint, MSGBOX_NPC
+	end
+
+PalletTown_EventScript_FatManAct1Default::
+	msgbox PalletTown_Text_FatManChinUp, MSGBOX_NPC
+	end
+
+PalletTown_EventScript_ItemCheriBerry::
+	finditem ITEM_CHERI_BERRY
+	end
+
+PalletTown_Text_FatManChinUp::
+	.string "Hey, {PLAYER}! I heard PROF. OAK\n"
+	.string "picked his new TRAINERS.\p"
+	.string "Chin up! There's more to life than\n"
+	.string "POKéMON battles, you know.$"
+
+PalletTown_Text_FatManTynamoHint::
+	.string "A TYNAMO? Tiny thing, but it's\n"
+	.string "full of spark!\p"
+	.string "Electric POKéMON love spicy food.\n"
+	.string "A CHERI BERRY would do it.\p"
+	.string "There's a CHERI BERRY bush down by\n"
+	.string "the water, south of town.$"
 
 PalletTown_EventScript_OaksLabSign::
 	lockall

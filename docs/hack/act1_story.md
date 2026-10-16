@@ -33,7 +33,7 @@ Progress is `VAR_ACT1_PROGRESS`, with stages `ACT1_*` in `include/constants/stor
   |---|---|---|---|
   | Tynamo | Cheri Berry | Pallet Town (19,17), by the water | The fat man in Pallet Town |
   | Hatenna | Chesto Berry | The mailbox by the Keep Out sign, Woods (7,21) | Aide 2 in Oak's lab: someone leaves berries at the abandoned ranger station to appease what lives there |
-  | Teddiursa | Honey | Woods (6,42) | Daisy, Blue's house: look for lots of flowers; flowers mean bees, bees mean Honey |
+  | Teddiursa | Honey | Woods: the tree at (5-6,42), from either tile (two item balls, one flag) | Daisy, Blue's house: look for lots of flowers; flowers mean bees, bees mean Honey |
 
   Hints start once Blipbug is befriended and stop once that Pokémon is.
 - **Tynamo** roams its pond. The pond is lower than the shore, which keeps it in; Pokémon objects can be talked to

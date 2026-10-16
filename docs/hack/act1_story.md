@@ -12,7 +12,7 @@ Progress is `VAR_ACT1_PROGRESS`, with stages `ACT1_*` in `include/constants/stor
 | `ACT1_MOM_SENT_TO_DAD` | Talking to Mom | Mom: go talk to Dad in the storage shed (the barn). |
 | `ACT1_DAD_SENT_TO_WOODS` | Talking to Dad | Dad: he never caught the farm's Pokémon; kindness and patience; Blipbug at the Woods entrance. Gives an Oran Berry. **The Woods open.** |
 | `ACT1_BEFRIENDED_BLIPBUG` | Befriending Blipbug | Mom: Dad wants to talk again. Hint NPCs start. |
-| `ACT1_DAD_WARNED_JANGMO_O` | Talking to Dad | Dad: well done; others in the Woods; avoid the angry Jangmo-o. **Tynamo, Hatenna and Teddiursa can be befriended.** |
+| `ACT1_DAD_WARNED_JANGMO_O` | Talking to Dad | Dad: well done; others in the Woods; avoid the angry Jangmo-o. **Tynamo, Hatenna and Teddiursa can be befriended.** Mom: the folks in town might know about the Woods' Pokémon. |
 | `ACT1_BEFRIENDED_THREE` | Befriending all three | Mom: go show Dad. |
 | `ACT1_DAD_SAYS_TOO_DANGEROUS` | Talking to Dad | Dad: Jangmo-o is still too dangerous; go see Mom. |
 | `ACT1_MOM_SAYS_FOLLOW_HEART` | Talking to Mom | Mom: Dad's scared for you, but follow your heart; your kindness may reach Jangmo-o. |
@@ -33,7 +33,7 @@ Progress is `VAR_ACT1_PROGRESS`, with stages `ACT1_*` in `include/constants/stor
   |---|---|---|---|
   | Tynamo | Cheri Berry | Pallet Town (19,17), by the water | The fat man in Pallet Town |
   | Hatenna | Chesto Berry | The mailbox by the Keep Out sign, Woods (7,21) | Aide 2 in Oak's lab: someone leaves berries at the abandoned ranger station to appease what lives there |
-  | Teddiursa | Honey | Woods: the tree at (5-6,42), from either tile (two item balls, one flag) | Daisy, Blue's house: look for lots of flowers; flowers mean bees, bees mean Honey |
+  | Teddiursa | Honey | Woods: hidden in the tree at (5-6,42), found by checking either tile (nothing shows it) | Daisy, Blue's house: look for lots of flowers; flowers mean bees, bees mean Honey |
 
   Hints start once Blipbug is befriended and stop once that Pokémon is.
 - **Tynamo** roams its pond. The pond is lower than the shore, which keeps it in; Pokémon objects can be talked to

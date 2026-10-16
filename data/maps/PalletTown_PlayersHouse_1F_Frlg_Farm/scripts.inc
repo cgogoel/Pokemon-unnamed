@@ -112,7 +112,12 @@ Farmhouse1F_Text_MomDadWantsToTalkAgain::
 
 Farmhouse1F_Text_MomStayAwayFromJangmoO::
 	.string "MOM: Remember what Dad said, and\n"
-	.string "stay away from that JANGMO-O!$"
+	.string "stay away from that JANGMO-O!\p"
+	.string "Oh, and if you want to make more\n"
+	.string "friends in the woods…\p"
+	.string "The folks in town might know a thing\n"
+	.string "or two about the POKéMON there.\p"
+	.string "Why not ask around PALLET TOWN?$"
 
 Farmhouse1F_Text_MomGoTellDad::
 	.string "MOM: Look at all your new friends!\p"

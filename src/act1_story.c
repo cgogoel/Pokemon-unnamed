@@ -23,17 +23,18 @@
 
 // Where Jangmo-o turns up: near each of the other Woods Pokémon. While it's
 // off-screen, it's moved to the one nearest the player that's still out of view, so it appears there as they
-// approach. Out of view: farther than the game spawns objects (TrySpawnObjectEvents), plus a tile.
+// approach. Out of view: outside the window the game spawns objects in (TrySpawnObjectEvents), exactly: with any
+// margin, an area about to spawn would count as in view and Jangmo-o would be moved away from it.
 static const struct Coords16 sJangmoOSpawns[] =
 {
     {15, 32},  // Tynamo's pond
     {36,  6},  // Hatenna
     {48, 38},  // Teddiursa
 };
-#define SPAWN_VIEW_LEFT   10
-#define SPAWN_VIEW_RIGHT  11
-#define SPAWN_VIEW_UP     8
-#define SPAWN_VIEW_DOWN   10
+#define SPAWN_VIEW_LEFT   (MAP_OFFSET + 2)
+#define SPAWN_VIEW_RIGHT  (MAP_OFFSET_W - MAP_OFFSET + 2)
+#define SPAWN_VIEW_UP     MAP_OFFSET
+#define SPAWN_VIEW_DOWN   (MAP_OFFSET_H - MAP_OFFSET + 2)
 
 static void UpdateWoodsJangmoOSpawn(void)
 {

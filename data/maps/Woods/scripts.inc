@@ -158,8 +158,22 @@ Woods_EventScript_SignKeepOut::
 	msgbox Woods_Text_SignKeepOut, MSGBOX_SIGN
 	end
 
-Woods_EventScript_ItemHoney::
-	finditem ITEM_HONEY
+@ Teddiursa's Honey is in this tree, with nothing to show it: the player works it out (Daisy's hint: flowers mean
+@ bees). Offered and lost, it's back next time (special Act1_RestockLovedItems clears FLAG_ACT1_ITEM_HONEY).
+Woods_EventScript_HoneyTree::
+	lockall
+	goto_if_set FLAG_ACT1_ITEM_HONEY, Woods_EventScript_HoneyTreeEmpty
+	msgbox Woods_Text_HoneyDripping
+	giveitem ITEM_HONEY
+	goto_if_eq VAR_RESULT, FALSE, Woods_EventScript_HoneyTreeEnd
+	setflag FLAG_ACT1_ITEM_HONEY
+	releaseall
+	end
+
+Woods_EventScript_HoneyTreeEmpty::
+	msgbox Woods_Text_BeesBuzzing
+Woods_EventScript_HoneyTreeEnd::
+	releaseall
 	end
 
 Woods_Text_TooWaryTryBlipbug:
@@ -179,6 +193,14 @@ Woods_Text_JangmoOCharged:
 
 Woods_Text_SomethingInMailbox:
 	.string "There's something in the mailbox…$"
+
+Woods_Text_HoneyDripping:
+	.string "Bees are buzzing around a hollow in\n"
+	.string "the tree… Something sweet is\l"
+	.string "dripping out of it!$"
+
+Woods_Text_BeesBuzzing:
+	.string "Bees are buzzing around the tree.$"
 
 Woods_Text_MailboxEmpty:
 	.string "The mailbox is empty.$"

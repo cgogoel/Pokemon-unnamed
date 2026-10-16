@@ -1,6 +1,7 @@
 #include "global.h"
 #include "clock.h"
 #include "new_game.h"
+#include "constants/farmyard.h"
 #include "random.h"
 #include "clock.h"
 #include "pokemon.h"
@@ -135,8 +136,9 @@ static void ClearFrontierRecord(void)
 
 static void WarpToTruck(void)
 {
+    // The game starts in the farmyard, outside the farmhouse the player grew up in (Act 1, docs/hack/befriending.md)
     if (IS_FRLG)
-        SetWarpDestination(MAP_GROUP(MAP_PALLET_TOWN_PLAYERS_HOUSE_2F), MAP_NUM(MAP_PALLET_TOWN_PLAYERS_HOUSE_2F), WARP_ID_NONE, 6, 6);
+        SetWarpDestination(MAP_GROUP(MAP_FARMYARD), MAP_NUM(MAP_FARMYARD), WARP_ID_NONE, FARMYARD_START_X, FARMYARD_START_Y);
     else
         SetWarpDestination(MAP_GROUP(MAP_INSIDE_OF_TRUCK), MAP_NUM(MAP_INSIDE_OF_TRUCK), WARP_ID_NONE, -1, -1);
     WarpIntoMap();

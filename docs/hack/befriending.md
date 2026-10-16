@@ -67,7 +67,9 @@ Paradox Pokémon, Megas/Gigantamax and battle or cosmetic forms are left out; re
 - **Woods** (`data/maps/Woods`): reached only from the farmyard (its bottom-right corner). All five Act 1 Pokémon live
   there; talking to one starts its befriending encounter, and once befriended it's gone from the Woods
   (`FLAG_BEFRIENDED_*`). Levels: Blipbug 3, Tynamo 5, Hatenna 5, Teddiursa 6, Jangmo-o 10.
-- Getting there for now: Pallet Town's left edge next to the player's house (x 2, y 8-9) leads to the farmyard.
+- A new game starts in the farmyard, in front of the farmhouse the player grew up in (`FARMYARD_START_X/Y`,
+  `include/constants/farmyard.h`; the farmhouse is the placeholder layout's left house and can't be entered yet).
+- The farmyard's top exit still leads to Pallet Town for now, and Pallet Town's left edge (x 2, y 8-9) back in.
 
 **Porymap:** both maps are placeholders: the Farmyard is a copy of Pallet Town's layout and the Woods a copy of
 Viridian Forest's (with their warps removed; the map changes are script triggers). Redraw them in Porymap, then move

@@ -11,4 +11,8 @@
 // befriendbattle: VAR_RESULT when the encounter didn't start because a Pokémon is still following (Act 1)
 #define BEFRIEND_RESULT_BLOCKED 0xFE
 
+// New games start here on the Farmyard map, in front of the farmhouse door
+#define FARMYARD_START_X    6
+#define FARMYARD_START_Y    8
+
 #endif // GUARD_CONSTANTS_FARMYARD_H

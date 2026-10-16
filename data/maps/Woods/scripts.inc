@@ -1,5 +1,5 @@
 @ Act 1 Woods (docs/hack/befriending.md, docs/hack/act1_story.md): reached only from the farmyard; all the Act 1
-@ Pokémon live here. Placeholder map: a copy of Viridian Forest's layout, to be redrawn in Porymap.
+@ Pokémon live here.
 
 Woods_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, Woods_OnTransition
@@ -128,8 +128,34 @@ Woods_EventScript_JangmoOCharges:
 	msgbox Woods_Text_JangmoOCharged
 	goto Act1_EventScript_BlackOut
 
-Woods_EventScript_ItemChestoBerry::
-	finditem ITEM_CHESTO_BERRY
+@ The Chesto Berry for Hatenna is in the mailbox by the Keep Out sign. Offered and lost, it's back next time
+@ (special Act1_RestockLovedItems clears FLAG_ACT1_ITEM_CHESTO_BERRY).
+Woods_EventScript_Mailbox::
+	lockall
+	goto_if_set FLAG_ACT1_ITEM_CHESTO_BERRY, Woods_EventScript_MailboxEmpty
+	msgbox Woods_Text_SomethingInMailbox
+	giveitem ITEM_CHESTO_BERRY
+	goto_if_eq VAR_RESULT, FALSE, Woods_EventScript_MailboxEnd
+	setflag FLAG_ACT1_ITEM_CHESTO_BERRY
+	releaseall
+	end
+
+Woods_EventScript_MailboxEmpty::
+	msgbox Woods_Text_MailboxEmpty
+Woods_EventScript_MailboxEnd::
+	releaseall
+	end
+
+Woods_EventScript_SignQuincyWoods::
+	msgbox Woods_Text_SignQuincyWoods, MSGBOX_SIGN
+	end
+
+Woods_EventScript_SignAggressivePokemon::
+	msgbox Woods_Text_SignAggressivePokemon, MSGBOX_SIGN
+	end
+
+Woods_EventScript_SignKeepOut::
+	msgbox Woods_Text_SignKeepOut, MSGBOX_SIGN
 	end
 
 Woods_EventScript_ItemHoney::
@@ -150,6 +176,22 @@ Woods_Text_TooWaryTalkToDad:
 Woods_Text_JangmoOCharged:
 	.string "JANGMO-O charged at you!\p"
 	.string "{PLAYER} blacked out!$"
+
+Woods_Text_SomethingInMailbox:
+	.string "There's something in the mailbox…$"
+
+Woods_Text_MailboxEmpty:
+	.string "The mailbox is empty.$"
+
+Woods_Text_SignQuincyWoods:
+	.string "Quincy Woods$"
+
+Woods_Text_SignAggressivePokemon:
+	.string "Warning:\n"
+	.string "Aggressive POKéMON Nearby$"
+
+Woods_Text_SignKeepOut:
+	.string "Danger: Keep Out$"
 
 @ After each befriending
 Woods_Text_ShowMomAndDad:

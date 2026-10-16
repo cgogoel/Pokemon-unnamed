@@ -32,13 +32,21 @@ Progress is `VAR_ACT1_PROGRESS`, with stages `ACT1_*` in `include/constants/stor
   | Pokémon | Loved item | Found at (placeholder) | Hint from |
   |---|---|---|---|
   | Tynamo | Cheri Berry | Pallet Town (19,17), by the water | The fat man in Pallet Town |
-  | Hatenna | Chesto Berry | Woods (40,29) | Aide 2 in Oak's lab |
-  | Teddiursa | Honey | Woods (10,40) | Daisy, Blue's house |
+  | Hatenna | Chesto Berry | The mailbox by the Keep Out sign, Woods (7,21) | Aide 2 in Oak's lab: someone leaves berries at the abandoned ranger station to appease what lives there |
+  | Teddiursa | Honey | Woods (6,42) | Daisy, Blue's house: look for lots of flowers; flowers mean bees, bees mean Honey |
 
   Hints start once Blipbug is befriended and stop once that Pokémon is.
+- **Tynamo** roams its pond. The pond is lower than the shore, which keeps it in; Pokémon objects can be talked to
+  across a height difference (`GetInteractedObjectEventScript`). The farmyard's pond spot works the same way.
 - **Jangmo-o** wanders anywhere in the Woods (no range limit). It has a spawn area near each of the other three
-  (`sJangmoOSpawns` in `src/act1_story.c`, placeholders): while it's off-screen, it's moved to the one nearest the
-  player that's still out of view, so it turns up wherever the player is heading. Until the player has the Hard Stone, it charges if it sees them (straight ahead, up to 4
+  (`sJangmoOSpawns` in `src/act1_story.c`: (15,32) by Tynamo's pond, (36,6) by Hatenna, (48,38) by Teddiursa): while
+  it's off-screen, it's moved to the one nearest the player that's still out of view, so it turns up wherever the
+  player is heading.
+- **Caught with a Pokémon following** (not yet dropped off at the farm): it runs back to where it was befriended and
+  has to be befriended again (`special Act1_ReleaseFollowerToWoods`); if it was the one that moved the story on, the
+  story steps back too. Its loved item comes back where it was found.
+- **Signs**: "Quincy Woods" past the entrance (39,59), "Warning: Aggressive POKéMON Nearby" by Jangmo-o's area
+  (43,26), "Danger: Keep Out" top left (6,20). Until the player has the Hard Stone, it charges if it sees them (straight ahead, up to 4
   tiles, `src/act1_story.c`) or is talked to: the player blacks out and wakes up at home next to Mom
   (`Act1_EventScript_BlackOut`). With the stone, talking to it starts the encounter, where Hum a tune becomes
   **Throw stone**: Jangmo-o hits back ("Who throws a stone? Honestly! …") and the player blacks out, keeping the
@@ -57,8 +65,7 @@ Progress is `VAR_ACT1_PROGRESS`, with stages `ACT1_*` in `include/constants/stor
 ## Placeholders to set in Porymap
 
 - Dad's spot and sprite (barn), Blue's spot (his house), the four farm Pokémon.
-- The three item balls; the Woods is still Viridian Forest's layout, so its items, Pokémon and Jangmo-o's range
-  (its spawn areas in `src/act1_story.c`) need moving once it's redrawn.
+- The mailbox in the Woods (7,20)-(7,21) has no collision yet, so the player can walk onto it.
 
 ## Base-game scenes are stripped
 

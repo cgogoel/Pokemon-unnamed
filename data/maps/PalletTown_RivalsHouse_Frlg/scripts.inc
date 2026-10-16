@@ -57,8 +57,10 @@ PalletTown_RivalsHouse_Text_DaisyTeddiursaHint::
 	.string "How cute!\p"
 	.string "They adore anything sweet,\n"
 	.string "especially HONEY.\p"
-	.string "I spotted some HONEY by a tree in\n"
-	.string "the woods the other day.$"
+	.string "Where there are lots of flowers,\n"
+	.string "there are bees…\p"
+	.string "…and where there are bees, there's\n"
+	.string "HONEY! Look for a patch of flowers.$"
 
 PalletTown_RivalsHouse_EventScript_Daisy::
 	lock

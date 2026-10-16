@@ -394,6 +394,14 @@ static const u8 *GetInteractedObjectEventScript(struct MapPosition *position, u8
         break;
     }
 
+    // A Pokémon object at another height, like one in a pond (Act 1), lower than the shore: talk to it anyway
+    if (objectEventId == OBJECT_EVENTS_COUNT)
+    {
+        objectEventId = GetObjectEventIdByXY(position->x, position->y);
+        if (objectEventId != OBJECT_EVENTS_COUNT && !(gObjectEvents[objectEventId].graphicsId & OBJ_EVENT_MON))
+            objectEventId = OBJECT_EVENTS_COUNT;
+    }
+
     if (objectEventId == OBJECT_EVENTS_COUNT || gObjectEvents[objectEventId].localId == LOCALID_PLAYER)
     {
         if (MetatileBehavior_IsCounter(metatileBehavior) != TRUE)

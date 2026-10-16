@@ -6,9 +6,13 @@
 #include "fieldmap.h"
 #include "item.h"
 #include "overworld.h"
+#include "pokemon.h"
+#include "pokemon_storage_system.h"
+#include "string_util.h"
 #include "script.h"
 #include "constants/event_objects.h"
 #include "constants/items.h"
+#include "constants/species.h"
 #include "constants/map_event_ids.h"
 #include "constants/story.h"
 
@@ -17,14 +21,14 @@
 // How far Jangmo-o sees, straight ahead
 #define JANGMO_O_SIGHT 4
 
-// Where Jangmo-o turns up: near each of the other Woods Pokémon (placeholders until the Woods is redrawn). While it's
+// Where Jangmo-o turns up: near each of the other Woods Pokémon. While it's
 // off-screen, it's moved to the one nearest the player that's still out of view, so it appears there as they
 // approach. Out of view: farther than the game spawns objects (TrySpawnObjectEvents), plus a tile.
 static const struct Coords16 sJangmoOSpawns[] =
 {
-    { 4, 40},  // Tynamo
-    {13, 19},  // Hatenna
-    {42, 33},  // Teddiursa
+    {15, 32},  // Tynamo's pond
+    {36,  6},  // Hatenna
+    {48, 38},  // Teddiursa
 };
 #define SPAWN_VIEW_LEFT   10
 #define SPAWN_VIEW_RIGHT  11
@@ -139,5 +143,49 @@ void Act1_RestockLovedItems(void)
         if (!FlagGet(sAct1LovedItems[i].befriendedFlag) && FlagGet(sAct1LovedItems[i].itemFlag)
          && !CheckBagHasItem(sAct1LovedItems[i].item, 1))
             FlagClear(sAct1LovedItems[i].itemFlag);
+    }
+}
+
+// Caught by Jangmo-o while a Woods Pokémon is following (it hasn't been dropped off at the farm yet): it runs back to
+// where it was befriended and has to be befriended again. If befriending it moved the story on, that's undone too.
+static const struct
+{
+    u16 species;
+    u16 befriendedFlag;
+    u8 befriendedStage; // VAR_ACT1_PROGRESS once it's befriended...
+    u8 previousStage;   // ...and before
+} sWoodsPokemon[] =
+{
+    { SPECIES_BLIPBUG,   FLAG_BEFRIENDED_BLIPBUG,   ACT1_BEFRIENDED_BLIPBUG, ACT1_DAD_SENT_TO_WOODS },
+    { SPECIES_TYNAMO,    FLAG_BEFRIENDED_TYNAMO,    ACT1_BEFRIENDED_THREE,   ACT1_DAD_WARNED_JANGMO_O },
+    { SPECIES_HATENNA,   FLAG_BEFRIENDED_HATENNA,   ACT1_BEFRIENDED_THREE,   ACT1_DAD_WARNED_JANGMO_O },
+    { SPECIES_TEDDIURSA, FLAG_BEFRIENDED_TEDDIURSA, ACT1_BEFRIENDED_THREE,   ACT1_DAD_WARNED_JANGMO_O },
+};
+
+// special Act1_ReleaseFollowerToWoods: VAR_RESULT TRUE if the follower ran back (its name in STR_VAR_1)
+void Act1_ReleaseFollowerToWoods(void)
+{
+    struct Pokemon *mon = &gParties[B_TRAINER_PLAYER][0];
+    u32 species;
+
+    gSpecialVar_Result = FALSE;
+    if (CalculatePlayerPartyCount() == 0 || GetMonData(mon, MON_DATA_IS_EGG))
+        return;
+    species = GetMonData(mon, MON_DATA_SPECIES);
+    for (u32 i = 0; i < ARRAY_COUNT(sWoodsPokemon); i++)
+    {
+        if (sWoodsPokemon[i].species != species)
+            continue;
+        GetMonData(mon, MON_DATA_NICKNAME, gStringVar1);
+        StringGet_Nickname(gStringVar1);
+        ZeroMonData(mon);
+        CompactPartySlots();
+        CalculatePlayerPartyCount();
+        UpdateFollowingPokemon();
+        FlagClear(sWoodsPokemon[i].befriendedFlag);
+        if (VarGet(VAR_ACT1_PROGRESS) == sWoodsPokemon[i].befriendedStage)
+            VarSet(VAR_ACT1_PROGRESS, sWoodsPokemon[i].previousStage);
+        gSpecialVar_Result = TRUE;
+        return;
     }
 }

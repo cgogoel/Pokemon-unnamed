@@ -643,3 +643,4 @@ gSpecials::
 	def_special Special_DepositFollowerInFarm
 	def_special SetupFarmyardMons
 	def_special Act1_RestockLovedItems
+	def_special Act1_ReleaseFollowerToWoods

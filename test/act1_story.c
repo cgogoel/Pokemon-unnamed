@@ -2,7 +2,9 @@
 #include "act1_story.h"
 #include "event_data.h"
 #include "item.h"
+#include "test/overworld_script.h"
 #include "test/test.h"
+#include "constants/story.h"
 #include "constants/items.h"
 
 // Act 1's story, see docs/hack/act1_story.md
@@ -34,4 +36,39 @@ TEST("Act 1: once its Pokémon is befriended, a loved item doesn't come back")
     Act1_RestockLovedItems();
     EXPECT(FlagGet(FLAG_ACT1_ITEM_HONEY));
     FlagClear(FLAG_BEFRIENDED_TEDDIURSA);
+}
+
+TEST("Act 1: caught by Jangmo-o, a following Blipbug runs back to the Woods and the story steps back")
+{
+    ZeroPlayerPartyMons();
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_BLIPBUG, 3; );
+    FlagSet(FLAG_BEFRIENDED_BLIPBUG);
+    VarSet(VAR_ACT1_PROGRESS, ACT1_BEFRIENDED_BLIPBUG);
+
+    Act1_ReleaseFollowerToWoods();
+    EXPECT_EQ(gSpecialVar_Result, TRUE);
+    EXPECT_EQ(CalculatePlayerPartyCount(), 0);
+    EXPECT(!FlagGet(FLAG_BEFRIENDED_BLIPBUG));
+    EXPECT_EQ(VarGet(VAR_ACT1_PROGRESS), ACT1_DAD_SENT_TO_WOODS);
+    VarSet(VAR_ACT1_PROGRESS, ACT1_START);
+}
+
+TEST("Act 1: a following Tynamo runs back, but the story only steps back if it was the last of the three")
+{
+    ZeroPlayerPartyMons();
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_TYNAMO, 5; );
+    FlagSet(FLAG_BEFRIENDED_TYNAMO);
+    VarSet(VAR_ACT1_PROGRESS, ACT1_DAD_WARNED_JANGMO_O);
+
+    Act1_ReleaseFollowerToWoods();
+    EXPECT(!FlagGet(FLAG_BEFRIENDED_TYNAMO));
+    EXPECT_EQ(VarGet(VAR_ACT1_PROGRESS), ACT1_DAD_WARNED_JANGMO_O);
+    VarSet(VAR_ACT1_PROGRESS, ACT1_START);
+}
+
+TEST("Act 1: nothing runs back when nobody is following")
+{
+    ZeroPlayerPartyMons();
+    Act1_ReleaseFollowerToWoods();
+    EXPECT_EQ(gSpecialVar_Result, FALSE);
 }

@@ -16,7 +16,7 @@
   "connections": [
     {
       "map": "MAP_FARMYARD",
-      "offset": 0,
+      "offset": 49,
       "direction": "right"
     }
   ],
@@ -25,12 +25,12 @@
       "local_id": "LOCALID_WOODS_BLIPBUG",
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_SPECIES(BLIPBUG)",
-      "x": 44,
+      "x": 6,
       "y": 58,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
-      "movement_range_x": 1,
-      "movement_range_y": 1,
+      "movement_range_x": 3,
+      "movement_range_y": 3,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
       "script": "Woods_EventScript_Blipbug",
@@ -40,12 +40,12 @@
       "local_id": "LOCALID_WOODS_TYNAMO",
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_SPECIES(TYNAMO)",
-      "x": 8,
-      "y": 40,
-      "elevation": 3,
-      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
-      "movement_range_x": 1,
-      "movement_range_y": 1,
+      "x": 20,
+      "y": 32,
+      "elevation": 1,
+      "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
+      "movement_range_x": 0,
+      "movement_range_y": 0,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
       "script": "Woods_EventScript_Tynamo",
@@ -55,12 +55,12 @@
       "local_id": "LOCALID_WOODS_HATENNA",
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_SPECIES(HATENNA)",
-      "x": 13,
-      "y": 15,
+      "x": 40,
+      "y": 6,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
-      "movement_range_x": 1,
-      "movement_range_y": 1,
+      "movement_range_x": 4,
+      "movement_range_y": 4,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
       "script": "Woods_EventScript_Hatenna",
@@ -70,12 +70,12 @@
       "local_id": "LOCALID_WOODS_TEDDIURSA",
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_SPECIES(TEDDIURSA)",
-      "x": 42,
-      "y": 29,
+      "x": 49,
+      "y": 33,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
-      "movement_range_x": 1,
-      "movement_range_y": 1,
+      "movement_range_x": 5,
+      "movement_range_y": 5,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
       "script": "Woods_EventScript_Teddiursa",
@@ -85,8 +85,8 @@
       "local_id": "LOCALID_WOODS_JANGMO_O",
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_SPECIES(JANGMO_O)",
-      "x": 42,
-      "y": 33,
+      "x": 46,
+      "y": 28,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_WANDER_AROUND",
       "movement_range_x": 0,
@@ -99,22 +99,8 @@
     {
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
-      "x": 40,
-      "y": 29,
-      "elevation": 3,
-      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
-      "movement_range_x": 0,
-      "movement_range_y": 0,
-      "trainer_type": "TRAINER_TYPE_NONE",
-      "trainer_sight_or_berry_tree_id": "0",
-      "script": "Woods_EventScript_ItemChestoBerry",
-      "flag": "FLAG_ACT1_ITEM_CHESTO_BERRY"
-    },
-    {
-      "type": "object",
-      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
-      "x": 10,
-      "y": 40,
+      "x": 6,
+      "y": 42,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
       "movement_range_x": 0,
@@ -127,6 +113,15 @@
   ],
   "warp_events": [],
   "coord_events": [
+    {
+      "type": "trigger",
+      "x": 50,
+      "y": 57,
+      "elevation": 3,
+      "var": "VAR_TEMP_9",
+      "var_value": "0",
+      "script": "Woods_EventScript_ToFarmyard"
+    },
     {
       "type": "trigger",
       "x": 50,
@@ -146,6 +141,39 @@
       "script": "Woods_EventScript_ToFarmyard"
     }
   ],
-  "bg_events": [],
+  "bg_events": [
+    {
+      "type": "sign",
+      "x": 39,
+      "y": 59,
+      "elevation": 0,
+      "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
+      "script": "Woods_EventScript_SignQuincyWoods"
+    },
+    {
+      "type": "sign",
+      "x": 43,
+      "y": 26,
+      "elevation": 0,
+      "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
+      "script": "Woods_EventScript_SignAggressivePokemon"
+    },
+    {
+      "type": "sign",
+      "x": 6,
+      "y": 20,
+      "elevation": 0,
+      "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
+      "script": "Woods_EventScript_SignKeepOut"
+    },
+    {
+      "type": "sign",
+      "x": 7,
+      "y": 21,
+      "elevation": 0,
+      "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
+      "script": "Woods_EventScript_Mailbox"
+    }
+  ],
   "region": "REGION_KANTO"
 }

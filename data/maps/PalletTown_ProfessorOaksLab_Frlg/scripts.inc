@@ -176,12 +176,12 @@ PalletTown_ProfessorOaksLab_Text_Aide1OtherWaysToKnowMons::
 PalletTown_ProfessorOaksLab_Text_Aide2HatennaHint::
 	.string "A HATENNA in the woods? They can\n"
 	.string "sense how people are feeling.\p"
-	.string "Anything loud or sudden upsets\n"
-	.string "them terribly.\p"
-	.string "I've read that a CHESTO BERRY helps\n"
-	.string "them settle down.\p"
-	.string "Some grow deep in the woods,\n"
-	.string "I believe.$"
+	.string "Funny you should ask… Someone has\n"
+	.string "been leaving berries at the old\l"
+	.string "abandoned ranger station.\p"
+	.string "CHESTO BERRIES, I think. To appease\n"
+	.string "whatever lives out there, they say.\p"
+	.string "Spooky, isn't it?$"
 
 @ The POKéMON on the table are for the TRAINERS PROF. OAK chose
 PalletTown_ProfessorOaksLab_Text_StarterBallsReserved::

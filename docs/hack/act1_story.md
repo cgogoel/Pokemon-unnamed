@@ -49,7 +49,7 @@ Progress is `VAR_ACT1_PROGRESS`, with stages `ACT1_*` in `include/constants/stor
 |---|---|---|
 | Mom | Farmhouse 1F | `Farmhouse1F_EventScript_Mom` (Act 1); the vanilla Mom script in other acts |
 | Dad | Barn (8,6) | `Barn_EventScript_Dad`. Placeholder sprite: `OBJ_EVENT_GFX_HIKER_FRLG` |
-| Blue | His house (2,5), Act 1 only | "I'll be old enough soon; I won't get passed over like you". Hidden from the lab in Act 1 |
+| Blue | His house (2,5), Act 1 only | "I'll be old enough soon; I won't get passed over like you" |
 | Farm Pokémon | Farmyard | Miltank, Mareep, Tauros, Doduo: talking plays their cry. Not befriendable |
 
 ## Placeholders to set in Porymap
@@ -58,14 +58,26 @@ Progress is `VAR_ACT1_PROGRESS`, with stages `ACT1_*` in `include/constants/stor
 - The three item balls; the Woods is still Viridian Forest's layout, so its items, Pokémon and Jangmo-o's range
   (wanders 3 tiles each way from (36,6)) need moving once it's redrawn.
 
+## Base-game scenes are stripped
+
+The hack tells its own story, so the base game's scenes come out as they're reached: detach the scene (its map.json
+event, `map_script` entry or `goto`), then run `python3 tools/hack/prune_dead_scripts.py data/maps/<Map>/scripts.inc`
+to delete the code and texts only it used. Done so far:
+
+- **Oak's lab**: the starter choice, rival battle, parcel and Pokédex hand-off, National Dex upgrade, all their
+  triggers, and the Oak and Blue objects that were only there for them. The starter Poké Balls just say they're for
+  Oak's new trainers.
+- **Pallet Town**: Oak's "Don't go out!" trigger at the north exit, his post-League rating scene and his object.
+- **Blue's house**: Daisy's Town Map errand and her lines that depend on the lab scenes.
+
 ## Scripts checked for Act 1
 
 Fixed:
 - Mom's vanilla lines ("Oak, next door, was looking for you") → `Farmhouse1F_EventScript_Mom`.
-- Blue waiting in the lab with "Gramps isn't around" → hidden from the lab in Act 1, at home instead.
+- Blue waiting in the lab with "Gramps isn't around" → removed from the lab, at home instead.
 - Daisy: "my brother is out at Grandpa's lab" → Act 1 lines and the Teddiursa hint.
 - The fat man's PC line → Act 1 lines and the Tynamo hint.
-- The starter Poké Balls on Oak's table → in Act 1 they're "for Prof. Oak's new trainers".
+- The starter Poké Balls on Oak's table → "for Prof. Oak's new trainers".
 - Aide 1 in the lab: could say nothing once the Pokédex was given (stale `VAR_RESULT`) → rewritten.
 - The farmhouse 2F notice pointing at a Help system the game doesn't have → a chore chart.
 
@@ -73,8 +85,6 @@ Left as they are (mild, or not reachable in Act 1):
 - Pallet Town's sign "Shades of your journey await!" and the Trainer Tips sign.
 - The sign lady's later line "I'm raising Pokémon, too…".
 - The lab computer's Pokémon League e-mail.
-- Oak's vanilla Pallet Town trigger and lab starter scene: blocked in Act 1, but they'd start once `VAR_STORY_ACT`
-  changes (Act 2 needs its own plan for them).
 - A real white-out (not the Act 1 blackout) would play Mom's vanilla "Prof. Oak / Pokémon Center" heal text; it
   can't happen in Act 1.
 - The empty for-sale house's 2F still sets the respawn point on its first visit (harmless: it's the farmhouse now).

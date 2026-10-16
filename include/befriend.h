@@ -37,8 +37,8 @@ struct BefriendInfo
 };
 
 // Aggression change, in percent of the Pokémon's max HP (negative calms it down)
-#define BEFRIEND_LOVED_ACTION_FIRST   -40 // The first time the loved action is used
-#define BEFRIEND_LOVED_ACTION_REPEAT  -15 // Again: it still likes it, but less
+#define BEFRIEND_LOVED_ACTION         -40 // Only the first time: after that it's neutral, so actions alone
+                                          // can't befriend the Act 1 Pokémon that have a loved item to find
 #define BEFRIEND_LOVED_ITEM           -60
 #define BEFRIEND_NEUTRAL              -10
 #define BEFRIEND_DISLIKED             +25
@@ -54,8 +54,9 @@ static inline bool32 IsBefriendBattle(void)
 const struct BefriendInfo *GetBefriendInfo(u16 species);
 enum BefriendReaction GetBefriendActionReaction(const struct BefriendInfo *info, enum BefriendAction action);
 enum BefriendReaction GetBefriendItemReaction(const struct BefriendInfo *info, u16 item);
-s32 GetBefriendAggressionChange(const struct BefriendInfo *info, enum BefriendReaction reaction, bool32 isItem, bool32 repeatedLovedAction);
+s32 GetBefriendAggressionChange(const struct BefriendInfo *info, enum BefriendReaction reaction, bool32 isItem);
 const u8 *GetBefriendActionName(enum BefriendAction action);
+bool32 IsBefriendThrowStoneOffered(void);
 void InitBefriendBattle(void);
 void HandleAction_BefriendAct(void);
 void HandleAction_BefriendItem(void);

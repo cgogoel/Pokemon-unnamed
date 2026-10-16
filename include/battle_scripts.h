@@ -45,6 +45,7 @@ extern const u8 BattleScript_BefriendWatch[];
 extern const u8 BattleScript_BefriendImpatient[];
 extern const u8 BattleScript_BefriendEnd[];
 extern const u8 BattleScript_BefriendFled[];
+extern const u8 BattleScript_BefriendThrowStone[];
 extern const u8 BattleScript_BefriendSuccess[];
 extern const u8 BattleScript_PrintCantRunFromTrainer[];
 extern const u8 BattleScript_PrintFailedToRunString[];

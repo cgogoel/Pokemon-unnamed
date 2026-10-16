@@ -53,7 +53,8 @@ static const struct BefriendInfo sBefriendInfo[] =
         .calmRate = 100,
         .watchHint = sText_BefriendHint_Teddiursa,
     },
-    // Boss: grows by battling and respects boldness; gentleness reads as weakness. Calms down slowly.
+    // Boss: grows by battling and respects boldness; gentleness reads as weakness. Only the Hard Stone, offered
+    // rather than thrown, wins it over (docs/hack/act1_story.md).
     {
         .species = SPECIES_JANGMO_O,
         .lovedItem = ITEM_HARD_STONE,
@@ -61,7 +62,7 @@ static const struct BefriendInfo sBefriendInfo[] =
         .lovedAction = BEFRIEND_ACTION_APPROACH,
         .dislikedActions = (1 << BEFRIEND_ACTION_CROUCH) | (1 << BEFRIEND_ACTION_HUM),
         .patience = 6,
-        .calmRate = 50,
+        .calmRate = 100,
         .watchHint = sText_BefriendHint_JangmoO,
     },
 };

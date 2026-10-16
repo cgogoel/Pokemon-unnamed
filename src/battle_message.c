@@ -918,6 +918,9 @@ const u8 *const gBattleStringsTable[STRINGID_COUNT] =
     [STRINGID_BEFRIENDIMPATIENT] = COMPOUND_STRING("{B_DEF_NAME} looks ready to bolt!"),
     [STRINGID_BEFRIENDFLED] = COMPOUND_STRING("{PLAY_SE SE_FLEE}{B_DEF_NAME} ran away!"),
     [STRINGID_BEFRIENDDONE] = COMPOUND_STRING("{B_DEF_NAME} is comfortable\naround you now!"),
+    [STRINGID_BEFRIENDTHROWSTONE] = COMPOUND_STRING("You threw the Hard Stone at\n{B_DEF_NAME}!"),
+    [STRINGID_BEFRIENDSTONEHURTS] = COMPOUND_STRING("Who throws a stone? Honestly!\pThat really hurts!\pIt's going to have a lump there\nyou idiot."),
+    [STRINGID_BEFRIENDBLACKEDOUT] = COMPOUND_STRING("{B_DEF_NAME} slammed into you!\pYou blacked out!"),
 };
 
 const u16 gTrainerUsedItemStringIds[] =

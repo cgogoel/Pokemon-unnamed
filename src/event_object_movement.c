@@ -80,6 +80,7 @@ enum {
     MOVE_SPEED_FAST_2, // water current / acro bike
     MOVE_SPEED_FASTER, // mach bike's max speed
     MOVE_SPEED_FASTEST,
+    MOVE_SPEED_PLAYER_WALK, // the player's own walk, 1.5x normal (16 px in 11 frames; see AdjustWalkSpeed)
 };
 
 enum {
@@ -7017,9 +7018,21 @@ void InitNpcForMovement(struct ObjectEvent *objectEvent, struct Sprite *sprite, 
     sprite->sActionFuncId = 1;
 }
 
+// The player walks at 1.5x the usual speed, and their follower keeps up. Only when the player is in control:
+// in scripted scenes they walk at the usual speed, in step with everyone else.
+static u8 AdjustWalkSpeed(struct ObjectEvent *objectEvent, u8 speed)
+{
+    if (speed == MOVE_SPEED_NORMAL && (objectEvent->isPlayer || objectEvent->localId == OBJ_EVENT_ID_FOLLOWER)
+     && !ArePlayerFieldControlsLocked())
+        return MOVE_SPEED_PLAYER_WALK;
+    return speed;
+}
+
 static void InitMovementNormal(struct ObjectEvent *objectEvent, struct Sprite *sprite, enum Direction direction, u8 speed)
 {
     u8 (*functions[ARRAY_COUNT(sDirectionAnimFuncsBySpeed)])(u8);
+
+    speed = AdjustWalkSpeed(objectEvent, speed);
 
     memcpy(functions, sDirectionAnimFuncsBySpeed, sizeof sDirectionAnimFuncsBySpeed);
     InitNpcForMovement(objectEvent, sprite, direction, speed);
@@ -10635,12 +10648,28 @@ static const SpriteStepFunc sStep8Funcs[] = {
     Step8,
 };
 
+// 1.5x walking: 2 and 1 px alternating, 16 px in 11 frames (as close to 10.67 as whole pixels get)
+static const SpriteStepFunc sStepPlayerWalkFuncs[] = {
+    Step2,
+    Step1,
+    Step2,
+    Step1,
+    Step2,
+    Step1,
+    Step2,
+    Step1,
+    Step2,
+    Step1,
+    Step1,
+};
+
 static const SpriteStepFunc *const sNpcStepFuncTables[] = {
     [MOVE_SPEED_NORMAL] = sStep1Funcs,
     [MOVE_SPEED_FAST_1] = sStep2Funcs,
     [MOVE_SPEED_FAST_2] = sStep3Funcs,
     [MOVE_SPEED_FASTER] = sStep4Funcs,
     [MOVE_SPEED_FASTEST] = sStep8Funcs,
+    [MOVE_SPEED_PLAYER_WALK] = sStepPlayerWalkFuncs,
 };
 
 static const s16 sStepTimes[] = {
@@ -10649,6 +10678,7 @@ static const s16 sStepTimes[] = {
     [MOVE_SPEED_FAST_2] = ARRAY_COUNT(sStep3Funcs),
     [MOVE_SPEED_FASTER] = ARRAY_COUNT(sStep4Funcs),
     [MOVE_SPEED_FASTEST] = ARRAY_COUNT(sStep8Funcs),
+    [MOVE_SPEED_PLAYER_WALK] = ARRAY_COUNT(sStepPlayerWalkFuncs),
 };
 
 static bool8 NpcTakeStep(struct Sprite *sprite)

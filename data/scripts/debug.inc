@@ -492,6 +492,47 @@ Debug_EventScript_SetFriendship::
 	releaseall
 	end
 
+@ Befriending battles (Act 1), with one of each item the Act 1 Pokémon like or dislike
+Debug_EventScript_BefriendGiveItems:
+	additem ITEM_ORAN_BERRY, 3
+	additem ITEM_PECHA_BERRY, 3
+	additem ITEM_CHERI_BERRY, 3
+	additem ITEM_CHESTO_BERRY, 3
+	additem ITEM_RAWST_BERRY, 3
+	additem ITEM_HONEY, 3
+	additem ITEM_HARD_STONE, 3
+	return
+
+Debug_EventScript_BefriendBlipbug::
+	call Debug_EventScript_BefriendGiveItems
+	befriendbattle SPECIES_BLIPBUG, 5
+	releaseall
+	end
+
+Debug_EventScript_BefriendTynamo::
+	call Debug_EventScript_BefriendGiveItems
+	befriendbattle SPECIES_TYNAMO, 5
+	releaseall
+	end
+
+Debug_EventScript_BefriendHatenna::
+	call Debug_EventScript_BefriendGiveItems
+	befriendbattle SPECIES_HATENNA, 5
+	releaseall
+	end
+
+Debug_EventScript_BefriendTeddiursa::
+	call Debug_EventScript_BefriendGiveItems
+	befriendbattle SPECIES_TEDDIURSA, 5
+	releaseall
+	end
+
+Debug_EventScript_BefriendJangmoO::
+	call Debug_EventScript_BefriendGiveItems
+	befriendbattle SPECIES_JANGMO_O, 5
+	releaseall
+	end
+
 Debug_EventScript_GivePokerus::
 	special ChoosePartyMon
 	callnative DebugNative_Party_SetPokerus

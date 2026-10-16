@@ -1,6 +1,7 @@
 #include "global.h"
 #include "malloc.h"
 #include "battle.h"
+#include "befriend.h"
 #include "pokemon.h"
 #include "battle_controllers.h"
 #include "battle_interface.h"
@@ -191,6 +192,9 @@ static void SpriteCB_HealthBoxOtherTriple(struct Sprite *);
 static void CreateTripleStatusSprite(enum BattlerId battler, u32 healthbarSpriteId);
 static void ClearTripleHealthbarLabel(u32 healthbarSpriteId);
 static void SpriteCB_HealthBar(struct Sprite *);
+static bool32 IsBefriendTargetHealthbox(u8 healthboxSpriteId);
+static void DrawBefriendLabel(u8 healthboxSpriteId);
+static void DrawBefriendPatience(u8 healthboxSpriteId);
 static void SpriteCB_StatusSummaryBar_Enter(struct Sprite *);
 static void SpriteCB_StatusSummaryBar_Exit(struct Sprite *);
 static void SpriteCB_StatusSummaryBalls_Enter(struct Sprite *);
@@ -801,6 +805,9 @@ static void SpriteCB_HealthBar(struct Sprite *sprite)
 {
     u8 healthboxSpriteId = sprite->hBar_HealthBoxSpriteId;
 
+    if (IsBefriendTargetHealthbox(healthboxSpriteId)) // Its bar is drawn into the healthbox
+        sprite->invisible = TRUE;
+
     switch (sprite->hBar_Data6)
     {
     case 0:
@@ -1078,8 +1085,94 @@ void InitBattlerHealthboxCoords(enum BattlerId battler)
     UpdateSpritePos(gHealthboxSpriteIds[battler], x, y);
 }
 
+// Befriending battles (docs/hack/befriending.md): the wild Pokémon's box shows patience pips where the level goes and an
+// "Aggression" label with its own shorter bar instead of the HP bar. Coordinates are across the box's two sprites
+// (the second starts at x 64).
+#define BEFRIEND_BOX_SPLIT       64
+#define BEFRIEND_PIPS_RIGHT      89 // The pips end here, however many there are
+#define BEFRIEND_PIPS_Y          7
+#define BEFRIEND_PIP_SIZE        4
+#define BEFRIEND_PIP_STEP        5
+#define BEFRIEND_LABEL_X         4
+#define BEFRIEND_LABEL_Y         12
+#define BEFRIEND_BAR_X           45
+#define BEFRIEND_BAR_Y           15
+#define BEFRIEND_BAR_WIDTH       44 // Including the border
+#define BEFRIEND_COLOR_OUTLINE   1
+#define BEFRIEND_COLOR_EMPTY     6
+#define BEFRIEND_COLOR_FILL      14
+#define BEFRIEND_COLOR_SHINE     10
+#define BEFRIEND_COLOR_PIP       15
+
+static bool32 IsBefriendTargetHealthbox(u8 healthboxSpriteId)
+{
+    return IsBefriendBattle() && !IsOnPlayerSide(gSprites[healthboxSpriteId].hMain_Battler);
+}
+
+static void FillBefriendBoxRect(u8 healthboxSpriteId, s32 x, s32 y, s32 width, s32 height, u32 color)
+{
+    if (width <= 0 || height <= 0)
+        return;
+    if (x < BEFRIEND_BOX_SPLIT)
+        FillSpriteRectColor(healthboxSpriteId, x, y, min(width, BEFRIEND_BOX_SPLIT - x), height, color);
+    if (x + width > BEFRIEND_BOX_SPLIT)
+    {
+        s32 start = max(x, BEFRIEND_BOX_SPLIT);
+        FillSpriteRectColor(gSprites[healthboxSpriteId].oam.affineParam, start - BEFRIEND_BOX_SPLIT, y, x + width - start, height, color);
+    }
+}
+
+static void DrawBefriendPatience(u8 healthboxSpriteId)
+{
+    u32 total = GetBefriendInfo(gBattleMons[gSprites[healthboxSpriteId].hMain_Battler].species)->patience;
+    u32 left = (gBattleStruct != NULL) ? gBattleStruct->befriendPatience : total;
+
+    s32 start = BEFRIEND_PIPS_RIGHT - total * BEFRIEND_PIP_STEP + 1;
+
+    FillBefriendBoxRect(healthboxSpriteId, start, 5, BEFRIEND_PIPS_RIGHT - start, 8, HEALTHBOX_BG_INDEX); // Above the bar
+    for (u32 i = 0; i < total; i++)
+    {
+        s32 x = start + i * BEFRIEND_PIP_STEP;
+        FillBefriendBoxRect(healthboxSpriteId, x, BEFRIEND_PIPS_Y, BEFRIEND_PIP_SIZE, BEFRIEND_PIP_SIZE, BEFRIEND_COLOR_OUTLINE);
+        FillBefriendBoxRect(healthboxSpriteId, x + 1, BEFRIEND_PIPS_Y + 1, BEFRIEND_PIP_SIZE - 2, BEFRIEND_PIP_SIZE - 2,
+                            (i < left) ? BEFRIEND_COLOR_PIP : HEALTHBOX_BG_INDEX);
+    }
+}
+
+static void DrawBefriendAggressionBar(u8 healthboxSpriteId, s32 value, s32 maxValue)
+{
+    s32 inner = BEFRIEND_BAR_WIDTH - 2;
+    s32 filled = (maxValue > 0) ? (value * inner + maxValue - 1) / maxValue : 0;
+
+    if (filled < 0)
+        filled = 0;
+    if (filled > inner)
+        filled = inner;
+    FillBefriendBoxRect(healthboxSpriteId, BEFRIEND_BAR_X, BEFRIEND_BAR_Y, BEFRIEND_BAR_WIDTH, 5, BEFRIEND_COLOR_OUTLINE);
+    FillBefriendBoxRect(healthboxSpriteId, BEFRIEND_BAR_X + 1, BEFRIEND_BAR_Y + 1, inner, 3, BEFRIEND_COLOR_EMPTY);
+    FillBefriendBoxRect(healthboxSpriteId, BEFRIEND_BAR_X + 1, BEFRIEND_BAR_Y + 1, filled, 1, BEFRIEND_COLOR_SHINE);
+    FillBefriendBoxRect(healthboxSpriteId, BEFRIEND_BAR_X + 1, BEFRIEND_BAR_Y + 2, filled, 2, BEFRIEND_COLOR_FILL);
+}
+
+static void DrawBefriendLabel(u8 healthboxSpriteId)
+{
+    AddSpriteTextPrinterParameterized6(healthboxSpriteId, FONT_NARROWER, BEFRIEND_LABEL_X, BEFRIEND_LABEL_Y, 0, 0, sHealthBoxTextColor, 0, COMPOUND_STRING("Aggression"));
+}
+
+void UpdateBefriendPatienceInHealthbox(enum BattlerId battler)
+{
+    DrawBefriendPatience(gHealthboxSpriteIds[battler]);
+}
+
 static void UpdateLvlInHealthbox(u8 healthboxSpriteId, u8 lvl)
 {
+    if (IsBefriendTargetHealthbox(healthboxSpriteId))
+    {
+        DrawBefriendPatience(healthboxSpriteId);
+        DrawBefriendLabel(healthboxSpriteId);
+        return;
+    }
+
     u8 text[16];
     enum BattlerId battler = gSprites[healthboxSpriteId].hMain_Battler;
     u32 spriteId = gSprites[healthboxSpriteId].oam.affineParam;
@@ -2046,7 +2139,7 @@ void UpdateNickInHealthbox(u8 healthboxSpriteId, struct Pokemon *mon)
     gSprites[healthboxSpriteId].data[1] = healthboxSpriteId2;
     gSprites[healthboxSpriteId2].data[1] = SPRITE_NONE;
 
-    u32 fontId = GetFontIdToFit(gDisplayedStringBattle, FONT_SMALL, 0, 55);
+    u32 fontId = GetFontIdToFit(gDisplayedStringBattle, FONT_SMALL, 0, IsBefriendTargetHealthbox(healthboxSpriteId) ? 48 : 55);
 
     if (GetBattlerCoordsIndex(gSprites[healthboxSpriteId].hMain_Battler) == BATTLE_COORDS_TRIPLES)
     {
@@ -2065,6 +2158,11 @@ void UpdateNickInHealthbox(u8 healthboxSpriteId, struct Pokemon *mon)
     {
         FillSpriteRectColor(healthboxSpriteId, 8, 5, 55, 11, HEALTHBOX_BG_INDEX);
         AddSpriteTextPrinterParameterized6(healthboxSpriteId, fontId, 8, 3, 0, 0, sHealthBoxTextColor, 0, gDisplayedStringBattle);
+        if (IsBefriendTargetHealthbox(healthboxSpriteId)) // Clearing the name's row cut into the label and pips
+        {
+            DrawBefriendLabel(healthboxSpriteId);
+            DrawBefriendPatience(healthboxSpriteId);
+        }
     }
 
     gSprites[healthboxSpriteId].data[1] = savedValue1;
@@ -2109,6 +2207,8 @@ static void UpdateStatusIconInHealthbox(u8 healthboxSpriteId)
 
     battler = gSprites[healthboxSpriteId].hMain_Battler;
     healthBarSpriteId = gSprites[healthboxSpriteId].hMain_HealthBarSpriteId;
+    if (IsBefriendTargetHealthbox(healthboxSpriteId)) // The "Aggression" label is where the status icon goes
+        return;
     status = GetMonData(GetBattlerMon(battler), MON_DATA_STATUS);
     if (GetBattlerCoordsIndex(battler) == BATTLE_COORDS_TRIPLES)
     {
@@ -2470,7 +2570,16 @@ s32 MoveBattleBar(enum BattlerId battler, u8 healthboxSpriteId, u8 whichBar, u8 
                     B_EXPBAR_PIXELS / 8, expFraction);
     }
 
-    if (whichBar == EXP_BAR || (whichBar == HEALTH_BAR && ShouldShowHealthbar(battler)))
+    if (whichBar == HEALTH_BAR && IsBefriendTargetHealthbox(healthboxSpriteId))
+    {
+        // The animated value is in 1/256ths when the max is below the bar's width in pixels (see CalcNewBarValue)
+        s32 value = gBattleSpritesDataPtr->battleBars[battler].currValue;
+        s32 maxValue = gBattleSpritesDataPtr->battleBars[battler].maxValue;
+        if (maxValue < B_HEALTHBAR_PIXELS)
+            value = (value + 128) >> 8;
+        DrawBefriendAggressionBar(healthboxSpriteId, value, maxValue);
+    }
+    else if (whichBar == EXP_BAR || (whichBar == HEALTH_BAR && ShouldShowHealthbar(battler)))
         MoveBattleBarGraphically(battler, whichBar);
 
     if (currentBarValue == -1)

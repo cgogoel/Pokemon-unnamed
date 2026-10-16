@@ -1,5 +1,6 @@
 #include "global.h"
 #include "battle.h"
+#include "befriend.h"
 #include "debug.h"
 #include "battle_anim.h"
 #include "battle_anim_scripts.h"
@@ -828,6 +829,12 @@ void HandleAction_Run(void)
 void HandleAction_WatchesCarefully(void)
 {
     gBattlerAttacker = gBattlerByTurnOrder[gCurrentTurnActionNumber];
+    if (IsBefriendBattle()) // The wild Pokémon only reacts to the player, in their action's script
+    {
+        gBattlescriptCurrInstr = BattleScript_BefriendEnd;
+        gCurrentActionFuncId = B_ACTION_EXEC_SCRIPT;
+        return;
+    }
     gBattle_BG0_X = 0;
     gBattle_BG0_Y = 0;
     if (IS_FRLG)

@@ -372,6 +372,11 @@ extern const u8 Debug_EventScript_FontTest[];
 extern const u8 Debug_EventScript_CheckEVs[];
 extern const u8 Debug_EventScript_CheckIVs[];
 extern const u8 Debug_EventScript_GivePokerus[];
+extern const u8 Debug_EventScript_BefriendBlipbug[];
+extern const u8 Debug_EventScript_BefriendTynamo[];
+extern const u8 Debug_EventScript_BefriendHatenna[];
+extern const u8 Debug_EventScript_BefriendTeddiursa[];
+extern const u8 Debug_EventScript_BefriendJangmoO[];
 extern const u8 Debug_EventScript_InflictStatus1[];
 extern const u8 Debug_EventScript_KoPokemon[];
 extern const u8 Debug_EventScript_SetHiddenNature[];
@@ -636,6 +641,17 @@ static const struct DebugMenuOption sDebugMenu_Actions_EditPokemon[] =
     { NULL }
 };
 
+// Befriending battles (Act 1), docs/hack/befriending.md
+static const struct DebugMenuOption sDebugMenu_Actions_Befriend[] =
+{
+    { COMPOUND_STRING("Blipbug"), DebugAction_ExecuteScript, Debug_EventScript_BefriendBlipbug },
+    { COMPOUND_STRING("Tynamo"), DebugAction_ExecuteScript, Debug_EventScript_BefriendTynamo },
+    { COMPOUND_STRING("Hatenna"), DebugAction_ExecuteScript, Debug_EventScript_BefriendHatenna },
+    { COMPOUND_STRING("Teddiursa"), DebugAction_ExecuteScript, Debug_EventScript_BefriendTeddiursa },
+    { COMPOUND_STRING("Jangmo-o"), DebugAction_ExecuteScript, Debug_EventScript_BefriendJangmoO },
+    { NULL }
+};
+
 static const struct DebugMenuOption sDebugMenu_Actions_Party[] =
 {
     { COMPOUND_STRING("Move Relearner"),     DebugAction_ExecuteScript, Common_EventScript_MoveRelearner },
@@ -649,6 +665,7 @@ static const struct DebugMenuOption sDebugMenu_Actions_Party[] =
     { COMPOUND_STRING("Clear Party"),        DebugAction_Party_ClearParty },
     { COMPOUND_STRING("Set Party"),          DebugAction_Party_SetParty },
     { COMPOUND_STRING("Start Debug Battle"), DebugAction_Party_BattleSingle },
+    { COMPOUND_STRING("Befriend (Act 1)…"),  DebugAction_OpenSubMenu, sDebugMenu_Actions_Befriend },
     { NULL }
 };
 

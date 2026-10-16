@@ -1,5 +1,6 @@
 #include "global.h"
 #include "battle.h"
+#include "befriend.h"
 #include "battle_ai_switch.h"
 #include "battle_ai_util.h"
 #include "constants/battle.h"
@@ -437,6 +438,16 @@ static void OpponentHandleChooseAction(enum BattlerId battler)
 
 static void OpponentHandleChooseMove(enum BattlerId battler)
 {
+    // Befriending battles: the Pokémon only reacts to what the player does. As a move choice only actions 4-9 are
+    // taken as actions (B_ACTION_PASS would read as a switch), so it "watches carefully", which does nothing here.
+    if (IsBefriendBattle())
+    {
+        gAiBattleData->actionFlee = FALSE;
+        gAiBattleData->choiceWatch = FALSE;
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_SAFARI_WATCH_CAREFULLY, 0);
+        BtlController_Complete(battler);
+        return;
+    }
     if (gBattleTypeFlags & (BATTLE_TYPE_TRAINER | BATTLE_TYPE_FIRST_BATTLE | BATTLE_TYPE_SAFARI | BATTLE_TYPE_ROAMER)
      || IsWildMonSmart())
     {

@@ -1,5 +1,6 @@
 #include "global.h"
 #include "battle.h"
+#include "befriend.h"
 #include "battle_ai_util.h"
 #include "battle_anim.h"
 #include "battle_controllers.h"
@@ -239,6 +240,7 @@ static void InvokeTestFunction(const struct BattleTest *test)
     case BATTLE_TEST_WILD:
     case BATTLE_TEST_GHOST:
     case BATTLE_TEST_AI_SINGLES:
+    case BATTLE_TEST_BEFRIEND:
         InvokeSingleTestFunctionWithStack(STATE->results, STATE->runParameter, &gBattleMons[B_POSITION_PLAYER_LEFT], &gBattleMons[B_POSITION_OPPONENT_LEFT], test->function.singles, &DATA.stack[BATTLE_TEST_STACK_SIZE]);
         break;
     case BATTLE_TEST_DOUBLES:
@@ -329,6 +331,7 @@ static void InitTestBattlers(const struct BattleTest *test)
     case BATTLE_TEST_WILD:
     case BATTLE_TEST_GHOST:
     case BATTLE_TEST_AI_SINGLES:
+    case BATTLE_TEST_BEFRIEND:
         STATE->battlersCount = 2;
         break;
     case BATTLE_TEST_DOUBLES:
@@ -495,6 +498,11 @@ static void BattleTest_Run(void *data)
         for (i = 0; i < STATE->battlersCount; i++)
             DATA.currentMonIndexes[i] = i / 2;
         break;
+    case BATTLE_TEST_BEFRIEND:
+        DATA.recordedBattle.battleFlags = BATTLE_TYPE_IS_MASTER | BATTLE_TYPE_SAFARI;
+        for (i = 0; i < STATE->battlersCount; i++)
+            DATA.currentMonIndexes[i] = i / 2;
+        break;
     case BATTLE_TEST_GHOST:
         DATA.recordedBattle.battleFlags = BATTLE_TYPE_IS_MASTER | BATTLE_TYPE_GHOST;
         for (i = 0; i < STATE->battlersCount; i++)
@@ -622,6 +630,7 @@ static void BattleTest_Run(void *data)
     }
 
     gBattleTypeFlags = DATA.recordedBattle.battleFlags;
+    gIsBefriendBattle = (test->type == BATTLE_TEST_BEFRIEND);
 
     for (i = 0; i < MAX_LINK_PLAYERS; i++)
     {
@@ -2323,6 +2332,7 @@ static void BattleTest_TearDown(void *data)
     ClearFlagAfterTest();
     ClearVarAfterTest();
     TestFreeConfigData();
+    gIsBefriendBattle = FALSE;
     if (!STATE->hasTornDownBattle)
     {
         TearDownBattle();
@@ -2889,6 +2899,7 @@ static const char *BattlerIdentifier(enum BattlerId battlerId)
     case BATTLE_TEST_WILD:
     case BATTLE_TEST_GHOST:
     case BATTLE_TEST_AI_SINGLES:
+    case BATTLE_TEST_BEFRIEND:
         return sBattlerIdentifiersSingles[battlerId];
     case BATTLE_TEST_DOUBLES:
     case BATTLE_TEST_AI_DOUBLES:
@@ -3098,6 +3109,16 @@ void CloseTurn(u32 sourceLine)
     if (IsTripleTest())
     {
         CloseTripleTurn(sourceLine);
+        DATA.turnState = TURN_CLOSED;
+        DATA.turns++;
+        return;
+    }
+
+    // Befriending battles: the player watches unless told otherwise; the wild Pokémon only reacts.
+    if (GetBattleTest()->type == BATTLE_TEST_BEFRIEND)
+    {
+        if (!(DATA.actionBattlers & (1 << B_BATTLER_0)))
+            BefriendChoice(sourceLine, B_ACTION_BEFRIEND_WATCH, 0);
         DATA.turnState = TURN_CLOSED;
         DATA.turns++;
         return;
@@ -3707,6 +3728,21 @@ static void DumpScreen(void)
     DumpMemoryRegion('O', (const u8 *)OAM, OAM_SIZE);
     DumpMemoryRegion('P', (const u8 *)PLTT, PLTT_SIZE);
     Test_MgbaPrintf("SCRDUMP END");
+}
+
+// Befriending battles: the player's choice for the turn (an action, an offered item or Watch).
+void BefriendChoice(u32 sourceLine, u32 actionType, u32 data)
+{
+    INVALID_IF(GetBattleTest()->type != BATTLE_TEST_BEFRIEND, "ACT, OFFER and WATCH are only used in befriending battles");
+    INVALID_IF(DATA.turnState == TURN_CLOSED, "ACT, OFFER or WATCH outside TURN");
+    INVALID_IF(DATA.actionBattlers & (1 << B_BATTLER_0), "Multiple befriending choices in one TURN");
+    PushBattlerAction(sourceLine, B_BATTLER_0, RECORDED_ACTION_TYPE, actionType);
+    if (actionType != B_ACTION_BEFRIEND_WATCH)
+    {
+        PushBattlerAction(sourceLine, B_BATTLER_0, RECORDED_ITEM_ID, (data >> 8) & 0xFF);
+        PushBattlerAction(sourceLine, B_BATTLER_0, RECORDED_ITEM_ID, data & 0xFF);
+    }
+    DATA.actionBattlers |= 1 << B_BATTLER_0;
 }
 
 void Formation(u32 sourceLine, struct BattlePokemon *near, struct BattlePokemon *middle, struct BattlePokemon *far)

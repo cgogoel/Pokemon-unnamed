@@ -1,5 +1,6 @@
 #include "global.h"
 #include "battle.h"
+#include "befriend.h"
 #include "battle_anim.h"
 #include "triple_battle.h"
 #include "battle_ai_main.h"
@@ -436,6 +437,9 @@ static void (*const sTurnActionsFuncsTable[])(void) =
     [B_ACTION_NOTHING_FAINTED]        = HandleAction_NothingIsFainted,
     [B_ACTION_PASS]                   = HandleAction_NothingIsFainted,
     [B_ACTION_THROW_BALL]             = HandleAction_ThrowBall,
+    [B_ACTION_BEFRIEND_ACT]           = HandleAction_BefriendAct,
+    [B_ACTION_BEFRIEND_ITEM]          = HandleAction_BefriendItem,
+    [B_ACTION_BEFRIEND_WATCH]         = HandleAction_BefriendWatch,
 };
 
 static void (*const sEndTurnFuncsTable[])(void) =
@@ -2835,6 +2839,8 @@ static void BattleStartClearSetData(void)
     gBattleStruct->safariPkblThrowCounter = 0;
     gBattleStruct->safariCatchFactor = gSpeciesInfo[GetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_SPECIES)].catchRate * 100 / 1275;
     gBattleStruct->safariEscapeFactor = 3;
+    if (IsBefriendBattle())
+        InitBefriendBattle();
     gBattleStruct->wildVictorySong = 0;
     gBattleStruct->moneyMultiplier = 1;
 
@@ -4298,6 +4304,12 @@ static void HandleTurnActionSelectionState(void)
                 case B_ACTION_SAFARI_GO_NEAR:
                     gBattleCommunication[battler]++;
                     break;
+                case B_ACTION_BEFRIEND_ACT:
+                case B_ACTION_BEFRIEND_ITEM:
+                case B_ACTION_BEFRIEND_WATCH:
+                    gBattleStruct->befriendChoice = gBattleResources->bufferB[battler][2] | (gBattleResources->bufferB[battler][3] << 8);
+                    gBattleCommunication[battler]++;
+                    break;
                 case B_ACTION_SAFARI_RUN:
                     gHitMarker |= HITMARKER_RUN;
                     gBattleCommunication[battler]++;
@@ -5304,6 +5316,14 @@ static void HandleEndTurn_RanFromBattle(void)
 static void HandleEndTurn_MonFled(void)
 {
     gCurrentActionFuncId = 0;
+
+    // Befriending battles: "… ran away!" was already shown, and gBattlerAttacker is the player's side
+    if (IsBefriendBattle())
+    {
+        gCurrentActionFuncId = B_ACTION_FINISHED;
+        gBattleMainFunc = HandleEndTurn_FinishBattle;
+        return;
+    }
 
     PREPARE_MON_NICK_BUFFER(gBattleTextBuff1, gBattlerAttacker, gBattlerPartyIndexes[gBattlerAttacker]);
     gBattlescriptCurrInstr = BattleScript_WildMonFled;

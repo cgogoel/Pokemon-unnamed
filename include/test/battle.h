@@ -538,6 +538,7 @@
 
 #include "global.h"
 #include "battle.h"
+#include "befriend.h"
 #include "battle_anim.h"
 #include "data.h"
 #include "config_changes.h"
@@ -582,6 +583,7 @@ enum {
     BATTLE_TEST_AI_TRIPLES,
     BATTLE_TEST_TRIPLES_2V2,
     BATTLE_TEST_AI_TRIPLES_2V2,
+    BATTLE_TEST_BEFRIEND,
 };
 
 typedef void (*SingleBattleTestFunction)(void *, const u32, struct BattlePokemon *, struct BattlePokemon *);
@@ -1009,6 +1011,8 @@ bool32 IsAITest(void);
     static void CAT(Test, __LINE__)(struct CAT(Result, __LINE__) *results, const u32 i, struct BattlePokemon *playerLeft, struct BattlePokemon *opponentLeft, struct BattlePokemon *playerRight, struct BattlePokemon *opponentRight, struct BattlePokemon *playerMiddle, struct BattlePokemon *opponentMiddle)
 
 #define SINGLE_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_SINGLE(_name, BATTLE_TEST_SINGLES, __VA_ARGS__)
+// Befriending battles (Act 1): the player against a wild Pokémon, see docs/hack/befriending.md. In TURN, use ACT, OFFER or WATCH.
+#define BEFRIEND_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_SINGLE(_name, BATTLE_TEST_BEFRIEND, __VA_ARGS__)
 #define WILD_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_SINGLE(_name, BATTLE_TEST_WILD, __VA_ARGS__)
 #define GHOST_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_SINGLE(_name, BATTLE_TEST_GHOST, __VA_ARGS__)
 #define AI_SINGLE_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_SINGLE(_name, BATTLE_TEST_AI_SINGLES, __VA_ARGS__)
@@ -1199,6 +1203,9 @@ enum { TURN_CLOSED, TURN_OPEN, TURN_CLOSING };
 // Triple battles: rearrange a side's formation for free. Recorded on the side's left battler, before its action.
 #define FORMATION(near, middle, far) Formation(__LINE__, near, middle, far)
 #define FORMATION_2V2(near, far) Formation(__LINE__, near, NULL, far)
+#define ACT(action) BefriendChoice(__LINE__, B_ACTION_BEFRIEND_ACT, action)
+#define OFFER(item) BefriendChoice(__LINE__, B_ACTION_BEFRIEND_ITEM, item)
+#define WATCH() BefriendChoice(__LINE__, B_ACTION_BEFRIEND_WATCH, 0)
 // Development aid: prints the screen (VRAM, OAM, palettes, BG registers) when the given turn's action selection starts.
 // Render it with tools/screen_dump/render_screen_dump.py.
 #define SCREEN_DUMP(turn) ScreenDump_(__LINE__, turn)
@@ -1265,6 +1272,7 @@ void ExpectSwitch(u32 sourceLine, struct BattlePokemon *battler, u32 partyIndex)
 void Score(u32 sourceLine, struct BattlePokemon *battler, u32 cmp, bool32 toValue, struct TestAIScoreStruct cmpCtx);
 void ForcedMove(u32 sourceLine, struct BattlePokemon *);
 void Switch(u32 sourceLine, struct BattlePokemon *, u32 partyIndex);
+void BefriendChoice(u32 sourceLine, u32 actionType, u32 data);
 void Formation(u32 sourceLine, struct BattlePokemon *near, struct BattlePokemon *middle, struct BattlePokemon *far);
 void ScreenDump_(u32 sourceLine, u32 turn);
 void ScreenDumpFrame_(u32 sourceLine, u32 frame);

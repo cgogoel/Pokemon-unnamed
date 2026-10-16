@@ -1,6 +1,7 @@
 #include "global.h"
 #include "reshow_battle_screen.h"
 #include "battle.h"
+#include "befriend.h"
 #include "palette.h"
 #include "pokemon.h"
 #include "main.h"
@@ -356,6 +357,7 @@ void CreateBattlerSprite(enum BattlerId battler)
             gSprites[gBattlerSpriteIds[battler]].oam.paletteNum = IndexOfSpritePaletteTag(GetTrainerPicTag(trainerPicId, FALSE));
             gSprites[gBattlerSpriteIds[battler]].callback = SpriteCallbackDummy;
             gSprites[gBattlerSpriteIds[battler]].data[0] = battler;
+            gSprites[gBattlerSpriteIds[battler]].oam.priority = 1; // As when drawn at the start of the battle
         }
         else if (gBattleTypeFlags & BATTLE_TYPE_CATCH_TUTORIAL && position == B_POSITION_PLAYER_LEFT)
         {
@@ -430,6 +432,12 @@ static void CreateHealthboxSprite(enum BattlerId battler)
         {
             if (GetMonData(GetBattlerMon(battler), MON_DATA_HP) == 0 || gBattleStruct->battlerState[battler].notOnField)
                 SetHealthboxSpriteInvisible(healthboxSpriteId);
+        }
+        else if (IsBefriendBattle()) // Befriending battles: no healthbox for the player
+        {
+            // Not SetHealthboxSpriteInvisible: the Safari box has no HP bar sprite, so that would hide sprite 0
+            gSprites[healthboxSpriteId].invisible = TRUE;
+            gSprites[gSprites[healthboxSpriteId].oam.affineParam].invisible = TRUE;
         }
         else if (!(gBattleTypeFlags & BATTLE_TYPE_SAFARI))
         {

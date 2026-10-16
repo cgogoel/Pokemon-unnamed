@@ -1,5 +1,6 @@
 #include "global.h"
 #include "battle.h"
+#include "befriend.h"
 #include "battle_hold_effects.h"
 #include "battle_message.h"
 #include "battle_anim.h"
@@ -9164,6 +9165,22 @@ void RestoreTarget(void)
 
     gBattleStruct->savedTargetCount--;
     gBattlerTarget = gBattleStruct->savedBattlerTarget[gBattleStruct->savedTargetCount];
+}
+
+// Befriending battles: continue with the script picked for the reaction (befriended, ran away, warning).
+void BS_BefriendFinish(void)
+{
+    NATIVE_ARGS();
+    const u8 *next = TakeBefriendNextScript();
+    UpdateBefriendPatienceInHealthbox(GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT));
+    gBattlescriptCurrInstr = (next != NULL) ? next : cmd->nextInstr;
+}
+
+void BS_BefriendRestoreHp(void)
+{
+    NATIVE_ARGS();
+    RestoreBefriendedMonHp();
+    gBattlescriptCurrInstr = cmd->nextInstr;
 }
 
 void BS_SaveTarget(void)

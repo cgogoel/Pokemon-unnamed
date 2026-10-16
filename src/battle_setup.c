@@ -6,6 +6,7 @@
 #include "battle_pike.h"
 #include "battle_pyramid.h"
 #include "battle_setup.h"
+#include "befriend.h"
 #include "triple_battle.h"
 #include "battle_special.h"
 #include "battle_partner.h"
@@ -540,6 +541,27 @@ void BattleSetup_StartScriptedWildBattle(void)
     IncrementGameStat(GAME_STAT_WILD_BATTLES);
     IncrementDailyWildBattles();
     TryUpdateGymLeaderRematchFromWild();
+}
+
+// Act 1 befriending battle against the Pokémon set up by setwildbattle (befriendbattle script macro).
+static void CB2_EndBefriendBattle(void)
+{
+    CpuFill16(0, (void *)(BG_PLTT), BG_PLTT_SIZE);
+    ResetOamRange(0, 128);
+    gIsBefriendBattle = FALSE;
+    gSpecialVar_Result = gBattleOutcome;
+    SetMainCallback2(CB2_ReturnToFieldContinueScriptPlayMapMusic);
+}
+
+void StartBefriendBattle(void)
+{
+    LockPlayerFieldControls();
+    gMain.savedCallback = CB2_EndBefriendBattle;
+    gBattleTypeFlags = BATTLE_TYPE_SAFARI;
+    gIsBefriendBattle = TRUE;
+    CreateBattleStartTask(GetWildBattleTransition(), 0);
+    IncrementGameStat(GAME_STAT_TOTAL_BATTLES);
+    IncrementGameStat(GAME_STAT_WILD_BATTLES);
 }
 
 void BattleSetup_StartScriptedDoubleWildBattle(void)

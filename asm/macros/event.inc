@@ -1656,6 +1656,13 @@
 	.byte SCR_OP_DOWILDBATTLE
 	.endm
 
+	@ Act 1: starts a befriending battle with a wild Pokémon (docs/hack/befriending.md). VAR_RESULT is the outcome:
+	@ B_OUTCOME_CAUGHT when befriended, B_OUTCOME_MON_FLED when it ran away, B_OUTCOME_RAN when the player left.
+	.macro befriendbattle species:req, level:req
+	setwildbattle \species, \level
+	special StartBefriendBattle
+	.endm
+
 	@ Sets a relative address to be used by the other vcommands as part of a Mystery Gift script.
 	.macro setvaddress pointer:req
 	.byte SCR_OP_SETVADDRESS

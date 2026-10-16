@@ -1,5 +1,6 @@
 #include "global.h"
 #include "battle.h"
+#include "befriend.h"
 #include "battle_ai_main.h"
 #include "battle_ai_util.h"
 #include "battle_anim.h"
@@ -295,7 +296,9 @@ static void InitBtlControllersInternal(void)
         else
         {
             // Player 1
-            if (isRecorded)
+            if (IsBefriendBattle()) // Replays recorded choices itself
+                SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_0), SetControllerToSafari);
+            else if (isRecorded)
                 SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_0), SetControllerToRecordedPlayer);
             else if (gBattleTypeFlags & BATTLE_TYPE_SAFARI)
                 SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_0), SetControllerToSafari);
@@ -363,7 +366,7 @@ static void InitBtlControllersInternal(void)
             // Development aid: the player's battlers take scripted input in UI preview tests.
             if (TESTING && TestRunner_Battle_IsUiPreview())
             {
-                SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_0), SetControllerToPlayer);
+                SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_0), IsBefriendBattle() ? SetControllerToSafari : SetControllerToPlayer);
                 if (isDouble)
                     SetBattlerControllerFunc(GetBattlerPosition(B_BATTLER_2), SetControllerToPlayer);
             }

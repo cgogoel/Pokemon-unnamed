@@ -1242,7 +1242,30 @@ PalletTown_ProfessorOaksLab_EventScript_Aide1::
 	lock
 	faceplayer
 	goto_if_set FLAG_SYS_GAME_CLEAR, PalletTown_ProfessorOaksLab_EventScript_Aide1GameClear
+	call_if_unset FLAG_SYS_POKEDEX_GET, PalletTown_ProfessorOaksLab_EventScript_Aide1GivePokedex
+	goto_if_eq VAR_RESULT, TRUE, PalletTown_ProfessorOaksLab_EventScript_Aide1End
 	msgbox PalletTown_ProfessorOaksLab_Text_StudyAsOaksAide
+	release
+	end
+
+@ Act 1: the POKéDEX PROF. OAK promised in the intro (docs/hack/opening.md). VAR_RESULT is TRUE if it was given.
+PalletTown_ProfessorOaksLab_EventScript_Aide1GivePokedex::
+	setvar VAR_RESULT, FALSE
+	goto_if_ne VAR_STORY_ACT, STORY_ACT_CHILDHOOD, Common_EventScript_NopReturn
+	msgbox PalletTown_ProfessorOaksLab_Text_Aide1OakLeftPokedex
+	textcolor NPC_TEXT_COLOR_NEUTRAL
+	playfanfare MUS_RG_OBTAIN_KEY_ITEM
+	message PalletTown_ProfessorOaksLab_Text_ReceivedPokedexFromAide
+	waitmessage
+	waitfanfare
+	call EventScript_RestorePrevTextColor
+	setflag FLAG_SYS_POKEDEX_GET
+	special SetUnlockedPokedexFlags
+	msgbox PalletTown_ProfessorOaksLab_Text_Aide1PokedexRecordsMons
+	setvar VAR_RESULT, TRUE
+	return
+
+PalletTown_ProfessorOaksLab_EventScript_Aide1End::
 	release
 	end
 
@@ -1563,6 +1586,21 @@ PalletTown_ProfessorOaksLab_Text_EmailMessage::
 	.string "INDIGO PLATEAU\p"
 	.string "PROF. OAK, please visit us!\n"
 	.string "…$"
+
+PalletTown_ProfessorOaksLab_Text_Aide1OakLeftPokedex::
+	.string "Oh, you must be {PLAYER}!\p"
+	.string "PROF. OAK asked me to give you\n"
+	.string "this. Here you go!$"
+
+PalletTown_ProfessorOaksLab_Text_ReceivedPokedexFromAide::
+	.string "{PLAYER} received the POKéDEX\n"
+	.string "from PROF. OAK's AIDE.$"
+
+PalletTown_ProfessorOaksLab_Text_Aide1PokedexRecordsMons::
+	.string "It records data on every POKéMON\n"
+	.string "you meet.\p"
+	.string "Even without POKé BALLS, there's\n"
+	.string "plenty you can learn about them!$"
 
 PalletTown_ProfessorOaksLab_Text_StudyAsOaksAide::
 	.string "I study POKéMON as PROF. OAK's\n"

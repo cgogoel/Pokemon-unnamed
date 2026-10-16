@@ -714,6 +714,7 @@ extern const u8 MoveTutor_AfterChooseBoxMon[];
 
 extern const u8 gOtherText_NewName[];
 extern const u8 gNameChoice_Green[];
+extern const u8 gNameChoice_Blue[];
 extern const u8 gNameChoice_Red[];
 extern const u8 gNameChoice_Fire[];
 extern const u8 gNameChoice_Leaf[];
@@ -777,6 +778,7 @@ extern const u8 gOakSpeech_Text_YourRivalsNameWhatWasIt[];
 extern const u8 gOakSpeech_Text_ConfirmRivalName[];
 extern const u8 gOakSpeech_Text_RememberRivalsName[];
 extern const u8 gOakSpeech_Text_LetsGo[];
+extern const u8 gOakSpeech_Text_NotChosen[];
 extern const u8 EventScript_Food[];
 extern const u8 EventScript_ImpressiveMachine[];
 extern const u8 EventScript_Blueprints[];

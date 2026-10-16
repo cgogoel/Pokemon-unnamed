@@ -55,11 +55,6 @@ static EWRAM_DATA struct OakSpeechResources *sOakSpeechResources = NULL;
 
 static void Task_NewGameScene(u8);
 
-static void ControlsGuide_LoadPage1(void);
-static void Task_ControlsGuide_HandleInput(u8);
-static void Task_ControlsGuide_ChangePage(u8);
-static void Task_ControlsGuide_Clear(u8);
-
 static void Task_PikachuIntro_LoadPage1(u8);
 static void Task_PikachuIntro_HandleInput(u8);
 static void Task_PikachuIntro_Clear(u8);
@@ -73,21 +68,17 @@ static void Task_OakSpeech_IStudyPokemon(u8);
 static void Task_OakSpeech_ReturnNidoranFToPokeBall(u8);
 static void Task_OakSpeech_TellMeALittleAboutYourself(u8);
 static void Task_OakSpeech_FadeOutOak(u8);
-static void Task_OakSpeech_AskPlayerGender(u8);
-static void Task_OakSpeech_ShowGenderOptions(u8);
-static void Task_OakSpeech_HandleGenderInput(u8);
-static void Task_OakSpeech_ClearGenderWindows(u8);
+static void Task_OakSpeech_PlayerIsABoy(u8);
 static void Task_OakSpeech_LoadPlayerPic(u8);
 static void Task_OakSpeech_YourNameWhatIsIt(u8);
 static void Task_OakSpeech_FadeOutForPlayerNamingScreen(u8);
-static void Task_OakSpeech_HandleRivalNameInput(u8);
 static void Task_OakSpeech_DoNamingScreen(u8);
 static void Task_OakSpeech_ConfirmName(u8);
 static void Task_OakSpeech_HandleConfirmNameInput(u8);
 static void Task_OakSpeech_FadeOutPlayerPic(u8);
-static void Task_OakSpeech_FadeOutRivalPic(u8);
-static void Task_OakSpeech_FadeInRivalPic(u8);
-static void Task_OakSpeech_AskRivalsName(u8);
+static void Task_OakSpeech_FadeOutOakPic(u8);
+static void Task_OakSpeech_FadeInOakPic(u8);
+static void Task_OakSpeech_NotChosen(u8);
 static void Task_OakSpeech_ReshowPlayersPic(u8);
 static void Task_OakSpeech_LetsGo(u8);
 static void Task_OakSpeech_FadeOutBGM(u8);
@@ -110,10 +101,8 @@ static void LoadTrainerPic(u16, u16);
 static void ClearTrainerPic(void);
 static void CreateFadeInTask(u8, u8);
 static void CreateFadeOutTask(u8, u8);
-static void PrintNameChoiceOptions(u8, u8);
-static void GetDefaultName(u8, u8);
+static void GetDefaultPlayerName(void);
 
-extern const u8 gText_Controls[];
 extern const u8 gText_Next[];
 extern const u8 gText_NextBack[];
 extern const struct OamData gOamData_AffineOff_ObjBlend_32x32;
@@ -126,8 +115,6 @@ static const u32 sControlsGuide_PikachuIntro_Background_Tiles[] = INCGFX_U32("gr
 static const u32 sPikachuIntro_Background_Tilemap[] = INCGFX_U32("graphics/oak_speech/pikachu_intro/tilemap.bin", ".smolTM");
 static const u32 sOakSpeech_Background_Tiles[] = INCGFX_U32("graphics/oak_speech/oak_speech_bg.png", ".4bpp.smol");
 static const u32 sOakSpeech_Background_Tilemap[] = INCGFX_U32("graphics/oak_speech/oak_speech_bg.bin", ".smolTM");
-static const u16 sControlsGuide_Tilemap_Page2[] = INCBIN_U16("graphics/oak_speech/controls_guide_page_2.bin");
-static const u16 sControlsGuide_Tilemap_Page3[] = INCBIN_U16("graphics/oak_speech/controls_guide_page_3.bin");
 static const u16 sOakSpeech_Leaf_Pal[] = INCGFX_U16("graphics/oak_speech/leaf/pal.pal", ".gbapal");
 static const u32 sOakSpeech_Leaf_Tiles[] = INCGFX_U32("graphics/oak_speech/leaf/pic.png", ".8bpp.smol");
 static const u16 sOakSpeech_Red_Pal[] = INCGFX_U16("graphics/oak_speech/red/pal.pal", ".gbapal");
@@ -172,120 +159,6 @@ static const struct BgTemplate sBgTemplates[] =
         .priority = 1,
         .baseTile = 0
     }
-};
-
-enum
-{
-    CONTROLS_GUIDE_PAGE_1_WINDOW,
-    NUM_CONTROLS_GUIDE_PAGE_1_WINDOWS,
-};
-
-static const struct WindowTemplate sControlsGuide_WindowTemplate_Page1[NUM_CONTROLS_GUIDE_PAGE_1_WINDOWS + 1] =
-{
-    [CONTROLS_GUIDE_PAGE_1_WINDOW] =
-    {
-        .bg = 0,
-        .tilemapLeft = 0,
-        .tilemapTop = 7,
-        .width = 30,
-        .height = 4,
-        .paletteNum = 15,
-        .baseBlock = 1
-    },
-    DUMMY_WIN_TEMPLATE
-};
-
-enum
-{
-    CONTROLS_GUIDE_PAGES_2_3_WINDOW_TOP,
-    CONTROLS_GUIDE_PAGES_2_3_WINDOW_MIDDLE,
-    CONTROLS_GUIDE_PAGES_2_3_WINDOW_BOTTOM,
-    NUM_CONTROLS_GUIDE_PAGES_2_3_WINDOWS,
-};
-
-static const struct WindowTemplate sControlsGuide_WindowTemplate_Page2[NUM_CONTROLS_GUIDE_PAGES_2_3_WINDOWS + 1] =
-{
-    [CONTROLS_GUIDE_PAGES_2_3_WINDOW_TOP] =
-    {
-        .bg = 0,
-        .tilemapLeft = 6,
-        .tilemapTop = 3,
-        .width = 24,
-        .height = 6,
-        .paletteNum = 15,
-        .baseBlock = 1
-    },
-    [CONTROLS_GUIDE_PAGES_2_3_WINDOW_MIDDLE] =
-    {
-        .bg = 0,
-        .tilemapLeft = 6,
-        .tilemapTop = 10,
-        .width = 24,
-        .height = 4,
-        .paletteNum = 15,
-        .baseBlock = 146
-    },
-    [CONTROLS_GUIDE_PAGES_2_3_WINDOW_BOTTOM] =
-    {
-        .bg = 0,
-        .tilemapLeft = 6,
-        .tilemapTop = 15,
-        .width = 24,
-        .height = 4,
-        .paletteNum = 15,
-        .baseBlock = 243
-    },
-    DUMMY_WIN_TEMPLATE
-};
-
-static const struct WindowTemplate sControlsGuide_WindowTemplate_Page3[NUM_CONTROLS_GUIDE_PAGES_2_3_WINDOWS + 1] =
-{
-    [CONTROLS_GUIDE_PAGES_2_3_WINDOW_TOP] =
-    {
-        .bg = 0,
-        .tilemapLeft = 6,
-        .tilemapTop = 3,
-        .width = 24,
-        .height = 4,
-        .paletteNum = 15,
-        .baseBlock = 1
-    },
-    [CONTROLS_GUIDE_PAGES_2_3_WINDOW_MIDDLE] =
-    {
-        .bg = 0,
-        .tilemapLeft = 6,
-        .tilemapTop = 8,
-        .width = 24,
-        .height = 4,
-        .paletteNum = 15,
-        .baseBlock = 98
-    },
-    [CONTROLS_GUIDE_PAGES_2_3_WINDOW_BOTTOM] =
-    {
-        .bg = 0,
-        .tilemapLeft = 6,
-        .tilemapTop = 13,
-        .width = 24,
-        .height = 6,
-        .paletteNum = 15,
-        .baseBlock = 195
-    },
-    DUMMY_WIN_TEMPLATE
-};
-
-enum
-{
-    CONTROLS_GUIDE_PAGE_1,
-    CONTROLS_GUIDE_PAGE_2,
-    CONTROLS_GUIDE_PAGE_3,
-    NUM_CONTROLS_GUIDE_PAGES,
-};
-
-static const struct WindowTemplate *const sControlsGuide_WindowTemplates[NUM_CONTROLS_GUIDE_PAGES] =
-{
-    [CONTROLS_GUIDE_PAGE_1] = sControlsGuide_WindowTemplate_Page1,
-    [CONTROLS_GUIDE_PAGE_2] = sControlsGuide_WindowTemplate_Page2,
-    [CONTROLS_GUIDE_PAGE_3] = sControlsGuide_WindowTemplate_Page3
 };
 
 static const struct WindowTemplate sIntro_WindowTemplates[NUM_INTRO_WINDOWS + 1] =
@@ -333,7 +206,7 @@ static const struct WindowTemplate sIntro_WindowTemplates[NUM_INTRO_WINDOWS + 1]
     DUMMY_WIN_TEMPLATE
 };
 
-static const u8 sTextColor_White[] = { 0, 1, 2, 0 };
+static const u16 sBackdropBlack = RGB_BLACK;
 static const u8 sTextColor_DarkGray[] = { 0, 2, 3, 0 };
 
 enum
@@ -576,20 +449,7 @@ static const struct SpriteTemplate sPikachuIntro_Pikachu_SpriteTemplates[NUM_PIK
     }
 };
 
-#define CONTROLS_GUIDE_STRINGS_PER_PAGE 3
-
-static const u8 *const sControlsGuide_Pages2And3_Strings[CONTROLS_GUIDE_STRINGS_PER_PAGE * 2] =
-{
-    // Page 2
-    gControlsGuide_Text_DPad,
-    gControlsGuide_Text_AButton,
-    gControlsGuide_Text_BButton,
-    // Page 3
-    gControlsGuide_Text_StartButton,
-    gControlsGuide_Text_SelectButton,
-    gControlsGuide_Text_LRButtons
-};
-
+// The player is always a boy (docs/hack/opening.md)
 static const u8 *const sMaleNameChoices[] =
 {
 #if defined(FIRERED)
@@ -619,49 +479,6 @@ static const u8 *const sMaleNameChoices[] =
     gNameChoice_Kay,
     gNameChoice_Tosh,
     gNameChoice_Roak
-};
-
-static const u8 *const sFemaleNameChoices[] =
-{
-#if defined(FIRERED)
-    gNameChoice_Red,
-    gNameChoice_Fire,
-#else
-    gNameChoice_Green,
-    gNameChoice_Leaf,
-#endif
-    gNameChoice_Omi,
-    gNameChoice_Jodi,
-    gNameChoice_Amanda,
-    gNameChoice_Hillary,
-    gNameChoice_Makey,
-    gNameChoice_Michi,
-    gNameChoice_Paula,
-    gNameChoice_June,
-    gNameChoice_Cassie,
-    gNameChoice_Rey,
-    gNameChoice_Seda,
-    gNameChoice_Kiko,
-    gNameChoice_Mina,
-    gNameChoice_Norie,
-    gNameChoice_Sai,
-    gNameChoice_Momo,
-    gNameChoice_Suzi
-};
-
-static const u8 *const sRivalNameChoices[] =
-{
-#if defined(FIRERED)
-    gNameChoice_Green,
-    gNameChoice_Gary,
-    gNameChoice_Kaz,
-    gNameChoice_Toru
-#else
-    gNameChoice_Red,
-    gNameChoice_Ash,
-    gNameChoice_Kene,
-    gNameChoice_Geki
-#endif
 };
 
 enum
@@ -708,7 +525,6 @@ void StartNewGameSceneFrlg(void)
                                  // data[9]     //
 #define tMenuWindowId               data[13]
 #define tTextboxWindowId            data[14]
-#define tDelta                      data[15]
 
 static void Task_NewGameScene(u8 taskId)
 {
@@ -778,157 +594,23 @@ static void Task_NewGameScene(u8 taskId)
         FillBgTilemapBufferRect_Palette0(1, 0xD00F, 0,  0, 30, 2);
         FillBgTilemapBufferRect_Palette0(1, 0xD002, 0,  2, 30, 1);
         FillBgTilemapBufferRect_Palette0(1, 0xD00E, 0, 19, 30, 1);
-        ControlsGuide_LoadPage1();
         gPaletteFade.bufferTransferDisabled = FALSE;
-        gTasks[taskId].tTextCursorSpriteId = CreateTextCursorSprite(0, 230, 149, 0, 0);
         BlendPalettes(PALETTES_ALL, 16, RGB_BLACK);
         break;
     case 10:
-        BeginNormalPaletteFade(PALETTES_ALL, 0, 16, 0, RGB_BLACK);
+        // No controls guide: straight to the Pikachu intro pages, which fade in from black
         SetGpuReg(REG_OFFSET_DISPCNT, DISPCNT_MODE_0 | DISPCNT_OBJ_1D_MAP | DISPCNT_OBJ_ON);
         ShowBg(0);
         ShowBg(1);
         SetVBlankCallback(VBlankCB_NewGameScene);
-        PlayBGM(MUS_RG_NEW_GAME_INSTRUCT);
-        gTasks[taskId].func = Task_ControlsGuide_HandleInput;
+        LoadPalette(&sBackdropBlack, BG_PLTT_ID(0), PLTT_SIZEOF(1));
+        gTasks[taskId].tTimer = 32;
+        gTasks[taskId].func = Task_PikachuIntro_LoadPage1;
         gMain.state = 0;
         return;
     }
 
     gMain.state++;
-}
-
-static void ControlsGuide_LoadPage1(void)
-{
-    HofPCTopBar_PrintPair(gText_Controls, gText_Next, FALSE, 0, TRUE);
-    sOakSpeechResources->windowIds[0] = AddWindow(sControlsGuide_WindowTemplates[sOakSpeechResources->currentPage]);
-    PutWindowTilemap(sOakSpeechResources->windowIds[0]);
-    FillWindowPixelBuffer(sOakSpeechResources->windowIds[0], PIXEL_FILL(0));
-    AddTextPrinterParameterized4(sOakSpeechResources->windowIds[0], FONT_NORMAL, 2, 0, 1, 1, sTextColor_White, 0, gControlsGuide_Text_Intro);
-    CopyWindowToVram(sOakSpeechResources->windowIds[0], COPYWIN_FULL);
-    FillBgTilemapBufferRect_Palette0(1, 0x3000, 1, 3, 5, 16);
-    CopyBgTilemapBufferToVram(1);
-}
-
-static void Task_ControlsGuide_LoadPage(u8 taskId)
-{
-    u8 currWindow = 0;
-    u8 page2Or3 = sOakSpeechResources->currentPage - 1; // 0 if page 2, 1 if page 3
-    if (sOakSpeechResources->currentPage == CONTROLS_GUIDE_PAGE_1)
-    {
-        ControlsGuide_LoadPage1();
-    }
-    else
-    {
-        HofPCTopBar_Print(gText_NextBack, 0, TRUE);
-        for (currWindow = CONTROLS_GUIDE_PAGES_2_3_WINDOW_TOP; currWindow < NUM_CONTROLS_GUIDE_PAGES_2_3_WINDOWS; currWindow++)
-        {
-            sOakSpeechResources->windowIds[currWindow] = AddWindow(&sControlsGuide_WindowTemplates[sOakSpeechResources->currentPage][currWindow]);
-            PutWindowTilemap(sOakSpeechResources->windowIds[currWindow]);
-            FillWindowPixelBuffer(sOakSpeechResources->windowIds[currWindow], PIXEL_FILL(0));
-            AddTextPrinterParameterized4(sOakSpeechResources->windowIds[currWindow], FONT_NORMAL, 6, 0, 1, 1, sTextColor_White, 0, sControlsGuide_Pages2And3_Strings[currWindow + page2Or3 * CONTROLS_GUIDE_STRINGS_PER_PAGE]);
-            CopyWindowToVram(sOakSpeechResources->windowIds[currWindow], COPYWIN_FULL);
-        }
-
-        if (sOakSpeechResources->currentPage == CONTROLS_GUIDE_PAGE_2)
-            CopyToBgTilemapBufferRect(1, sControlsGuide_Tilemap_Page2, 1, 3, 5, 16);
-        else // CONTROLS_GUIDE_PAGE_3
-            CopyToBgTilemapBufferRect(1, sControlsGuide_Tilemap_Page3, 1, 3, 5, 16);
-        CopyBgTilemapBufferToVram(1);
-    }
-    BeginNormalPaletteFade(PALETTES_OBJECTS | 0xDFFF, -1, 16, 0, GetTextWindowPalette(2)[15]);
-    gTasks[taskId].func = Task_ControlsGuide_HandleInput;
-}
-
-static void Task_ControlsGuide_HandleInput(u8 taskId)
-{
-    if (!gPaletteFade.active)
-    {
-        if (JOY_NEW((A_BUTTON | B_BUTTON)))
-        {
-            if (JOY_NEW(A_BUTTON))
-            {
-                gTasks[taskId].tDelta = 1;
-
-                if (sOakSpeechResources->currentPage < CONTROLS_GUIDE_PAGE_3)
-                    BeginNormalPaletteFade(PALETTES_OBJECTS | 0xDFFF, -1, 0, 16, GetTextWindowPalette(2)[15]);
-            }
-            else // B_BUTTON
-            {
-                if (sOakSpeechResources->currentPage == CONTROLS_GUIDE_PAGE_1)
-                    return;
-
-                gTasks[taskId].tDelta = -1;
-                BeginNormalPaletteFade(PALETTES_OBJECTS | 0xDFFF, -1, 0, 16, GetTextWindowPalette(2)[15]);
-            }
-
-            PlaySE(SE_SELECT);
-            gTasks[taskId].func = Task_ControlsGuide_ChangePage;
-        }
-    }
-}
-
-static void Task_ControlsGuide_ChangePage(u8 taskId)
-{
-    u8 numWindows = 0;
-    u8 i;
-
-    if (!gPaletteFade.active)
-    {
-        switch (sOakSpeechResources->currentPage)
-        {
-        case CONTROLS_GUIDE_PAGE_1:
-            numWindows = NUM_CONTROLS_GUIDE_PAGE_1_WINDOWS;
-            break;
-        case CONTROLS_GUIDE_PAGE_2:
-        case CONTROLS_GUIDE_PAGE_3:
-            numWindows = NUM_CONTROLS_GUIDE_PAGES_2_3_WINDOWS;
-            break;
-        }
-        sOakSpeechResources->currentPage += gTasks[taskId].tDelta;
-        if (sOakSpeechResources->currentPage < NUM_CONTROLS_GUIDE_PAGES)
-        {
-            for (i = 0; i < numWindows; i++)
-            {
-                FillWindowPixelBuffer(sOakSpeechResources->windowIds[i], PIXEL_FILL(0));
-                ClearWindowTilemap(sOakSpeechResources->windowIds[i]);
-                CopyWindowToVram(sOakSpeechResources->windowIds[i], COPYWIN_FULL);
-                RemoveWindow(sOakSpeechResources->windowIds[i]);
-                sOakSpeechResources->windowIds[i] = 0;
-            }
-            gTasks[taskId].func = Task_ControlsGuide_LoadPage;
-        }
-        else
-        {
-            BeginNormalPaletteFade(PALETTES_ALL, 2, 0, 16, 0);
-            gTasks[taskId].func = Task_ControlsGuide_Clear;
-        }
-    }
-}
-
-#undef tDelta
-
-static void Task_ControlsGuide_Clear(u8 taskId)
-{
-    u8 i = 0;
-    if (!gPaletteFade.active)
-    {
-        for (i = 0; i < NUM_CONTROLS_GUIDE_PAGES_2_3_WINDOWS; i++)
-        {
-            FillWindowPixelBuffer(sOakSpeechResources->windowIds[i], PIXEL_FILL(0));
-            ClearWindowTilemap(sOakSpeechResources->windowIds[i]);
-            CopyWindowToVram(sOakSpeechResources->windowIds[i], COPYWIN_FULL);
-            RemoveWindow(sOakSpeechResources->windowIds[i]);
-            sOakSpeechResources->windowIds[i] = 0;
-        }
-        FillBgTilemapBufferRect_Palette0(1, 0, 0, 2, 30, 18);
-        CopyBgTilemapBufferToVram(1);
-        DestroyTextCursorSprite(gTasks[taskId].tTextCursorSpriteId);
-        sOakSpeechResources->windowIds[0] = RGB_BLACK;
-        LoadPalette(sOakSpeechResources->windowIds, BG_PLTT_ID(0), PLTT_SIZEOF(1));
-        gTasks[taskId].tTimer = 32;
-        gTasks[taskId].func = Task_PikachuIntro_LoadPage1;
-    }
 }
 
 enum
@@ -1265,11 +947,12 @@ static void Task_OakSpeech_FadeOutOak(u8 taskId)
         ClearDialogWindowAndFrame(WIN_INTRO_TEXTBOX, 1);
         CreateFadeInTask(taskId, 2);
         tTimer = 48;
-        gTasks[taskId].func = Task_OakSpeech_AskPlayerGender;
+        gTasks[taskId].func = Task_OakSpeech_PlayerIsABoy;
     }
 }
 
-static void Task_OakSpeech_AskPlayerGender(u8 taskId)
+// No boy/girl question: the player is always a boy (docs/hack/opening.md)
+static void Task_OakSpeech_PlayerIsABoy(u8 taskId)
 {
     s16 *data = gTasks[taskId].data;
 
@@ -1281,73 +964,16 @@ static void Task_OakSpeech_AskPlayerGender(u8 taskId)
         }
         else
         {
-            tTrainerPicPosX = -60;
             ClearTrainerPic();
-            OakSpeechPrintMessage(gOakSpeech_Text_AskPlayerGender, sOakSpeechResources->textSpeed, FALSE);
-            gTasks[taskId].func = Task_OakSpeech_ShowGenderOptions;
+            gSaveBlock2Ptr->playerGender = MALE;
+            gTasks[taskId].func = Task_OakSpeech_LoadPlayerPic;
         }
     }
 }
 
-static void Task_OakSpeech_ShowGenderOptions(u8 taskId)
-{
-    if (!IsTextPrinterActiveOnWindow(WIN_INTRO_TEXTBOX))
-    {
-        gTasks[taskId].tMenuWindowId = AddWindow(&sIntro_WindowTemplates[WIN_INTRO_BOYGIRL]);
-        PutWindowTilemap(gTasks[taskId].tMenuWindowId);
-        DrawStdFrameWithCustomTileAndPalette(gTasks[taskId].tMenuWindowId, TRUE, STD_WINDOW_BASE_TILE_NUM, 14);
-        FillWindowPixelBuffer(gTasks[taskId].tMenuWindowId, PIXEL_FILL(1));
-        sOakSpeechResources->textColor[0] = 1;
-        sOakSpeechResources->textColor[1] = 2;
-        sOakSpeechResources->textColor[2] = 3;
-        AddTextPrinterParameterized3(gTasks[taskId].tMenuWindowId, FONT_NORMAL, 8, 1, sOakSpeechResources->textColor, 0, gText_Boy);
-        sOakSpeechResources->textColor[0] = 1;
-        sOakSpeechResources->textColor[1] = 2;
-        sOakSpeechResources->textColor[2] = 3;
-        AddTextPrinterParameterized3(gTasks[taskId].tMenuWindowId, FONT_NORMAL, 8, 17, sOakSpeechResources->textColor, 0, gText_Girl);
-        InitMenuNormal(gTasks[taskId].tMenuWindowId, FONT_NORMAL, 0, 1, GetFontAttribute(FONT_NORMAL, FONTATTR_MAX_LETTER_HEIGHT) + 2, 2, 0);
-        CopyWindowToVram(gTasks[taskId].tMenuWindowId, COPYWIN_FULL);
-        gTasks[taskId].func = Task_OakSpeech_HandleGenderInput;
-    }
-}
-
-static void Task_OakSpeech_HandleGenderInput(u8 taskId)
-{
-    s8 input = Menu_ProcessInputNoWrap();
-    switch (input)
-    {
-    case 0: // BOY
-        gSaveBlock2Ptr->playerGender = MALE;
-        break;
-    case 1: // GIRL
-        gSaveBlock2Ptr->playerGender = FEMALE;
-        break;
-    case MENU_B_PRESSED:
-    case MENU_NOTHING_CHOSEN:
-        return;
-    }
-    gTasks[taskId].func = Task_OakSpeech_ClearGenderWindows;
-
-}
-
-static void Task_OakSpeech_ClearGenderWindows(u8 taskId)
-{
-    s16 *data = gTasks[taskId].data;
-    ClearStdWindowAndFrameToTransparent(tMenuWindowId, TRUE);
-    RemoveWindow(tMenuWindowId);
-    tMenuWindowId = WIN_INTRO_TEXTBOX;
-    ClearDialogWindowAndFrame(tMenuWindowId, TRUE);
-    FillBgTilemapBufferRect_Palette0(0, 0, 0, 0, 30, 20);
-    CopyBgTilemapBufferToVram(0);
-    gTasks[taskId].func = Task_OakSpeech_LoadPlayerPic;
-}
-
 static void Task_OakSpeech_LoadPlayerPic(u8 taskId)
 {
-    if (gSaveBlock2Ptr->playerGender == MALE)
-        LoadTrainerPic(MALE_PLAYER_PIC, 0);
-    else
-        LoadTrainerPic(FEMALE_PLAYER_PIC, 0);
+    LoadTrainerPic(MALE_PLAYER_PIC, 0);
     CreateFadeOutTask(taskId, 2);
     gTasks[taskId].tTimer = 32;
     gTasks[taskId].func = Task_OakSpeech_YourNameWhatIsIt;
@@ -1382,81 +1008,14 @@ static void Task_OakSpeech_FadeOutForPlayerNamingScreen(u8 taskId)
     }
 }
 
-static void Task_OakSpeech_MoveRivalDisplayNameOptions(u8 taskId)
-{
-    s16 *data = gTasks[taskId].data;
-
-    if (!IsTextPrinterActiveOnWindow(WIN_INTRO_TEXTBOX))
-    {
-        if (tTrainerPicPosX > -60)
-        {
-            tTrainerPicPosX -= 2;
-            gSpriteCoordOffsetX += 2;
-            ChangeBgX(2, 0x200, BG_COORD_SUB);
-        }
-        else
-        {
-            tTrainerPicPosX = -60;
-            PrintNameChoiceOptions(taskId, sOakSpeechResources->hasPlayerBeenNamed);
-            gTasks[taskId].func = Task_OakSpeech_HandleRivalNameInput;
-        }
-    }
-}
-
-static void Task_OakSpeech_RepeatNameQuestion(u8 taskId)
-{
-    PrintNameChoiceOptions(taskId, sOakSpeechResources->hasPlayerBeenNamed);
-    if (sOakSpeechResources->hasPlayerBeenNamed == FALSE)
-        OakSpeechPrintMessage(gOakSpeech_Text_YourNameWhatIsIt, 0, FALSE);
-    else
-        OakSpeechPrintMessage(gOakSpeech_Text_YourRivalsNameWhatWasIt, 0, FALSE);
-    gTasks[taskId].func = Task_OakSpeech_HandleRivalNameInput;
-}
-
 #define tNameNotConfirmed data[15]
-
-static void Task_OakSpeech_HandleRivalNameInput(u8 taskId)
-{
-    s16 *data = gTasks[taskId].data;
-    s8 input = Menu_ProcessInput();
-    switch (input)
-    {
-    case 0: // NEW NAME
-        PlaySE(SE_SELECT);
-        BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
-        gTasks[taskId].func = Task_OakSpeech_DoNamingScreen;
-        break;
-    case 1: // Default name options
-    case 2: //
-    case 3: //
-    case 4: //
-        PlaySE(SE_SELECT);
-        ClearStdWindowAndFrameToTransparent(tMenuWindowId, TRUE);
-        RemoveWindow(tMenuWindowId);
-        GetDefaultName(sOakSpeechResources->hasPlayerBeenNamed, input - 1);
-        tNameNotConfirmed = TRUE;
-        gTasks[taskId].func = Task_OakSpeech_ConfirmName;
-        break;
-    case MENU_B_PRESSED:
-        break;
-    }
-}
 
 static void Task_OakSpeech_DoNamingScreen(u8 taskId)
 {
     if (!gPaletteFade.active)
     {
-        GetDefaultName(sOakSpeechResources->hasPlayerBeenNamed, 0);
-        if (sOakSpeechResources->hasPlayerBeenNamed == FALSE)
-        {
-            DoNamingScreen(NAMING_SCREEN_PLAYER, gSaveBlock2Ptr->playerName, gSaveBlock2Ptr->playerGender, 0, 0, CB2_ReturnFromNamingScreen);
-        }
-        else
-        {
-            ClearStdWindowAndFrameToTransparent(gTasks[taskId].tMenuWindowId, TRUE);
-            RemoveWindow(gTasks[taskId].tMenuWindowId);
-            DoNamingScreen(NAMING_SCREEN_RIVAL, gSaveBlock1Ptr->rivalName, 0, 0, 0, CB2_ReturnFromNamingScreen);
-        }
+        GetDefaultPlayerName();
+        DoNamingScreen(NAMING_SCREEN_PLAYER, gSaveBlock2Ptr->playerName, gSaveBlock2Ptr->playerGender, 0, 0, CB2_ReturnFromNamingScreen);
         DestroyPikachuOrPlatformSprites(taskId, SPRITE_TYPE_PLATFORM);
         FreeAllWindowBuffers();
     }
@@ -1469,10 +1028,7 @@ static void Task_OakSpeech_ConfirmName(u8 taskId)
     {
         if (tNameNotConfirmed == TRUE)
         {
-            if (sOakSpeechResources->hasPlayerBeenNamed == FALSE)
-                StringExpandPlaceholders(gStringVar4, gOakSpeech_Text_SoYourNameIsPlayer);
-            else
-                StringExpandPlaceholders(gStringVar4, gOakSpeech_Text_ConfirmRivalName);
+            StringExpandPlaceholders(gStringVar4, gOakSpeech_Text_SoYourNameIsPlayer);
             OakSpeechPrintMessage(gStringVar4, sOakSpeechResources->textSpeed, TRUE);
             tNameNotConfirmed = FALSE;
             tTimer = 25;
@@ -1500,26 +1056,14 @@ static void Task_OakSpeech_HandleConfirmNameInput(u8 taskId)
     case 0: // YES
         PlaySE(SE_SELECT);
         gTasks[taskId].tTimer = 40;
-        if (sOakSpeechResources->hasPlayerBeenNamed == FALSE)
-        {
-            ClearDialogWindowAndFrame(WIN_INTRO_TEXTBOX, TRUE);
-            CreateFadeInTask(taskId, 2);
-            gTasks[taskId].func = Task_OakSpeech_FadeOutPlayerPic;
-        }
-        else
-        {
-            StringExpandPlaceholders(gStringVar4, gOakSpeech_Text_RememberRivalsName);
-            OakSpeechPrintMessage(gStringVar4, sOakSpeechResources->textSpeed, TRUE);
-            gTasks[taskId].func = Task_OakSpeech_FadeOutRivalPic;
-        }
+        ClearDialogWindowAndFrame(WIN_INTRO_TEXTBOX, TRUE);
+        CreateFadeInTask(taskId, 2);
+        gTasks[taskId].func = Task_OakSpeech_FadeOutPlayerPic;
         break;
     case 1: // NO
     case MENU_B_PRESSED:
         PlaySE(SE_SELECT);
-        if (sOakSpeechResources->hasPlayerBeenNamed == FALSE)
-            gTasks[taskId].func = Task_OakSpeech_FadeOutForPlayerNamingScreen;
-        else
-            gTasks[taskId].func = Task_OakSpeech_RepeatNameQuestion;
+        gTasks[taskId].func = Task_OakSpeech_FadeOutForPlayerNamingScreen;
         break;
     }
 }
@@ -1534,11 +1078,11 @@ static void Task_OakSpeech_FadeOutPlayerPic(u8 taskId)
         if (tTimer != 0)
             tTimer--;
         else
-            gTasks[taskId].func = Task_OakSpeech_FadeInRivalPic;
+            gTasks[taskId].func = Task_OakSpeech_FadeInOakPic;
     }
 }
 
-static void Task_OakSpeech_FadeOutRivalPic(u8 taskId)
+static void Task_OakSpeech_FadeOutOakPic(u8 taskId)
 {
     if (!IsTextPrinterActiveOnWindow(WIN_INTRO_TEXTBOX))
     {
@@ -1548,25 +1092,28 @@ static void Task_OakSpeech_FadeOutRivalPic(u8 taskId)
     }
 }
 
-static void Task_OakSpeech_FadeInRivalPic(u8 taskId)
+// The rival isn't introduced or named here: he's always BLUE
+static void Task_OakSpeech_FadeInOakPic(u8 taskId)
 {
+    StringCopy(gSaveBlock1Ptr->rivalName, gNameChoice_Blue);
     ChangeBgX(2, 0, BG_COORD_SET);
     gTasks[taskId].tTrainerPicPosX = 0;
     gSpriteCoordOffsetX = 0;
-    LoadTrainerPic(RIVAL_PIC, 0);
+    LoadTrainerPic(OAK_PIC, 0);
     CreateFadeOutTask(taskId, 2);
-    gTasks[taskId].func = Task_OakSpeech_AskRivalsName;
+    gTasks[taskId].func = Task_OakSpeech_NotChosen;
 }
 
-static void Task_OakSpeech_AskRivalsName(u8 taskId)
+// Oak didn't choose the player for his study: back to the farm, and a POKéDEX waits at the LAB
+static void Task_OakSpeech_NotChosen(u8 taskId)
 {
     s16 *data = gTasks[taskId].data;
 
     if (tTrainerPicFadeState != 0)
     {
-        OakSpeechPrintMessage(gOakSpeech_Text_WhatWasHisName, sOakSpeechResources->textSpeed, FALSE);
-        sOakSpeechResources->hasPlayerBeenNamed = TRUE;
-        gTasks[taskId].func = Task_OakSpeech_MoveRivalDisplayNameOptions;
+        StringExpandPlaceholders(gStringVar4, gOakSpeech_Text_NotChosen);
+        OakSpeechPrintMessage(gStringVar4, sOakSpeechResources->textSpeed, TRUE);
+        gTasks[taskId].func = Task_OakSpeech_FadeOutOakPic;
     }
 }
 
@@ -1583,10 +1130,7 @@ static void Task_OakSpeech_ReshowPlayersPic(u8 taskId)
         }
         else
         {
-            if (gSaveBlock2Ptr->playerGender == MALE)
-                LoadTrainerPic(MALE_PLAYER_PIC, 0);
-            else
-                LoadTrainerPic(FEMALE_PLAYER_PIC, 0);
+            LoadTrainerPic(MALE_PLAYER_PIC, 0);
             gTasks[taskId].tTrainerPicPosX = 0;
             gSpriteCoordOffsetX = 0;
             ChangeBgX(2, 0, BG_COORD_SET);
@@ -1852,17 +1396,7 @@ static void CB2_ReturnFromNamingScreen(void)
         break;
     case 6:
         taskId = CreateTask(Task_OakSpeech_ConfirmName, 0);
-        if (sOakSpeechResources->hasPlayerBeenNamed == FALSE)
-        {
-            if (gSaveBlock2Ptr->playerGender == MALE)
-                LoadTrainerPic(MALE_PLAYER_PIC, 0);
-            else
-                LoadTrainerPic(FEMALE_PLAYER_PIC, 0);
-        }
-        else
-        {
-            LoadTrainerPic(RIVAL_PIC, 0);
-        }
+        LoadTrainerPic(MALE_PLAYER_PIC, 0);
         gTasks[taskId].tTrainerPicPosX = -60;
         gSpriteCoordOffsetX += 60;
         ChangeBgX(2, 0xFFFFC400, BG_COORD_SET);
@@ -2119,45 +1653,12 @@ static void CreateFadeOutTask(u8 taskId, u8 delay)
         gTasks[taskId2].tPikachuPlatformSpriteId(i) = gTasks[taskId].tPikachuPlatformSpriteId(i);
 }
 
-static void PrintNameChoiceOptions(u8 taskId, u8 hasPlayerBeenNamed)
+static void GetDefaultPlayerName(void)
 {
-    s16 *data = gTasks[taskId].data;
-    const u8 *const *textPtrs;
-    u8 i;
+    const u8 *src = sMaleNameChoices[Random() % ARRAY_COUNT(sMaleNameChoices)];
+    u8 *dest = gSaveBlock2Ptr->playerName;
+    u32 i;
 
-    tMenuWindowId = AddWindow(&sIntro_WindowTemplates[WIN_INTRO_NAMES]);
-    PutWindowTilemap(tMenuWindowId);
-    DrawStdFrameWithCustomTileAndPalette(tMenuWindowId, 1, STD_WINDOW_BASE_TILE_NUM, 14);
-    FillWindowPixelBuffer(gTasks[taskId].tMenuWindowId, PIXEL_FILL(1));
-    AddTextPrinterParameterized(tMenuWindowId, FONT_NORMAL, gOtherText_NewName, 8, 1, 0, NULL);
-    if (hasPlayerBeenNamed == FALSE)
-        textPtrs = gSaveBlock2Ptr->playerGender == MALE ? sMaleNameChoices : sFemaleNameChoices;
-    else
-        textPtrs = sRivalNameChoices;
-    for (i = 0; i < ARRAY_COUNT(sRivalNameChoices); i++)
-        AddTextPrinterParameterized(tMenuWindowId, FONT_NORMAL, textPtrs[i], 8, 16 * (i + 1) + 1, 0, NULL);
-    InitMenuNormal(tMenuWindowId, FONT_NORMAL, 0, 1, 16, 5, 0);
-    CopyWindowToVram(tMenuWindowId, COPYWIN_FULL);
-}
-
-static void GetDefaultName(u8 hasPlayerBeenNamed, u8 nameChoice)
-{
-    const u8 *src;
-    u8 *dest;
-    u8 i;
-    if (hasPlayerBeenNamed == FALSE)
-    {
-        if (gSaveBlock2Ptr->playerGender == MALE)
-            src = sMaleNameChoices[Random() % ARRAY_COUNT(sMaleNameChoices)];
-        else
-            src = sFemaleNameChoices[Random() % ARRAY_COUNT(sFemaleNameChoices)];
-        dest = gSaveBlock2Ptr->playerName;
-    }
-    else
-    {
-        src = sRivalNameChoices[nameChoice];
-        dest = gSaveBlock1Ptr->rivalName;
-    }
     for (i = 0; i < PLAYER_NAME_LENGTH && src[i] != EOS; i++)
         dest[i] = src[i];
     for (; i < PLAYER_NAME_LENGTH + 1; i++)
@@ -2173,7 +1674,6 @@ static void GetDefaultName(u8 hasPlayerBeenNamed, u8 nameChoice)
 #undef tPokeBallSpriteId
 #undef tMenuWindowId
 #undef tTextboxWindowId
-#undef tDelta
 #undef tPlayerPicFadeOutTimer
 #undef tScaleDelta
 #undef tPlayerIsShrunk

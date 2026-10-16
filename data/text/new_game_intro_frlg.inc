@@ -4,6 +4,10 @@ gOtherText_NewName::
 gNameChoice_Green::
 	.string "GREEN$"
 
+@ The rival's name, always (docs/hack/opening.md)
+gNameChoice_Blue::
+	.string "BLUE$"
+
 gNameChoice_Red::
 	.string "RED$"
 
@@ -159,32 +163,28 @@ gOakSpeech_Text_AskPlayerGender::
 	.string "Or are you a girl?$"
 
 gPikachuIntro_Text_Page1::
-	.string "In the world which you are about to\n"
-	.string "enter, you will embark on a grand\n"
-	.string "adventure with you as the hero.\n"
+	.string "Every story has its heroes, the ones\n"
+	.string "whose names everybody knows.\n"
 	.string "\n"
-	.string "Speak to people and check things\n"
-	.string "wherever you go, be it towns, roads,\n"
-	.string "or caves. Gather information and\n"
-	.string "hints from every source.$"
+	.string "But every story is also full of\n"
+	.string "people whose names are never told.\n"
+	.string "They leave their mark all the same,\n"
+	.string "and each has a story of their own.$"
 
 gPikachuIntro_Text_Page2::
-	.string "New paths will open to you by helping\n"
-	.string "people in need, overcoming challenges,\n"
-	.string "and solving mysteries.\n"
+	.string "This is a view into one such life:\n"
+	.string "a lead scientist at SILPH CO., in\n"
+	.string "the days before TEAM ROCKET took\n"
+	.string "over the building.\n"
 	.string "\n"
-	.string "At times, you will be challenged by\n"
-	.string "others and attacked by wild creatures.\n"
-	.string "Be brave and keep pushing on.$"
+	.string "But every life starts somewhere…$"
 
 gPikachuIntro_Text_Page3::
-	.string "Through your adventure, we hope\n"
-	.string "that you will interact with all sorts\n"
-	.string "of people and achieve personal growth.\n"
-	.string "That is our biggest objective.\n"
+	.string "…and this one starts on a small\n"
+	.string "farm, with a kid who loves POKéMON.\n"
 	.string "\n"
-	.string "Press the A Button, and let your\n"
-	.string "adventure begin!$"
+	.string "Press the A Button, and let the\n"
+	.string "story begin!$"
 
 gOakSpeech_Text_WelcomeToTheWorld::
 	.string "Hello, there!\n"
@@ -237,7 +237,28 @@ gOakSpeech_Text_RememberRivalsName::
 
 gOakSpeech_Text_LetsGo::
 	.string "{PLAYER}!\p"
-	.string "Your very own POKéMON legend is\n"
-	.string "about to unfold!\p"
-	.string "A world of dreams and adventures\n"
-	.string "with POKéMON awaits! Let's go!$"
+	.string "Your own story with POKéMON\n"
+	.string "is about to begin!\p"
+	.string "It may not be the one you expected…\n"
+	.string "But it's yours! Let's go!$"
+
+@ After the player is named: Oak didn't choose them for his study (docs/hack/opening.md)
+gOakSpeech_Text_NotChosen::
+	.string "{PLAYER}, I'm afraid I have\n"
+	.string "some disappointing news.\p"
+	.string "I've chosen the young TRAINERS\n"
+	.string "who'll receive a POKéMON from me.\p"
+	.string "…I'm sorry, but you weren't\n"
+	.string "among them.\p"
+	.string "A TRAINER who sets out with\n"
+	.string "POKé BALLS must understand how\l"
+	.string "POKéMON moves work.\p"
+	.string "That's something you haven't had\n"
+	.string "the chance to learn yet.\p"
+	.string "Don't let it get you down!\n"
+	.string "Go home to your family's farm.\p"
+	.string "There may be another path in life\n"
+	.string "waiting for you there.\p"
+	.string "Oh, and before you go…\p"
+	.string "I'd like you to have a POKéDEX.\n"
+	.string "Stop by my LAB to pick it up!\p$"

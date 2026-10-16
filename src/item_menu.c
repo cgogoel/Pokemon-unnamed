@@ -173,6 +173,7 @@ static void Task_RemoveItemFromBag(u8);
 static void Task_TossItemFromBag(u8 taskId);
 static void ItemMenu_Cancel(u8);
 static void HandleErrorMessage(u8);
+static void Task_ItemContext_Befriend(u8);
 static void PrintItemCantBeHeld(u8);
 static void DisplayCurrentMoneyWindow(void);
 static void DisplaySellItemPriceAndConfirm(u8);
@@ -384,7 +385,7 @@ static const TaskFunc sContextMenuFuncs[] =
     [ITEMMENULOCATION_PCBOX]                    = Task_ItemContext_GiveToPC,
     [ITEMMENULOCATION_BERRY_TREE_MULCH]         = Task_FadeAndCloseBagMenuIfMulch,
     [ITEMMENULOCATION_RAIDEND]                  = Task_ItemContext_Normal,
-    [ITEMMENULOCATION_BEFRIEND]                 = Task_FadeAndCloseBagMenu,
+    [ITEMMENULOCATION_BEFRIEND]                 = Task_ItemContext_Befriend,
 };
 
 static const struct YesNoFuncTable sYesNoTossFunctions = {ConfirmToss, CancelToss};
@@ -2079,6 +2080,19 @@ static void PrintItemCantBeHeld(u8 taskId)
     CopyItemName(gSpecialVar_ItemId, gStringVar1);
     StringExpandPlaceholders(gStringVar4, gText_Var1CantBeHeld);
     DisplayItemMessage(taskId, FONT_NORMAL, gStringVar4, HandleErrorMessage);
+}
+
+// Befriending battles: offer the item, unless it's a key item
+static void Task_ItemContext_Befriend(u8 taskId)
+{
+    if (GetItemImportance(gSpecialVar_ItemId))
+    {
+        CopyItemName(gSpecialVar_ItemId, gStringVar1);
+        StringExpandPlaceholders(gStringVar4, COMPOUND_STRING("You can't offer the\n{STR_VAR_1}."));
+        DisplayItemMessage(taskId, FONT_NORMAL, gStringVar4, HandleErrorMessage);
+        return;
+    }
+    Task_FadeAndCloseBagMenu(taskId);
 }
 
 static void HandleErrorMessage(u8 taskId)

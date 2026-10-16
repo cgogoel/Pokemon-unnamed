@@ -22,7 +22,8 @@ Farmyard_EventScript_GateEnd:
 	releaseall
 	end
 
-@ The Woods' edge is still solid, so its side is a warp for now (Pallet Town's side is a map connection)
+@ The Woods are reached by warp, not a map connection: the Woods use another tileset, which the game would draw
+@ with the farmyard's tiles (garbled). Pallet Town's side is a map connection.
 Farmyard_EventScript_ToWoods::
 	goto_if_lt VAR_ACT1_PROGRESS, ACT1_DAD_SENT_TO_WOODS, Farmyard_EventScript_WoodsNotYet
 	warp MAP_WOODS, 49, 58

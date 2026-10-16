@@ -78,9 +78,11 @@ Paradox Pokémon, Megas/Gigantamax and battle or cosmetic forms are left out; re
 - Act 1 stays in Pallet Town: its north exit to Route 1 turns the player back ("It's too far to go on my own."), on
   triggers listed before Oak's so his scene doesn't start. The south is water, and there's no Surf in Act 1.
 
-**Porymap:** the Farmyard is drawn. The Woods is still a copy of Viridian Forest, with its warps removed and a solid
-right edge. Once it has an opening on its right edge, the Farmyard ↔ Woods warp triggers can be swapped for the map
-connection: set the offset on both sides so the openings line up.
+**Porymap:** the Farmyard and the Woods are drawn. They're joined by warp triggers, not a map connection: the game
+draws a connected map with the current map's tilesets, and the Woods (Viridian Forest tileset) would come out as
+garbled Pallet Town tiles next to the farmyard (Porymap draws each map with its own, so it looks fine there). A map
+connection only works between maps that share tilesets, like Pallet Town and the farmyard; otherwise only primary
+tileset metatiles may show near the shared edge.
 
 ## Starting one
 In a map script:

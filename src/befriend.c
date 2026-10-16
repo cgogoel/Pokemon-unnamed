@@ -73,20 +73,26 @@ enum BefriendReaction GetBefriendItemReaction(const struct BefriendInfo *info, u
     return BEFRIEND_REACTION_NEUTRAL;
 }
 
-// In percent of max HP; negative calms it down.
-s32 GetBefriendAggressionChange(enum BefriendReaction reaction, bool32 isItem, bool32 repeatedLovedAction)
+// In percent of max HP; negative calms it down, scaled by how easily this Pokémon calms down.
+s32 GetBefriendAggressionChange(const struct BefriendInfo *info, enum BefriendReaction reaction, bool32 isItem, bool32 repeatedLovedAction)
 {
+    s32 change;
+
     switch (reaction)
     {
     case BEFRIEND_REACTION_LOVED:
         if (isItem)
-            return BEFRIEND_LOVED_ITEM;
-        return repeatedLovedAction ? BEFRIEND_LOVED_ACTION_REPEAT : BEFRIEND_LOVED_ACTION_FIRST;
+            change = BEFRIEND_LOVED_ITEM;
+        else
+            change = repeatedLovedAction ? BEFRIEND_LOVED_ACTION_REPEAT : BEFRIEND_LOVED_ACTION_FIRST;
+        break;
     case BEFRIEND_REACTION_DISLIKED:
         return BEFRIEND_DISLIKED;
     default:
-        return BEFRIEND_NEUTRAL;
+        change = BEFRIEND_NEUTRAL;
+        break;
     }
+    return change * info->calmRate / 100;
 }
 
 static enum BattlerId GetBefriendTarget(void)
@@ -150,7 +156,7 @@ void HandleAction_BefriendAct(void)
 
     StringCopy(gStringVar2, (action < BEFRIEND_ACTION_COUNT) ? sBefriendActionTexts[action] : sBefriendActionTexts[0]);
     gBattleCommunication[MULTISTRING_CHOOSER] = reaction;
-    SetBefriendOutcome(GetBefriendAggressionChange(reaction, FALSE, repeated));
+    SetBefriendOutcome(GetBefriendAggressionChange(info, reaction, FALSE, repeated));
     gBattlescriptCurrInstr = BattleScript_BefriendAct;
     gCurrentActionFuncId = B_ACTION_EXEC_SCRIPT;
 }
@@ -158,7 +164,8 @@ void HandleAction_BefriendAct(void)
 void HandleAction_BefriendItem(void)
 {
     u16 item = gBattleStruct->befriendChoice;
-    enum BefriendReaction reaction = GetBefriendItemReaction(GetTargetBefriendInfo(), item);
+    const struct BefriendInfo *info = GetTargetBefriendInfo();
+    enum BefriendReaction reaction = GetBefriendItemReaction(info, item);
 
     gBattlerAttacker = gBattlerByTurnOrder[gCurrentTurnActionNumber];
     gBattle_BG0_X = 0;
@@ -168,7 +175,7 @@ void HandleAction_BefriendItem(void)
         RemoveBagItem(item, 1); // Offered items are used up
 
     gBattleCommunication[MULTISTRING_CHOOSER] = reaction;
-    SetBefriendOutcome(GetBefriendAggressionChange(reaction, TRUE, FALSE));
+    SetBefriendOutcome(GetBefriendAggressionChange(info, reaction, TRUE, FALSE));
     gBattlescriptCurrInstr = BattleScript_BefriendItem;
     gCurrentActionFuncId = B_ACTION_EXEC_SCRIPT;
 }

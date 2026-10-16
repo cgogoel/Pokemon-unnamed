@@ -32,6 +32,7 @@ struct BefriendInfo
     u8 lovedAction;         // enum BefriendAction
     u8 dislikedActions;     // Bit per enum BefriendAction
     u8 patience;            // Choices before it runs away
+    u8 calmRate;            // Percent of the usual calming it takes (50 = twice as hard); raising isn't scaled
     const u8 *watchHint;    // Shown by Watch, a clue to what it likes
 };
 
@@ -53,7 +54,7 @@ static inline bool32 IsBefriendBattle(void)
 const struct BefriendInfo *GetBefriendInfo(u16 species);
 enum BefriendReaction GetBefriendActionReaction(const struct BefriendInfo *info, enum BefriendAction action);
 enum BefriendReaction GetBefriendItemReaction(const struct BefriendInfo *info, u16 item);
-s32 GetBefriendAggressionChange(enum BefriendReaction reaction, bool32 isItem, bool32 repeatedLovedAction);
+s32 GetBefriendAggressionChange(const struct BefriendInfo *info, enum BefriendReaction reaction, bool32 isItem, bool32 repeatedLovedAction);
 const u8 *GetBefriendActionName(enum BefriendAction action);
 void InitBefriendBattle(void);
 void HandleAction_BefriendAct(void);

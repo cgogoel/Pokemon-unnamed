@@ -27,9 +27,21 @@ around them, and it joins them.
   is full) at full health. The battle outcome is `B_OUTCOME_CAUGHT`.
 
 ## Per-Pokémon likes
-`src/data/befriend.h`: for each species, a loved action and item, disliked actions and items, its patience and its Watch
-clue. Unlisted species use `sBefriendDefault`. The entries there now (Eevee, Pidgey) are placeholders until the Act 1
-Pokémon are decided.
+`src/data/befriend.h`: for each species, a loved action and item, disliked actions and items, its patience, how easily
+it calms down (`calmRate`, percent of the usual calming; raising isn't scaled) and its Watch clue. Unlisted species use
+`sBefriendDefault`.
+
+| Role | Pokémon (line) | Loves | Dislikes | Patience | Calm rate |
+|---|---|---|---|---|---|
+| Tutorial | Blipbug (> Dottler > Orbeetle) | Crouch down, Oran Berry | Approach | 6 | 150% |
+| Line | Tynamo (> Eelektrik > Eelektross) | Reach out, Cheri Berry | Approach, Pecha Berry | 5 | 100% |
+| Line | Hatenna (> Hattrem > Hatterene) | Crouch down, Chesto Berry | Approach, Reach out, Cheri Berry | 4 | 100% |
+| Line | Teddiursa (> Ursaring > Ursaluna) | Reach out, Honey | Approach, Rawst Berry | 5 | 100% |
+| Boss | Jangmo-o (> Hakamo-o > Kommo-o) | Approach, Hard Stone | Crouch down, Hum a tune, Oran and Pecha Berries | 6 | 50% |
+
+Why: Blipbug is curious and harmless and wants to study you at its level; Tynamo is weak alone and lives in schools, so it
+wants company; Hatenna senses emotions and only warms to calm people, so stay still; Teddiursa loves honey and licks its
+sweetened palms; Jangmo-o grows by battling and respects boldness, so gentleness reads as weakness.
 
 ## Choosing the Act 1 Pokémon
 `docs/hack/act1_befriend_rankings.csv` ranks every species in the base, regenerated with
@@ -47,11 +59,11 @@ Paradox Pokémon, Megas/Gigantamax and battle or cosmetic forms are left out; re
 In a map script:
 
 ```
-befriendbattle SPECIES_EEVEE, 5
+befriendbattle SPECIES_TEDDIURSA, 5
 @ VAR_RESULT: B_OUTCOME_CAUGHT (befriended), B_OUTCOME_MON_FLED (ran away), B_OUTCOME_RAN (player left)
 ```
 
-Debug menu → Party → *Befriend Eevee* gives a few berries and starts one.
+Debug menu → Party → *Befriend (Act 1)…* → pick one of the Act 1 Pokémon; it also gives every item they like or dislike.
 
 ## How it's built
 - Built on the Safari battle (`BATTLE_TYPE_SAFARI`) plus `gIsBefriendBattle`: no player Pokémon, the player's back

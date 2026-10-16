@@ -5039,6 +5039,26 @@ const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_WorkerM = {
     .affineAnims = gDummySpriteAffineAnimTable,
 };
 
+// The player in Acts 2 and 3: the Silph worker (the Lapras giver on Silph Co. 7F), with the player's animations
+const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_PlayerWorker = {
+    .tileTag = TAG_NONE,
+    .paletteTag = OBJ_EVENT_PAL_TAG_NPC_WHITE,
+    .reflectionPaletteTag = OBJ_EVENT_PAL_TAG_NONE,
+    .size = 256,
+    .width = 16,
+    .height = 32,
+    .paletteSlot = PALSLOT_PLAYER,
+    .shadowSize = SHADOW_SIZE_M,
+    .inanimate = FALSE,
+    .compressed = FALSE,
+    .tracks = TRACKS_FOOT,
+    .oam = &gObjectEventBaseOam_16x32,
+    .subspriteTables = sOamTables_16x32,
+    .anims = sAnimTable_BrendanMayNormal,
+    .images = sPicTable_PlayerWorker,
+    .affineAnims = gDummySpriteAffineAnimTable,
+};
+
 const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_WorkerF = {
     .tileTag = TAG_NONE,
     .paletteTag = OBJ_EVENT_PAL_TAG_NPC_GREEN,

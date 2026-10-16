@@ -53,6 +53,7 @@
 #include "constants/rgb.h"
 #include "constants/region_map_sections.h"
 #include "constants/songs.h"
+#include "constants/story.h"
 #include "constants/species.h"
 #include "constants/metatile_behaviors.h"
 #include "constants/trainer_types.h"
@@ -532,8 +533,8 @@ static const struct SpritePalette sObjectEventSpritePalettes[] = {
     {gObjectEventPal_RubySapphireBrendan,   OBJ_EVENT_PAL_TAG_RS_BRENDAN},
     {gObjectEventPal_RubySapphireMay,       OBJ_EVENT_PAL_TAG_RS_MAY},
 #if IS_FRLG
-    {gObjectEventPal_PlayerFrlg,            OBJ_EVENT_PAL_TAG_PLAYER_RED},
-    {gObjectEventPal_PlayerReflectionFrlg,  OBJ_EVENT_PAL_TAG_PLAYER_RED_REFLECTION},
+    {gObjectEventPal_PlayerBoy,             OBJ_EVENT_PAL_TAG_PLAYER_RED},
+    {gObjectEventPal_PlayerBoyReflection,   OBJ_EVENT_PAL_TAG_PLAYER_RED_REFLECTION},
     {gObjectEventPal_PlayerFrlg,            OBJ_EVENT_PAL_TAG_PLAYER_GREEN},
     {gObjectEventPal_PlayerReflectionFrlg,  OBJ_EVENT_PAL_TAG_PLAYER_GREEN_REFLECTION},
     {gObjectEventPal_NpcBlue,               OBJ_EVENT_PAL_TAG_NPC_BLUE},
@@ -3209,6 +3210,10 @@ const struct ObjectEventGraphicsInfo *GetObjectEventGraphicsInfo(u16 graphicsId)
 
     if (graphicsId >= NUM_OBJ_EVENT_GFX)
         graphicsId = OBJ_EVENT_GFX_NINJA_BOY;
+
+    // From Act 2 the player walks around as a Silph worker (docs/hack/opening.md)
+    if (graphicsId == PLAYER_AVATAR_GFX_MALE_NORMAL && VarGet(VAR_STORY_ACT) >= STORY_ACT_UNIVERSITY)
+        return &gObjectEventGraphicsInfo_PlayerWorker;
 
     return gObjectEventGraphicsInfoPointers[graphicsId];
 }

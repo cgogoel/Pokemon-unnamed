@@ -468,13 +468,13 @@ const u32 gFieldEffectObjectPic_ShinySparkle[] = INCGFX_U32("graphics/field_effe
 
 #if IS_FRLG
 
-const u16 gObjectEventPic_RedNormal[] = INCGFX_U16("graphics/object_events/pics/people/red/red_normal.png", ".4bpp", "-mwidth 2 -mheight 4");
-const u16 gObjectEventPic_RedBike[] = INCGFX_U16("graphics/object_events/pics/people/red/red_bike.png", ".4bpp", "-mwidth 4 -mheight 4");
-const u16 gObjectEventPic_RedSurf[] = INCGFX_U16("graphics/object_events/pics/people/red/red_surf.png", ".4bpp", "-mwidth 4 -mheight 4");
-const u16 gObjectEventPic_RedSurfRun[] = INCGFX_U16("graphics/object_events/pics/people/red/red_surf_run.png", ".4bpp", "-mwidth 2 -mheight 4");
-const u16 gObjectEventPic_RedFish[] = INCGFX_U16("graphics/object_events/pics/people/red/red_fish.png", ".4bpp", "-mwidth 4 -mheight 4");
-const u16 gObjectEventPic_RedItem[] = INCGFX_U16("graphics/object_events/pics/people/red/red_item.png", ".4bpp", "-mwidth 2 -mheight 4");
-const u16 gObjectEventPic_RedVSSeekerBike[] = INCGFX_U16("graphics/object_events/pics/people/red/red_vs_seeker_bike.png", ".4bpp", "-mwidth 4 -mheight 4");
+const u16 gObjectEventPic_RedNormal[] = INCGFX_U16("graphics/object_events/pics/people/player_boy/normal.png", ".4bpp", "-mwidth 2 -mheight 4");
+const u16 gObjectEventPic_RedBike[] = INCGFX_U16("graphics/object_events/pics/people/player_boy/bike.png", ".4bpp", "-mwidth 4 -mheight 4");
+const u16 gObjectEventPic_RedSurf[] = INCGFX_U16("graphics/object_events/pics/people/player_boy/surf.png", ".4bpp", "-mwidth 4 -mheight 4");
+const u16 gObjectEventPic_RedSurfRun[] = INCGFX_U16("graphics/object_events/pics/people/player_boy/surf_run.png", ".4bpp", "-mwidth 2 -mheight 4");
+const u16 gObjectEventPic_RedFish[] = INCGFX_U16("graphics/object_events/pics/people/player_boy/fish.png", ".4bpp", "-mwidth 4 -mheight 4");
+const u16 gObjectEventPic_RedItem[] = INCGFX_U16("graphics/object_events/pics/people/player_boy/item.png", ".4bpp", "-mwidth 2 -mheight 4");
+const u16 gObjectEventPic_RedVSSeekerBike[] = INCGFX_U16("graphics/object_events/pics/people/player_boy/vs_seeker_bike.png", ".4bpp", "-mwidth 4 -mheight 4");
 const u16 gObjectEventPic_GreenNormal[] = INCGFX_U16("graphics/object_events/pics/people/leaf/green_normal.png", ".4bpp", "-mwidth 2 -mheight 4");
 const u16 gObjectEventPic_GreenBike[] = INCGFX_U16("graphics/object_events/pics/people/leaf/green_bike.png", ".4bpp", "-mwidth 4 -mheight 4");
 const u16 gObjectEventPic_GreenSurf[] = INCGFX_U16("graphics/object_events/pics/people/leaf/green_surf.png", ".4bpp", "-mwidth 4 -mheight 4");
@@ -485,6 +485,9 @@ const u16 gObjectEventPic_GreenVSSeekerBike[] = INCGFX_U16("graphics/object_even
 
 const u16 gObjectEventPal_PlayerFrlg[] = INCGFX_U16("graphics/object_events/palettes/player_frlg.pal", ".gbapal");
 const u16 gObjectEventPal_PlayerReflectionFrlg[] = INCGFX_U16("graphics/object_events/palettes/player_reflection_frlg.pal", ".gbapal");
+// The player is always a boy, with the Silph worker's head (tools/hack/compose_player_head.py)
+const u16 gObjectEventPal_PlayerBoy[] = INCGFX_U16("graphics/object_events/palettes/player_boy.pal", ".gbapal");
+const u16 gObjectEventPal_PlayerBoyReflection[] = INCGFX_U16("graphics/object_events/palettes/player_boy_reflection.pal", ".gbapal");
 const u16 gObjectEventPal_NpcBlue[] = INCGFX_U16("graphics/object_events/palettes/npc_blue.pal", ".gbapal");
 const u16 gObjectEventPal_NpcPink[] = INCGFX_U16("graphics/object_events/palettes/npc_pink.pal", ".gbapal");
 const u16 gObjectEventPal_NpcGreen[] = INCGFX_U16("graphics/object_events/palettes/npc_green.pal", ".gbapal");

@@ -1500,6 +1500,35 @@ static void Cmd_printselectionstring(void)
     gBattleCommunication[MSG_DISPLAY] = MSG_DISPLAY_WAIT;
 }
 
+// B_TEXT_NEEDS_BUTTON_PRESS: each battle message stays up until A or B, with a down arrow at the end of the box
+static EWRAM_DATA u8 sWaitArrowCounter = 0;
+static EWRAM_DATA u8 sWaitArrowY = 0;
+
+static bool32 BattleMessageWaitsForButton(void)
+{
+    return B_TEXT_NEEDS_BUTTON_PRESS && !gTestRunnerEnabled
+        && !(gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED | BATTLE_TYPE_RECORDED_LINK | BATTLE_TYPE_POKEDUDE));
+}
+
+// TRUE once the player pressed A or B
+static bool32 WaitForButtonAfterMessage(void)
+{
+    u32 x = GetWindowAttribute(B_WIN_MSG, WINDOW_WIDTH) * TILE_WIDTH - TILE_WIDTH;
+    u32 y = TILE_HEIGHT * 2;
+
+    if (!JOY_NEW(A_BUTTON | B_BUTTON))
+    {
+        DrawDownArrow(B_WIN_MSG, x, y, 15, FALSE, &sWaitArrowCounter, &sWaitArrowY);
+        return FALSE;
+    }
+    PlaySE(SE_SELECT);
+    FillWindowPixelRect(B_WIN_MSG, PIXEL_FILL(15), x, y, TILE_WIDTH, TILE_HEIGHT * 2);
+    CopyWindowToVram(B_WIN_MSG, COPYWIN_GFX);
+    sWaitArrowCounter = 0;
+    sWaitArrowY = 0;
+    return TRUE;
+}
+
 static void Cmd_waitmessage(void)
 {
     CMD_ARGS(u16 time);
@@ -1515,7 +1544,7 @@ static void Cmd_waitmessage(void)
             u16 toWait = cmd->time;
             if (gTestRunnerHeadless)
                 gPauseCounterBattle = toWait;
-            if (++gPauseCounterBattle >= toWait)
+            if (BattleMessageWaitsForButton() ? WaitForButtonAfterMessage() : ++gPauseCounterBattle >= toWait)
             {
                 gPauseCounterBattle = 0;
                 gBattlescriptCurrInstr = cmd->nextInstr;

@@ -5,6 +5,7 @@
 #include "event_scripts.h"
 #include "fieldmap.h"
 #include "item.h"
+#include "overworld.h"
 #include "script.h"
 #include "constants/event_objects.h"
 #include "constants/items.h"
@@ -16,6 +17,46 @@
 // How far Jangmo-o sees, straight ahead
 #define JANGMO_O_SIGHT 4
 
+// Where Jangmo-o turns up: near each of the other Woods Pokémon (placeholders until the Woods is redrawn). While it's
+// off-screen, it's moved to the one nearest the player that's still out of view, so it appears there as they
+// approach. Out of view: farther than the game spawns objects (TrySpawnObjectEvents), plus a tile.
+static const struct Coords16 sJangmoOSpawns[] =
+{
+    { 4, 40},  // Tynamo
+    {13, 19},  // Hatenna
+    {42, 33},  // Teddiursa
+};
+#define SPAWN_VIEW_LEFT   10
+#define SPAWN_VIEW_RIGHT  11
+#define SPAWN_VIEW_UP     8
+#define SPAWN_VIEW_DOWN   10
+
+static void UpdateWoodsJangmoOSpawn(void)
+{
+    s32 best = -1, bestDistance = 0;
+    u8 objectEventId;
+
+    if (!TryGetObjectEventIdByLocalIdAndMap(LOCALID_WOODS_JANGMO_O, MAP_NUM(MAP_WOODS), MAP_GROUP(MAP_WOODS), &objectEventId))
+        return; // On screen: it roams freely
+
+    for (u32 i = 0; i < ARRAY_COUNT(sJangmoOSpawns); i++)
+    {
+        s32 dx = sJangmoOSpawns[i].x - gSaveBlock1Ptr->pos.x;
+        s32 dy = sJangmoOSpawns[i].y - gSaveBlock1Ptr->pos.y;
+        s32 distance = abs(dx) + abs(dy);
+
+        if (dx >= -SPAWN_VIEW_LEFT && dx <= SPAWN_VIEW_RIGHT && dy >= -SPAWN_VIEW_UP && dy <= SPAWN_VIEW_DOWN)
+            continue;
+        if (best < 0 || distance < bestDistance)
+        {
+            best = i;
+            bestDistance = distance;
+        }
+    }
+    if (best >= 0)
+        SetObjEventTemplateCoords(LOCALID_WOODS_JANGMO_O, sJangmoOSpawns[best].x, sJangmoOSpawns[best].y);
+}
+
 // Until the player has Dad's Hard Stone, Jangmo-o charges at them as soon as they're in its sight, and they black
 // out. With the stone it doesn't (it's talked to instead), so a failed encounter doesn't start another right away.
 bool32 TryStartWoodsJangmoOCharge(void)
@@ -26,7 +67,10 @@ bool32 TryStartWoodsJangmoOCharge(void)
 
     if (gSaveBlock1Ptr->location.mapGroup != MAP_GROUP(MAP_WOODS) || gSaveBlock1Ptr->location.mapNum != MAP_NUM(MAP_WOODS))
         return FALSE;
-    if (FlagGet(FLAG_BEFRIENDED_JANGMO_O) || VarGet(VAR_ACT1_PROGRESS) >= ACT1_GOT_HARD_STONE)
+    if (FlagGet(FLAG_BEFRIENDED_JANGMO_O))
+        return FALSE;
+    UpdateWoodsJangmoOSpawn();
+    if (VarGet(VAR_ACT1_PROGRESS) >= ACT1_GOT_HARD_STONE)
         return FALSE;
     if (TryGetObjectEventIdByLocalIdAndMap(LOCALID_WOODS_JANGMO_O, MAP_NUM(MAP_WOODS), MAP_GROUP(MAP_WOODS), &objectEventId))
         return FALSE;

@@ -37,12 +37,11 @@ out.png --map CeladonUniversity` previews it.
 ## Interiors
 
 Every door has a room, each a copy of a FireRed interior layout (its own `LAYOUT_CELADON_UNIVERSITY_*`, so editing
-it in Porymap leaves the original alone). They have no people or scripts yet. The Main Hall's two doors lead to the
-same lobby.
+it in Porymap leaves the original alone). The Main Hall's two doors lead to the same lobby.
 
 | Map (`MAP_CELADON_UNIVERSITY_*`) | Door on campus | Copied from |
 |---|---|---|
-| `MAIN_HALL` | (29,27), (33,27) | Trainer Tower lobby (its stairs and elevator lead nowhere yet) |
+| `MAIN_HALL`, upstairs `MAIN_HALL_2F` (clock tower gallery; the elevator goes there too) | (29,27), (33,27) | Trainer Tower lobby; Pewter Museum 2F |
 | `LECTURE_HALL_A` | (23,27) west wing | Viridian City school |
 | `LECTURE_HALL_B` (audiovisual classroom) | (39,27) east wing | Fuchsia City warden's house |
 | `CAFETERIA` | (18,26) | Celadon City restaurant |
@@ -50,7 +49,21 @@ same lobby.
 | `LITERATURE` | (38,18) | Saffron City Pokémon Trainer Fan Club |
 | `LIBRARY` | (42,18) | Five Island Resort Gorgeous house |
 | `SCIENCE_INSTITUTE`, with `SCIENCE_LOUNGE`, `SCIENCE_RESEARCH_ROOM`, `SCIENCE_EXPERIMENT_ROOM` | (53,15) | Cinnabar Island Pokémon Lab and its three rooms |
-| `HOSPITAL` | (20,42) | Pokémon Center 1F (its upstairs leads nowhere) |
-| `DORM_LOBBY` | (38,44) | Celadon City hotel |
-| `DORM_ROOM` | (42,44) | Celadon Condominiums roof room. **Act 2 starts here**, at (2,5) (`ACT2_START_MAP`) |
+| `HOSPITAL` (the nurse heals), upstairs `HOSPITAL_2F` (the ward) | (20,42) | Pokémon Center 1F and 2F |
+| `DORM_LOBBY`, upstairs `DORM_2F`, `DORM_3F` (the roof is locked) | (38,44) | Celadon Condominiums 1F-3F |
+| `DORM_ROOM`, the player's | (42,44) | Lorelei's house. **Act 2 starts here**, at (2,3) beside the bed (`ACT2_START_MAP`) |
 | `HOME_ECONOMICS` | (53,38) | Celadon City Gym (the garden) |
+
+## Decoration
+
+- **Outside** (`compose_university.py`): signposts at every building, lamp posts along the avenue and at the
+  fountain, floodlights at the stadium, flower beds along the street. The signs' texts are bg events in the
+  campus's `map.json`.
+- **People and Pokémon**: students and staff everywhere, with flavor lines from the lore (the Gyarados fountain
+  marks noon; the strongest Magikarp came from the Science Research Institute; the emblem's Magikarp and Gyarados
+  mean anyone can grow with effort; Erika guest-lectures Home Economics). Ponyta on the ranch, Psyduck at the pool,
+  a swimmer in it, Chansey at the hospital, Meowth and Clefairy in the dorm lobby, the professor's Slowpoke.
+- **Furniture** has things to read: blackboards, bookshelves, computers, exhibits, notice boards. The dorm room has
+  the player's things: a photo of the farm, the course schedule, and a Lapras doll from Mom.
+
+Nothing here is story yet: no flags, no scenes, the same lines in every act.

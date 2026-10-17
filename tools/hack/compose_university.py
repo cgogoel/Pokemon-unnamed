@@ -193,10 +193,31 @@ def compose():
     for x, block in zip(range(30, 34), (0x16D, 0x16E, 0x16E, 0x16F)):
         put(x, 48, block | ELEV)
 
+    decorate()
+
     # Trees: lining the avenue, and groves filling the open grass
     for y in (37, 40, 43):
         tree(35, y)
     fill_with_trees()
+
+
+# Signposts (their texts are bg events in data/maps/CeladonUniversity/map.json)
+SIGNS = ((29, 46), (26, 28), (21, 28), (41, 28), (19, 28), (45, 28), (36, 19), (44, 19), (55, 16), (22, 43), (40, 45),
+         (56, 39), (14, 18), (10, 28), (10, 45))
+# Lamp posts (two tiles tall): along the avenue, at the fountain square, and the stadium's floodlights
+LAMPS = ((29, 37), (29, 41), (25, 33), (38, 33), (6, 6), (25, 6), (6, 14), (25, 14))
+
+
+def decorate():
+    for (x, y) in SIGNS:
+        put(x, y, 0x003 | SOLID | ELEV)
+    for (x, y) in LAMPS:
+        put(x, y, 0x323 | SOLID | ELEV)
+        put(x, y + 1, 0x333 | SOLID | ELEV)
+    # Flower beds along the street in front of the main hall
+    for x in list(range(4, 25)) + list(range(39, 47)):
+        if is_grass(x, 31):
+            put(x, 31, 0x004 | ELEV)
 
 
 def is_grass(x, y):

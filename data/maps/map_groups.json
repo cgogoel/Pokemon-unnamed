@@ -1003,6 +1003,7 @@
     "CeladonCity_Hotel_Frlg",
     "CeladonCity_UniversityGate",
     "CeladonUniversity_MainHall",
+    "CeladonUniversity_MainHall2F",
     "CeladonUniversity_LectureHallA",
     "CeladonUniversity_LectureHallB",
     "CeladonUniversity_Cafeteria",
@@ -1014,7 +1015,10 @@
     "CeladonUniversity_ScienceResearchRoom",
     "CeladonUniversity_ScienceExperimentRoom",
     "CeladonUniversity_Hospital",
+    "CeladonUniversity_Hospital2F",
     "CeladonUniversity_DormLobby",
+    "CeladonUniversity_Dorm2F",
+    "CeladonUniversity_Dorm3F",
     "CeladonUniversity_DormRoom",
     "CeladonUniversity_HomeEconomics"
   ],

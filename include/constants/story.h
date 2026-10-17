@@ -25,6 +25,6 @@
 // Where Act 2 starts: the player's room in the Celadon University dorms
 #define ACT2_START_MAP              MAP_CELADON_UNIVERSITY_DORM_ROOM
 #define ACT2_START_X                2
-#define ACT2_START_Y                5
+#define ACT2_START_Y                3
 
 #endif // GUARD_CONSTANTS_STORY_H

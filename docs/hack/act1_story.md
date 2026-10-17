@@ -25,8 +25,7 @@ Progress is `VAR_ACT1_PROGRESS`, with stages `ACT1_*` in `include/constants/stor
 
 After the second friend: "End of Prologue", then "Years Later at Celadon University" (`src/prologue_end.c`, each on
 black for 3 seconds or until A/B). `VAR_STORY_ACT` becomes `STORY_ACT_UNIVERSITY` and the player wakes up at Act 2's
-start, `ACT2_START_MAP` in `include/constants/story.h`: a placeholder Celadon Condominiums room (2F) for the
-University dorms. The chosen friends are in the party (Poké Balls); the others stay on the farm.
+start, `ACT2_START_MAP` in `include/constants/story.h`: the player's room in the Celadon University dorms. The chosen friends are in the party (Poké Balls); the others stay on the farm.
 
 The scenes put Mom, Dad and Oak next to the player during a fade (`special Act1_PlaceNearPlayer`), so they work from
 any row of the farmyard's entrances; Oak walks in from the Pallet Town edge on the player's row.

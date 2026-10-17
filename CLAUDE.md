@@ -42,7 +42,9 @@ as done. Run `make check` after touching battle logic, species data, moves or ab
 
 ## Working rules
 - Prefer changing config flags in `include/config/` over editing engine code when a toggle exists.
-- Don't hand-edit map layout binaries (`*.bin`) — those are Porymap's job. Editing `map.json`
+- Don't hand-edit map layout binaries (`*.bin`) — those are Porymap's job. When asked for a base design, generate it
+  with a script that stamps pieces of existing maps (e.g. `tools/hack/compose_university.py`) and preview it with
+  `tools/hack/render_layout.py`; the fine-tuning stays in Porymap. Editing `map.json`
   events and `scripts.inc` in code is fine; tell me when a change needs a Porymap step.
 - Keep changes small and on feature branches; commit with clear messages.
 - Never commit built ROMs (`*.gba`, `*.elf`) or any original game ROM.

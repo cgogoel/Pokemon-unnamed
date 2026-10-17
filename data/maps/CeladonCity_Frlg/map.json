@@ -326,6 +326,20 @@
       "elevation": 0,
       "dest_map": "MAP_CELADON_CITY_CONDOMINIUMS_1F",
       "dest_warp_id": "5"
+    },
+    {
+      "x": 38,
+      "y": 5,
+      "elevation": 3,
+      "dest_map": "MAP_CELADON_CITY_UNIVERSITY_GATE",
+      "dest_warp_id": "2"
+    },
+    {
+      "x": 39,
+      "y": 5,
+      "elevation": 3,
+      "dest_map": "MAP_CELADON_CITY_UNIVERSITY_GATE",
+      "dest_warp_id": "2"
     }
   ],
   "coord_events": [],

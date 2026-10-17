@@ -920,7 +920,8 @@
     "SevenIsland_SevaultCanyon_Frlg",
     "SevenIsland_TanobyRuins_Frlg",
     "Farmyard",
-    "Woods"
+    "Woods",
+    "CeladonUniversity"
   ],
   "gMapGroup_IndoorPallet_Frlg": [
     "PalletTown_PlayersHouse_1F_Frlg",
@@ -999,7 +1000,27 @@
     "CeladonCity_Gym_Frlg",
     "CeladonCity_Restaurant_Frlg",
     "CeladonCity_House1_Frlg",
-    "CeladonCity_Hotel_Frlg"
+    "CeladonCity_Hotel_Frlg",
+    "CeladonCity_UniversityGate",
+    "CeladonUniversity_MainHall",
+    "CeladonUniversity_MainHall2F",
+    "CeladonUniversity_LectureHallA",
+    "CeladonUniversity_LectureHallB",
+    "CeladonUniversity_Cafeteria",
+    "CeladonUniversity_FacultyOffice",
+    "CeladonUniversity_Literature",
+    "CeladonUniversity_Library",
+    "CeladonUniversity_ScienceInstitute",
+    "CeladonUniversity_ScienceLounge",
+    "CeladonUniversity_ScienceResearchRoom",
+    "CeladonUniversity_ScienceExperimentRoom",
+    "CeladonUniversity_Hospital",
+    "CeladonUniversity_Hospital2F",
+    "CeladonUniversity_DormLobby",
+    "CeladonUniversity_Dorm2F",
+    "CeladonUniversity_Dorm3F",
+    "CeladonUniversity_DormRoom",
+    "CeladonUniversity_HomeEconomics"
   ],
   "gMapGroup_IndoorFuchsia_Frlg": [
     "FuchsiaCity_SafariZone_Entrance_Frlg",

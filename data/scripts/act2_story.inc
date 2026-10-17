@@ -307,8 +307,6 @@ Act2_EventScript_ProfAshfordEarly:
 
 Act2_EventScript_StartFire:
 	msgbox Act2_Text_StartFire
-	giveitem ITEM_POKE_BALL, 5
-	msgbox Act2_Text_FieldTripFire
 	closemessage
 	setvar VAR_ACT2_RESEARCH, 0
 	setvar VAR_ACT2_MOVES_SEEN, 0
@@ -566,7 +564,31 @@ Act2_EventScript_TripRowan::
 CinnabarIsland_EventScript_Act2Objects::
 	setvar VAR_0x8004, ACT2_FIRE_TRIP
 	special Act2_SetupSiteObjects
+	setvar VAR_TEMP_1, 0
+	goto_if_ne VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP, Common_EventScript_NopReturn
+	setvar VAR_0x8004, ACT2_RESEARCH_BRIEFED
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	goto_if_eq VAR_RESULT, TRUE, Common_EventScript_NopReturn
+	setvar VAR_TEMP_1, 1
 	return
+
+CinnabarIsland_OnFrame::
+	map_script_2 VAR_TEMP_1, 1, Act2_EventScript_FireBriefing
+	.2byte 0
+
+@ The class arrives on Cinnabar: PROF. ASHFORD explains the assignment
+Act2_EventScript_FireBriefing::
+	lockall
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterRight
+	applymovement LOCALID_CINNABAR_PROF, Common_Movement_WalkInPlaceFasterLeft
+	waitmovement 0
+	msgbox Act2_Text_FireBriefing
+	giveitem ITEM_POKE_BALL, 5
+	setvar VAR_0x8004, ACT2_RESEARCH_BRIEFED
+	special Act2_SetResearchFlag
+	setvar VAR_TEMP_1, 0
+	releaseall
+	end
 
 PokemonMansion_1F_EventScript_Act2Objects::
 	setvar VAR_0x8004, ACT2_FIRE_TRIP
@@ -987,15 +1009,39 @@ Act2_Text_ProfAshfordEarly:
 
 Act2_Text_StartFire:
 	.string "PROF. ASHFORD: Welcome to the FIRE\n"
-	.string "course. Here's how it works.\p"
-	.string "We're going on a field trip. There,\n"
-	.string "I'll give you a research sheet.\p"
+	.string "course. Hope you brought your\l"
+	.string "POKéMON…\p"
+	.string "We're going on a field trip!\p"
+	.string "In your final year, you'll learn\n"
+	.string "by doing. Enough books and theory:\l"
+	.string "you'll learn in practice!\p"
+	.string "Yes, you're not TRAINERS. But you\n"
+	.string "must learn the basics of battling\l"
+	.string "and catching POKéMON if you intend\l"
+	.string "to reach your full potential as a\l"
+	.string "scholar.\p"
+	.string "For the FIRE course, we're headed\n"
+	.string "to CINNABAR ISLAND.\p"
+	.string "I'll explain the assignment when we\n"
+	.string "arrive. Let's go!$"
+
+Act2_Text_FireBriefing:
+	.string "PROF. ASHFORD: Welcome to CINNABAR\n"
+	.string "ISLAND, home of the CINNABAR LAB\l"
+	.string "and the POKéMON MANSION.\p"
+	.string "Famous for its wild FIRE POKéMON,\n"
+	.string "it should be the perfect host for\l"
+	.string "our field assignment.\p"
 	.string "Catch a FIRE POKéMON. Battle with\n"
 	.string "it, and watch how FIRE moves work.\p"
-	.string "There's a puzzle at the site, too.\n"
-	.string "Solve it with your POKéMON.\p"
-	.string "Finish the sheet, and we'll make a\n"
-	.string "TM together. Then, the exam.\p"
+	.string "Inside the mansion, you may also\n"
+	.string "find some old research that will\l"
+	.string "help with your assignment.\p"
+	.string "Find it, and use your POKéMON to\n"
+	.string "navigate the mansion.\p"
+	.string "Finish the sheet, and you may just\n"
+	.string "be able to make a TM based on your\l"
+	.string "newfound knowledge.\p"
 	.string "Oh, and every student got a REMOTE\n"
 	.string "DESKTOP. Check your BAG.\p"
 	.string "It reaches the POKéMON Storage\n"
@@ -1004,10 +1050,6 @@ Act2_Text_StartFire:
 	.string "they go to your boxes. Swap them\l"
 	.string "out any time with it.\p"
 	.string "Now, you'll need these.$"
-
-Act2_Text_FieldTripFire:
-	.string "Our field trip leaves now, for\n"
-	.string "CINNABAR ISLAND!$"
 
 Act2_Text_FireSheetIntro:
 	.string "PROF. ASHFORD: Let's see your\n"

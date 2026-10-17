@@ -50,6 +50,7 @@
 #define ACT2_RESEARCH_PUZZLE_DONE   (1 << 4) // Its end: the last task
 #define ACT2_RESEARCH_GOT_TM        (1 << 5)
 #define ACT2_RESEARCH_USED_TM_MOVE  (1 << 6) // In the exam, the player's Pokémon used the TM's move
+#define ACT2_RESEARCH_BRIEFED       (1 << 7) // The professor explained the assignment at the site
 
 // The young Lapras saved on Vermilion's docks (the Water course), which asks to come along. In Act 3 it's the
 // Lapras in Silph Co.'s lab that masters the ultimate move and goes to Red (FLAG_ACT2_GOT_LAPRAS).

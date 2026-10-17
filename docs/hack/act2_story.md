@@ -12,7 +12,7 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 | Stage | Reached by | Then |
 |---|---|---|
 | `ACT2_START` | The end of the prologue: the player wakes in their dorm room | Stepping outside, KAI, MINA and ROWAN introduce themselves: they're in the Fire course too. |
-| `ACT2_MET_FRIENDS` | Meeting them | PROF. ASHFORD (Lecture Hall A) explains the course, gives 5 Poké Balls, and the field trip leaves. |
+| `ACT2_MET_FRIENDS` | Meeting them | PROF. ASHFORD (Lecture Hall A) introduces the course and the field trip leaves. On arrival, he explains the assignment, the Remote Desktop, and gives 5 Poké Balls (`Act2_EventScript_FireBriefing`, `ACT2_RESEARCH_BRIEFED`). |
 | `ACT2_FIRE_TRIP` | The field trip: warped to Cinnabar Island (8,5) | The research sheet (the Pokémon Mansion), the TM (Flamethrower), the exam. |
 | `ACT2_FIRE_PASSED` | Passing: warped to the dorm lobby | The friends: the secret club, the stadium, tonight. |
 | `ACT2_FIRE_INVITED` | | Walking into the stadium: it's night; KAI battles the player. Then morning, in the dorm room. |

@@ -1045,10 +1045,11 @@ Act2_Text_FireBriefing:
 	.string "Oh, and every student got a REMOTE\n"
 	.string "DESKTOP. Check your BAG.\p"
 	.string "It reaches the POKéMON Storage\n"
-	.string "System from anywhere.\p"
-	.string "Catch more than you can carry, and\n"
-	.string "they go to your boxes. Swap them\l"
-	.string "out any time with it.\p"
+	.string "System from anywhere, especially\l"
+	.string "useful on these field assignments.\p"
+	.string "Catch more POKéMON than you can\n"
+	.string "carry, and they go to your boxes.\l"
+	.string "Swap them out any time!\p"
 	.string "Now, you'll need these.$"
 
 Act2_Text_FireSheetIntro:

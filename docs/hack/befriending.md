@@ -84,6 +84,9 @@ garbled Pallet Town tiles next to the farmyard (Porymap draws each map with its 
 connection only works between maps that share tilesets, like Pallet Town and the farmyard; otherwise only primary
 tileset metatiles may show near the shared edge.
 
+**Music:** befriending encounters play the gentle "Follow Me" theme (`MUS_RG_FOLLOW_ME`, `GetBattleBGM`); Jangmo-o,
+the boss, keeps the wild battle music.
+
 ## Starting one
 In a map script:
 

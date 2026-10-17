@@ -16,11 +16,11 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 | `ACT2_FIRE_TRIP` | The field trip: warped to Cinnabar Island (8,5) | The research sheet (the Pokémon Mansion), the TM (Flamethrower), the exam. |
 | `ACT2_FIRE_PASSED` | Passing: warped to the dorm lobby | The friends: the secret club, the stadium, tonight. |
 | `ACT2_FIRE_INVITED` | | Walking into the stadium: it's night; KAI battles the player. Then morning, in the dorm room. |
-| `ACT2_CLUB_1_DONE` | | PROF. MARLOWE (the audiovisual classroom) starts the Water course: 5 Poké Balls and the Good Rod. |
+| `ACT2_CLUB_1_DONE` | | PROF. MARLOWE (the audiovisual classroom) introduces the Water course; on arrival he explains the assignment and gives 5 Poké Balls and the Good Rod. |
 | `ACT2_WATER_TRIP` | Warped to Vermilion City (32,19) | The research sheet (fishing at the harbor, or Route 6's grass; the docks), the TM (BubbleBeam), the exam. |
 | `ACT2_WATER_PASSED` | Warped to the dorm lobby | The club meets again tonight. |
 | `ACT2_WATER_INVITED` | | Night: MINA battles the player. |
-| `ACT2_CLUB_2_DONE` | | PROF. FERN (Home Economics) starts the Grass course: 5 Poké Balls. |
+| `ACT2_CLUB_2_DONE` | | PROF. FERN (Home Economics) introduces the Grass course; on arrival she explains the assignment and gives 5 Poké Balls. |
 | `ACT2_GRASS_TRIP` | Warped to Viridian City (4,17) | The research sheet (Route 22, west of the city), the TM (Giga Drain), the exam. |
 | `ACT2_GRASS_PASSED` | Warped to the dorm lobby | One more night: battle for a real Trainer Card. |
 | `ACT2_GRASS_INVITED` | | Night: the friends bring DALE, a Pokémon League examiner. Beating him: the Trainer Card. |
@@ -30,8 +30,9 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 
 ## The courses
 
-Each course opens on campus: the professor explains it, gives 5 Poké Balls, and the class leaves on the field trip.
-There, talking to the professor shows the **research sheet** (`Act2_BufferResearchSheet`):
+Each course opens on campus: the professor introduces it and the class leaves on the field trip. On arrival, the
+professor explains the assignment and gives 5 Poké Balls (a frame script, once per course: `ACT2_RESEARCH_BRIEFED`).
+After that, talking to the professor shows the **research sheet** (`Act2_BufferResearchSheet`):
 
 1. Catch a Pokémon of the course's type (one in the party).
 2. Use a move of that type in battle.

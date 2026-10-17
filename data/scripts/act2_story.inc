@@ -386,9 +386,6 @@ Act2_EventScript_ProfMarloweEarly:
 
 Act2_EventScript_StartWater:
 	msgbox Act2_Text_StartWater
-	giveitem ITEM_POKE_BALL, 5
-	giveitem ITEM_GOOD_ROD
-	msgbox Act2_Text_FieldTripWater
 	closemessage
 	setvar VAR_ACT2_RESEARCH, 0
 	setvar VAR_ACT2_MOVES_SEEN, 0
@@ -468,8 +465,6 @@ Act2_EventScript_ProfFernEarly:
 
 Act2_EventScript_StartGrass:
 	msgbox Act2_Text_StartGrass
-	giveitem ITEM_POKE_BALL, 5
-	msgbox Act2_Text_FieldTripGrass
 	closemessage
 	setvar VAR_ACT2_RESEARCH, 0
 	setvar VAR_ACT2_MOVES_SEEN, 0
@@ -561,19 +556,39 @@ Act2_EventScript_TripRowan::
 	end
 
 @ The sites' objects (Act2_SetupSiteObjects)
-CinnabarIsland_EventScript_Act2Objects::
-	setvar VAR_0x8004, ACT2_FIRE_TRIP
-	special Act2_SetupSiteObjects
+@ On arriving at the site, the professor explains the assignment (once: ACT2_RESEARCH_BRIEFED). With the trip stage
+@ in VAR_0x8004: VAR_TEMP_1 is 1 while the briefing is due, for the site's frame script.
+Act2_EventScript_CheckBriefing:
 	setvar VAR_TEMP_1, 0
-	goto_if_ne VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP, Common_EventScript_NopReturn
+	goto_if_ne VAR_ACT2_PROGRESS, VAR_0x8004, Common_EventScript_NopReturn
 	setvar VAR_0x8004, ACT2_RESEARCH_BRIEFED
 	specialvar VAR_RESULT, Act2_HasResearchFlag
 	goto_if_eq VAR_RESULT, TRUE, Common_EventScript_NopReturn
 	setvar VAR_TEMP_1, 1
 	return
 
+Act2_EventScript_Briefed:
+	setvar VAR_0x8004, ACT2_RESEARCH_BRIEFED
+	special Act2_SetResearchFlag
+	setvar VAR_TEMP_1, 0
+	return
+
+CinnabarIsland_EventScript_Act2Objects::
+	setvar VAR_0x8004, ACT2_FIRE_TRIP
+	special Act2_SetupSiteObjects
+	setvar VAR_0x8004, ACT2_FIRE_TRIP
+	goto Act2_EventScript_CheckBriefing
+
 CinnabarIsland_OnFrame::
 	map_script_2 VAR_TEMP_1, 1, Act2_EventScript_FireBriefing
+	.2byte 0
+
+VermilionCity_OnFrame::
+	map_script_2 VAR_TEMP_1, 1, Act2_EventScript_WaterBriefing
+	.2byte 0
+
+ViridianCity_OnFrame::
+	map_script_2 VAR_TEMP_1, 1, Act2_EventScript_GrassBriefing
 	.2byte 0
 
 @ The class arrives on Cinnabar: PROF. ASHFORD explains the assignment
@@ -584,9 +599,32 @@ Act2_EventScript_FireBriefing::
 	waitmovement 0
 	msgbox Act2_Text_FireBriefing
 	giveitem ITEM_POKE_BALL, 5
-	setvar VAR_0x8004, ACT2_RESEARCH_BRIEFED
-	special Act2_SetResearchFlag
-	setvar VAR_TEMP_1, 0
+	call Act2_EventScript_Briefed
+	releaseall
+	end
+
+@ Vermilion: PROF. MARLOWE stands left of the arrival spot, Viridian: PROF. FERN too
+Act2_EventScript_WaterBriefing::
+	lockall
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
+	applymovement LOCALID_VERMILION_PROF, Common_Movement_WalkInPlaceFasterRight
+	waitmovement 0
+	msgbox Act2_Text_WaterBriefing
+	giveitem ITEM_POKE_BALL, 5
+	giveitem ITEM_GOOD_ROD
+	msgbox Act2_Text_WaterBriefingEnd
+	call Act2_EventScript_Briefed
+	releaseall
+	end
+
+Act2_EventScript_GrassBriefing::
+	lockall
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
+	applymovement LOCALID_VIRIDIAN_PROF, Common_Movement_WalkInPlaceFasterRight
+	waitmovement 0
+	msgbox Act2_Text_GrassBriefing
+	giveitem ITEM_POKE_BALL, 5
+	call Act2_EventScript_Briefed
 	releaseall
 	end
 
@@ -598,12 +636,14 @@ PokemonMansion_1F_EventScript_Act2Objects::
 VermilionCity_EventScript_Act2Objects::
 	setvar VAR_0x8004, ACT2_WATER_TRIP
 	special Act2_SetupSiteObjects
-	return
+	setvar VAR_0x8004, ACT2_WATER_TRIP
+	goto Act2_EventScript_CheckBriefing
 
 ViridianCity_EventScript_Act2Objects::
 	setvar VAR_0x8004, ACT2_GRASS_TRIP
 	special Act2_SetupSiteObjects
-	return
+	setvar VAR_0x8004, ACT2_GRASS_TRIP
+	goto Act2_EventScript_CheckBriefing
 
 Route22_OnTransition::
 	setvar VAR_0x8004, ACT2_GRASS_TRIP
@@ -1100,16 +1140,36 @@ Act2_Text_ProfMarloweEarly:
 	.string "Come see me after that course.$"
 
 Act2_Text_StartWater:
-	.string "PROF. MARLOWE: The WATER course!\n"
-	.string "Same as before: a field trip.\p"
-	.string "Catch a WATER POKéMON, battle with\n"
-	.string "it, record WATER moves, and solve\l"
-	.string "the site's puzzle.\p"
-	.string "Then we make a TM, and the exam.\n"
-	.string "Take these. And this ROD.$"
+	.string "PROF. MARLOWE: Welcome to the WATER\n"
+	.string "course. I trust your POKéMON are\l"
+	.string "rested after last time.\p"
+	.string "Water shapes everything it touches,\n"
+	.string "and you'll see that for yourselves.\p"
+	.string "For the WATER course, we're headed\n"
+	.string "to VERMILION CITY.\p"
+	.string "I'll explain the assignment when we\n"
+	.string "arrive. Off we go!$"
 
-Act2_Text_FieldTripWater:
-	.string "We're off to VERMILION CITY!$"
+Act2_Text_WaterBriefing:
+	.string "PROF. MARLOWE: Welcome to VERMILION\n"
+	.string "CITY, KANTO's great port.\p"
+	.string "Its harbor is full of wild WATER\n"
+	.string "POKéMON. A fine host for our field\l"
+	.string "assignment.\p"
+	.string "Catch a WATER POKéMON. Battle with\n"
+	.string "it, and watch how WATER moves work.\p"
+	.string "Fish at the harbor, or look in the\n"
+	.string "grass on ROUTE 6, to the north.\p"
+	.string "And keep an eye on the docks. Your\n"
+	.string "POKéMON may be needed there.\p"
+	.string "Finish the sheet, and you may just\n"
+	.string "be able to make a TM based on your\l"
+	.string "newfound knowledge.\p"
+	.string "Now, you'll need these.$"
+
+Act2_Text_WaterBriefingEnd:
+	.string "That GOOD ROD is yours to keep.\n"
+	.string "Use it well!$"
 
 Act2_Text_WaterSheetIntro:
 	.string "PROF. MARLOWE: Your research sheet,\n"
@@ -1157,15 +1217,27 @@ Act2_Text_ProfFernEarly:
 
 Act2_Text_StartGrass:
 	.string "PROF. FERN: Welcome to the GRASS\n"
-	.string "course. You know how this goes.\p"
-	.string "Catch a GRASS POKéMON, battle with\n"
-	.string "it, record GRASS moves, and solve\l"
-	.string "the site's puzzle.\p"
-	.string "Then a TM, and my exam.\n"
-	.string "Take these.$"
+	.string "course, your last one.\p"
+	.string "GRASS POKéMON teach patience.\n"
+	.string "Nothing here can be rushed.\p"
+	.string "For the GRASS course, we're headed\n"
+	.string "to VIRIDIAN CITY.\p"
+	.string "I'll explain the assignment when we\n"
+	.string "arrive. Let's go!$"
 
-Act2_Text_FieldTripGrass:
-	.string "Our field trip is to VIRIDIAN CITY!$"
+Act2_Text_GrassBriefing:
+	.string "PROF. FERN: Welcome to VIRIDIAN\n"
+	.string "CITY, the gateway to the forests.\p"
+	.string "West of here, ROUTE 22's fields are\n"
+	.string "home to wild GRASS POKéMON.\p"
+	.string "Catch a GRASS POKéMON. Battle with\n"
+	.string "it, and watch how GRASS moves work.\p"
+	.string "Parts of the field have withered.\n"
+	.string "See what your POKéMON can do.\p"
+	.string "Finish the sheet, and you may just\n"
+	.string "be able to make a TM based on your\l"
+	.string "newfound knowledge.\p"
+	.string "Now, you'll need these.$"
 
 Act2_Text_GrassSheetIntro:
 	.string "PROF. FERN: Let's see your research\n"

@@ -3,7 +3,7 @@
 ## Project
 A Pokémon ROM hack (working title: TBD) built on **pokeemerald-expansion** (RHH),
 a GBA hack base on top of pret's pokeemerald decompilation. This repo is a fork of
-`rh-hideout/pokeemerald-expansion`. The hack is built in **FireRed (Kanto) mode**; output is `pokefirered.gba`.
+`rh-hideout/pokeemerald-expansion`. The hack is built in **FireRed (Kanto) mode**; output is `pokefirered.gba`, also copied to `pokemon-unnamed.gba`.
 
 Current expansion version: `include/constants/expansion.h` (`EXPANSION_VERSION_*`; currently 1.17.2).
 Per-release notes live in `docs/changelogs/<X.Y.x>/` (`docs/CHANGELOG.md` is just an mdBook include stub).
@@ -17,7 +17,7 @@ Per-release notes live in `docs/changelogs/<X.Y.x>/` (`docs/CHANGELOG.md` is jus
 - Map editor: Porymap (maps and tilesets are edited there by hand, not in code)
 
 ## Commands
-- Build (FireRed is the Makefile default): `make -j$(sysctl -n hw.ncpu)`
+- Build (FireRed is the Makefile default): `make -j$(sysctl -n hw.ncpu)` (writes `pokefirered.gba` and `pokemon-unnamed.gba`)
 - Vanilla Emerald / LeafGreen builds: `make emerald` / `make leafgreen` (run `make clean` when switching game versions)
 - Build with debug symbols: `make debug`
 - Release build (strips debug features): `make release`

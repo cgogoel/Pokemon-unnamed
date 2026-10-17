@@ -30,6 +30,9 @@ EventScript_PkmnCenterNurse_HealPkmn_Frlg::
 	end
 
 EventScript_PkmnCenterNurse_TakeAndHealPkmn_Frlg::
+	@ The follower Pokémon goes into its ball first, as in Emerald's version (pkmn_center_nurse.inc): with it out,
+	@ the healing machine's flash could lose its palette and write past the palette buffers, blanking all text
+	hidefollower 0
 	applymovement VAR_LAST_TALKED, Common_Movement_WalkInPlaceFasterLeft
 	waitmovement 0
 	dofieldeffect FLDEFF_POKECENTER_HEAL
@@ -37,6 +40,7 @@ EventScript_PkmnCenterNurse_TakeAndHealPkmn_Frlg::
 	applymovement VAR_LAST_TALKED, Common_Movement_WalkInPlaceFasterDown
 	waitmovement 0
 	special HealPlayerParty
+	callnative UpdateFollowingPokemon
 	return
 
 EventScript_PkmnCenterNurse_CheckTrainerTowerAndUnionRoom_Frlg::

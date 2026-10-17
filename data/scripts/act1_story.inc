@@ -20,3 +20,15 @@ Act1_EventScript_BlackOutFade::
 Act1_Text_FollowerRanBack:
 	.string "{STR_VAR_1} got scared and ran\n"
 	.string "back into the woods!$"
+
+@ The Woods' Pokémon aren't from Kanto, and the Kanto POKéDEX only lists Kanto's: the player's POKéDEX is the
+@ National one from the start (given by Oak's aide; saves from before that get it on entering the Woods).
+@ Only when it isn't already: enabling it also resets the POKéDEX's order and scroll position.
+Act1_EventScript_EnsureNationalDex::
+	specialvar VAR_RESULT, IsNationalPokedexEnabled
+	call_if_eq VAR_RESULT, FALSE, Act1_EventScript_EnableNationalDex
+	return
+
+Act1_EventScript_EnableNationalDex:
+	special EnableNationalPokedex
+	return

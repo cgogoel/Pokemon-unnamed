@@ -7,6 +7,7 @@ Woods_MapScripts::
 
 Woods_OnTransition:
 	special Act1_RestockLovedItems
+	call_if_set FLAG_SYS_POKEDEX_GET, Act1_EventScript_EnsureNationalDex
 	end
 
 Woods_EventScript_ToFarmyard::

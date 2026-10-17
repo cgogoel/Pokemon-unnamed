@@ -106,8 +106,9 @@ static const u32 sStreak_Gfx[] = INCGFX_U32("graphics/title_screen_frlg/leafgree
 
 #ifdef FIRERED
 const u16 gGraphics_TitleScreen_GameTitleLogoPals[] = INCGFX_U16("graphics/title_screen_frlg/firered/game_title_logo.pal", ".gbapal");
-const u8 gGraphics_TitleScreen_GameTitleLogoTiles[] = INCGFX_U8("graphics/title_screen_frlg/firered/game_title_logo.png", ".8bpp.smol");
-const u8 gGraphics_TitleScreen_GameTitleLogoMap[] = INCBIN_U8("graphics/title_screen_frlg/firered/game_title_logo.bin.smolTM");
+// "POKéMON Unnamed" (tools/hack/make_title_logo.py), FireRed's palette
+const u8 gGraphics_TitleScreen_GameTitleLogoTiles[] = INCGFX_U8("graphics/title_screen_frlg/unnamed/game_title_logo.png", ".8bpp.smol");
+const u8 gGraphics_TitleScreen_GameTitleLogoMap[] = INCBIN_U8("graphics/title_screen_frlg/unnamed/game_title_logo.bin.smolTM");
 const u16 gGraphics_TitleScreen_BoxArtMonPals[] = INCGFX_U16("graphics/title_screen_frlg/firered/box_art_mon.pal", ".gbapal");
 const u8 gGraphics_TitleScreen_BoxArtMonTiles[] = INCGFX_U8("graphics/title_screen_frlg/firered/box_art_mon.png", ".4bpp.smol");
 const u8 gGraphics_TitleScreen_BoxArtMonMap[] = INCBIN_U8("graphics/title_screen_frlg/firered/box_art_mon.bin.smolTM");

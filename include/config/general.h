@@ -74,6 +74,7 @@
 #define GEN_LATEST GEN_9
 
 // General settings
+#define BOOT_TO_TITLE_SCREEN         TRUE    // Hack: boot straight to the title screen. The copyright screen still runs (it loads the save) but shows nothing, and the intro movies are skipped.
 #define EXPANSION_INTRO              TRUE    // If TRUE, a custom RHH intro will play after the vanilla copyright screen.
 #define PHONEMES_SHARED              FALSE   // If TRUE, bard phonemes all reference the same sound (sound/direct_sound_samples/phonemes/shared.bin) to save ROM space.
 

@@ -932,7 +932,7 @@ bool8 SetUpCopyrightScreenFrlg(void)
         SetGpuReg(REG_OFFSET_BLDCNT, 0);
         SetGpuReg(REG_OFFSET_BLDALPHA, 0);
         SetGpuReg(REG_OFFSET_BLDY, 0);
-        ((vu16*)PLTT)[0] = RGB_WHITE;
+        ((vu16*)PLTT)[0] = BOOT_TO_TITLE_SCREEN ? RGB_BLACK : RGB_WHITE;
         SetGpuReg(REG_OFFSET_DISPCNT, 0);
         SetGpuReg(REG_OFFSET_BG0HOFS, 0);
         SetGpuReg(REG_OFFSET_BG0VOFS, 0);
@@ -940,18 +940,25 @@ bool8 SetUpCopyrightScreenFrlg(void)
         DmaFill32(3, 0, OAM, OAM_SIZE);
         DmaFill16(3, 0, PLTT + sizeof(vu16), PLTT_SIZE - sizeof(vu16));
         ResetPaletteFade();
-        LoadCopyrightGraphics(0 * BG_CHAR_SIZE, 7 * BG_SCREEN_SIZE, BG_PLTT_ID(0));
+        if (!BOOT_TO_TITLE_SCREEN)
+            LoadCopyrightGraphics(0 * BG_CHAR_SIZE, 7 * BG_SCREEN_SIZE, BG_PLTT_ID(0));
         ScanlineEffect_Stop();
         ResetTasks();
         ResetSpriteData();
         FreeAllSpritePalettes();
-        BeginNormalPaletteFade(PALETTES_ALL, 0, 16, 0, RGB_WHITEALPHA);
+        if (!BOOT_TO_TITLE_SCREEN)
+            BeginNormalPaletteFade(PALETTES_ALL, 0, 16, 0, RGB_WHITEALPHA);
         SetGpuReg(REG_OFFSET_BG0CNT, BGCNT_PRIORITY(0) | BGCNT_CHARBASE(0) | BGCNT_16COLOR | BGCNT_SCREENBASE(7));
         EnableInterrupts(INTR_FLAG_VBLANK);
         SetVBlankCallback(VBlankCB_Copyright);
         SetGpuReg(REG_OFFSET_DISPCNT, DISPCNT_OBJ_1D_MAP | DISPCNT_BG0_ON);
         SetSerialCallback(SerialCB_CopyrightScreen);
         GameCubeMultiBoot_Init(&sGcmb);
+        if (BOOT_TO_TITLE_SCREEN)
+        {
+            gMain.state = 140; // Nothing to show: straight on to loading the save
+            break;
+        }
         // fallthrough
     default:
         UpdatePaletteFade();
@@ -992,7 +999,10 @@ bool8 SetUpCopyrightScreenFrlg(void)
         break;
     case 142:
         ResetSerial();
-        SetMainCallback2(CB2_WaitFadeBeforeSetUpIntro);
+        if (BOOT_TO_TITLE_SCREEN)
+            SetMainCallback2(CB2_InitTitleScreen);
+        else
+            SetMainCallback2(CB2_WaitFadeBeforeSetUpIntro);
         break;
     }
     return TRUE;

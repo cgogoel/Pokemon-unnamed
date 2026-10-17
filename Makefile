@@ -98,6 +98,8 @@ ifeq ($(RELEASE),1)
 endif
 
 ROM_NAME := $(FILE_NAME).gba
+# This hack's name for the FireRed build (a copy of the ROM, made by `rom`)
+HACK_ROM := $(subst poke$(BUILD_NAME),pokemon-unnamed,$(ROM_NAME))
 OBJ_DIR_NAME := $(BUILD_DIR)/$(BUILD_NAME)
 OBJ_DIR_NAME_TEST := $(BUILD_DIR)/$(BUILD_NAME)-test
 OBJ_DIR_NAME_DEBUG := $(BUILD_DIR)/$(BUILD_NAME)-debug
@@ -375,6 +377,9 @@ check: $(TESTELF)
 rom: $(ROM)
 ifeq ($(COMPARE),1)
 	@$(SHA1) rom.sha1
+endif
+ifeq ($(GAME_VERSION),FIRERED)
+	@cp $(ROM) $(HACK_ROM)
 endif
 
 syms: $(SYM)

@@ -14181,12 +14181,12 @@ const struct ItemInfo gItemsInfo[] =
 
     [ITEM_POKEMON_BOX_LINK] =
     {
-        .name = ITEM_NAME("{PKMN} Box Link"),
+        .name = ITEM_NAME("Remote Desktop"), // The hack's name (ITEM_REMOTE_DESKTOP)
         .price = 0,
         .description = COMPOUND_STRING(
-            "Allows access to\n"
-            "the Pokémon\n"
-            "Storage System."),
+            "Accesses the\n"
+            "Pokémon Storage\n"
+            "System anywhere."),
         .importance = 1,
         .pocket = POCKET_KEY_ITEMS,
         .type = ITEM_USE_FIELD,

@@ -142,6 +142,7 @@ static void CB2_PrologueEnd(void)
         VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
         VarSet(VAR_ACT2_PROGRESS, ACT2_START);
         Act2_RaisePartyLevels();
+        Act2_GiveRemoteDesktop();
         SetLastHealLocationWarp(HEAL_LOCATION_CELADON_CITY);
         SetWarpDestination(MAP_GROUP(ACT2_START_MAP), MAP_NUM(ACT2_START_MAP), WARP_ID_NONE, ACT2_START_X, ACT2_START_Y);
         WarpIntoMap();

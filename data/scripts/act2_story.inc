@@ -19,6 +19,7 @@ Act2_EventScript_ShowObjectsTemp1::
 @ The campus: meeting the friends, and the club nights at the stadium
 
 CeladonUniversity_OnTransition::
+	special Act2_GiveRemoteDesktop
 	setflag FLAG_TEMP_1
 	setflag FLAG_TEMP_2
 	setflag FLAG_TEMP_3

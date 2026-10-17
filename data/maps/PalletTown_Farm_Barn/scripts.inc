@@ -18,7 +18,7 @@ Barn_EventScript_Dad::
 	faceplayer
 	switch VAR_ACT1_PROGRESS
 	case ACT1_START, Barn_EventScript_DadSeeMom
-	case ACT1_GOT_POKEDEX, Barn_EventScript_DadSeeMom
+	case ACT1_GOT_POKEDEX, Barn_EventScript_DadAnotherWay
 	case ACT1_MOM_SENT_TO_DAD, Barn_EventScript_DadAnotherWay
 	case ACT1_DAD_SENT_TO_WOODS, Barn_EventScript_DadBlipbugReminder
 	case ACT1_BEFRIENDED_BLIPBUG, Barn_EventScript_DadWarnJangmoO

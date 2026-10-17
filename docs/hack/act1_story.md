@@ -8,7 +8,7 @@ Progress is `VAR_ACT1_PROGRESS`, with stages `ACT1_*` in `include/constants/stor
 | Stage | Reached by | Then |
 |---|---|---|
 | `ACT1_START` | New game | Mom: sorry you weren't picked; pick up the Pokédex at the lab. |
-| `ACT1_GOT_POKEDEX` | Oak's aide by the lab door hands it over | Aide: battling isn't the only way to get to know Pokémon. |
+| `ACT1_GOT_POKEDEX` | Oak's aide by the lab door hands it over | Aide: battling isn't the only way to get to know Pokémon. Dad can be talked to right away (Mom suggests it, but isn't required). |
 | `ACT1_MOM_SENT_TO_DAD` | Talking to Mom | Mom: go talk to Dad in the storage shed (the barn). |
 | `ACT1_DAD_SENT_TO_WOODS` | Talking to Dad | Dad: he never caught the farm's Pokémon; kindness and patience; Blipbug at the Woods entrance. Gives an Oran Berry. **The Woods open.** |
 | `ACT1_BEFRIENDED_BLIPBUG` | Befriending Blipbug | Mom: Dad wants to talk again. Hint NPCs start. |

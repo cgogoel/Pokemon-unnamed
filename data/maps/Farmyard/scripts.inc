@@ -53,7 +53,6 @@ Farmyard_EventScript_WoodsNotYet::
 	lockall
 	switch VAR_ACT1_PROGRESS
 	case ACT1_START, Farmyard_EventScript_WoodsNotYetPokedex
-	case ACT1_GOT_POKEDEX, Farmyard_EventScript_WoodsNotYetMom
 	msgbox Farmyard_Text_WoodsNotYetDad
 	goto Farmyard_EventScript_WoodsTurnBack
 
@@ -83,8 +82,6 @@ Farmyard_EventScript_WoodsShowOak::
 	msgbox Farmyard_Text_ShowPokedexToOak
 	goto Farmyard_EventScript_WoodsTurnBack
 
-Farmyard_EventScript_WoodsNotYetMom::
-	msgbox Farmyard_Text_WoodsNotYetMom
 Farmyard_EventScript_WoodsTurnBack::
 	closemessage
 	applymovement LOCALID_PLAYER, Farmyard_Movement_StepBack
@@ -310,13 +307,9 @@ Farmyard_Text_WoodsNotYetPokedex:
 	.string "I should pick up the POKéDEX from\n"
 	.string "PROF. OAK's LAB first.$"
 
-Farmyard_Text_WoodsNotYetMom:
-	.string "I should show Mom the POKéDEX\n"
-	.string "first.$"
-
 Farmyard_Text_WoodsNotYetDad:
-	.string "Mom said Dad wanted to see me in\n"
-	.string "the storage shed.$"
+	.string "I should go see Dad in the storage\n"
+	.string "shed first.$"
 
 Farmyard_Text_Tauros:
 	.string "TAUROS snorted and stamped\n"

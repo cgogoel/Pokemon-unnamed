@@ -22,9 +22,9 @@
 #define ACT1_RESTED                 11 // Mom and Dad: show the Pokédex to Oak. Oak arrives as the player leaves.
 #define ACT1_CHOOSING_FRIENDS       12 // Oak: Celadon University; choose two friends to bring. Then the prologue ends.
 
-// Where Act 2 starts (placeholder: a Celadon Condominiums room for the University dorms)
-#define ACT2_START_MAP              MAP_CELADON_CITY_CONDOMINIUMS_2F
-#define ACT2_START_X                6
-#define ACT2_START_Y                8
+// Where Act 2 starts: the player's room in the Celadon University dorms
+#define ACT2_START_MAP              MAP_CELADON_UNIVERSITY_DORM_ROOM
+#define ACT2_START_X                2
+#define ACT2_START_Y                5
 
 #endif // GUARD_CONSTANTS_STORY_H

@@ -34,4 +34,23 @@ The rest is filled with groves of trees that keep a one-tile walkway along every
 None of the buildings have interiors or warps yet. `python3 tools/hack/render_layout.py LAYOUT_CELADON_UNIVERSITY
 out.png --map CeladonUniversity` previews it.
 
-Act 2 still starts in the placeholder dorm room in Celadon's Condominiums (`ACT2_START_MAP`).
+## Interiors
+
+Every door has a room, each a copy of a FireRed interior layout (its own `LAYOUT_CELADON_UNIVERSITY_*`, so editing
+it in Porymap leaves the original alone). They have no people or scripts yet. The Main Hall's two doors lead to the
+same lobby.
+
+| Map (`MAP_CELADON_UNIVERSITY_*`) | Door on campus | Copied from |
+|---|---|---|
+| `MAIN_HALL` | (29,27), (33,27) | Trainer Tower lobby (its stairs and elevator lead nowhere yet) |
+| `LECTURE_HALL_A` | (23,27) west wing | Viridian City school |
+| `LECTURE_HALL_B` (audiovisual classroom) | (39,27) east wing | Fuchsia City warden's house |
+| `CAFETERIA` | (18,26) | Celadon City restaurant |
+| `FACULTY_OFFICE` | (44,26) | A FireRed house |
+| `LITERATURE` | (38,18) | Saffron City Pokémon Trainer Fan Club |
+| `LIBRARY` | (42,18) | Five Island Resort Gorgeous house |
+| `SCIENCE_INSTITUTE`, with `SCIENCE_LOUNGE`, `SCIENCE_RESEARCH_ROOM`, `SCIENCE_EXPERIMENT_ROOM` | (53,15) | Cinnabar Island Pokémon Lab and its three rooms |
+| `HOSPITAL` | (20,42) | Pokémon Center 1F (its upstairs leads nowhere) |
+| `DORM_LOBBY` | (38,44) | Celadon City hotel |
+| `DORM_ROOM` | (42,44) | Celadon Condominiums roof room. **Act 2 starts here**, at (2,5) (`ACT2_START_MAP`) |
+| `HOME_ECONOMICS` | (53,38) | Celadon City Gym (the garden) |

@@ -1001,7 +1001,22 @@
     "CeladonCity_Restaurant_Frlg",
     "CeladonCity_House1_Frlg",
     "CeladonCity_Hotel_Frlg",
-    "CeladonCity_UniversityGate"
+    "CeladonCity_UniversityGate",
+    "CeladonUniversity_MainHall",
+    "CeladonUniversity_LectureHallA",
+    "CeladonUniversity_LectureHallB",
+    "CeladonUniversity_Cafeteria",
+    "CeladonUniversity_FacultyOffice",
+    "CeladonUniversity_Literature",
+    "CeladonUniversity_Library",
+    "CeladonUniversity_ScienceInstitute",
+    "CeladonUniversity_ScienceLounge",
+    "CeladonUniversity_ScienceResearchRoom",
+    "CeladonUniversity_ScienceExperimentRoom",
+    "CeladonUniversity_Hospital",
+    "CeladonUniversity_DormLobby",
+    "CeladonUniversity_DormRoom",
+    "CeladonUniversity_HomeEconomics"
   ],
   "gMapGroup_IndoorFuchsia_Frlg": [
     "FuchsiaCity_SafariZone_Entrance_Frlg",

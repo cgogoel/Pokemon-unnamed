@@ -10270,6 +10270,19 @@
       "border_filepath": "data/layouts/PalletTown_Farm_Barn/border.bin",
       "blockdata_filepath": "data/layouts/PalletTown_Farm_Barn/map.bin",
       "layout_version": "frlg"
+    },
+    {
+      "id": "LAYOUT_CELADON_UNIVERSITY",
+      "name": "CeladonUniversity_Layout",
+      "width": 64,
+      "height": 56,
+      "border_width": 2,
+      "border_height": 2,
+      "primary_tileset": "gTileset_General_Frlg",
+      "secondary_tileset": "gTileset_CeladonCity",
+      "border_filepath": "data/layouts/CeladonUniversity/border.bin",
+      "blockdata_filepath": "data/layouts/CeladonUniversity/map.bin",
+      "layout_version": "frlg"
     }
   ]
 }

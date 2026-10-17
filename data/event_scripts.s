@@ -796,6 +796,8 @@ gStdScripts_End::
 	.include "data/maps/PalletTown_Frlg/scripts.inc"
 	.include "data/maps/Farmyard/scripts.inc"
 	.include "data/maps/Woods/scripts.inc"
+	.include "data/maps/CeladonUniversity/scripts.inc"
+	.include "data/maps/CeladonCity_UniversityGate/scripts.inc"
 	.include "data/maps/ViridianCity_Frlg/scripts.inc"
 	.include "data/maps/PewterCity_Frlg/scripts.inc"
 	.include "data/maps/CeruleanCity_Frlg/scripts.inc"

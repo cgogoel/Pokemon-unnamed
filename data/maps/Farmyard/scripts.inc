@@ -28,6 +28,7 @@ Farmyard_EventScript_Gate::
 	copyvar VAR_0x8004, VAR_RESULT
 	goto_if_eq VAR_0x8004, FARM_DEPOSIT_NONE, Farmyard_EventScript_GateEnd
 	msgbox Farmyard_Text_RanOffToPlay, MSGBOX_DEFAULT
+	call_if_eq VAR_ACT1_PROGRESS, ACT1_BEFRIENDED_BLIPBUG, Farmyard_EventScript_CheckWithDad
 	goto_if_eq VAR_0x8004, 0, Farmyard_EventScript_GateShown
 	addobject VAR_0x8004
 Farmyard_EventScript_GateShown:
@@ -43,6 +44,7 @@ Farmyard_EventScript_ToWoods::
 	goto_if_ge VAR_ACT1_PROGRESS, ACT1_RESTED, Farmyard_EventScript_WoodsShowOak
 	goto_if_ge VAR_ACT1_PROGRESS, ACT1_GOT_HARD_STONE, Farmyard_EventScript_EnterWoods
 	goto_if_ge VAR_ACT1_PROGRESS, ACT1_BEFRIENDED_THREE, Farmyard_EventScript_WoodsTalkToParents
+	goto_if_eq VAR_ACT1_PROGRESS, ACT1_BEFRIENDED_BLIPBUG, Farmyard_EventScript_WoodsCheckWithDad
 Farmyard_EventScript_EnterWoods:
 	warp MAP_WOODS, 49, 58
 	waitstate
@@ -53,7 +55,6 @@ Farmyard_EventScript_WoodsNotYet::
 	lockall
 	switch VAR_ACT1_PROGRESS
 	case ACT1_START, Farmyard_EventScript_WoodsNotYetPokedex
-	case ACT1_GOT_POKEDEX, Farmyard_EventScript_WoodsNotYetMom
 	msgbox Farmyard_Text_WoodsNotYetDad
 	goto Farmyard_EventScript_WoodsTurnBack
 
@@ -78,13 +79,21 @@ Farmyard_EventScript_WoodsSeeMom::
 	msgbox Farmyard_Text_WoodsSeeMom
 	goto Farmyard_EventScript_WoodsTurnBack
 
+@ After Blipbug: the Woods wait until Dad has had his say (the Jangmo-o warning)
+Farmyard_EventScript_CheckWithDad:
+	msgbox Farmyard_Text_CheckWithDad
+	return
+
+Farmyard_EventScript_WoodsCheckWithDad::
+	lockall
+	msgbox Farmyard_Text_CheckWithDad
+	goto Farmyard_EventScript_WoodsTurnBack
+
 Farmyard_EventScript_WoodsShowOak::
 	lockall
 	msgbox Farmyard_Text_ShowPokedexToOak
 	goto Farmyard_EventScript_WoodsTurnBack
 
-Farmyard_EventScript_WoodsNotYetMom::
-	msgbox Farmyard_Text_WoodsNotYetMom
 Farmyard_EventScript_WoodsTurnBack::
 	closemessage
 	applymovement LOCALID_PLAYER, Farmyard_Movement_StepBack
@@ -310,13 +319,9 @@ Farmyard_Text_WoodsNotYetPokedex:
 	.string "I should pick up the POKéDEX from\n"
 	.string "PROF. OAK's LAB first.$"
 
-Farmyard_Text_WoodsNotYetMom:
-	.string "I should show Mom the POKéDEX\n"
-	.string "first.$"
-
 Farmyard_Text_WoodsNotYetDad:
-	.string "Mom said Dad wanted to see me in\n"
-	.string "the storage shed.$"
+	.string "I should go see Dad in the storage\n"
+	.string "shed first.$"
 
 Farmyard_Text_Tauros:
 	.string "TAUROS snorted and stamped\n"
@@ -455,3 +460,7 @@ Farmyard_Text_WoodsSeeMom:
 
 Farmyard_Text_WoodsSeeDadAgain:
 	.string "Mom said to go talk to Dad again.$"
+
+Farmyard_Text_CheckWithDad:
+	.string "I should talk to Dad to make sure\n"
+	.string "it's OK.$"

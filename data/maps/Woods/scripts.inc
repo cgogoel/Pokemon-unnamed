@@ -52,6 +52,7 @@ Woods_EventScript_Tynamo::
 	goto_if_lt VAR_ACT1_PROGRESS, ACT1_DAD_WARNED_JANGMO_O, Woods_EventScript_TooWary
 	befriendbattle SPECIES_TYNAMO, 5
 	goto_if_eq VAR_RESULT, B_OUTCOME_CAUGHT, Woods_EventScript_TynamoBefriended
+	special Act1_RestockLovedItems @ Not befriended: an offered item is back where it was found
 	release
 	end
 
@@ -65,6 +66,7 @@ Woods_EventScript_Hatenna::
 	goto_if_lt VAR_ACT1_PROGRESS, ACT1_DAD_WARNED_JANGMO_O, Woods_EventScript_TooWary
 	befriendbattle SPECIES_HATENNA, 5
 	goto_if_eq VAR_RESULT, B_OUTCOME_CAUGHT, Woods_EventScript_HatennaBefriended
+	special Act1_RestockLovedItems @ Not befriended: an offered item is back where it was found
 	release
 	end
 
@@ -78,6 +80,7 @@ Woods_EventScript_Teddiursa::
 	goto_if_lt VAR_ACT1_PROGRESS, ACT1_DAD_WARNED_JANGMO_O, Woods_EventScript_TooWary
 	befriendbattle SPECIES_TEDDIURSA, 6
 	goto_if_eq VAR_RESULT, B_OUTCOME_CAUGHT, Woods_EventScript_TeddiursaBefriended
+	special Act1_RestockLovedItems @ Not befriended: an offered item is back where it was found
 	release
 	end
 
@@ -145,6 +148,21 @@ Woods_EventScript_MailboxEmpty::
 Woods_EventScript_MailboxEnd::
 	releaseall
 	end
+
+@ The top-left entrance (the old ranger station): closed in Act 1 only (coord events on VAR_STORY_ACT == 0); it opens
+@ after Act 1.
+Woods_EventScript_EerieEntrance::
+	lockall
+	msgbox Woods_Text_EerieSound
+	closemessage
+	applymovement LOCALID_PLAYER, Woods_Movement_StepBackDown
+	waitmovement 0
+	releaseall
+	end
+
+Woods_Movement_StepBackDown:
+	walk_down
+	step_end
 
 Woods_EventScript_SignQuincyWoods::
 	msgbox Woods_Text_SignQuincyWoods, MSGBOX_SIGN
@@ -219,3 +237,8 @@ Woods_Text_SignKeepOut:
 Woods_Text_GetBackToFarmyard:
 	.string "I should get this back to the\n"
 	.string "farmyard.$"
+
+Woods_Text_EerieSound:
+	.string "An eerie sound is coming from\n"
+	.string "inside…\p"
+	.string "I should stay away.$"

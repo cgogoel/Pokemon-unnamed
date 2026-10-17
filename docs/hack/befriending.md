@@ -35,12 +35,12 @@ it calms down (`calmRate`, percent of the usual calming; raising isn't scaled) a
 |---|---|---|---|---|---|
 | Tutorial | Blipbug (> Dottler > Orbeetle) | Crouch down, Oran Berry | Approach | 6 | 150% |
 | Line | Tynamo (> Eelektrik > Eelektross) | Reach out, Cheri Berry | Approach, Pecha Berry | 5 | 100% |
-| Line | Hatenna (> Hattrem > Hatterene) | Crouch down, Chesto Berry | Approach, Reach out, Cheri Berry | 4 | 100% |
+| Line | Hatenna (> Hattrem > Hatterene) | Hum a tune, Chesto Berry | Approach, Reach out, Cheri Berry | 4 | 100% |
 | Line | Teddiursa (> Ursaring > Ursaluna) | Reach out, Honey | Approach, Rawst Berry | 5 | 100% |
 | Boss | Jangmo-o (> Hakamo-o > Kommo-o) | Approach, Hard Stone | Crouch down, Hum a tune, Oran and Pecha Berries | 6 | 50% |
 
 Why: Blipbug is curious and harmless and wants to study you at its level; Tynamo is weak alone and lives in schools, so it
-wants company; Hatenna senses emotions and only warms to calm people, so stay still; Teddiursa loves honey and licks its
+wants company; Hatenna senses emotions and only warms to calm people, so a soft, soothing tune; Teddiursa loves honey and licks its
 sweetened palms; Jangmo-o grows by battling and respects boldness, so gentleness reads as weakness.
 
 ## Choosing the Act 1 Pokémon
@@ -83,6 +83,9 @@ draws a connected map with the current map's tilesets, and the Woods (Viridian F
 garbled Pallet Town tiles next to the farmyard (Porymap draws each map with its own, so it looks fine there). A map
 connection only works between maps that share tilesets, like Pallet Town and the farmyard; otherwise only primary
 tileset metatiles may show near the shared edge.
+
+**Music:** befriending encounters play the gentle "Follow Me" theme (`MUS_RG_FOLLOW_ME`, `GetBattleBGM`); Jangmo-o,
+the boss, keeps the wild battle music.
 
 ## Starting one
 In a map script:

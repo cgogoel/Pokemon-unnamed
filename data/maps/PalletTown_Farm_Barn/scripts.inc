@@ -18,7 +18,7 @@ Barn_EventScript_Dad::
 	faceplayer
 	switch VAR_ACT1_PROGRESS
 	case ACT1_START, Barn_EventScript_DadSeeMom
-	case ACT1_GOT_POKEDEX, Barn_EventScript_DadSeeMom
+	case ACT1_GOT_POKEDEX, Barn_EventScript_DadAnotherWay
 	case ACT1_MOM_SENT_TO_DAD, Barn_EventScript_DadAnotherWay
 	case ACT1_DAD_SENT_TO_WOODS, Barn_EventScript_DadBlipbugReminder
 	case ACT1_BEFRIENDED_BLIPBUG, Barn_EventScript_DadWarnJangmoO
@@ -108,8 +108,8 @@ Barn_Text_DadAnotherWay::
 	.string "PROF. OAK. I'm sorry.\p"
 	.string "You know, I never caught a single\n"
 	.string "one of the POKéMON on this farm.\p"
-	.string "I didn't have POKé BALLS either.\n"
-	.string "I found another way.\p"
+	.string "I wasn't selected to be a TRAINER\n"
+	.string "either. I found another way.\p"
 	.string "Being kind, and being patient.\n"
 	.string "That's all it took.\p"
 	.string "Why don't you go to the woods and\n"
@@ -130,10 +130,17 @@ Barn_Text_DadBlipbugReminder::
 	.string "woods entrance. Kind and patient!$"
 
 Barn_Text_DadWarnJangmoO::
-	.string "DAD: You befriended a BLIPBUG?\n"
-	.string "That's my kid!\p"
+	.string "DAD: You want to know if BLIPBUG\n"
+	.string "can stay? Of course!\p"
 	.string "There may be others in the woods\n"
 	.string "who'd like to meet you.\p"
+	.string "We have plenty of room for any new\n"
+	.string "friends you make.\p"
+	.string "If you have trouble making friends,\n"
+	.string "watch them first. You may learn\l"
+	.string "what they like.\p"
+	.string "And if you're still stuck, maybe\n"
+	.string "someone in town can help out.\p"
 	.string "But be careful. There's an angry\n"
 	.string "JANGMO-O that roams the woods.\p"
 	.string "If it spots you, it'll charge.\n"

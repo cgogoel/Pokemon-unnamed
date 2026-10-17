@@ -3,7 +3,7 @@
 
 static const u8 sText_BefriendHint_Blipbug[] = _("It keeps peering up at you, as if\nit wants to study you at its level.");
 static const u8 sText_BefriendHint_Tynamo[] = _("It flickers weakly, glancing around\nas if looking for others of its kind.");
-static const u8 sText_BefriendHint_Hatenna[] = _("It flinches whenever you move.\nIt seems to want you to keep still.");
+static const u8 sText_BefriendHint_Hatenna[] = _("Its ears twitch toward soft sounds.\nSomething gentle might soothe it.");
 static const u8 sText_BefriendHint_Teddiursa[] = _("It keeps licking its paws and sniffing\nthe air for something sweet.");
 static const u8 sText_BefriendHint_JangmoO[] = _("It clangs its scales at you.\nIt's daring you to stand your ground.");
 static const u8 sText_BefriendHint_Default[] = _("It's eyeing you closely.");
@@ -31,12 +31,12 @@ static const struct BefriendInfo sBefriendInfo[] =
         .calmRate = 100,
         .watchHint = sText_BefriendHint_Tynamo,
     },
-    // Senses emotions and only warms to calm people: stay still and quiet
+    // Senses emotions and only warms to calm people: a soft, soothing tune
     {
         .species = SPECIES_HATENNA,
         .lovedItem = ITEM_CHESTO_BERRY,
         .dislikedItems = { ITEM_CHERI_BERRY },
-        .lovedAction = BEFRIEND_ACTION_CROUCH,
+        .lovedAction = BEFRIEND_ACTION_HUM,
         .dislikedActions = (1 << BEFRIEND_ACTION_APPROACH) | (1 << BEFRIEND_ACTION_HOLD_OUT_HAND),
         .patience = 4,
         .calmRate = 100,

@@ -141,29 +141,8 @@
       "flag": "FLAG_HIDE_ROUTE24_TM45"
     }
   ],
-  "warp_events": [
-
-  ],
-  "coord_events": [
-    {
-      "type": "trigger",
-      "x": 10,
-      "y": 15,
-      "elevation": 3,
-      "var": "VAR_MAP_SCENE_ROUTE24",
-      "var_value": "0",
-      "script": "Route24_EventScript_RocketTriggerLeft"
-    },
-    {
-      "type": "trigger",
-      "x": 11,
-      "y": 15,
-      "elevation": 3,
-      "var": "VAR_MAP_SCENE_ROUTE24",
-      "var_value": "0",
-      "script": "Route24_EventScript_RocketTriggerRight"
-    }
-  ],
+  "warp_events": [],
+  "coord_events": [],
   "bg_events": [
     {
       "type": "hidden_item",

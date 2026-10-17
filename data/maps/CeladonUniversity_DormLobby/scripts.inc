@@ -1,6 +1,8 @@
 @ Celadon University: Dorm Lobby (Act 2, docs/hack/celadon_university.md).
 
 CeladonUniversity_DormLobby_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, CeladonUniversity_DormLobby_OnTransition
+	map_script MAP_SCRIPT_ON_FRAME_TABLE, CeladonUniversity_DormLobby_OnFrame
 	.byte 0
 
 CeladonUniversity_DormLobby_EventScript_OldWoman0::

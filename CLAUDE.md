@@ -72,13 +72,15 @@ that grow in length. Act 3 retells Kanto events (Red, Blue, Oak, Giovanni, Silph
 - **Act ends** once the player has beaten the town's 2 strongest unique Pokémon and befriended a 3rd.
 
 ### Act 2 — University (medium)
-- Time skip: the player finished local schooling and was accepted to university.
+- Time skip: the player finished local schooling and was accepted to university (Celadon University).
 - Introduces Poké Balls and teams of up to 3.
 - **3v3 battles:** each turn the player chooses which of their 3 Pokémon attacks and which of the
   3 opponents it targets. The enemy side does the same. Each move hits 1, 2 or all 3 targets.
-- Structure: one course per major type. Each course is about finding that type's best move and testing
-  what Pokémon can reach through inherent ability and training.
-- **Act ends** with a final exam where the player discovers an **ultimate move that's super effective against every type**.
+- Structure (docs/hack/act2_story.md): three courses, Fire, Water and Grass, in that order. Each is a field trip
+  (Cinnabar Island, Cerulean City, Viridian City): catch a Pokémon of that type, then win the professor's exam.
+- Between courses, the player's friends take them to a secret battle club at the campus stadium at night.
+- No Trainer Card until the third night's exam: until then trainers refuse to battle; only wild Pokémon do.
+- **Act ends** with a final research project: catch a Pokémon that's two of Fire, Water and Grass.
 
 ### Act 3 — Workforce (large)
 - Time skip: the player is a lead researcher at Silph Co.

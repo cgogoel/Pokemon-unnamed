@@ -4,26 +4,13 @@ ViridianCity_Frlg_MapScripts::
 
 ViridianCity_OnTransition::
 	setworldmapflag FLAG_WORLD_MAP_VIRIDIAN_CITY
-	call_if_eq VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN, 0, ViridianCity_EventScript_SetOldManBlockingRoad
-	call_if_eq VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN, 1, ViridianCity_EventScript_SetOldManStandingByRoad
-	call_if_ge VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN, 2, ViridianCity_EventScript_SetOldManNormal
+	call ViridianCity_EventScript_SetOldManNormal
+	call ViridianCity_EventScript_Act2Objects
 	call_if_eq VAR_MAP_SCENE_VIRIDIAN_CITY_GYM_DOOR, 0, ViridianCity_EventScript_TryUnlockGym
 	end
 
 ViridianCity_EventScript_SetOldManNormal::
 	setvar VAR_OBJ_GFX_ID_0, OBJ_EVENT_GFX_OLD_MAN_1
-	return
-
-ViridianCity_EventScript_SetOldManStandingByRoad::
-	setvar VAR_OBJ_GFX_ID_0, OBJ_EVENT_GFX_OLD_MAN_1
-	setobjectxyperm LOCALID_TUTORIAL_MAN, 21, 8
-	setobjectmovementtype LOCALID_TUTORIAL_MAN, MOVEMENT_TYPE_LOOK_AROUND
-	return
-
-ViridianCity_EventScript_SetOldManBlockingRoad::
-	setvar VAR_OBJ_GFX_ID_0, OBJ_EVENT_GFX_OLD_MAN_LYING_DOWN
-	setobjectxyperm LOCALID_TUTORIAL_MAN, 21, 11
-	setobjectmovementtype LOCALID_TUTORIAL_MAN, MOVEMENT_TYPE_FACE_DOWN
 	return
 
 ViridianCity_EventScript_TryUnlockGym::
@@ -98,10 +85,7 @@ ViridianCity_EventScript_TutorialOldMan::
 	lock
 	faceplayer
 	goto_if_set FLAG_BADGE01_GET, ViridianCity_EventScript_AskIfTeachyTVHelpful
-	goto_if_ge VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN, 2, ViridianCity_EventScript_TutorialCompleted
-	goto_if_eq VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN, 1, ViridianCity_EventScript_TutorialStart
-	goto_if_eq VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN, 0, ViridianCity_EventScript_TutorialNotReady
-	end
+	goto ViridianCity_EventScript_TutorialCompleted
 
 ViridianCity_EventScript_AskIfTeachyTVHelpful::
 	msgbox ViridianCity_Text_HowsTeachyTVHelping, MSGBOX_YESNO
@@ -117,31 +101,6 @@ ViridianCity_EventScript_TeachyTVNotHelpful::
 
 ViridianCity_EventScript_TutorialCompleted::
 	msgbox ViridianCity_Text_WeakenMonsFirstToCatch
-	release
-	end
-
-ViridianCity_EventScript_TutorialStart::
-	call ViridianCity_EventScript_DoTutorialBattle
-	release
-	end
-
-@ Unused
-ViridianCity_EventScript_WatchToLearnBasics::
-	msgbox ViridianCity_Text_WatchThatToLearnBasics
-	release
-	end
-
-@ Unused. Starts battle after the post battle text, which is odd.
-ViridianCity_EventScript_TutorialUnused::
-	msgbox ViridianCity_Text_ThatWasEducationalTakeThis
-	special StartOldManTutorialBattle
-	waitstate
-	release
-	end
-
-ViridianCity_EventScript_TutorialNotReady::
-	msgbox ViridianCity_Text_ThisIsPrivateProperty
-	closemessage
 	release
 	end
 
@@ -183,55 +142,6 @@ ViridianCity_EventScript_DreamEaterTutor::
 	goto EventScript_DreamEaterTutor
 	end
 
-ViridianCity_EventScript_RoadBlocked::
-	lockall
-	textcolor NPC_TEXT_COLOR_MALE
-	msgbox ViridianCity_Text_ThisIsPrivateProperty
-	closemessage
-	applymovement LOCALID_PLAYER, ViridianCity_Movement_WalkDown
-	waitmovement 0
-	releaseall
-	end
-
-ViridianCity_Movement_WalkDown::
-	walk_down
-	step_end
-
-ViridianCity_EventScript_TutorialTriggerLeft::
-	lockall
-	textcolor NPC_TEXT_COLOR_MALE
-	applymovement LOCALID_TUTORIAL_MAN, Common_Movement_WalkInPlaceFasterLeft
-	waitmovement 0
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterRight
-	waitmovement 0
-	call ViridianCity_EventScript_DoTutorialBattle
-	release
-	end
-
-ViridianCity_EventScript_TutorialTriggerRight::
-	lockall
-	textcolor NPC_TEXT_COLOR_MALE
-	applymovement LOCALID_TUTORIAL_MAN, Common_Movement_WalkInPlaceFasterRight
-	waitmovement 0
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
-	waitmovement 0
-	call ViridianCity_EventScript_DoTutorialBattle
-	release
-	end
-
-ViridianCity_EventScript_DoTutorialBattle::
-	msgbox ViridianCity_Text_ShowYouHowToCatchMons
-	closemessage
-	special StartOldManTutorialBattle
-	waitstate
-	lock
-	faceplayer
-	msgbox ViridianCity_Text_ThatWasEducationalTakeThis
-	setvar VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN, 2
-	giveitem ITEM_TEACHY_TV
-	msgbox ViridianCity_Text_WatchThatToLearnBasics
-	return
-
 ViridianCity_Text_CanCarryMonsAnywhere::
 	.string "Those POKé BALLS at your waist!\n"
 	.string "You have POKéMON, don't you?\p"
@@ -269,39 +179,6 @@ ViridianCity_Text_GoShoppingInPewterOccasionally::
 	.string "occasionally.\p"
 	.string "I have to take the winding trail in\n"
 	.string "VIRIDIAN FOREST when I go.$"
-
-ViridianCity_Text_ThisIsPrivateProperty::
-	.string "I absolutely forbid you from\n"
-	.string "going through here!\p"
-	.string "This is private property!$"
-
-ViridianCity_Text_ShowYouHowToCatchMons::
-	.string "Well, now, I've had my coffee, and\n"
-	.string "that's what I need to get going!\p"
-	.string "Hm?\n"
-	.string "What is that red box you have?\p"
-	.string "Ah, so you're working on your\n"
-	.string "POKéDEX.\p"
-	.string "Then let me give you a word of\n"
-	.string "advice.\p"
-	.string "Whenever you catch a POKéMON,\n"
-	.string "the POKéDEX automatically updates\l"
-	.string "its data.\p"
-	.string "…You don't know how to catch\n"
-	.string "a POKéMON?\p"
-	.string "I suppose I had better show you\n"
-	.string "then!$"
-
-ViridianCity_Text_ThatWasEducationalTakeThis::
-	.string "There! Now tell me, that was\n"
-	.string "educational, was it not?\p"
-	.string "And here, take this, too.$"
-
-ViridianCity_Text_WatchThatToLearnBasics::
-	.string "If there's something you don't\n"
-	.string "understand, watch that.\p"
-	.string "It will teach you about the basics\n"
-	.string "of being a POKéMON TRAINER.$"
 
 ViridianCity_Text_WeakenMonsFirstToCatch::
 	.string "Well, now, I've had my coffee, and\n"

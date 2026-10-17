@@ -63,6 +63,7 @@ EWRAM_DATA bool8 gIsSurfingEncounter = 0;
 EWRAM_DATA u8 gChainFishingDexNavStreak = 0;
 
 #include "data/wild_encounters.h"
+#include "act2_story.h"
 
 const struct WildPokemon gWildFeebas = {20, 25, SPECIES_FEEBAS};
 
@@ -439,6 +440,17 @@ u16 GetCurrentMapWildMonHeaderId(void)
                     alteringCaveId = 0;
 
                 i += alteringCaveId;
+            }
+
+            // Act 2's own table for this area, if it has one: a later header for the same map (Act2_UsesAct2WildPokemon)
+            if (Act2_UsesAct2WildPokemon())
+            {
+                u32 j;
+                for (j = i + 1; gWildMonHeaders[j].mapGroup != MAP_GROUP(MAP_UNDEFINED); j++)
+                {
+                    if (gWildMonHeaders[j].mapGroup == gWildMonHeaders[i].mapGroup && gWildMonHeaders[j].mapNum == gWildMonHeaders[i].mapNum)
+                        return j;
+                }
             }
 
             return i;

@@ -22,6 +22,28 @@
 #define ACT1_RESTED                 11 // Mom and Dad: show the Pokédex to Oak. Oak arrives as the player leaves.
 #define ACT1_CHOOSING_FRIENDS       12 // Oak: Celadon University; choose two friends to bring. Then the prologue ends.
 
+// Act 2's story so far, in VAR_ACT2_PROGRESS (docs/hack/act2_story.md). Map coord events use the numbers: map data
+// doesn't see these names. Until ACT2_GOT_TRAINER_CARD, trainers won't battle the player (Act2_TrainersLocked).
+#define ACT2_START                  0  // Woke up in the dorm room; the friends wait in the dorm lobby
+#define ACT2_MET_FRIENDS            1  // Fire course: its professor in Lecture Hall A
+#define ACT2_FIRE_TRIP              2  // Field trip to Cinnabar Island: catch a Fire type, pass the exam
+#define ACT2_FIRE_PASSED            3  // Back at the dorms with the friends
+#define ACT2_FIRE_INVITED           4  // The club meets at the stadium tonight
+#define ACT2_CLUB_1_DONE            5  // Water course: its professor in the audiovisual classroom
+#define ACT2_WATER_TRIP             6  // Field trip to Cerulean City (the river past the Nugget Bridge)
+#define ACT2_WATER_PASSED           7
+#define ACT2_WATER_INVITED          8
+#define ACT2_CLUB_2_DONE            9  // Grass course: its professor in Home Economics
+#define ACT2_GRASS_TRIP             10 // Field trip to Viridian City (Route 22's grass)
+#define ACT2_GRASS_PASSED           11
+#define ACT2_GRASS_INVITED          12 // One more night: battle for a real Trainer Card
+#define ACT2_GOT_TRAINER_CARD       13 // Trainers battle again. The director at the Science Research Institute waits.
+#define ACT2_FINAL_PROJECT          14 // Catch a Pokémon that's two of Fire, Water and Grass
+#define ACT2_PROJECT_DONE           15 // Act 2 is over
+
+// The time skip: the Pokémon the player brings to university are at least this level
+#define ACT2_START_LEVEL            10
+
 // Where Act 2 starts: the player's room in the Celadon University dorms
 #define ACT2_START_MAP              MAP_CELADON_UNIVERSITY_DORM_ROOM
 #define ACT2_START_X                2

@@ -263,7 +263,7 @@
 #define VAR_ACT1_PROGRESS          0x40F8 // Act 1 story, ACT1_* in constants/story.h
 #define VAR_ACT1_WOKE_UP           0x40F9 // 1 right after blacking out in Act 1: Mom says something
 #define VAR_ACT1_CHOSEN_FRIENDS    0x40FA // End of Act 1: farm box slots the player chose to bring along (bit per slot)
-#define VAR_0x40FB                 0x40FB
+#define VAR_ACT2_PROGRESS          0x40FB // Act 2 story, ACT2_* in constants/story.h
 #define VAR_0x40FC                 0x40FC
 #define VAR_0x40FD                 0x40FD
 #define VAR_0x40FE                 0x40FE

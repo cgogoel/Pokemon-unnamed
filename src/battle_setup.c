@@ -58,6 +58,7 @@
 #include "constants/game_stat.h"
 #include "constants/items.h"
 #include "constants/songs.h"
+#include "act2_story.h"
 #include "constants/trainers.h"
 #include "constants/trainer_hill.h"
 #include "constants/weather.h"
@@ -1294,6 +1295,13 @@ void ConfigureTrainerBattle(struct ScriptContext *ctx)
 
     TrainerBattleParameter *battleParams = (TrainerBattleParameter*)(ctx->scriptPtr);
     TrainerBattleLoadArgs(battleParams->data);
+
+    // Act 2: without a Trainer Card, trainers turn the player down (except the story's own battles)
+    if (Act2_TrainersLocked() && !Act2_IsStoryTrainer(TRAINER_BATTLE_PARAM.opponentA))
+    {
+        ScriptJump(ctx, Act2_EventScript_NoTrainerCard);
+        return;
+    }
 
     BattleSetup_ConfigureTrainerBattle(&gTrainerBattleParameter, &trainerBattleScriptStack);
     ScriptContext_SetupContextFromStack(&trainerBattleScriptStack, ctx);

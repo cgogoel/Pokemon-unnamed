@@ -42,6 +42,25 @@ bool32 Act2_UsesAct2WildPokemon(void)
     return VarGet(VAR_STORY_ACT) == STORY_ACT_UNIVERSITY;
 }
 
+// In Act 2, every wild Pokémon is within ACT2_WILD_LEVEL_SPREAD levels of the party's average level (from
+// ChooseWildMonLevel). The areas' tables still pick the species.
+u32 Act2_GetWildLevel(void)
+{
+    u32 i, total = 0, count = 0;
+    s32 level;
+    for (i = 0; i < PARTY_SIZE; i++)
+    {
+        struct Pokemon *mon = &gPlayerParty[i];
+        if (GetMonData(mon, MON_DATA_SPECIES) == SPECIES_NONE || GetMonData(mon, MON_DATA_IS_EGG))
+            continue;
+        total += GetMonData(mon, MON_DATA_LEVEL);
+        count++;
+    }
+    level = (count == 0) ? ACT2_START_LEVEL : (total + count / 2) / count;
+    level += (s32)(Random() % (ACT2_WILD_LEVEL_SPREAD * 2 + 1)) - ACT2_WILD_LEVEL_SPREAD;
+    return min(max(level, 1), MAX_LEVEL);
+}
+
 static bool32 MonHasType(struct Pokemon *mon, enum Type type)
 {
     u32 species = GetMonData(mon, MON_DATA_SPECIES);
@@ -450,23 +469,32 @@ void Act2_ClearResearchFlag(void)
 // ---------------------------------------------------------------------------------------------------------------
 // The Act 2 playtest build (make act2, pokemon-unnamed-act2.gba): a new game starts at Act 2, in the dorm room, as
 // if Act 1 had just ended, with two of the Woods' Pokémon at ACT2_START_LEVEL
-#ifdef ACT2_PLAYTEST
-void Act2_StartPlaytest(void)
+// The playtest party: two of the Woods' Pokémon, ready to go
+void Act2_GivePlaytestParty(void)
 {
     static const u16 sFriends[] = { SPECIES_TEDDIURSA, SPECIES_TYNAMO };
     u32 i;
+    ZeroPlayerPartyMons();
+    for (i = 0; i < ARRAY_COUNT(sFriends); i++)
+    {
+        // CreateMon leaves the stats (and HP) at 0: CalculateMonStats fills them in
+        CreateMon(&gPlayerParty[i], sFriends[i], ACT2_START_LEVEL, Random32(), OTID_STRUCT_PLAYER_ID);
+        SetMonData(&gPlayerParty[i], MON_DATA_POKEBALL, &(u32){ BALL_POKE });
+        CalculateMonStats(&gPlayerParty[i]);
+    }
+    CalculatePlayerPartyCount();
+}
+
+#ifdef ACT2_PLAYTEST
+void Act2_StartPlaytest(void)
+{
     VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
     VarSet(VAR_ACT1_PROGRESS, ACT1_CHOOSING_FRIENDS);
     VarSet(VAR_ACT2_PROGRESS, ACT2_START);
     FlagSet(FLAG_SYS_POKEMON_GET);
     FlagSet(FLAG_SYS_POKEDEX_GET);
     EnableNationalPokedex();
-    for (i = 0; i < ARRAY_COUNT(sFriends); i++)
-    {
-        CreateMon(&gPlayerParty[i], sFriends[i], ACT2_START_LEVEL, Random32(), OTID_STRUCT_PLAYER_ID);
-        SetMonData(&gPlayerParty[i], MON_DATA_POKEBALL, &(u32){ BALL_POKE });
-    }
-    CalculatePlayerPartyCount();
+    Act2_GivePlaytestParty();
     AddBagItem(ITEM_POTION, 5);
     Act2_GiveRemoteDesktop();
     SetLastHealLocationWarp(HEAL_LOCATION_CELADON_CITY);

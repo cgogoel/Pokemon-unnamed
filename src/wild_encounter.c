@@ -377,6 +377,10 @@ u8 ChooseWildMonLevel(const struct WildPokemon *wildPokemon, u8 wildMonIndex, en
     u8 range;
     u8 rand;
 
+    // Act 2: scaled to the player's Pokémon instead
+    if (Act2_UsesAct2WildPokemon())
+        return Act2_GetWildLevel();
+
     if (LURE_STEP_COUNT == 0)
     {
         // Make sure minimum level is less than maximum level

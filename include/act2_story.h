@@ -5,6 +5,7 @@
 bool32 Act2_TrainersLocked(void);
 bool32 Act2_IsStoryTrainer(u32 trainerId);
 bool32 Act2_UsesAct2WildPokemon(void);
+u32 Act2_GetWildLevel(void);
 bool16 Act2_PartyHasType(void);
 bool16 Act2_PartyHasProjectPokemon(void);
 void Act2_SetNight(void);
@@ -22,6 +23,7 @@ void Act2_SetupSiteObjects(void);
 void Act2_SetResearchFlag(void);
 bool16 Act2_HasResearchFlag(void);
 void Act2_ClearResearchFlag(void);
+void Act2_GivePlaytestParty(void);
 void Act2_StartPlaytest(void);
 
 #endif // GUARD_ACT2_STORY_H

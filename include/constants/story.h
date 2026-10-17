@@ -58,6 +58,9 @@
 // The time skip: the Pokémon the player brings to university are at least this level
 #define ACT2_START_LEVEL            10
 
+// In Act 2, wild Pokémon are the party's average level, give or take this many (Act2_GetWildLevel)
+#define ACT2_WILD_LEVEL_SPREAD      3
+
 // Where Act 2 starts: the player's room in the Celadon University dorms
 #define ACT2_START_MAP              MAP_CELADON_UNIVERSITY_DORM_ROOM
 #define ACT2_START_X                2

@@ -84,6 +84,9 @@ Pokédex (`Act2_StartPlaytest`). Oak's speech still plays first.
   TRAINER CARD… Sorry, I only battle TRAINERS" (`ConfigureTrainerBattle`, `src/battle_setup.c`). Gym Leaders too.
   The story's own battles are the exception (`Act2_IsStoryTrainer`: the professors, KAI, MINA, DALE). Only wild
   Pokémon battle the player.
+- **Wild levels follow the player**: every wild Pokémon in Act 2 is the party's average level, give or take 3
+  (`ACT2_WILD_LEVEL_SPREAD`, `Act2_GetWildLevel`, from `ChooseWildMonLevel`). The tables below still pick the species;
+  their levels only matter outside Act 2.
 - **Act 2's own wild Pokémon**: some areas have an Act 2 table, used for all of Act 2 (`Act2_UsesAct2WildPokemon`).
   They're the `sAct2_*` entries at the end of `src/data/wild_encounters.json`, after the area's own;
   `GetCurrentMapWildMonHeaderId` picks the later one. An area needs its own table for this to work. Kanto's tables
@@ -138,6 +141,4 @@ Pokédex (`Act2_StartPlaytest`). Oak's speech still plays first.
 ## Not done yet
 
 - The start menu still shows the Trainer Card from the start.
-- Wild levels outside the course sites aren't tuned for Act 2: Route 7, just east of campus, is level 20-24 all of
-  Act 2, and other areas keep Kanto's own levels.
 - Teams of up to 3 aren't enforced.

@@ -242,7 +242,7 @@ Act2_EventScript_NoFireYet:
 	release
 	end
 
-@ Water: PROF. MARLOWE, the audiovisual classroom, field trip to Cerulean City (the river past the Nugget Bridge)
+@ Water: PROF. MARLOWE, the audiovisual classroom, field trip to Vermilion City (fishing at the harbor, Route 6's grass)
 Act2_EventScript_ProfMarlowe::
 	lock
 	faceplayer
@@ -264,13 +264,13 @@ Act2_EventScript_StartWater:
 	msgbox Act2_Text_FieldTripWater
 	closemessage
 	setvar VAR_ACT2_PROGRESS, ACT2_WATER_TRIP
-	setrespawn HEAL_LOCATION_CERULEAN_CITY
-	warp MAP_CERULEAN_CITY, 23, 10
+	setrespawn HEAL_LOCATION_VERMILION_CITY
+	warp MAP_VERMILION_CITY, 32, 19
 	waitstate
 	release
 	end
 
-CeruleanCity_EventScript_Act2Objects::
+VermilionCity_EventScript_Act2Objects::
 	setflag FLAG_TEMP_1
 	call_if_eq VAR_ACT2_PROGRESS, ACT2_WATER_TRIP, Act2_EventScript_ShowObjectsTemp1
 	return
@@ -572,14 +572,13 @@ Act2_Text_StartWater:
 	.string "and pass my exam. Take these.$"
 
 Act2_Text_FieldTripWater:
-	.string "We're off to CERULEAN CITY!$"
+	.string "We're off to VERMILION CITY!$"
 
 Act2_Text_NoWaterYet:
-	.string "PROF. MARLOWE: Cross the NUGGET\n"
-	.string "BRIDGE, north of here.\p"
-	.string "WATER POKéMON live by the river.\n"
-	.string "Fish with the GOOD ROD, or look in\l"
-	.string "the grass on its bank.$"
+	.string "PROF. MARLOWE: WATER POKéMON swim\n"
+	.string "all around the harbor.\p"
+	.string "Fish with the GOOD ROD, or look in\n"
+	.string "the grass on ROUTE 6, to the north.$"
 
 Act2_Text_ReadyForWaterExam:
 	.string "PROF. MARLOWE: A fine WATER\n"

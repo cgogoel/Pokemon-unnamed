@@ -30,7 +30,7 @@
 #define ACT2_FIRE_PASSED            3  // Back at the dorms with the friends
 #define ACT2_FIRE_INVITED           4  // The club meets at the stadium tonight
 #define ACT2_CLUB_1_DONE            5  // Water course: its professor in the audiovisual classroom
-#define ACT2_WATER_TRIP             6  // Field trip to Cerulean City (the river past the Nugget Bridge)
+#define ACT2_WATER_TRIP             6  // Field trip to Vermilion City (the harbor; Route 6)
 #define ACT2_WATER_PASSED           7
 #define ACT2_WATER_INVITED          8
 #define ACT2_CLUB_2_DONE            9  // Grass course: its professor in Home Economics

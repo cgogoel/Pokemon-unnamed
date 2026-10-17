@@ -5,7 +5,6 @@ CeruleanCity_Frlg_MapScripts::
 CeruleanCity_OnTransition::
 	setworldmapflag FLAG_WORLD_MAP_CERULEAN_CITY
 	call_if_unset FLAG_GOT_SS_TICKET, CeruleanCity_EventScript_BlockExits
-	call CeruleanCity_EventScript_Act2Objects
 	end
 
 CeruleanCity_EventScript_BlockExits::
@@ -13,6 +12,154 @@ CeruleanCity_EventScript_BlockExits::
 	setobjectxyperm LOCALID_CERULEAN_SLOWBRO, 26, 31
 	setobjectxyperm LOCALID_CERULEAN_LASS, 27, 31
 	return
+
+CeruleanCity_EventScript_RivalTriggerLeft::
+	lockall
+	setvar VAR_TEMP_1, 0
+	goto CeruleanCity_EventScript_Rival
+	end
+
+CeruleanCity_EventScript_RivalTriggerMid::
+	lockall
+	setvar VAR_TEMP_1, 1
+	setobjectxyperm LOCALID_CERULEAN_RIVAL, 23, 0
+	goto CeruleanCity_EventScript_Rival
+	end
+
+CeruleanCity_EventScript_RivalTriggerRight::
+	lockall
+	setvar VAR_TEMP_1, 2
+	setobjectxyperm LOCALID_CERULEAN_RIVAL, 24, 0
+	goto CeruleanCity_EventScript_Rival
+	end
+
+CeruleanCity_EventScript_Rival::
+	textcolor NPC_TEXT_COLOR_MALE
+	setvar VAR_MAP_SCENE_ROUTE22, 2
+	playbgm MUS_RG_ENCOUNTER_RIVAL, 0
+	addobject LOCALID_CERULEAN_RIVAL
+	applymovement LOCALID_CERULEAN_RIVAL, CeruleanCity_Movement_RivalEnter
+	waitmovement 0
+	msgbox CeruleanCity_Text_RivalIntro
+	setvar VAR_LAST_TALKED, LOCALID_CERULEAN_RIVAL
+	call_if_eq VAR_STARTER_MON, 2, CeruleanCity_EventScript_RivalSquirtle
+	call_if_eq VAR_STARTER_MON, 1, CeruleanCity_EventScript_RivalBulbasaur
+	call_if_eq VAR_STARTER_MON, 0, CeruleanCity_EventScript_RivalCharmander
+	famechecker FAMECHECKER_BILL, 0
+	msgbox CeruleanCity_Text_RivalPostBattle
+	closemessage
+	playbgm MUS_RG_RIVAL_EXIT, 0
+	call_if_eq VAR_TEMP_1, 0, CeruleanCity_EventScript_RivalStartExit
+	call_if_eq VAR_TEMP_1, 1, CeruleanCity_EventScript_RivalStartExit
+	call_if_eq VAR_TEMP_1, 2, CeruleanCity_EventScript_RivalStartExitRight
+	msgbox CeruleanCity_Text_OhRightLittlePresentAsFavor
+	setvar VAR_MAP_SCENE_CERULEAN_CITY_RIVAL, 1
+	setflag FLAG_GOT_FAME_CHECKER
+	giveitem ITEM_FAME_CHECKER
+	msgbox CeruleanCity_Text_ExplainFameCheckerSmellYa
+	closemessage
+	applymovement LOCALID_CERULEAN_RIVAL, CeruleanCity_Movement_RivalExit
+	waitmovement 0
+	fadedefaultbgm
+	removeobject LOCALID_CERULEAN_RIVAL
+	releaseall
+	end
+
+CeruleanCity_EventScript_RivalSquirtle::
+	trainerbattle_no_intro TRAINER_RIVAL_CERULEAN_SQUIRTLE, CeruleanCity_Text_RivalDefeat
+	return
+
+CeruleanCity_EventScript_RivalBulbasaur::
+	trainerbattle_no_intro TRAINER_RIVAL_CERULEAN_BULBASAUR, CeruleanCity_Text_RivalDefeat
+	return
+
+CeruleanCity_EventScript_RivalCharmander::
+	trainerbattle_no_intro TRAINER_RIVAL_CERULEAN_CHARMANDER, CeruleanCity_Text_RivalDefeat
+	return
+
+CeruleanCity_EventScript_RivalStartExit::
+	applymovement LOCALID_PLAYER, CeruleanCity_Movement_PlayerWatchRivalExit
+	applymovement LOCALID_CERULEAN_RIVAL, CeruleanCity_Movement_RivalStartExit
+	waitmovement 0
+	return
+
+CeruleanCity_EventScript_RivalStartExitRight::
+	applymovement LOCALID_PLAYER, CeruleanCity_Movement_PlayerWatchRivalExitRight
+	applymovement LOCALID_CERULEAN_RIVAL, CeruleanCity_Movement_RivalStartExitRight
+	waitmovement 0
+	return
+
+CeruleanCity_Movement_PlayerWatchRivalExit::
+	delay_16
+	delay_8
+	walk_in_place_faster_right
+	delay_16
+	walk_in_place_faster_down
+	step_end
+
+CeruleanCity_Movement_PlayerWatchRivalExitRight::
+	delay_16
+	delay_8
+	walk_in_place_faster_left
+	delay_16
+	walk_in_place_faster_down
+	step_end
+
+CeruleanCity_Movement_RivalEnter::
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	step_end
+
+CeruleanCity_Movement_RivalStartExit::
+	walk_right
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	delay_16
+	delay_16
+	walk_left
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	step_end
+
+CeruleanCity_Movement_RivalStartExitRight::
+	walk_left
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	delay_16
+	delay_16
+	walk_right
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	step_end
+
+CeruleanCity_Movement_RivalExit::
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	step_end
 
 CeruleanCity_EventScript_Grunt::
 	lock
@@ -45,6 +192,35 @@ CeruleanCity_EventScript_NoRoomForTM28::
 	textcolor NPC_TEXT_COLOR_MALE
 	msgbox CeruleanCity_Text_MakeRoomForThisCantRun
 	release
+	end
+
+CeruleanCity_EventScript_GruntTriggerTop::
+	lockall
+	setvar VAR_TEMP_1, 0
+	applymovement LOCALID_CERULEAN_GRUNT, Common_Movement_WalkInPlaceFasterUp
+	waitmovement 0
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterDown
+	waitmovement 0
+	goto CeruleanCity_EventScript_GruntTrigger
+	end
+
+CeruleanCity_EventScript_GruntTriggerBottom::
+	lockall
+	setvar VAR_TEMP_1, 1
+	applymovement LOCALID_CERULEAN_GRUNT, Common_Movement_WalkInPlaceFasterDown
+	waitmovement 0
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
+	waitmovement 0
+	goto CeruleanCity_EventScript_GruntTrigger
+	end
+
+CeruleanCity_EventScript_GruntTrigger::
+	textcolor NPC_TEXT_COLOR_MALE
+	msgbox CeruleanCity_Text_GruntIntro
+	setvar VAR_LAST_TALKED, LOCALID_CERULEAN_GRUNT
+	trainerbattle_no_intro TRAINER_TEAM_ROCKET_GRUNT_5, CeruleanCity_Text_GruntDefeat
+	setvar VAR_MAP_SCENE_CERULEAN_CITY_ROCKET, 1
+	goto CeruleanCity_EventScript_GruntDefeated
 	end
 
 CeruleanCity_EventScript_Policeman::
@@ -180,6 +356,50 @@ CeruleanCity_EventScript_GymSign::
 	msgbox CeruleanCity_Text_GymSign
 	releaseall
 	end
+
+CeruleanCity_Text_RivalIntro::
+	.string "{RIVAL}: Yo! {PLAYER}!\p"
+	.string "You're still struggling along back\n"
+	.string "here?\p"
+	.string "I'm doing great! I caught a bunch\n"
+	.string "of strong and smart POKéMON!\p"
+	.string "Here, let me see what you caught,\n"
+	.string "{PLAYER}!$"
+
+CeruleanCity_Text_RivalDefeat::
+	.string "Hey!\n"
+	.string "Take it easy!\l"
+	.string "You won already!$"
+
+CeruleanCity_Text_RivalPostBattle::
+	.string "{RIVAL}: Hey, guess what?\p"
+	.string "I went to BILL's and got him to\n"
+	.string "show me his rare POKéMON.\p"
+	.string "That added a lot of pages to my\n"
+	.string "POKéDEX!\p"
+	.string "After all, BILL's world famous as a\n"
+	.string "POKéMANIAC.\p"
+	.string "He invented the POKéMON Storage\n"
+	.string "System on PC, too.\p"
+	.string "Since you're using his system,\n"
+	.string "you should go thank him.\p"
+	.string "Well, I better get rolling!\n"
+	.string "Smell ya later!$"
+
+CeruleanCity_Text_OhRightLittlePresentAsFavor::
+	.string "Oh, yeah, right.\p"
+	.string "I feel sorry for you. No, really.\n"
+	.string "You're always plodding behind me.\p"
+	.string "So here, I'll give you a little\n"
+	.string "present as a favor.$"
+
+CeruleanCity_Text_ExplainFameCheckerSmellYa::
+	.string "A chatty gossip like you…\n"
+	.string "That thing's perfect.\p"
+	.string "I don't need it because I don't\n"
+	.string "give a hoot about others.\p"
+	.string "All right, this time I really am\n"
+	.string "gone. Smell ya!$"
 
 CeruleanCity_Text_GruntIntro::
 	.string "Hey! Stay out!\n"

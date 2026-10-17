@@ -36855,8 +36855,67 @@
           }
         },
         {
-          "map": "MAP_ROUTE24",
-          "base_label": "sAct2_Route24",
+          "map": "MAP_VERMILION_CITY",
+          "base_label": "sAct2_VermilionCity",
+          "fishing_mons": {
+            "encounter_rate": 10,
+            "mons": [
+              {
+                "min_level": 13,
+                "max_level": 15,
+                "species": "SPECIES_MAGIKARP"
+              },
+              {
+                "min_level": 13,
+                "max_level": 15,
+                "species": "SPECIES_GOLDEEN"
+              },
+              {
+                "min_level": 13,
+                "max_level": 16,
+                "species": "SPECIES_GOLDEEN"
+              },
+              {
+                "min_level": 13,
+                "max_level": 16,
+                "species": "SPECIES_POLIWAG"
+              },
+              {
+                "min_level": 13,
+                "max_level": 16,
+                "species": "SPECIES_HORSEA"
+              },
+              {
+                "min_level": 14,
+                "max_level": 17,
+                "species": "SPECIES_KRABBY"
+              },
+              {
+                "min_level": 14,
+                "max_level": 17,
+                "species": "SPECIES_HORSEA"
+              },
+              {
+                "min_level": 14,
+                "max_level": 17,
+                "species": "SPECIES_STARYU"
+              },
+              {
+                "min_level": 15,
+                "max_level": 17,
+                "species": "SPECIES_SHELLDER"
+              },
+              {
+                "min_level": 15,
+                "max_level": 17,
+                "species": "SPECIES_PSYDUCK"
+              }
+            ]
+          }
+        },
+        {
+          "map": "MAP_ROUTE6",
+          "base_label": "sAct2_Route6",
           "land_mons": {
             "encounter_rate": 21,
             "mons": [
@@ -36919,61 +36978,6 @@
                 "min_level": 14,
                 "max_level": 14,
                 "species": "SPECIES_TOTODILE"
-              }
-            ]
-          },
-          "fishing_mons": {
-            "encounter_rate": 10,
-            "mons": [
-              {
-                "min_level": 13,
-                "max_level": 15,
-                "species": "SPECIES_MAGIKARP"
-              },
-              {
-                "min_level": 13,
-                "max_level": 15,
-                "species": "SPECIES_GOLDEEN"
-              },
-              {
-                "min_level": 13,
-                "max_level": 16,
-                "species": "SPECIES_GOLDEEN"
-              },
-              {
-                "min_level": 13,
-                "max_level": 16,
-                "species": "SPECIES_POLIWAG"
-              },
-              {
-                "min_level": 13,
-                "max_level": 16,
-                "species": "SPECIES_HORSEA"
-              },
-              {
-                "min_level": 14,
-                "max_level": 17,
-                "species": "SPECIES_KRABBY"
-              },
-              {
-                "min_level": 14,
-                "max_level": 17,
-                "species": "SPECIES_HORSEA"
-              },
-              {
-                "min_level": 14,
-                "max_level": 17,
-                "species": "SPECIES_STARYU"
-              },
-              {
-                "min_level": 15,
-                "max_level": 17,
-                "species": "SPECIES_SHELLDER"
-              },
-              {
-                "min_level": 15,
-                "max_level": 17,
-                "species": "SPECIES_PSYDUCK"
               }
             ]
           }

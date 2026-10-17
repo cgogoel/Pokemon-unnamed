@@ -16,7 +16,7 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 | `ACT2_FIRE_PASSED` | Passing: warped to the dorm lobby | The friends: the secret club, the stadium, tonight. |
 | `ACT2_FIRE_INVITED` | | Walking into the stadium: it's night; KAI battles the player. Then morning, in the dorm room. |
 | `ACT2_CLUB_1_DONE` | | PROF. MARLOWE (the audiovisual classroom) starts the Water course: 5 Poké Balls and the Good Rod. |
-| `ACT2_WATER_TRIP` | Warped to Cerulean City (23,10) | Water Pokémon across the Nugget Bridge (Route 24): fishing, or the grass on the river bank. Exam. |
+| `ACT2_WATER_TRIP` | Warped to Vermilion City (32,19) | Water Pokémon: fishing at the harbor, or the grass on Route 6, north of the city. Exam. |
 | `ACT2_WATER_PASSED` | Warped to the dorm lobby | The club meets again tonight. |
 | `ACT2_WATER_INVITED` | | Night: MINA battles the player. |
 | `ACT2_CLUB_2_DONE` | | PROF. FERN (Home Economics) starts the Grass course: 5 Poké Balls. |
@@ -42,7 +42,8 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
   | Area | Pokémon | Levels |
   |---|---|---|
   | Pokémon Mansion, all floors | Growlithe, Vulpix, Ponyta, Slugma, Magby, Charmander (rare); Rattata, Grimer, Koffing | 9-12 |
-  | Route 24 | Grass: Psyduck, Poliwag, Wooper, Marill, Squirtle and Totodile (rare). Fishing: Magikarp, Goldeen, Poliwag, Horsea, Krabby, Staryu, Shellder, Psyduck | 13-17 |
+  | Vermilion City (fishing) | Magikarp, Goldeen, Poliwag, Horsea, Krabby, Staryu, Shellder, Psyduck | 13-17 |
+  | Route 6 | Psyduck, Poliwag, Wooper, Marill, Squirtle and Totodile (rare); Pidgey, Oddish, Abra | 13-16 |
   | Route 22 | Oddish, Bellsprout, Hoppip, Paras, Exeggcute, Bulbasaur and Chikorita (rare); Rattata, Spearow, Mankey | 16-19 |
   | Celadon City (fishing) | Lotad, Lombre (Water/Grass), Goldeen, Magikarp | 20-24 |
   | Route 7 | Capsakid (Grass; a Fire Stone from the Department Store makes Scovillain, Grass/Fire), Growlithe, Vulpix, Ponyta, Oddish, Meowth, Pidgey | 20-24 |
@@ -58,7 +59,7 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 |---|---|---|
 | PROF. ASHFORD (Fire) | Cinnabar Island | Oddish 11, Paras 11, Bellsprout 12: weak to Fire |
 | KAI (night 1) | Stadium | Growlithe 12, Vulpix 12, Ponyta 13 |
-| PROF. MARLOWE (Water) | Cerulean City | Sandshrew 15, Geodude 15, Vulpix 16: weak to Water |
+| PROF. MARLOWE (Water) | Vermilion City | Sandshrew 15, Geodude 15, Vulpix 16: weak to Water |
 | MINA (night 2) | Stadium | Staryu 17, Psyduck 17, Poliwag 18 |
 | PROF. FERN (Grass) | Viridian City | Psyduck 19, Diglett 19, Poliwhirl 20: weak to Grass |
 | DALE, League examiner (night 3) | Stadium | Pidgeotto 23, Raticate 23, Kadabra 24 |
@@ -69,7 +70,7 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 |---|---|---|
 | KAI, MINA, ROWAN | Classmates: outside the dorm room at the start, on each field trip, the dorm lobby after each course, the stadium at night | Camper, Picnicker, Boy |
 | PROF. ASHFORD | Lecture Hall A; Cinnabar | Scientist |
-| PROF. MARLOWE | Audiovisual classroom; Cerulean, at the Nugget Bridge | Old man |
+| PROF. MARLOWE | Audiovisual classroom; Vermilion, by the harbor | Old man |
 | PROF. FERN | Home Economics; Viridian, at the west exit | Beauty |
 | DALE | The stadium, night 3 | Cooltrainer |
 | The director | Science Research Institute (7,7) | Gentleman |
@@ -77,8 +78,7 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 ## Base-game scenes stripped for Act 2
 
 - **Cinnabar Island**: Bill's trip to One Island and the return from the Sevii Islands (Bill and the Seagallop).
-- **Cerulean City**: the rival on the Nugget Bridge, the Rocket in the burgled house's yard.
-- **Route 24**: the Rocket at the end of the Nugget Bridge.
+- **Vermilion City**: the player walking off the S.S. Anne.
 - **Viridian City**: the old man blocking the road and his catching tutorial (he stands by the road).
 - **Route 22**: the rival.
 

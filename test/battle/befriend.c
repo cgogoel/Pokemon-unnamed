@@ -121,7 +121,7 @@ BEFRIEND_BATTLE_TEST("Befriending: Watch gives a clue and uses patience without 
     } WHEN {
         TURN { WATCH(); }
     } SCENE {
-        MESSAGE("You watched Teddiursa closely.\pIt keeps licking its paws and sniffing\nthe air for something sweet.");
+        MESSAGE("You watched Teddiursa closely.\pIt licks its paws, eyeing your hands.\nIt seems to want you to reach out.");
     } THEN {
         EXPECT_EQ(opponent->hp, 100);
         EXPECT_EQ(gBattleStruct->befriendPatience, GetBefriendInfo(SPECIES_TEDDIURSA)->patience - 1);

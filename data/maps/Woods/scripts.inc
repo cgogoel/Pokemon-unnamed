@@ -52,6 +52,7 @@ Woods_EventScript_Tynamo::
 	goto_if_lt VAR_ACT1_PROGRESS, ACT1_DAD_WARNED_JANGMO_O, Woods_EventScript_TooWary
 	befriendbattle SPECIES_TYNAMO, 5
 	goto_if_eq VAR_RESULT, B_OUTCOME_CAUGHT, Woods_EventScript_TynamoBefriended
+	special Act1_RestockLovedItems @ Not befriended: an offered item is back where it was found
 	release
 	end
 
@@ -65,6 +66,7 @@ Woods_EventScript_Hatenna::
 	goto_if_lt VAR_ACT1_PROGRESS, ACT1_DAD_WARNED_JANGMO_O, Woods_EventScript_TooWary
 	befriendbattle SPECIES_HATENNA, 5
 	goto_if_eq VAR_RESULT, B_OUTCOME_CAUGHT, Woods_EventScript_HatennaBefriended
+	special Act1_RestockLovedItems @ Not befriended: an offered item is back where it was found
 	release
 	end
 
@@ -78,6 +80,7 @@ Woods_EventScript_Teddiursa::
 	goto_if_lt VAR_ACT1_PROGRESS, ACT1_DAD_WARNED_JANGMO_O, Woods_EventScript_TooWary
 	befriendbattle SPECIES_TEDDIURSA, 6
 	goto_if_eq VAR_RESULT, B_OUTCOME_CAUGHT, Woods_EventScript_TeddiursaBefriended
+	special Act1_RestockLovedItems @ Not befriended: an offered item is back where it was found
 	release
 	end
 

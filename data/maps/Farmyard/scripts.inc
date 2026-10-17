@@ -28,6 +28,7 @@ Farmyard_EventScript_Gate::
 	copyvar VAR_0x8004, VAR_RESULT
 	goto_if_eq VAR_0x8004, FARM_DEPOSIT_NONE, Farmyard_EventScript_GateEnd
 	msgbox Farmyard_Text_RanOffToPlay, MSGBOX_DEFAULT
+	call_if_eq VAR_ACT1_PROGRESS, ACT1_BEFRIENDED_BLIPBUG, Farmyard_EventScript_CheckWithDad
 	goto_if_eq VAR_0x8004, 0, Farmyard_EventScript_GateShown
 	addobject VAR_0x8004
 Farmyard_EventScript_GateShown:
@@ -43,6 +44,7 @@ Farmyard_EventScript_ToWoods::
 	goto_if_ge VAR_ACT1_PROGRESS, ACT1_RESTED, Farmyard_EventScript_WoodsShowOak
 	goto_if_ge VAR_ACT1_PROGRESS, ACT1_GOT_HARD_STONE, Farmyard_EventScript_EnterWoods
 	goto_if_ge VAR_ACT1_PROGRESS, ACT1_BEFRIENDED_THREE, Farmyard_EventScript_WoodsTalkToParents
+	goto_if_eq VAR_ACT1_PROGRESS, ACT1_BEFRIENDED_BLIPBUG, Farmyard_EventScript_WoodsCheckWithDad
 Farmyard_EventScript_EnterWoods:
 	warp MAP_WOODS, 49, 58
 	waitstate
@@ -75,6 +77,16 @@ Farmyard_EventScript_WoodsTellDad::
 
 Farmyard_EventScript_WoodsSeeMom::
 	msgbox Farmyard_Text_WoodsSeeMom
+	goto Farmyard_EventScript_WoodsTurnBack
+
+@ After Blipbug: the Woods wait until Dad has had his say (the Jangmo-o warning)
+Farmyard_EventScript_CheckWithDad:
+	msgbox Farmyard_Text_CheckWithDad
+	return
+
+Farmyard_EventScript_WoodsCheckWithDad::
+	lockall
+	msgbox Farmyard_Text_CheckWithDad
 	goto Farmyard_EventScript_WoodsTurnBack
 
 Farmyard_EventScript_WoodsShowOak::
@@ -448,3 +460,7 @@ Farmyard_Text_WoodsSeeMom:
 
 Farmyard_Text_WoodsSeeDadAgain:
 	.string "Mom said to go talk to Dad again.$"
+
+Farmyard_Text_CheckWithDad:
+	.string "I should talk to Dad to make sure\n"
+	.string "it's OK.$"

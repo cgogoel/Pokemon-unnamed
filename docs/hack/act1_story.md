@@ -11,7 +11,7 @@ Progress is `VAR_ACT1_PROGRESS`, with stages `ACT1_*` in `include/constants/stor
 | `ACT1_GOT_POKEDEX` | Oak's aide by the lab door hands it over | Aide: battling isn't the only way to get to know Pokémon. Dad can be talked to right away (Mom suggests it, but isn't required). |
 | `ACT1_MOM_SENT_TO_DAD` | Talking to Mom | Mom: go talk to Dad in the storage shed (the barn). |
 | `ACT1_DAD_SENT_TO_WOODS` | Talking to Dad | Dad: he never caught the farm's Pokémon; kindness and patience; Blipbug at the Woods entrance. Gives an Oran Berry. **The Woods open.** |
-| `ACT1_BEFRIENDED_BLIPBUG` | Befriending Blipbug | Mom: Dad wants to talk again. Hint NPCs start. |
+| `ACT1_BEFRIENDED_BLIPBUG` | Befriending Blipbug | Dropping it off: "I should talk to Dad to make sure it's OK." **The Woods close until Dad's talk.** Mom: Dad wants to talk again. Hint NPCs start. |
 | `ACT1_DAD_WARNED_JANGMO_O` | Talking to Dad | Dad: well done; others in the Woods; avoid the angry Jangmo-o. **Tynamo, Hatenna and Teddiursa can be befriended.** Mom: the folks in town might know about the Woods' Pokémon. |
 | `ACT1_BEFRIENDED_THREE` | Befriending all three | Mom: go show Dad. **The Woods close until Dad gives the Hard Stone** (the edge says who to see next). |
 | `ACT1_DAD_SAYS_TOO_DANGEROUS` | Talking to Dad | Dad: Jangmo-o is still too dangerous; go see Mom. |

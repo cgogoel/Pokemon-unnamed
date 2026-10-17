@@ -899,7 +899,14 @@ Act2_Text_StartFire:
 	.string "Solve it with your POKéMON.\p"
 	.string "Finish the sheet, and we'll make a\n"
 	.string "TM together. Then, the exam.\p"
-	.string "You'll need these.$"
+	.string "Oh, and every student got a REMOTE\n"
+	.string "DESKTOP. Check your BAG.\p"
+	.string "It reaches the POKéMON Storage\n"
+	.string "System from anywhere.\p"
+	.string "Catch more than you can carry, and\n"
+	.string "they go to your boxes. Swap them\l"
+	.string "out any time with it.\p"
+	.string "Now, you'll need these.$"
 
 Act2_Text_FieldTripFire:
 	.string "Our field trip leaves now, for\n"

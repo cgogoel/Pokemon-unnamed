@@ -65,6 +65,10 @@ any row of the farmyard's entrances; Oak walks in from the Pallet Town edge on t
   stone. Offering the stone from the bag (and one bold Approach) wins it over. If an offered stone is lost, Dad has
   another.
 
+- **Ledges** (jump down only): (36,13)-(36,15) jumping west, (12,50)-(13,50) south, (29,60)-(29,61) east. Like
+  FireRed's, a ledge tile is solid with elevation 0, and the tile it lands on has the ground's elevation (3):
+  a jump doesn't check where it lands, and landing on another elevation would leave the player stuck.
+
 ## Characters
 
 | Who | Where | Notes |

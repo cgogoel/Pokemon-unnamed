@@ -4,6 +4,7 @@
 #include "pokemon.h"
 #include "wild_encounter.h"
 #include "test/test.h"
+#include "constants/map_groups.h"
 #include "constants/story.h"
 
 // Act 2's story, see docs/hack/act2_story.md
@@ -53,4 +54,19 @@ TEST("Act 2: outside Act 2, wild Pokémon keep their area's levels")
         level = ChooseWildMonLevel(&sMon, 0, WILD_AREA_LAND);
         EXPECT(level >= 40 && level <= 45);
     }
+}
+
+TEST("Act 2: an area with an Act 2 table uses it in Act 2, and its own table otherwise")
+{
+    u32 act2Header, ownHeader;
+    gSaveBlock1Ptr->location.mapGroup = MAP_GROUP(MAP_ROUTE22);
+    gSaveBlock1Ptr->location.mapNum = MAP_NUM(MAP_ROUTE22);
+    VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+    ownHeader = GetCurrentMapWildMonHeaderId();
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    act2Header = GetCurrentMapWildMonHeaderId();
+    VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+    EXPECT_NE(ownHeader, act2Header);
+    EXPECT_EQ(gWildMonHeaders[ownHeader].encounterTypes[TIME_OF_DAY_DEFAULT].landMonsInfo->wildPokemon[0].species, SPECIES_RATTATA);
+    EXPECT_EQ(gWildMonHeaders[act2Header].encounterTypes[TIME_OF_DAY_DEFAULT].landMonsInfo->wildPokemon[0].species, SPECIES_ODDISH);
 }

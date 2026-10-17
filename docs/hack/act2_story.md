@@ -89,9 +89,10 @@ Pokédex (`Act2_StartPlaytest`). Oak's speech still plays first.
   (`ACT2_WILD_LEVEL_SPREAD`, `Act2_GetWildLevel`, from `ChooseWildMonLevel`). The tables below still pick the species;
   their levels only matter outside Act 2.
 - **Act 2's own wild Pokémon**: some areas have an Act 2 table, used for all of Act 2 (`Act2_UsesAct2WildPokemon`).
-  They're the `sAct2_*` entries at the end of `src/data/wild_encounters.json`, after the area's own;
-  `GetCurrentMapWildMonHeaderId` picks the later one. An area needs its own table for this to work. Kanto's tables
-  stay as they were for Act 3.
+  They're the `sAct2_*_FireRed` entries in `src/data/wild_encounters.json` (the name needs `FireRed`: a label
+  without FireRed or LeafGreen is built for Emerald only). `GetCurrentMapWildMonHeaderId` tells them apart by their
+  contents (`sAct2WildMonsInfos` in `src/wild_encounter.c`; add new ones there), since Porymap reorders the file.
+  Kanto's tables stay as they were for Act 3.
 
   | Area | Pokémon | Levels |
   |---|---|---|

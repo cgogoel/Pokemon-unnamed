@@ -41,6 +41,16 @@
 #define ACT2_FINAL_PROJECT          14 // Catch a Pokémon that's two of Fire, Water and Grass
 #define ACT2_PROJECT_DONE           15 // Act 2 is over
 
+// The current course's research, in VAR_ACT2_RESEARCH (reset when a course starts)
+#define ACT2_RESEARCH_USED_MOVE     (1 << 0) // The player's Pokémon used a move of the course's type
+#define ACT2_RESEARCH_PUZZLE_1      (1 << 1) // The site's puzzle, its three parts
+#define ACT2_RESEARCH_PUZZLE_2      (1 << 2)
+#define ACT2_RESEARCH_PUZZLE_3      (1 << 3)
+#define ACT2_RESEARCH_PUZZLE_ALL    (ACT2_RESEARCH_PUZZLE_1 | ACT2_RESEARCH_PUZZLE_2 | ACT2_RESEARCH_PUZZLE_3)
+#define ACT2_RESEARCH_PUZZLE_DONE   (1 << 4) // Its end: the last task
+#define ACT2_RESEARCH_GOT_TM        (1 << 5)
+#define ACT2_RESEARCH_USED_TM_MOVE  (1 << 6) // In the exam, the player's Pokémon used the TM's move
+
 // The time skip: the Pokémon the player brings to university are at least this level
 #define ACT2_START_LEVEL            10
 

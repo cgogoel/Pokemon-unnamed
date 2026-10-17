@@ -187,10 +187,12 @@ Act2_EventScript_LobbyRowan::
 	end
 
 @ ---------------------------------------------------------------------------------------------------------------
-@ The courses. Each professor starts their course on campus (giving Poké Balls), and the class goes on a field
-@ trip. There, the professor gives the exam once the player has caught a Pokémon of the course's type.
+@ The courses. Each professor starts their course on campus: what to do, Poké Balls, then the field trip. There,
+@ the professor's research sheet: catch a Pokémon of the type, use a move of it, record 3 different moves of it,
+@ and solve the site's puzzle. With all four done, the professor helps make the course's TM; the exam only counts if
+@ the player's Pokémon of the type uses its move (src/act2_story.c tracks all this).
 
-@ Fire: PROF. ASHFORD, Lecture Hall A, field trip to Cinnabar Island (the Pokémon Mansion)
+@ Fire: PROF. ASHFORD, Lecture Hall A; field trip to Cinnabar Island
 Act2_EventScript_ProfAshford::
 	lock
 	faceplayer
@@ -210,6 +212,8 @@ Act2_EventScript_StartFire:
 	giveitem ITEM_POKE_BALL, 5
 	msgbox Act2_Text_FieldTripFire
 	closemessage
+	setvar VAR_ACT2_RESEARCH, 0
+	setvar VAR_ACT2_MOVES_SEEN, 0
 	setvar VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP
 	setrespawn HEAL_LOCATION_CINNABAR_ISLAND
 	warp MAP_CINNABAR_ISLAND, 8, 5
@@ -217,32 +221,59 @@ Act2_EventScript_StartFire:
 	release
 	end
 
-CinnabarIsland_EventScript_Act2Objects::
-	setflag FLAG_TEMP_1
-	call_if_eq VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP, Act2_EventScript_ShowObjectsTemp1
-	return
-
 Act2_EventScript_ProfAshfordTrip::
 	lock
 	faceplayer
-	setvar VAR_0x8004, TYPE_FIRE
-	specialvar VAR_RESULT, Act2_PartyHasType
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_NoFireYet
+	setvar VAR_0x8004, ACT2_RESEARCH_GOT_TM
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	goto_if_eq VAR_RESULT, TRUE, Act2_EventScript_FireExam
+	specialvar VAR_RESULT, Act2_IsResearchDone
+	goto_if_eq VAR_RESULT, TRUE, Act2_EventScript_FireMakeTM
+	msgbox Act2_Text_FireSheetIntro
+	special Act2_BufferResearchSheet
+	msgbox gStringVar4
+	msgbox Act2_Text_FireHint
+	release
+	end
+
+Act2_EventScript_FireMakeTM:
+	msgbox Act2_Text_FireResearchDone
+	giveitem ITEM_TM_FLAMETHROWER
+	setvar VAR_0x8004, ACT2_RESEARCH_GOT_TM
+	special Act2_SetResearchFlag
+	msgbox Act2_Text_FireTeachTM
+	release
+	end
+
+Act2_EventScript_FireExam:
+	specialvar VAR_RESULT, Act2_PartyCanUseCourseTM
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_FireTeachTMFirst
 	msgbox Act2_Text_ReadyForFireExam, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, Act2_EventScript_ComeBackWhenReady
 	msgbox Act2_Text_FireExamBegins
 	closemessage
+	setvar VAR_0x8004, ACT2_RESEARCH_USED_TM_MOVE
+	special Act2_ClearResearchFlag
+	cleartrainerflag TRAINER_ACT2_PROF_FIRE
 	trainerbattle_no_intro TRAINER_ACT2_PROF_FIRE, Act2_Text_AshfordDefeat
+	setvar VAR_0x8004, ACT2_RESEARCH_USED_TM_MOVE
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_FireExamNoMove
 	msgbox Act2_Text_FirePassed
 	setvar VAR_ACT2_PROGRESS, ACT2_FIRE_PASSED
 	goto Act2_EventScript_BackToDorms
 
-Act2_EventScript_NoFireYet:
-	msgbox Act2_Text_NoFireYet
+Act2_EventScript_FireExamNoMove:
+	msgbox Act2_Text_FireExamNoMove
 	release
 	end
 
-@ Water: PROF. MARLOWE, the audiovisual classroom, field trip to Vermilion City (fishing at the harbor, Route 6's grass)
+Act2_EventScript_FireTeachTMFirst:
+	msgbox Act2_Text_FireTeachTM
+	release
+	end
+
+@ Water: PROF. MARLOWE, the audiovisual classroom; field trip to Vermilion City
 Act2_EventScript_ProfMarlowe::
 	lock
 	faceplayer
@@ -263,6 +294,8 @@ Act2_EventScript_StartWater:
 	giveitem ITEM_GOOD_ROD
 	msgbox Act2_Text_FieldTripWater
 	closemessage
+	setvar VAR_ACT2_RESEARCH, 0
+	setvar VAR_ACT2_MOVES_SEEN, 0
 	setvar VAR_ACT2_PROGRESS, ACT2_WATER_TRIP
 	setrespawn HEAL_LOCATION_VERMILION_CITY
 	warp MAP_VERMILION_CITY, 32, 19
@@ -270,32 +303,59 @@ Act2_EventScript_StartWater:
 	release
 	end
 
-VermilionCity_EventScript_Act2Objects::
-	setflag FLAG_TEMP_1
-	call_if_eq VAR_ACT2_PROGRESS, ACT2_WATER_TRIP, Act2_EventScript_ShowObjectsTemp1
-	return
-
 Act2_EventScript_ProfMarloweTrip::
 	lock
 	faceplayer
-	setvar VAR_0x8004, TYPE_WATER
-	specialvar VAR_RESULT, Act2_PartyHasType
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_NoWaterYet
+	setvar VAR_0x8004, ACT2_RESEARCH_GOT_TM
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	goto_if_eq VAR_RESULT, TRUE, Act2_EventScript_WaterExam
+	specialvar VAR_RESULT, Act2_IsResearchDone
+	goto_if_eq VAR_RESULT, TRUE, Act2_EventScript_WaterMakeTM
+	msgbox Act2_Text_WaterSheetIntro
+	special Act2_BufferResearchSheet
+	msgbox gStringVar4
+	msgbox Act2_Text_WaterHint
+	release
+	end
+
+Act2_EventScript_WaterMakeTM:
+	msgbox Act2_Text_WaterResearchDone
+	giveitem ITEM_TM_BUBBLE_BEAM
+	setvar VAR_0x8004, ACT2_RESEARCH_GOT_TM
+	special Act2_SetResearchFlag
+	msgbox Act2_Text_WaterTeachTM
+	release
+	end
+
+Act2_EventScript_WaterExam:
+	specialvar VAR_RESULT, Act2_PartyCanUseCourseTM
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_WaterTeachTMFirst
 	msgbox Act2_Text_ReadyForWaterExam, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, Act2_EventScript_ComeBackWhenReady
 	msgbox Act2_Text_WaterExamBegins
 	closemessage
+	setvar VAR_0x8004, ACT2_RESEARCH_USED_TM_MOVE
+	special Act2_ClearResearchFlag
+	cleartrainerflag TRAINER_ACT2_PROF_WATER
 	trainerbattle_no_intro TRAINER_ACT2_PROF_WATER, Act2_Text_MarloweDefeat
+	setvar VAR_0x8004, ACT2_RESEARCH_USED_TM_MOVE
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_WaterExamNoMove
 	msgbox Act2_Text_WaterPassed
 	setvar VAR_ACT2_PROGRESS, ACT2_WATER_PASSED
 	goto Act2_EventScript_BackToDorms
 
-Act2_EventScript_NoWaterYet:
-	msgbox Act2_Text_NoWaterYet
+Act2_EventScript_WaterExamNoMove:
+	msgbox Act2_Text_WaterExamNoMove
 	release
 	end
 
-@ Grass: PROF. FERN, Home Economics, field trip to Viridian City (Route 22's grass)
+Act2_EventScript_WaterTeachTMFirst:
+	msgbox Act2_Text_WaterTeachTM
+	release
+	end
+
+@ Grass: PROF. FERN, Home Economics; field trip to Viridian City
 Act2_EventScript_ProfFern::
 	lock
 	faceplayer
@@ -315,6 +375,8 @@ Act2_EventScript_StartGrass:
 	giveitem ITEM_POKE_BALL, 5
 	msgbox Act2_Text_FieldTripGrass
 	closemessage
+	setvar VAR_ACT2_RESEARCH, 0
+	setvar VAR_ACT2_MOVES_SEEN, 0
 	setvar VAR_ACT2_PROGRESS, ACT2_GRASS_TRIP
 	setrespawn HEAL_LOCATION_VIRIDIAN_CITY
 	warp MAP_VIRIDIAN_CITY, 4, 17
@@ -322,28 +384,55 @@ Act2_EventScript_StartGrass:
 	release
 	end
 
-ViridianCity_EventScript_Act2Objects::
-	setflag FLAG_TEMP_1
-	call_if_eq VAR_ACT2_PROGRESS, ACT2_GRASS_TRIP, Act2_EventScript_ShowObjectsTemp1
-	return
-
 Act2_EventScript_ProfFernTrip::
 	lock
 	faceplayer
-	setvar VAR_0x8004, TYPE_GRASS
-	specialvar VAR_RESULT, Act2_PartyHasType
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_NoGrassYet
+	setvar VAR_0x8004, ACT2_RESEARCH_GOT_TM
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	goto_if_eq VAR_RESULT, TRUE, Act2_EventScript_GrassExam
+	specialvar VAR_RESULT, Act2_IsResearchDone
+	goto_if_eq VAR_RESULT, TRUE, Act2_EventScript_GrassMakeTM
+	msgbox Act2_Text_GrassSheetIntro
+	special Act2_BufferResearchSheet
+	msgbox gStringVar4
+	msgbox Act2_Text_GrassHint
+	release
+	end
+
+Act2_EventScript_GrassMakeTM:
+	msgbox Act2_Text_GrassResearchDone
+	giveitem ITEM_TM_GIGA_DRAIN
+	setvar VAR_0x8004, ACT2_RESEARCH_GOT_TM
+	special Act2_SetResearchFlag
+	msgbox Act2_Text_GrassTeachTM
+	release
+	end
+
+Act2_EventScript_GrassExam:
+	specialvar VAR_RESULT, Act2_PartyCanUseCourseTM
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_GrassTeachTMFirst
 	msgbox Act2_Text_ReadyForGrassExam, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, Act2_EventScript_ComeBackWhenReady
 	msgbox Act2_Text_GrassExamBegins
 	closemessage
+	setvar VAR_0x8004, ACT2_RESEARCH_USED_TM_MOVE
+	special Act2_ClearResearchFlag
+	cleartrainerflag TRAINER_ACT2_PROF_GRASS
 	trainerbattle_no_intro TRAINER_ACT2_PROF_GRASS, Act2_Text_FernDefeat
+	setvar VAR_0x8004, ACT2_RESEARCH_USED_TM_MOVE
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_GrassExamNoMove
 	msgbox Act2_Text_GrassPassed
 	setvar VAR_ACT2_PROGRESS, ACT2_GRASS_PASSED
 	goto Act2_EventScript_BackToDorms
 
-Act2_EventScript_NoGrassYet:
-	msgbox Act2_Text_NoGrassYet
+Act2_EventScript_GrassExamNoMove:
+	msgbox Act2_Text_GrassExamNoMove
+	release
+	end
+
+Act2_EventScript_GrassTeachTMFirst:
+	msgbox Act2_Text_GrassTeachTM
 	release
 	end
 
@@ -373,6 +462,240 @@ Act2_EventScript_TripMina::
 
 Act2_EventScript_TripRowan::
 	msgbox Act2_Text_TripRowan, MSGBOX_NPC
+	end
+
+@ The sites' objects (Act2_SetupSiteObjects)
+CinnabarIsland_EventScript_Act2Objects::
+	setvar VAR_0x8004, ACT2_FIRE_TRIP
+	special Act2_SetupSiteObjects
+	return
+
+PokemonMansion_1F_EventScript_Act2Objects::
+	setvar VAR_0x8004, ACT2_FIRE_TRIP
+	special Act2_SetupSiteObjects
+	return
+
+VermilionCity_EventScript_Act2Objects::
+	setvar VAR_0x8004, ACT2_WATER_TRIP
+	special Act2_SetupSiteObjects
+	return
+
+ViridianCity_EventScript_Act2Objects::
+	setvar VAR_0x8004, ACT2_GRASS_TRIP
+	special Act2_SetupSiteObjects
+	return
+
+Route22_OnTransition::
+	setvar VAR_0x8004, ACT2_GRASS_TRIP
+	special Act2_SetupSiteObjects
+	end
+
+@ ---------------------------------------------------------------------------------------------------------------
+@ The site puzzles: each part needs a Pokémon of the course's type that knows a move of it (Act2_FindCourseMoveUser)
+
+@ Fire: three cold furnaces in the Pokémon Mansion (1F). Lit, they wake the statue switch, which opens the sealed
+@ room with the old research journal.
+Act2_EventScript_Furnace1::
+	setvar VAR_0x8004, 1
+	goto Act2_EventScript_Furnace
+
+Act2_EventScript_Furnace2::
+	setvar VAR_0x8004, 2
+	goto Act2_EventScript_Furnace
+
+Act2_EventScript_Furnace3::
+	setvar VAR_0x8004, 3
+	goto Act2_EventScript_Furnace
+
+Act2_EventScript_Furnace:
+	lockall
+	goto_if_ne VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP, Act2_EventScript_FurnaceCold
+	specialvar VAR_RESULT, Act2_IsPuzzlePartSolved
+	goto_if_eq VAR_RESULT, TRUE, Act2_EventScript_FurnaceLit
+	specialvar VAR_RESULT, Act2_FindCourseMoveUser
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_FurnaceNeedsFire
+	msgbox Act2_Text_FurnaceAsk, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, Act2_EventScript_PuzzleRelease
+	playse SE_M_EMBER
+	msgbox Act2_Text_FurnaceRelit
+	waitse
+	specialvar VAR_RESULT, Act2_SolvePuzzlePart
+	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_FurnacesAllLit
+	releaseall
+	end
+
+Act2_EventScript_FurnacesAllLit:
+	msgbox Act2_Text_FurnacesAllLit
+	return
+
+Act2_EventScript_FurnaceCold:
+	msgbox Act2_Text_FurnaceCold
+	releaseall
+	end
+
+Act2_EventScript_FurnaceLit:
+	msgbox Act2_Text_FurnaceLit
+	releaseall
+	end
+
+Act2_EventScript_FurnaceNeedsFire:
+	msgbox Act2_Text_FurnaceNeedsFire
+	releaseall
+	end
+
+Act2_EventScript_PuzzleRelease:
+	releaseall
+	end
+
+@ The statue switch (PokemonMansion_1F_EventScript_Statue) stays cold until the furnaces are lit
+Act2_EventScript_MansionStatue::
+	setvar VAR_0x8004, 0
+	specialvar VAR_RESULT, Act2_IsPuzzlePartSolved
+	goto_if_eq VAR_RESULT, TRUE, PokemonMansion_1F_EventScript_StatueSwitch
+	lockall
+	msgbox Act2_Text_StatueCold
+	releaseall
+	end
+
+Act2_EventScript_MansionJournal::
+	lock
+	msgbox Act2_Text_MansionJournal
+	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_DONE
+	special Act2_SetResearchFlag
+	removeobject LOCALID_MANSION_JOURNAL
+	msgbox Act2_Text_TaskComplete
+	release
+	end
+
+@ Water: three fires on Vermilion's docks. Put out, a young Lapras that was hiding under the docks surfaces.
+Act2_EventScript_DockFire1::
+	setvar VAR_0x8004, 1
+	setvar VAR_0x8005, LOCALID_VERMILION_FIRE_1
+	goto Act2_EventScript_DockFire
+
+Act2_EventScript_DockFire2::
+	setvar VAR_0x8004, 2
+	setvar VAR_0x8005, LOCALID_VERMILION_FIRE_2
+	goto Act2_EventScript_DockFire
+
+Act2_EventScript_DockFire3::
+	setvar VAR_0x8004, 3
+	setvar VAR_0x8005, LOCALID_VERMILION_FIRE_3
+	goto Act2_EventScript_DockFire
+
+Act2_EventScript_DockFire:
+	lockall
+	specialvar VAR_RESULT, Act2_FindCourseMoveUser
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_DockFireNeedsWater
+	msgbox Act2_Text_DockFireAsk, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, Act2_EventScript_PuzzleRelease
+	playse SE_M_BUBBLE_BEAM
+	msgbox Act2_Text_DockFireOut
+	waitse
+	removeobject VAR_0x8005
+	specialvar VAR_RESULT, Act2_SolvePuzzlePart
+	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_LaprasSurfaces
+	releaseall
+	end
+
+Act2_EventScript_DockFireNeedsWater:
+	msgbox Act2_Text_DockFireNeedsWater
+	releaseall
+	end
+
+Act2_EventScript_LaprasSurfaces:
+	playse SE_M_SURF
+	clearflag FLAG_TEMP_8
+	addobject LOCALID_VERMILION_LAPRAS
+	waitse
+	msgbox Act2_Text_LaprasSurfaces
+	return
+
+Act2_EventScript_DockLapras::
+	lock
+	faceplayer
+	playmoncry SPECIES_LAPRAS, CRY_MODE_NORMAL
+	msgbox Act2_Text_DockLapras
+	waitmoncry
+	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_DONE
+	special Act2_SetResearchFlag
+	msgbox Act2_Text_TaskComplete
+	closemessage
+	playse SE_M_SURF
+	removeobject LOCALID_VERMILION_LAPRAS
+	waitse
+	msgbox Act2_Text_LaprasSwamAway
+	release
+	end
+
+@ Grass: three withered patches on Route 22. Regrown, the field blooms.
+Act2_EventScript_Withered1::
+	setvar VAR_0x8004, 1
+	lockall
+	specialvar VAR_RESULT, Act2_FindCourseMoveUser
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_WitheredNeedsGrass
+	msgbox Act2_Text_WitheredAsk, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, Act2_EventScript_PuzzleRelease
+	playse SE_M_GIGA_DRAIN
+	msgbox Act2_Text_WitheredRegrown
+	waitse
+	removeobject LOCALID_ROUTE22_WITHERED_1
+	clearflag FLAG_TEMP_5
+	addobject LOCALID_ROUTE22_GROWN_1
+	goto Act2_EventScript_WitheredSolved
+
+Act2_EventScript_Withered2::
+	setvar VAR_0x8004, 2
+	lockall
+	specialvar VAR_RESULT, Act2_FindCourseMoveUser
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_WitheredNeedsGrass
+	msgbox Act2_Text_WitheredAsk, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, Act2_EventScript_PuzzleRelease
+	playse SE_M_GIGA_DRAIN
+	msgbox Act2_Text_WitheredRegrown
+	waitse
+	removeobject LOCALID_ROUTE22_WITHERED_2
+	clearflag FLAG_TEMP_6
+	addobject LOCALID_ROUTE22_GROWN_2
+	goto Act2_EventScript_WitheredSolved
+
+Act2_EventScript_Withered3::
+	setvar VAR_0x8004, 3
+	lockall
+	specialvar VAR_RESULT, Act2_FindCourseMoveUser
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_WitheredNeedsGrass
+	msgbox Act2_Text_WitheredAsk, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, Act2_EventScript_PuzzleRelease
+	playse SE_M_GIGA_DRAIN
+	msgbox Act2_Text_WitheredRegrown
+	waitse
+	removeobject LOCALID_ROUTE22_WITHERED_3
+	clearflag FLAG_TEMP_7
+	addobject LOCALID_ROUTE22_GROWN_3
+	goto Act2_EventScript_WitheredSolved
+
+Act2_EventScript_WitheredSolved:
+	specialvar VAR_RESULT, Act2_SolvePuzzlePart
+	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_FieldBlooms
+	releaseall
+	end
+
+Act2_EventScript_FieldBlooms:
+	playse SE_M_SWEET_SCENT
+	msgbox Act2_Text_FieldBlooms
+	waitse
+	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_DONE
+	special Act2_SetResearchFlag
+	msgbox Act2_Text_TaskComplete
+	return
+
+Act2_EventScript_WitheredNeedsGrass:
+	msgbox Act2_Text_WitheredNeedsGrass
+	releaseall
+	end
+
+Act2_EventScript_Regrown::
+	msgbox Act2_Text_Regrown, MSGBOX_SIGN
 	end
 
 @ ---------------------------------------------------------------------------------------------------------------
@@ -526,31 +849,54 @@ Act2_Text_ProfAshfordEarly:
 
 Act2_Text_StartFire:
 	.string "PROF. ASHFORD: Welcome to the FIRE\n"
-	.string "course. I'm PROF. ASHFORD.\p"
-	.string "You won't learn FIRE POKéMON from\n"
-	.string "a book. You'll catch one, train it,\l"
-	.string "and battle me with it.\p"
-	.string "Here, you'll need these.$"
+	.string "course. Here's how it works.\p"
+	.string "We're going on a field trip. There,\n"
+	.string "I'll give you a research sheet.\p"
+	.string "Catch a FIRE POKéMON. Battle with\n"
+	.string "it, and watch how FIRE moves work.\p"
+	.string "There's a puzzle at the site, too.\n"
+	.string "Solve it with your POKéMON.\p"
+	.string "Finish the sheet, and we'll make a\n"
+	.string "TM together. Then, the exam.\p"
+	.string "You'll need these.$"
 
 Act2_Text_FieldTripFire:
 	.string "Our field trip leaves now, for\n"
 	.string "CINNABAR ISLAND!$"
 
-Act2_Text_NoFireYet:
-	.string "PROF. ASHFORD: FIRE POKéMON live\n"
-	.string "in the old mansion, right there.\p"
-	.string "Catch one, train it, and come back\n"
-	.string "for your exam.$"
+Act2_Text_FireSheetIntro:
+	.string "PROF. ASHFORD: Let's see your\n"
+	.string "research sheet.$"
+
+Act2_Text_FireHint:
+	.string "FIRE POKéMON live in the old\n"
+	.string "mansion. So do its cold furnaces.$"
+
+Act2_Text_FireResearchDone:
+	.string "PROF. ASHFORD: Your research is\n"
+	.string "complete! Wonderful notes.\p"
+	.string "From all this, we can make a TM:\n"
+	.string "FLAMETHROWER.$"
+
+Act2_Text_FireTeachTM:
+	.string "Teach FLAMETHROWER to a FIRE\n"
+	.string "POKéMON, then use it in my exam.$"
 
 Act2_Text_ReadyForFireExam:
-	.string "PROF. ASHFORD: You caught a FIRE\n"
-	.string "POKéMON! Ready for your exam?$"
+	.string "PROF. ASHFORD: FLAMETHROWER, ready?\n"
+	.string "Shall we begin the exam?$"
 
 Act2_Text_FireExamBegins:
 	.string "Let's see how hot it burns!$"
 
 Act2_Text_AshfordDefeat:
 	.string "Excellent work!$"
+
+Act2_Text_FireExamNoMove:
+	.string "PROF. ASHFORD: You won, but you\n"
+	.string "never used FLAMETHROWER!\p"
+	.string "The exam is about the move.\n"
+	.string "Try again when you're ready.$"
 
 Act2_Text_FirePassed:
 	.string "PROF. ASHFORD: You pass!\p"
@@ -567,28 +913,47 @@ Act2_Text_ProfMarloweEarly:
 
 Act2_Text_StartWater:
 	.string "PROF. MARLOWE: The WATER course!\n"
-	.string "Water shapes everything it touches.\p"
-	.string "Catch a WATER POKéMON, train it,\n"
-	.string "and pass my exam. Take these.$"
+	.string "Same as before: a field trip.\p"
+	.string "Catch a WATER POKéMON, battle with\n"
+	.string "it, record WATER moves, and solve\l"
+	.string "the site's puzzle.\p"
+	.string "Then we make a TM, and the exam.\n"
+	.string "Take these. And this ROD.$"
 
 Act2_Text_FieldTripWater:
 	.string "We're off to VERMILION CITY!$"
 
-Act2_Text_NoWaterYet:
-	.string "PROF. MARLOWE: WATER POKéMON swim\n"
-	.string "all around the harbor.\p"
-	.string "Fish with the GOOD ROD, or look in\n"
-	.string "the grass on ROUTE 6, to the north.$"
+Act2_Text_WaterSheetIntro:
+	.string "PROF. MARLOWE: Your research sheet,\n"
+	.string "please.$"
+
+Act2_Text_WaterHint:
+	.string "Fish at the harbor, or try the\n"
+	.string "grass on ROUTE 6.\p"
+	.string "And those docks… I smell smoke.$"
+
+Act2_Text_WaterResearchDone:
+	.string "PROF. MARLOWE: Splendid research!\p"
+	.string "From your notes, we can make a TM:\n"
+	.string "BUBBLEBEAM.$"
+
+Act2_Text_WaterTeachTM:
+	.string "Teach BUBBLEBEAM to a WATER\n"
+	.string "POKéMON, then use it in my exam.$"
 
 Act2_Text_ReadyForWaterExam:
-	.string "PROF. MARLOWE: A fine WATER\n"
-	.string "POKéMON! Shall we begin the exam?$"
+	.string "PROF. MARLOWE: BUBBLEBEAM, ready?\n"
+	.string "Shall we begin the exam?$"
 
 Act2_Text_WaterExamBegins:
 	.string "Show me what water can do!$"
 
 Act2_Text_MarloweDefeat:
 	.string "Splendid. Simply splendid.$"
+
+Act2_Text_WaterExamNoMove:
+	.string "PROF. MARLOWE: A win, yes, but no\n"
+	.string "BUBBLEBEAM. Try again.$"
 
 Act2_Text_WaterPassed:
 	.string "PROF. MARLOWE: You pass!\p"
@@ -604,28 +969,47 @@ Act2_Text_ProfFernEarly:
 
 Act2_Text_StartGrass:
 	.string "PROF. FERN: Welcome to the GRASS\n"
-	.string "course. Patience is everything.\p"
-	.string "Catch a GRASS POKéMON, raise it,\n"
-	.string "and pass my exam. Take these.$"
+	.string "course. You know how this goes.\p"
+	.string "Catch a GRASS POKéMON, battle with\n"
+	.string "it, record GRASS moves, and solve\l"
+	.string "the site's puzzle.\p"
+	.string "Then a TM, and my exam.\n"
+	.string "Take these.$"
 
 Act2_Text_FieldTripGrass:
 	.string "Our field trip is to VIRIDIAN CITY!$"
 
-Act2_Text_NoGrassYet:
-	.string "PROF. FERN: Head west, to ROUTE 22.\n"
-	.string "GRASS POKéMON grow in its fields.\p"
-	.string "Catch one, raise it, and come back\n"
-	.string "for your exam.$"
+Act2_Text_GrassSheetIntro:
+	.string "PROF. FERN: Let's see your research\n"
+	.string "sheet.$"
+
+Act2_Text_GrassHint:
+	.string "GRASS POKéMON grow on ROUTE 22,\n"
+	.string "west of here. Some of its field\l"
+	.string "has withered, though…$"
+
+Act2_Text_GrassResearchDone:
+	.string "PROF. FERN: Beautiful research.\p"
+	.string "From your notes, we can make a TM:\n"
+	.string "GIGA DRAIN.$"
+
+Act2_Text_GrassTeachTM:
+	.string "Teach GIGA DRAIN to a GRASS\n"
+	.string "POKéMON, then use it in my exam.$"
 
 Act2_Text_ReadyForGrassExam:
-	.string "PROF. FERN: What a lovely GRASS\n"
-	.string "POKéMON. Ready for the exam?$"
+	.string "PROF. FERN: GIGA DRAIN, ready?\n"
+	.string "Shall we begin the exam?$"
 
 Act2_Text_GrassExamBegins:
 	.string "Let it grow!$"
 
 Act2_Text_FernDefeat:
 	.string "Beautifully done.$"
+
+Act2_Text_GrassExamNoMove:
+	.string "PROF. FERN: You won without GIGA\n"
+	.string "DRAIN. Patience. Try again.$"
 
 Act2_Text_GrassPassed:
 	.string "PROF. FERN: You pass!\p"
@@ -635,6 +1019,94 @@ Act2_Text_GrassPassed:
 Act2_Text_ProfFernAfter:
 	.string "PROF. FERN: Your GRASS POKéMON\n"
 	.string "looks healthy. Keep it up!$"
+
+Act2_Text_TaskComplete:
+	.string "The last research task is done!\n"
+	.string "Time to report to the professor.$"
+
+Act2_Text_FurnaceCold:
+	.string "An old furnace. It's stone cold.$"
+
+Act2_Text_FurnaceLit:
+	.string "The furnace burns brightly.$"
+
+Act2_Text_FurnaceNeedsFire:
+	.string "An old, cold furnace.\p"
+	.string "A FIRE POKéMON's move could\n"
+	.string "relight it.$"
+
+Act2_Text_FurnaceAsk:
+	.string "Have {STR_VAR_1} use {STR_VAR_2}\n"
+	.string "to relight the furnace?$"
+
+Act2_Text_FurnaceRelit:
+	.string "{STR_VAR_1} used {STR_VAR_2}!\n"
+	.string "The furnace roars to life!$"
+
+Act2_Text_FurnacesAllLit:
+	.string "Somewhere in the mansion, something\n"
+	.string "clicks. The statue's eyes glow red!$"
+
+Act2_Text_StatueCold:
+	.string "A statue of a POKéMON. Its eyes\n"
+	.string "are dark. It feels cold, like the\l"
+	.string "furnaces.$"
+
+Act2_Text_MansionJournal:
+	.string "An old research journal.\p"
+	.string "“The furnaces kept the lab warm\n"
+	.string "for our FIRE POKéMON. Heat builds\l"
+	.string "in them before a FLAMETHROWER…”\p"
+	.string "{PLAYER} copied the notes onto the\n"
+	.string "research sheet.$"
+
+Act2_Text_DockFireNeedsWater:
+	.string "The dock is on fire!\p"
+	.string "A WATER POKéMON's move could\n"
+	.string "put it out.$"
+
+Act2_Text_DockFireAsk:
+	.string "The dock is on fire! Have\n"
+	.string "{STR_VAR_1} use {STR_VAR_2}?$"
+
+Act2_Text_DockFireOut:
+	.string "{STR_VAR_1} used {STR_VAR_2}!\n"
+	.string "The fire went out!$"
+
+Act2_Text_LaprasSurfaces:
+	.string "Something big surfaced by the dock!\n"
+	.string "It's a young LAPRAS!$"
+
+Act2_Text_DockLapras:
+	.string "The young LAPRAS was hiding under\n"
+	.string "the burning docks.\p"
+	.string "It looks at {PLAYER} gratefully.\n"
+	.string "{PLAYER} recorded it on the sheet!$"
+
+Act2_Text_LaprasSwamAway:
+	.string "The LAPRAS swam out to sea.$"
+
+Act2_Text_WitheredNeedsGrass:
+	.string "A patch of withered plants.\p"
+	.string "A GRASS POKéMON's move could\n"
+	.string "bring it back.$"
+
+Act2_Text_WitheredAsk:
+	.string "A withered patch. Have {STR_VAR_1}\n"
+	.string "use {STR_VAR_2} on it?$"
+
+Act2_Text_WitheredRegrown:
+	.string "{STR_VAR_1} used {STR_VAR_2}!\n"
+	.string "New shoots sprang up!$"
+
+Act2_Text_FieldBlooms:
+	.string "The whole field burst into bloom!\n"
+	.string "GRASS POKéMON gather all around.\p"
+	.string "{PLAYER} recorded the bloom on the\n"
+	.string "research sheet!$"
+
+Act2_Text_Regrown:
+	.string "A young tree, growing strong.$"
 
 Act2_Text_ComeBackWhenReady:
 	.string "Come back when you're ready.$"

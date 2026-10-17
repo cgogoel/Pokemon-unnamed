@@ -21,6 +21,8 @@ Per-release notes live in `docs/changelogs/<X.Y.x>/` (`docs/CHANGELOG.md` is jus
 - Vanilla Emerald / LeafGreen builds: `make emerald` / `make leafgreen` (run `make clean` when switching game versions)
 - Build with debug symbols: `make debug`
 - Release build (strips debug features): `make release`
+- Act 2 playtest build (a new game starts at Act 2): `make act2` (writes `pokemon-unnamed-act2.gba`). Build it
+  alongside the normal ROM after each change.
 - Run expansion test suite: `make check`
 - Clean: `make clean`
 
@@ -77,7 +79,10 @@ that grow in length. Act 3 retells Kanto events (Red, Blue, Oak, Giovanni, Silph
 - **3v3 battles:** each turn the player chooses which of their 3 Pokémon attacks and which of the
   3 opponents it targets. The enemy side does the same. Each move hits 1, 2 or all 3 targets.
 - Structure (docs/hack/act2_story.md): three courses, Fire, Water and Grass, in that order. Each is a field trip
-  (Cinnabar Island, Vermilion City, Viridian City): catch a Pokémon of that type, then win the professor's exam.
+  (Cinnabar Island, Vermilion City, Viridian City) with a research sheet: catch a Pokémon of the type, use and
+  record its moves, solve the site's puzzle with it. That makes a TM (Flamethrower, BubbleBeam, Giga Drain), and
+  the professor's exam only counts if the TM's move is used.
+- The friends' club teams grow with what they caught on each field trip.
 - Between courses, the player's friends take them to a secret battle club at the campus stadium at night.
 - No Trainer Card until the third night's exam: until then trainers refuse to battle; only wild Pokémon do.
 - **Act ends** with a final research project: catch a Pokémon that's two of Fire, Water and Grass.

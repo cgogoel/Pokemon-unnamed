@@ -1,7 +1,8 @@
 # Act 2 story
 
 Celadon University (the maps: [celadon_university.md](celadon_university.md)). Three courses, Fire, Water and Grass,
-each a field trip where the player catches a Pokémon of that type and passes the professor's exam. Between courses,
+each a field trip with a research sheet to fill (see [The courses](#the-courses)), a TM made from the research, and
+the professor's exam. Between courses,
 the player's friends take them to a secret battle club at night. The third night is the exam for a real Trainer
 Card; then comes the final project.
 
@@ -11,21 +12,64 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 | Stage | Reached by | Then |
 |---|---|---|
 | `ACT2_START` | The end of the prologue: the player wakes in their dorm room | Stepping outside, KAI, MINA and ROWAN introduce themselves: they're in the Fire course too. |
-| `ACT2_MET_FRIENDS` | Meeting them | PROF. ASHFORD (Lecture Hall A) starts the Fire course: 5 Poké Balls, then the field trip. |
-| `ACT2_FIRE_TRIP` | The field trip: warped to Cinnabar Island (8,5) | Fire Pokémon in the Pokémon Mansion. With one in the party, the professor's exam (a battle). |
+| `ACT2_MET_FRIENDS` | Meeting them | PROF. ASHFORD (Lecture Hall A) explains the course, gives 5 Poké Balls, and the field trip leaves. |
+| `ACT2_FIRE_TRIP` | The field trip: warped to Cinnabar Island (8,5) | The research sheet (the Pokémon Mansion), the TM (Flamethrower), the exam. |
 | `ACT2_FIRE_PASSED` | Passing: warped to the dorm lobby | The friends: the secret club, the stadium, tonight. |
 | `ACT2_FIRE_INVITED` | | Walking into the stadium: it's night; KAI battles the player. Then morning, in the dorm room. |
 | `ACT2_CLUB_1_DONE` | | PROF. MARLOWE (the audiovisual classroom) starts the Water course: 5 Poké Balls and the Good Rod. |
-| `ACT2_WATER_TRIP` | Warped to Vermilion City (32,19) | Water Pokémon: fishing at the harbor, or the grass on Route 6, north of the city. Exam. |
+| `ACT2_WATER_TRIP` | Warped to Vermilion City (32,19) | The research sheet (fishing at the harbor, or Route 6's grass; the docks), the TM (BubbleBeam), the exam. |
 | `ACT2_WATER_PASSED` | Warped to the dorm lobby | The club meets again tonight. |
 | `ACT2_WATER_INVITED` | | Night: MINA battles the player. |
 | `ACT2_CLUB_2_DONE` | | PROF. FERN (Home Economics) starts the Grass course: 5 Poké Balls. |
-| `ACT2_GRASS_TRIP` | Warped to Viridian City (4,17) | Grass Pokémon on Route 22, west of the city. Exam. |
+| `ACT2_GRASS_TRIP` | Warped to Viridian City (4,17) | The research sheet (Route 22, west of the city), the TM (Giga Drain), the exam. |
 | `ACT2_GRASS_PASSED` | Warped to the dorm lobby | One more night: battle for a real Trainer Card. |
 | `ACT2_GRASS_INVITED` | | Night: the friends bring DALE, a Pokémon League examiner. Beating him: the Trainer Card. |
 | `ACT2_GOT_TRAINER_CARD` | Winning | **Trainers battle the player again.** The director of the Science Research Institute has the final project. |
 | `ACT2_FINAL_PROJECT` | Talking to the director (10 Poké Balls) | Catch a Pokémon that's two of Fire, Water and Grass. |
 | `ACT2_PROJECT_DONE` | Showing the director one | "End of Act 2." Act 3 isn't built yet. |
+
+## The courses
+
+Each course opens on campus: the professor explains it, gives 5 Poké Balls, and the class leaves on the field trip.
+There, talking to the professor shows the **research sheet** (`Act2_BufferResearchSheet`):
+
+1. Catch a Pokémon of the course's type (one in the party).
+2. Use a move of that type in battle.
+3. Record 3 different moves of that type in battle: the player's Pokémon's or wild ones'
+   (`Act2_RecordMoveUse`, from `Cmd_printattackstring`; `VAR_ACT2_MOVES_SEEN`).
+4. Solve the site's puzzle (below).
+
+With all four done, the professor makes the course's **TM** with the player. The **exam** needs a Pokémon of the
+course's type that knows the TM's move (`Act2_PartyCanUseCourseTM`), and only counts if it uses that move in the
+battle (`ACT2_RESEARCH_USED_TM_MOVE`); a win without it is retaken. Progress is `VAR_ACT2_RESEARCH`
+(`ACT2_RESEARCH_*`), reset when a course starts.
+
+| Course | TM | Site | Puzzle (each part: a Pokémon of the type that knows a move of it, `Act2_FindCourseMoveUser`) | Its end |
+|---|---|---|---|---|
+| Fire | TM35 Flamethrower | Pokémon Mansion | Relight 3 cold furnaces on 1F (walls at (6,2), (31,2), (0,28)). Until then, the statue switch is cold. | The switch opens the sealed room; the old research journal there (23,13) |
+| Water | TM51 BubbleBeam (new: `FOREACH_TM` in `include/constants/tms_hms.h`) | Vermilion City | Put out 3 fires on the docks ((26,28), (33,30), (37,24); `OBJ_EVENT_GFX_DOCK_FIRE`, a new placeholder sprite) | A young Lapras surfaces by the dock (28,31): talking to it |
+| Grass | TM19 Giga Drain | Route 22 | Regrow 3 withered patches ((24,13), (38,6), (44,10)); they grow into young trees | The field blooms |
+
+The site objects follow `Act2_SetupSiteObjects` (each site map's transition): `FLAG_TEMP_1` the professor and
+friends, `FLAG_TEMP_2-4` the unsolved parts, `FLAG_TEMP_5-7` what replaces them, `FLAG_TEMP_8` the reward.
+
+## The club's teams
+
+Each friend brings their partner and what they caught on the field trips so far, picking species that aren't in
+the player's party when the battle starts (`Act2_MakeClubParty`, from `DoTrainerBattle`; the `.party` entries are
+placeholders of the same size).
+
+| Night | Who | Partner | Fire course catch | Water course catch |
+|---|---|---|---|---|
+| 1 | KAI | Mankey 14 | Growlithe, Ponyta, Vulpix or Slugma, 15 | |
+| 2 | MINA | Clefairy 17 | Vulpix, Ponyta, Growlithe or Slugma, 17 | Staryu, Psyduck, Poliwag, Horsea or Krabby, 18 |
+| 3 | DALE (examiner) | Pidgeotto 23, Raticate 23, Kadabra 24 | | |
+
+## The Act 2 playtest build
+
+`make act2` builds `pokemon-unnamed-act2.gba` (objects in `build/firered-act2`, `-DACT2_PLAYTEST`). A new game there
+starts at Act 2's beginning, in the dorm room, with Teddiursa and Tynamo at level 10, 5 Potions and the National
+Pokédex (`Act2_StartPlaytest`). Oak's speech still plays first.
 
 ## The rules of Act 2
 
@@ -41,9 +85,9 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 
   | Area | Pokémon | Levels |
   |---|---|---|
-  | Pokémon Mansion, all floors | Growlithe, Vulpix, Ponyta, Slugma, Magby, Charmander (rare); Rattata, Grimer, Koffing | 9-12 |
+  | Pokémon Mansion, all floors | Growlithe (Flame Wheel from 12), Ponyta (Flame Charge at 15), Vulpix, Slugma, Magby and Charmander (rare); Rattata, Grimer, Koffing | 10-15 |
   | Vermilion City (fishing) | Magikarp, Goldeen, Poliwag, Horsea, Krabby, Staryu, Shellder, Psyduck | 13-17 |
-  | Route 6 | Psyduck, Poliwag, Wooper, Marill, Squirtle and Totodile (rare); Pidgey, Oddish, Abra | 13-16 |
+  | Route 6 | Psyduck, Poliwag, Seel, Marill, Squirtle and Totodile (rare); Pidgey, Oddish, Abra | 13-16 |
   | Route 22 | Oddish, Bellsprout, Hoppip, Paras, Exeggcute, Bulbasaur and Chikorita (rare); Rattata, Spearow, Mankey | 16-19 |
   | Celadon City (fishing) | Lotad, Lombre (Water/Grass), Goldeen, Magikarp | 20-24 |
   | Route 7 | Capsakid (Grass; a Fire Stone from the Department Store makes Scovillain, Grass/Fire), Growlithe, Vulpix, Ponyta, Oddish, Meowth, Pidgey | 20-24 |
@@ -57,10 +101,10 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 
 | Who | Where | Team |
 |---|---|---|
-| PROF. ASHFORD (Fire) | Cinnabar Island | Oddish 11, Paras 11, Bellsprout 12: weak to Fire |
-| KAI (night 1) | Stadium | Growlithe 12, Vulpix 12, Ponyta 13 |
+| PROF. ASHFORD (Fire) | Cinnabar Island | Oddish 13, Paras 13, Bellsprout 14: weak to Fire |
+| KAI (night 1) | Stadium | See the club's teams |
 | PROF. MARLOWE (Water) | Vermilion City | Sandshrew 15, Geodude 15, Vulpix 16: weak to Water |
-| MINA (night 2) | Stadium | Staryu 17, Psyduck 17, Poliwag 18 |
+| MINA (night 2) | Stadium | See the club's teams |
 | PROF. FERN (Grass) | Viridian City | Psyduck 19, Diglett 19, Poliwhirl 20: weak to Grass |
 | DALE, League examiner (night 3) | Stadium | Pidgeotto 23, Raticate 23, Kadabra 24 |
 

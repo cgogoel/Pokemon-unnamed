@@ -3166,6 +3166,25 @@ const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_FireCushion = {
     .images = sPicTable_FireCushion,
 };
 
+// Act 2: a fire on Vermilion's docks, put out with a Water move (docs/hack/act2_story.md). Drawn with the NPC 2 palette.
+const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_DockFire = {
+    .tileTag = TAG_NONE,
+    .paletteTag = OBJ_EVENT_PAL_TAG_NPC_2,
+    .reflectionPaletteTag = OBJ_EVENT_PAL_TAG_NONE,
+    .size = 128,
+    .width = 16,
+    .height = 16,
+    .paletteSlot = PALSLOT_NPC_2,
+    .shadowSize = SHADOW_SIZE_S,
+    .inanimate = TRUE,
+    .compressed = FALSE,
+    .tracks = TRACKS_NONE,
+    .oam = &gObjectEventBaseOam_16x16,
+    .subspriteTables = sOamTables_16x16,
+    .anims = sAnimTable_Inanimate,
+    .images = sPicTable_DockFire,
+};
+
 const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_WaterCushion = {
     .tileTag = TAG_NONE,
     .paletteTag = OBJ_EVENT_PAL_TAG_NPC_1,

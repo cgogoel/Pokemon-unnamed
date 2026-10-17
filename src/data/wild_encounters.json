@@ -36585,63 +36585,63 @@
             "encounter_rate": 10,
             "mons": [
               {
-                "min_level": 9,
-                "max_level": 11,
+                "min_level": 10,
+                "max_level": 13,
                 "species": "SPECIES_GROWLITHE"
               },
               {
-                "min_level": 9,
-                "max_level": 11,
+                "min_level": 12,
+                "max_level": 15,
+                "species": "SPECIES_PONYTA"
+              },
+              {
+                "min_level": 10,
+                "max_level": 13,
                 "species": "SPECIES_VULPIX"
               },
               {
                 "min_level": 10,
                 "max_level": 12,
-                "species": "SPECIES_PONYTA"
-              },
-              {
-                "min_level": 9,
-                "max_level": 11,
                 "species": "SPECIES_RATTATA"
               },
               {
-                "min_level": 10,
-                "max_level": 12,
+                "min_level": 11,
+                "max_level": 13,
                 "species": "SPECIES_GRIMER"
               },
               {
-                "min_level": 10,
-                "max_level": 12,
+                "min_level": 11,
+                "max_level": 13,
                 "species": "SPECIES_KOFFING"
               },
               {
-                "min_level": 11,
-                "max_level": 12,
+                "min_level": 12,
+                "max_level": 14,
                 "species": "SPECIES_GROWLITHE"
               },
               {
-                "min_level": 11,
-                "max_level": 12,
-                "species": "SPECIES_VULPIX"
-              },
-              {
-                "min_level": 10,
-                "max_level": 12,
-                "species": "SPECIES_SLUGMA"
-              },
-              {
-                "min_level": 11,
-                "max_level": 12,
+                "min_level": 14,
+                "max_level": 15,
                 "species": "SPECIES_PONYTA"
               },
               {
                 "min_level": 11,
-                "max_level": 11,
+                "max_level": 13,
+                "species": "SPECIES_SLUGMA"
+              },
+              {
+                "min_level": 13,
+                "max_level": 14,
+                "species": "SPECIES_VULPIX"
+              },
+              {
+                "min_level": 12,
+                "max_level": 12,
                 "species": "SPECIES_MAGBY"
               },
               {
-                "min_level": 10,
-                "max_level": 10,
+                "min_level": 11,
+                "max_level": 11,
                 "species": "SPECIES_CHARMANDER"
               }
             ]
@@ -36654,63 +36654,63 @@
             "encounter_rate": 10,
             "mons": [
               {
-                "min_level": 9,
-                "max_level": 11,
+                "min_level": 10,
+                "max_level": 13,
                 "species": "SPECIES_GROWLITHE"
               },
               {
-                "min_level": 9,
-                "max_level": 11,
+                "min_level": 12,
+                "max_level": 15,
+                "species": "SPECIES_PONYTA"
+              },
+              {
+                "min_level": 10,
+                "max_level": 13,
                 "species": "SPECIES_VULPIX"
               },
               {
                 "min_level": 10,
                 "max_level": 12,
-                "species": "SPECIES_PONYTA"
-              },
-              {
-                "min_level": 9,
-                "max_level": 11,
                 "species": "SPECIES_RATTATA"
               },
               {
-                "min_level": 10,
-                "max_level": 12,
+                "min_level": 11,
+                "max_level": 13,
                 "species": "SPECIES_GRIMER"
               },
               {
-                "min_level": 10,
-                "max_level": 12,
+                "min_level": 11,
+                "max_level": 13,
                 "species": "SPECIES_KOFFING"
               },
               {
-                "min_level": 11,
-                "max_level": 12,
+                "min_level": 12,
+                "max_level": 14,
                 "species": "SPECIES_GROWLITHE"
               },
               {
-                "min_level": 11,
-                "max_level": 12,
-                "species": "SPECIES_VULPIX"
-              },
-              {
-                "min_level": 10,
-                "max_level": 12,
-                "species": "SPECIES_SLUGMA"
-              },
-              {
-                "min_level": 11,
-                "max_level": 12,
+                "min_level": 14,
+                "max_level": 15,
                 "species": "SPECIES_PONYTA"
               },
               {
                 "min_level": 11,
-                "max_level": 11,
+                "max_level": 13,
+                "species": "SPECIES_SLUGMA"
+              },
+              {
+                "min_level": 13,
+                "max_level": 14,
+                "species": "SPECIES_VULPIX"
+              },
+              {
+                "min_level": 12,
+                "max_level": 12,
                 "species": "SPECIES_MAGBY"
               },
               {
-                "min_level": 10,
-                "max_level": 10,
+                "min_level": 11,
+                "max_level": 11,
                 "species": "SPECIES_CHARMANDER"
               }
             ]
@@ -36723,63 +36723,63 @@
             "encounter_rate": 10,
             "mons": [
               {
-                "min_level": 9,
-                "max_level": 11,
+                "min_level": 10,
+                "max_level": 13,
                 "species": "SPECIES_GROWLITHE"
               },
               {
-                "min_level": 9,
-                "max_level": 11,
+                "min_level": 12,
+                "max_level": 15,
+                "species": "SPECIES_PONYTA"
+              },
+              {
+                "min_level": 10,
+                "max_level": 13,
                 "species": "SPECIES_VULPIX"
               },
               {
                 "min_level": 10,
                 "max_level": 12,
-                "species": "SPECIES_PONYTA"
-              },
-              {
-                "min_level": 9,
-                "max_level": 11,
                 "species": "SPECIES_RATTATA"
               },
               {
-                "min_level": 10,
-                "max_level": 12,
+                "min_level": 11,
+                "max_level": 13,
                 "species": "SPECIES_GRIMER"
               },
               {
-                "min_level": 10,
-                "max_level": 12,
+                "min_level": 11,
+                "max_level": 13,
                 "species": "SPECIES_KOFFING"
               },
               {
-                "min_level": 11,
-                "max_level": 12,
+                "min_level": 12,
+                "max_level": 14,
                 "species": "SPECIES_GROWLITHE"
               },
               {
-                "min_level": 11,
-                "max_level": 12,
-                "species": "SPECIES_VULPIX"
-              },
-              {
-                "min_level": 10,
-                "max_level": 12,
-                "species": "SPECIES_SLUGMA"
-              },
-              {
-                "min_level": 11,
-                "max_level": 12,
+                "min_level": 14,
+                "max_level": 15,
                 "species": "SPECIES_PONYTA"
               },
               {
                 "min_level": 11,
-                "max_level": 11,
+                "max_level": 13,
+                "species": "SPECIES_SLUGMA"
+              },
+              {
+                "min_level": 13,
+                "max_level": 14,
+                "species": "SPECIES_VULPIX"
+              },
+              {
+                "min_level": 12,
+                "max_level": 12,
                 "species": "SPECIES_MAGBY"
               },
               {
-                "min_level": 10,
-                "max_level": 10,
+                "min_level": 11,
+                "max_level": 11,
                 "species": "SPECIES_CHARMANDER"
               }
             ]
@@ -36792,63 +36792,63 @@
             "encounter_rate": 10,
             "mons": [
               {
-                "min_level": 9,
-                "max_level": 11,
+                "min_level": 10,
+                "max_level": 13,
                 "species": "SPECIES_GROWLITHE"
               },
               {
-                "min_level": 9,
-                "max_level": 11,
+                "min_level": 12,
+                "max_level": 15,
+                "species": "SPECIES_PONYTA"
+              },
+              {
+                "min_level": 10,
+                "max_level": 13,
                 "species": "SPECIES_VULPIX"
               },
               {
                 "min_level": 10,
                 "max_level": 12,
-                "species": "SPECIES_PONYTA"
-              },
-              {
-                "min_level": 9,
-                "max_level": 11,
                 "species": "SPECIES_RATTATA"
               },
               {
-                "min_level": 10,
-                "max_level": 12,
+                "min_level": 11,
+                "max_level": 13,
                 "species": "SPECIES_GRIMER"
               },
               {
-                "min_level": 10,
-                "max_level": 12,
+                "min_level": 11,
+                "max_level": 13,
                 "species": "SPECIES_KOFFING"
               },
               {
-                "min_level": 11,
-                "max_level": 12,
+                "min_level": 12,
+                "max_level": 14,
                 "species": "SPECIES_GROWLITHE"
               },
               {
-                "min_level": 11,
-                "max_level": 12,
-                "species": "SPECIES_VULPIX"
-              },
-              {
-                "min_level": 10,
-                "max_level": 12,
-                "species": "SPECIES_SLUGMA"
-              },
-              {
-                "min_level": 11,
-                "max_level": 12,
+                "min_level": 14,
+                "max_level": 15,
                 "species": "SPECIES_PONYTA"
               },
               {
                 "min_level": 11,
-                "max_level": 11,
+                "max_level": 13,
+                "species": "SPECIES_SLUGMA"
+              },
+              {
+                "min_level": 13,
+                "max_level": 14,
+                "species": "SPECIES_VULPIX"
+              },
+              {
+                "min_level": 12,
+                "max_level": 12,
                 "species": "SPECIES_MAGBY"
               },
               {
-                "min_level": 10,
-                "max_level": 10,
+                "min_level": 11,
+                "max_level": 11,
                 "species": "SPECIES_CHARMANDER"
               }
             ]
@@ -36957,7 +36957,7 @@
               {
                 "min_level": 14,
                 "max_level": 15,
-                "species": "SPECIES_WOOPER"
+                "species": "SPECIES_SEEL"
               },
               {
                 "min_level": 14,
@@ -36967,7 +36967,7 @@
               {
                 "min_level": 15,
                 "max_level": 16,
-                "species": "SPECIES_WOOPER"
+                "species": "SPECIES_SEEL"
               },
               {
                 "min_level": 14,

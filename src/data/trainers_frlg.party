@@ -13798,15 +13798,15 @@ Double Battle: No
 AI: Check Bad Move
 
 Oddish
-Level: 11
+Level: 13
 IVs: 10 HP / 10 Atk / 10 Def / 10 SpA / 10 SpD / 10 Spe
 
 Paras
-Level: 11
+Level: 13
 IVs: 10 HP / 10 Atk / 10 Def / 10 SpA / 10 SpD / 10 Spe
 
 Bellsprout
-Level: 12
+Level: 14
 IVs: 10 HP / 10 Atk / 10 Def / 10 SpA / 10 SpD / 10 Spe
 
 === TRAINER_ACT2_PROF_WATER ===
@@ -13860,17 +13860,13 @@ Music: Serious
 Double Battle: No
 AI: Check Bad Move
 
+Mankey
+Level: 14
+IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
+
 Growlithe
-Level: 12
-IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
-
-Vulpix
-Level: 12
-IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
-
-Ponyta
-Level: 13
-IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
+Level: 15
+IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
 
 === TRAINER_ACT2_MINA ===
 Name: MINA
@@ -13881,15 +13877,15 @@ Music: Cute
 Double Battle: No
 AI: Check Bad Move
 
+Clefairy
+Level: 17
+IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
+
+Vulpix
+Level: 17
+IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
+
 Staryu
-Level: 17
-IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
-
-Psyduck
-Level: 17
-IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
-
-Poliwag
 Level: 18
 IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
 

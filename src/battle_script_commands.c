@@ -56,6 +56,7 @@
 #include "data.h"
 #include "config_changes.h"
 #include "move.h"
+#include "act2_story.h"
 #include "constants/abilities.h"
 #include "constants/battle_anim.h"
 #include "constants/battle_move_effects.h"
@@ -1035,6 +1036,7 @@ static void Cmd_printattackstring(void)
         return;
 
     PrepareStringBattle(STRINGID_USEDMOVE, gBattlerAttacker);
+    Act2_RecordMoveUse(gBattlerAttacker, gCurrentMove);
     gBattleCommunication[MSG_DISPLAY] = MSG_DISPLAY_CONTINUE;
     if (gBattleMoveEffects[GetMoveEffect(gCurrentMove)].twoTurnEffect
      && !gBattleMons[gBattlerAttacker].volatiles.multipleTurns)

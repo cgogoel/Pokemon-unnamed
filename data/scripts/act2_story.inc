@@ -611,6 +611,8 @@ Act2_EventScript_LaprasSurfaces:
 	msgbox Act2_Text_LaprasSurfaces
 	return
 
+@ The young Lapras: recording it finishes the research, and then it asks to come along (it won't take no for an
+@ answer). In Act 3, it's the Lapras in Silph Co.'s lab.
 Act2_EventScript_DockLapras::
 	lock
 	faceplayer
@@ -620,11 +622,49 @@ Act2_EventScript_DockLapras::
 	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_DONE
 	special Act2_SetResearchFlag
 	msgbox Act2_Text_TaskComplete
-	closemessage
-	playse SE_M_SURF
+Act2_EventScript_LaprasAsks:
+	playmoncry SPECIES_LAPRAS, CRY_MODE_NORMAL
+	msgbox Act2_Text_LaprasWantsToCome, MSGBOX_YESNO
+	waitmoncry
+	goto_if_eq VAR_RESULT, NO, Act2_EventScript_LaprasWontLeave
+	setvar VAR_TEMP_1, SPECIES_LAPRAS
+	givemon SPECIES_LAPRAS, ACT2_LAPRAS_LEVEL
+	goto_if_eq VAR_RESULT, 0, Act2_EventScript_LaprasToParty
+	goto_if_eq VAR_RESULT, 1, Act2_EventScript_LaprasToPC
+	goto Common_EventScript_NoMoreRoomForPokemon
+
+Act2_EventScript_LaprasWontLeave:
+	msgbox Act2_Text_LaprasWontLeave
+	goto Act2_EventScript_LaprasAsks
+
+Act2_EventScript_LaprasToParty:
+	call Act2_EventScript_LaprasJoined
+	msgbox gText_NicknameThisPokemon, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, Act2_EventScript_LaprasDone
+	call Common_EventScript_GetGiftMonPartySlot
+	call Common_EventScript_NameReceivedPartyMon
+	goto Act2_EventScript_LaprasDone
+
+Act2_EventScript_LaprasToPC:
+	call Act2_EventScript_LaprasJoined
+	msgbox gText_NicknameThisPokemon, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, Act2_EventScript_LaprasToPCDone
+	call Common_EventScript_NameReceivedBoxMon
+Act2_EventScript_LaprasToPCDone:
+	call Common_EventScript_TransferredToPC
+	goto Act2_EventScript_LaprasDone
+
+Act2_EventScript_LaprasJoined:
 	removeobject LOCALID_VERMILION_LAPRAS
-	waitse
-	msgbox Act2_Text_LaprasSwamAway
+	setflag FLAG_ACT2_GOT_LAPRAS
+	playfanfare MUS_LEVEL_UP
+	message Act2_Text_LaprasJoined
+	waitmessage
+	waitfanfare
+	bufferspeciesname STR_VAR_1, SPECIES_LAPRAS
+	return
+
+Act2_EventScript_LaprasDone:
 	release
 	end
 
@@ -1080,11 +1120,20 @@ Act2_Text_LaprasSurfaces:
 Act2_Text_DockLapras:
 	.string "The young LAPRAS was hiding under\n"
 	.string "the burning docks.\p"
-	.string "It looks at {PLAYER} gratefully.\n"
-	.string "{PLAYER} recorded it on the sheet!$"
+	.string "{PLAYER} recorded it on the\n"
+	.string "research sheet!$"
 
-Act2_Text_LaprasSwamAway:
-	.string "The LAPRAS swam out to sea.$"
+Act2_Text_LaprasWantsToCome:
+	.string "The LAPRAS nuzzles {PLAYER}.\n"
+	.string "It seems to want to come along!\p"
+	.string "Take the LAPRAS with you?$"
+
+Act2_Text_LaprasWontLeave:
+	.string "The LAPRAS won't leave\n"
+	.string "{PLAYER}'s side…$"
+
+Act2_Text_LaprasJoined:
+	.string "The LAPRAS joined {PLAYER}!$"
 
 Act2_Text_WitheredNeedsGrass:
 	.string "A patch of withered plants.\p"

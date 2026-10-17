@@ -172,14 +172,27 @@ void Act2_RecordMoveUse(u32 battler, u32 move)
         VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_USED_TM_MOVE);
 }
 
+// The first task: a Pokémon of the type the player caught (the Lapras from Vermilion's docks was a gift)
+static bool32 PartyHasCaughtType(enum Type type)
+{
+    u32 i;
+    for (i = 0; i < PARTY_SIZE; i++)
+    {
+        struct Pokemon *mon = &gPlayerParty[i];
+        u32 species = GetMonData(mon, MON_DATA_SPECIES);
+        if (species != SPECIES_NONE && species != SPECIES_LAPRAS && !GetMonData(mon, MON_DATA_IS_EGG) && MonHasType(mon, type))
+            return TRUE;
+    }
+    return FALSE;
+}
+
 static u32 GetResearchDone(void)
 {
     const struct Act2Course *course = GetCurrentCourse();
     u32 research = VarGet(VAR_ACT2_RESEARCH), done = 0;
     if (course == NULL)
         return 0;
-    gSpecialVar_0x8004 = course->type;
-    if (Act2_PartyHasType())
+    if (PartyHasCaughtType(course->type))
         done |= 1 << 0;
     if (research & ACT2_RESEARCH_USED_MOVE)
         done |= 1 << 1;

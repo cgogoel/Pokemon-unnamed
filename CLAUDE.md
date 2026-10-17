@@ -94,6 +94,7 @@ that grow in length. Act 3 retells Kanto events (Red, Blue, Oak, Giovanni, Silph
 - Familiar characters seen from a new angle: Red, Blue, Professor Oak, Giovanni and others.
 - **Climax:** Team Rocket invades Silph. The player defends a key Pokémon, a **Lapras that has mastered the
   ultimate move**, and hands it to Red, who uses it to defeat Giovanni.
+  It's the young Lapras the player saved on Vermilion's docks in Act 2 (`FLAG_ACT2_GOT_LAPRAS`), now in Silph's lab.
 
 ### Open decisions
 - Names: player, hometown, university, the professor, the mole.

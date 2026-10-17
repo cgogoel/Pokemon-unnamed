@@ -47,8 +47,14 @@ battle (`ACT2_RESEARCH_USED_TM_MOVE`); a win without it is retaken. Progress is 
 | Course | TM | Site | Puzzle (each part: a Pokémon of the type that knows a move of it, `Act2_FindCourseMoveUser`) | Its end |
 |---|---|---|---|---|
 | Fire | TM35 Flamethrower | Pokémon Mansion | Relight 3 cold furnaces on 1F (walls at (6,2), (31,2), (0,28)). Until then, the statue switch is cold. | The switch opens the sealed room; the old research journal there (23,13) |
-| Water | TM51 BubbleBeam (new: `FOREACH_TM` in `include/constants/tms_hms.h`) | Vermilion City | Put out 3 fires on the docks ((26,28), (33,30), (37,24); `OBJ_EVENT_GFX_DOCK_FIRE`, a new placeholder sprite) | A young Lapras surfaces by the dock (28,31): talking to it |
+| Water | TM51 BubbleBeam (new: `FOREACH_TM` in `include/constants/tms_hms.h`) | Vermilion City | Put out 3 fires on the docks ((26,28), (33,30), (37,24); `OBJ_EVENT_GFX_DOCK_FIRE`, a new placeholder sprite) | A young Lapras surfaces by the dock (28,31): talking to it. Then it asks to come along (see below) |
 | Grass | TM19 Giga Drain | Route 22 | Regrow 3 withered patches ((24,13), (38,6), (44,10)); they grow into young trees | The field blooms |
+
+**The young Lapras.** After it's recorded, the Lapras nuzzles the player and asks to come along; saying no just
+makes it ask again. It joins at level 15 (`ACT2_LAPRAS_LEVEL`): into the party, or straight to the PC if the party
+is full. `FLAG_ACT2_GOT_LAPRAS` is set. It doesn't count as catching a Water Pokémon for the sheet (it's a gift),
+but it can take the BubbleBeam TM and the exam. **In Act 3, this is the Lapras in Silph Co.'s lab** that masters the
+ultimate move and goes to Red (in FireRed, the Silph worker on 7F gives the player a Lapras "kept in our lab").
 
 The site objects follow `Act2_SetupSiteObjects` (each site map's transition): `FLAG_TEMP_1` the professor and
 friends, `FLAG_TEMP_2-4` the unsolved parts, `FLAG_TEMP_5-7` what replaces them, `FLAG_TEMP_8` the reward.

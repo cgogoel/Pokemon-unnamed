@@ -1196,7 +1196,7 @@
 #define FLAG_ACT1_ITEM_CHERI_BERRY   0x4AC // Act 1: Tynamo's favorite, found in Pallet Town
 #define FLAG_ACT1_ITEM_CHESTO_BERRY  0x4AD // Act 1: Hatenna's favorite, found in the Woods
 #define FLAG_ACT1_ITEM_HONEY         0x4AE // Act 1: Teddiursa's favorite, found in the Woods
-#define FLAG_UNUSED_0x4AF               0x4AF // Unused Flag
+#define FLAG_ACT2_GOT_LAPRAS         0x4AF // Act 2: the young Lapras from Vermilion's docks came along (it's Silph's in Act 3)
 
 // Boss clear flags, 1200
 #define FLAG_DEFEATED_BROCK           0x4B0

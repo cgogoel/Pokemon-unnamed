@@ -146,6 +146,20 @@ Woods_EventScript_MailboxEnd::
 	releaseall
 	end
 
+@ The top-left entrance (the old ranger station): not for now
+Woods_EventScript_EerieEntrance::
+	lockall
+	msgbox Woods_Text_EerieSound
+	closemessage
+	applymovement LOCALID_PLAYER, Woods_Movement_StepBackDown
+	waitmovement 0
+	releaseall
+	end
+
+Woods_Movement_StepBackDown:
+	walk_down
+	step_end
+
 Woods_EventScript_SignQuincyWoods::
 	msgbox Woods_Text_SignQuincyWoods, MSGBOX_SIGN
 	end
@@ -219,3 +233,8 @@ Woods_Text_SignKeepOut:
 Woods_Text_GetBackToFarmyard:
 	.string "I should get this back to the\n"
 	.string "farmyard.$"
+
+Woods_Text_EerieSound:
+	.string "An eerie sound is coming from\n"
+	.string "inside…\p"
+	.string "I should stay away.$"

@@ -130,10 +130,12 @@ Barn_Text_DadBlipbugReminder::
 	.string "woods entrance. Kind and patient!$"
 
 Barn_Text_DadWarnJangmoO::
-	.string "DAD: You befriended a BLIPBUG?\n"
-	.string "That's my kid!\p"
+	.string "DAD: You want to know if BLIPBUG\n"
+	.string "can stay? Of course!\p"
 	.string "There may be others in the woods\n"
 	.string "who'd like to meet you.\p"
+	.string "We have plenty of room for any new\n"
+	.string "friends you make.\p"
 	.string "But be careful. There's an angry\n"
 	.string "JANGMO-O that roams the woods.\p"
 	.string "If it spots you, it'll charge.\n"

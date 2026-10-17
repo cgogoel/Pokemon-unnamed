@@ -111,3 +111,11 @@ TEST("Act 1: a chosen friend comes along in a Poke Ball, and leaves the farm whe
     RemoveBagItem(ITEM_POKE_BALL, 1);
     VarSet(VAR_ACT1_CHOSEN_FRIENDS, 0);
 }
+
+TEST("Act 1: the player's Pokédex is the National one, so the Woods' Pokémon show up in it")
+{
+    gSaveBlock2Ptr->pokedex.nationalMagic = 0;
+    EXPECT(!IsNationalPokedexEnabled());
+    RUN_OVERWORLD_SCRIPT( call Act1_EventScript_EnsureNationalDex; );
+    EXPECT(IsNationalPokedexEnabled());
+}

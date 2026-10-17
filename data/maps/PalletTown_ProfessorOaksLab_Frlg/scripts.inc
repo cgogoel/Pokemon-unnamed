@@ -48,6 +48,7 @@ PalletTown_ProfessorOaksLab_EventScript_Aide1Act1::
 	call EventScript_RestorePrevTextColor
 	setflag FLAG_SYS_POKEDEX_GET
 	special SetUnlockedPokedexFlags
+	call Act1_EventScript_EnsureNationalDex
 	call_if_lt VAR_ACT1_PROGRESS, ACT1_GOT_POKEDEX, PalletTown_ProfessorOaksLab_EventScript_SetGotPokedex
 	msgbox PalletTown_ProfessorOaksLab_Text_Aide1PokedexRecordsMons
 PalletTown_ProfessorOaksLab_EventScript_Aide1OtherWays::

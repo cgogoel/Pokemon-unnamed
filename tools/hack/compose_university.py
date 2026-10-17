@@ -146,9 +146,10 @@ def compose():
     path(19, 43, 22, 47)
     path(8, 45, 10, 47)
     path(8, 47, 18, 49)
-    path(34, 46, 46, 48)       # To the dorms
-    path(48, 31, 50, 41)       # To Home Economics
-    path(48, 39, 56, 41)
+    path(34, 46, 50, 48)       # To the dorms
+    path(58, 31, 60, 41)       # To Home Economics
+    path(53, 39, 60, 41)
+    path(5, 36, 17, 46)        # The pool's stone deck (the water goes on top)
     path(8, 7, 24, 9)          # The stadium's track
     path(8, 14, 24, 16)
     path(8, 9, 10, 14)
@@ -177,11 +178,12 @@ def compose():
     stamp(CELADON, CEL_W, 27, 4, 7, 9, 50, 8)
     # Hospital (Pokemon Center) and the pool, bottom left
     stamp(CELADON, CEL_W, 46, 7, 5, 5, 18, 38)
-    pond(7, 38, 15, 44, fenced=True)
+    pond(7, 38, 15, 44)
     # Reflecting pool along the avenue
     pond(25, 38, 29, 46)
-    # Dorms (two houses) by the gate
-    stamp(CELADON, CEL_W, 36, 25, 8, 6, 37, 40)
+    # Dorms: two residence towers (Celadon Condominiums) by the gate
+    stamp(CELADON, CEL_W, 27, 4, 7, 9, 36, 37)
+    stamp(CELADON, CEL_W, 27, 4, 7, 9, 43, 37)
     # Home Economics (Gym) with its garden
     stamp(CELADON, CEL_W, 8, 25, 8, 6, 50, 33)
     pond(53, 42, 58, 46)
@@ -197,13 +199,13 @@ def compose():
 
     # Trees: lining the avenue, and groves filling the open grass
     for y in (37, 40, 43):
-        tree(35, y)
+        tree(34, y)
     fill_with_trees()
 
 
 # Signposts (their texts are bg events in data/maps/CeladonUniversity/map.json)
-SIGNS = ((29, 46), (26, 28), (21, 28), (41, 28), (19, 28), (45, 28), (36, 19), (44, 19), (55, 16), (22, 43), (40, 45),
-         (56, 39), (14, 18), (10, 28), (10, 45))
+SIGNS = ((29, 46), (26, 28), (21, 28), (41, 28), (19, 28), (45, 28), (36, 19), (44, 19), (55, 16), (22, 43), (42, 45),
+         (52, 39), (14, 18), (10, 28), (12, 46))
 # Lamp posts (two tiles tall): along the avenue, at the fountain square, and the stadium's floodlights
 LAMPS = ((29, 37), (29, 41), (25, 33), (38, 33), (6, 6), (25, 6), (6, 14), (25, 14))
 

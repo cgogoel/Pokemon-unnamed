@@ -58,6 +58,9 @@ Act2_Movement_KaiToClass:
 	walk_left
 	walk_left
 	walk_left
+	walk_left
+	walk_left
+	walk_left
 	walk_up
 	walk_up
 	walk_up
@@ -72,6 +75,10 @@ Act2_Movement_KaiToClass:
 
 Act2_Movement_MinaToClass:
 	delay_16
+	walk_left
+	walk_left
+	walk_left
+	walk_left
 	walk_left
 	walk_left
 	walk_left
@@ -98,6 +105,10 @@ Act2_Movement_RowanToClass:
 	delay_16
 	delay_16
 	delay_16
+	walk_left
+	walk_left
+	walk_left
+	walk_left
 	walk_left
 	walk_left
 	walk_left

@@ -43,6 +43,51 @@
       "trainer_sight_or_berry_tree_id": "0",
       "script": "CeladonUniversity_LectureHallA_EventScript_Lass1",
       "flag": "0"
+    },
+    {
+      "local_id": "LOCALID_LECTURE_A_KAI",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_CAMPER_FRLG",
+      "x": 6,
+      "y": 5,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_UP",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Act2_EventScript_ClassKai",
+      "flag": "FLAG_TEMP_1"
+    },
+    {
+      "local_id": "LOCALID_LECTURE_A_MINA",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_PICNICKER_FRLG",
+      "x": 7,
+      "y": 5,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_UP",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Act2_EventScript_ClassMina",
+      "flag": "FLAG_TEMP_1"
+    },
+    {
+      "local_id": "LOCALID_LECTURE_A_ROWAN",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_BOY",
+      "x": 2,
+      "y": 5,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_UP",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Act2_EventScript_ClassRowan",
+      "flag": "FLAG_TEMP_1"
     }
   ],
   "warp_events": [

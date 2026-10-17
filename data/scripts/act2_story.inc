@@ -37,9 +37,9 @@ Act2_EventScript_MeetFriends::
 	waitmovement 0
 	msgbox Act2_Text_MeetFriends
 	closemessage
-	applymovement LOCALID_CAMPUS_KAI, Act2_Movement_LeaveLeft
-	applymovement LOCALID_CAMPUS_MINA, Act2_Movement_LeaveLeft
-	applymovement LOCALID_CAMPUS_ROWAN, Act2_Movement_LeaveLeft
+	applymovement LOCALID_CAMPUS_KAI, Act2_Movement_KaiToClass
+	applymovement LOCALID_CAMPUS_MINA, Act2_Movement_MinaToClass
+	applymovement LOCALID_CAMPUS_ROWAN, Act2_Movement_RowanToClass
 	waitmovement LOCALID_CAMPUS_ROWAN
 	removeobject LOCALID_CAMPUS_KAI
 	removeobject LOCALID_CAMPUS_MINA
@@ -48,14 +48,111 @@ Act2_EventScript_MeetFriends::
 	releaseall
 	end
 
-Act2_Movement_LeaveLeft:
+@ Off toward the MAIN HALL: along the path to the avenue (x 33), then up it until well out of sight
+Act2_Movement_KaiToClass:
 	walk_left
 	walk_left
 	walk_left
 	walk_left
 	walk_left
 	walk_left
+	walk_left
+	walk_left
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
 	step_end
+
+Act2_Movement_MinaToClass:
+	delay_16
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	step_end
+
+Act2_Movement_RowanToClass:
+	delay_16
+	delay_16
+	delay_16
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	step_end
+
+@ The friends wait in the classroom for each course to start
+Act2_EventScript_ClassroomObjects::
+	setflag FLAG_TEMP_1
+	call_if_eq VAR_ACT2_PROGRESS, VAR_0x8004, Act2_EventScript_ShowObjectsTemp1
+	return
+
+CeladonUniversity_LectureHallA_OnTransition::
+	setvar VAR_0x8004, ACT2_MET_FRIENDS
+	call Act2_EventScript_ClassroomObjects
+	end
+
+CeladonUniversity_LectureHallB_OnTransition::
+	setvar VAR_0x8004, ACT2_CLUB_1_DONE
+	call Act2_EventScript_ClassroomObjects
+	end
+
+CeladonUniversity_HomeEconomics_OnTransition::
+	setvar VAR_0x8004, ACT2_CLUB_2_DONE
+	call Act2_EventScript_ClassroomObjects
+	end
+
+Act2_EventScript_ClassKai::
+	msgbox Act2_Text_ClassKai, MSGBOX_NPC
+	end
+
+Act2_EventScript_ClassMina::
+	msgbox Act2_Text_ClassMina, MSGBOX_NPC
+	end
+
+Act2_EventScript_ClassRowan::
+	msgbox Act2_Text_ClassRowan, MSGBOX_NPC
+	end
 
 Act2_EventScript_CampusKai::
 	msgbox Act2_Text_MeetFriends, MSGBOX_NPC
@@ -1167,6 +1264,18 @@ Act2_Text_Regrown:
 
 Act2_Text_ComeBackWhenReady:
 	.string "Come back when you're ready.$"
+
+Act2_Text_ClassKai:
+	.string "KAI: There you are! Class is about\n"
+	.string "to start. Talk to the professor!$"
+
+Act2_Text_ClassMina:
+	.string "MINA: I saved you a seat!\n"
+	.string "Well, kind of. We're all standing.$"
+
+Act2_Text_ClassRowan:
+	.string "ROWAN: The professor's waiting\n"
+	.string "for you.$"
 
 Act2_Text_TripKai:
 	.string "KAI: I'm going to catch the\n"

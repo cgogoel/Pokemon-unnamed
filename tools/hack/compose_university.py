@@ -94,6 +94,38 @@ def lay_paths():
         put(x, y, edges.get(key, 0x16E) | ELEV)
 
 
+def tree(x, y):
+    # A lone tree (Celadon's): canopy over the grass above, then trunk and shadow
+    put(x, y, 0x00E | ELEV)
+    put(x + 1, y, 0x00F | ELEV)
+    put(x, y + 1, 0x01E | SOLID)
+    put(x + 1, y + 1, 0x01F | SOLID)
+    put(x, y + 2, 0x026 | SOLID)
+    put(x + 1, y + 2, 0x027 | SOLID)
+
+
+def bushes(x0, y0, x1, y1, block=0x005):
+    for y in range(y0, y1):
+        for x in range(x0, x1):
+            put(x, y, block | (SOLID if block == 0x005 else ELEV))
+
+
+def hedge(x0, y, n):
+    # Three-tile hedge pieces: ends 13D/13F, middle 13E
+    for i in range(n):
+        put(x0 + i, y, (0x13D if i == 0 else 0x13F if i == n - 1 else 0x13E) | SOLID)
+
+
+def pond(x0, y0, x1, y1, fenced=False):
+    # Celadon's pond water: top 1A5-1A7, middle 1AD-1AF, bottom 2CB/2DD/2CC
+    if fenced:
+        fence(x0 - 1, y0 - 1, x1 + 1, y1)
+    for y in range(y0, y1):
+        row = (0x1A5, 0x1A6, 0x1A7) if y == y0 else (0x2CB, 0x2DD, 0x2CC) if y == y1 - 1 else (0x1AD, 0x1AE, 0x1AF)
+        for x in range(x0, x1):
+            put(x, y, (row[0] if x == x0 else row[2] if x == x1 - 1 else row[1]) | (ELEV if y == y0 else SOLID | ELEV))
+
+
 def compose():
     grass(0, 0, W, H)
     trees(0, 0, W, 4)
@@ -101,45 +133,100 @@ def compose():
     trees(0, 0, 4, H)
     trees(W - 4, 0, W, H)
 
-    # Paths: from the gate up to the central building, across campus, out to each department
-    path(30, 24, 34, 50)       # Main avenue from the gate
-    path(6, 31, 58, 34)        # Cross avenue
-    path(50, 13, 52, 31)       # To the Science Research Institute
-    path(40, 11, 42, 31)       # To Literature
-    path(9, 25, 11, 31)        # To the hospital
-    path(34, 44, 52, 46)       # To Home Economics and the dorms
-    path(49, 42, 51, 44)
-    path(8, 7, 25, 9)          # Sports field track
-    path(8, 15, 25, 17)
-    path(8, 9, 10, 15)
-    path(23, 9, 25, 15)
-    path(15, 17, 17, 20)
-    path(14, 34, 16, 40)       # To the ranch
+    # Paths
+    path(4, 29, 60, 31)        # The street in front of the main hall
+    path(26, 29, 38, 37)       # Fountain square
+    path(30, 37, 34, 50)       # Avenue from the gate
+    path(15, 17, 17, 29)       # To the stadium
+    path(8, 27, 10, 29)        # To the ranch
+    path(46, 20, 48, 29)       # Beside the east wing, up to Literature
+    path(36, 20, 48, 22)
+    path(52, 17, 55, 29)       # To the Science Research Institute
+    path(18, 47, 30, 49)       # To the hospital and the pool
+    path(19, 43, 22, 47)
+    path(8, 45, 10, 47)
+    path(8, 47, 18, 49)
+    path(34, 46, 46, 48)       # To the dorms
+    path(48, 31, 50, 41)       # To Home Economics
+    path(48, 39, 56, 41)
+    path(8, 7, 24, 9)          # The stadium's track
+    path(8, 14, 24, 16)
+    path(8, 9, 10, 14)
+    path(22, 9, 24, 14)
     lay_paths()
 
-    # Sports field (top left) and the research ranch (bottom left), fenced with gaps to their paths
-    fence(6, 5, 27, 20, bottom_gap=(15, 17))
-    fence(6, 39, 25, 50, top_gap=(14, 16))
-
-    # Central building (Celadon Department Store) with the clock-tower fountain plaza in front
-    stamp(CELADON, CEL_W, 9, 5, 9, 10, 27, 14)
-    stamp(CELADON, CEL_W, 10, 18, 7, 5, 28, 25)
-    # Science Research Institute (Celadon Condominiums), top right
-    stamp(CELADON, CEL_W, 27, 4, 7, 8, 48, 5)
-    # Literature department (two of Celadon's houses), top middle
-    stamp(CELADON, CEL_W, 34, 7, 8, 5, 37, 6)
-    # University hospital (Pokemon Center) and pool (Celadon's pond), left
-    stamp(CELADON, CEL_W, 46, 7, 5, 5, 8, 20)
-    stamp(CELADON, CEL_W, 23, 20, 8, 4, 14, 21)
-    # Home economics (Celadon Gym), lower right
-    stamp(CELADON, CEL_W, 8, 25, 8, 6, 46, 36)
-    # Dorms (two of Celadon's row houses), by the gate
-    stamp(CELADON, CEL_W, 32, 25, 8, 5, 37, 39)
+    # Stadium (top left), fenced
+    fence(5, 5, 27, 18, bottom_gap=(15, 17))
+    # Research ranch (left)
+    fence(4, 19, 14, 28, bottom_gap=(8, 10))
+    bushes(6, 21, 7, 22)
+    bushes(11, 23, 12, 24)
+    bushes(7, 24, 9, 25, 0x004)
+    # Main hall: Department Store in the middle (the clock tower), Game Corner wings, glass greenhouse behind
+    stamp(CELADON, CEL_W, 9, 5, 9, 11, 27, 18)
+    stamp(CELADON, CEL_W, 38, 17, 3, 5, 17, 23)
+    stamp(CELADON, CEL_W, 31, 17, 7, 6, 20, 23)
+    stamp(CELADON, CEL_W, 31, 17, 7, 6, 36, 23)
+    stamp(CELADON, CEL_W, 38, 17, 3, 5, 43, 23)
+    stamp(CELADON, CEL_W, 24, 16, 6, 3, 20, 19)
+    # Gyarados fountain in the square
+    stamp(CELADON, CEL_W, 10, 18, 7, 5, 28, 31)
+    # Literature (two houses) behind the east wing
+    stamp(CELADON, CEL_W, 36, 25, 8, 6, 37, 14)
+    # Science Research Institute (Condominiums), top right
+    stamp(CELADON, CEL_W, 27, 4, 7, 9, 50, 8)
+    # Hospital (Pokemon Center) and the pool, bottom left
+    stamp(CELADON, CEL_W, 46, 7, 5, 5, 18, 38)
+    pond(7, 38, 15, 44, fenced=True)
+    # Reflecting pool along the avenue
+    pond(25, 38, 29, 46)
+    # Dorms (two houses) by the gate
+    stamp(CELADON, CEL_W, 36, 25, 8, 6, 37, 40)
+    # Home Economics (Gym) with its garden
+    stamp(CELADON, CEL_W, 8, 25, 8, 6, 50, 33)
+    pond(53, 42, 58, 46)
+    bushes(51, 42, 52, 46, 0x004)
+    bushes(50, 46, 59, 47)
     # The gate's back, as Saffron shows its south gate: the path ends at warp tiles in front of its roof
     # (warp tiles at (31,49) and (32,49)), with Celadon's paving instead of Saffron's
     stamp(SAFFRON, SAF_W, 32, 45, 6, 8, 29, 48)
     for x, block in zip(range(30, 34), (0x16D, 0x16E, 0x16E, 0x16F)):
         put(x, 48, block | ELEV)
+
+    # Trees: lining the avenue, and groves filling the open grass
+    for y in (37, 40, 43):
+        tree(35, y)
+    fill_with_trees()
+
+
+def is_grass(x, y):
+    return 0 <= x < W and 0 <= y < H and grid[y * W + x] & 0x3FF in (0x008, 0x009, 0x010, 0x011)
+
+
+# Open lawns kept clear of trees: the stadium's field and the ranch
+LAWNS = ((5, 5, 27, 18), (4, 19, 14, 28))
+
+
+TREE_BLOCKS = (0x014, 0x015, 0x01C, 0x01D, 0x024, 0x025, 0x00E, 0x00F, 0x01E, 0x01F, 0x026, 0x027)
+
+
+def fill_with_trees():
+    # Groves of lone trees wherever they fit on open grass, keeping a one-tile walkway along paths, buildings and
+    # water (trees may touch other trees), like the art's wooded campus
+    def lawn(x, y):
+        return any(a <= x < c and b <= y < d for (a, b, c, d) in LAWNS)
+
+    def ok(x, y, dx, dy):
+        if not (0 <= x < W and 0 <= y < H):
+            return True
+        if 0 <= dx < 2 and 0 <= dy < 3:
+            return is_grass(x, y) and not lawn(x, y)
+        return is_grass(x, y) or grid[y * W + x] & 0x3FF in TREE_BLOCKS
+
+    for y in range(4, H - 6):
+        for x in range(4, W - 5):
+            if all(ok(x + dx, y + dy, dx, dy) for dx in range(-1, 3) for dy in range(-1, 4)):
+                tree(x, y)
 
 
 def write(path, blocks):

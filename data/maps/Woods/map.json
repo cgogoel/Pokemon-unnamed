@@ -125,7 +125,7 @@
       "x": 4,
       "y": 9,
       "elevation": 0,
-      "var": "VAR_TEMP_9",
+      "var": "VAR_STORY_ACT",
       "var_value": "0",
       "script": "Woods_EventScript_EerieEntrance"
     },
@@ -134,7 +134,7 @@
       "x": 5,
       "y": 9,
       "elevation": 0,
-      "var": "VAR_TEMP_9",
+      "var": "VAR_STORY_ACT",
       "var_value": "0",
       "script": "Woods_EventScript_EerieEntrance"
     },
@@ -143,7 +143,7 @@
       "x": 6,
       "y": 9,
       "elevation": 0,
-      "var": "VAR_TEMP_9",
+      "var": "VAR_STORY_ACT",
       "var_value": "0",
       "script": "Woods_EventScript_EerieEntrance"
     }

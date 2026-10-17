@@ -146,7 +146,8 @@ Woods_EventScript_MailboxEnd::
 	releaseall
 	end
 
-@ The top-left entrance (the old ranger station): not for now
+@ The top-left entrance (the old ranger station): closed in Act 1 only (coord events on VAR_STORY_ACT == 0); it opens
+@ after Act 1.
 Woods_EventScript_EerieEntrance::
 	lockall
 	msgbox Woods_Text_EerieSound

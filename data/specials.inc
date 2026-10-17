@@ -650,3 +650,17 @@ gSpecials::
 	def_special Act1_TakeFarmMonWithYou
 	def_special Act1_FinishChoosing
 	def_special Act1_StartPrologueEnd
+	def_special Act2_PartyHasType
+	def_special Act2_PartyHasProjectPokemon
+	def_special Act2_SetNight
+	def_special Act2_GiveRemoteDesktop
+	def_special Act2_IsResearchDone
+	def_special Act2_BufferResearchSheet
+	def_special Act2_PartyCanUseCourseTM
+	def_special Act2_FindCourseMoveUser
+	def_special Act2_SolvePuzzlePart
+	def_special Act2_IsPuzzlePartSolved
+	def_special Act2_SetupSiteObjects
+	def_special Act2_SetResearchFlag
+	def_special Act2_HasResearchFlag
+	def_special Act2_ClearResearchFlag

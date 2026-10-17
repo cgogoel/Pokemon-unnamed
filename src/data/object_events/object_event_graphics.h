@@ -208,6 +208,7 @@ const u32 gObjectEventPic_DiamondCushion[] = INCGFX_U32("graphics/object_events/
 const u32 gObjectEventPic_BallCushion[] = INCGFX_U32("graphics/object_events/pics/cushions/ball_cushion.png", ".4bpp");
 const u32 gObjectEventPic_GrassCushion[] = INCGFX_U32("graphics/object_events/pics/cushions/grass_cushion.png", ".4bpp");
 const u32 gObjectEventPic_FireCushion[] = INCGFX_U32("graphics/object_events/pics/cushions/fire_cushion.png", ".4bpp");
+const u32 gObjectEventPic_DockFire[] = INCGFX_U32("graphics/object_events/pics/misc/dock_fire.png", ".4bpp");
 const u32 gObjectEventPic_WaterCushion[] = INCGFX_U32("graphics/object_events/pics/cushions/water_cushion.png", ".4bpp");
 const u32 gObjectEventPic_BigSnorlaxDoll[] = INCGFX_U32("graphics/object_events/pics/dolls/big_snorlax_doll.png", ".4bpp");
 const u32 gObjectEventPic_BigRhydonDoll[] = INCGFX_U32("graphics/object_events/pics/dolls/big_rhydon_doll.png", ".4bpp");

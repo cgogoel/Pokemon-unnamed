@@ -53,6 +53,7 @@
 #include "constants/items.h"
 #include "difficulty.h"
 #include "follower_npc.h"
+#include "act2_story.h"
 
 extern const u8 EventScript_ResetAllMapFlags[];
 extern const u8 EventScript_ResetAllMapFlagsFrlg[];
@@ -236,6 +237,9 @@ void NewGameInitData(void)
     ResetItemFlags();
     ResetDexNav();
     ClearFollowerNPCData();
+#ifdef ACT2_PLAYTEST
+    Act2_StartPlaytest();
+#endif
 }
 
 static void ResetMiniGamesRecords(void)

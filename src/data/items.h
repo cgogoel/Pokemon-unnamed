@@ -13051,11 +13051,14 @@ const struct ItemInfo gItemsInfo[] =
         .fieldUseFunc = ItemUseOutOfBattle_TMHM,
     },
 
-    [ITEM_TM51] =
+    [ITEM_TM_BUBBLE_BEAM] = // Act 2: the Water course's TM
     {
         .name = ITEM_NAME("TM51"),
         .price = 3000,
-        .description = COMPOUND_STRING("?????"), // Todo
+        .description = COMPOUND_STRING(
+            "A spray of bubbles\n"
+            "that may lower the\n"
+            "foe's Speed."),
         .importance = I_REUSABLE_TMS,
         .pocket = POCKET_TM_HM,
         .type = ITEM_USE_PARTY_MENU,
@@ -14178,12 +14181,12 @@ const struct ItemInfo gItemsInfo[] =
 
     [ITEM_POKEMON_BOX_LINK] =
     {
-        .name = ITEM_NAME("{PKMN} Box Link"),
+        .name = ITEM_NAME("Remote Desktop"), // The hack's name (ITEM_REMOTE_DESKTOP)
         .price = 0,
         .description = COMPOUND_STRING(
-            "Allows access to\n"
-            "the Pokémon\n"
-            "Storage System."),
+            "Accesses the\n"
+            "Pokémon Storage\n"
+            "System anywhere."),
         .importance = 1,
         .pocket = POCKET_KEY_ITEMS,
         .type = ITEM_USE_FIELD,

@@ -632,7 +632,16 @@
 //       only space for 25 additional trainers before trainer flag space overflows.
 //       MAX_TRAINERS_COUNT_FRLG can be increased but will take up additional saveblock space
 
-#define TRAINERS_COUNT_FRLG                      624
+// Act 2 (docs/hack/act2_story.md): the course exams, the night club and the Trainer Card exam. They battle the player
+// before the Trainer Card (Act2_IsStoryTrainer).
+#define TRAINER_ACT2_PROF_FIRE                     624
+#define TRAINER_ACT2_PROF_WATER                    625
+#define TRAINER_ACT2_PROF_GRASS                    626
+#define TRAINER_ACT2_KAI                           627
+#define TRAINER_ACT2_MINA                          628
+#define TRAINER_ACT2_EXAMINER                      629
+
+#define TRAINERS_COUNT_FRLG                      630
 #define MAX_TRAINERS_COUNT_FRLG                  768
 
 #endif  // GUARD_CONSTANTS_OPPONENTS_FRLG_H

@@ -875,6 +875,7 @@ enum __attribute__((packed)) Item
     ITEM_BERRY_POUCH = 716,
     ITEM_POKEMON_BOX_LINK = 717,
     ITEM_POKEMON_BOX = ITEM_POKEMON_BOX_LINK, // Pre-Gen VIII name
+    ITEM_REMOTE_DESKTOP = ITEM_POKEMON_BOX_LINK, // The hack's name for it: Acts 2 and 3 (docs/hack/act2_story.md)
     ITEM_COIN_CASE = 718,
     ITEM_POWDER_JAR = 719,
     ITEM_WAILMER_PAIL = 720,

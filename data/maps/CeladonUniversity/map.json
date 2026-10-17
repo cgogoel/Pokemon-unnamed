@@ -3,7 +3,6 @@
   "name": "CeladonUniversity",
   "layout": "LAYOUT_CELADON_UNIVERSITY",
   "music": "MUS_RG_CELADON",
-  "region": "REGION_KANTO",
   "region_map_section": "MAPSEC_CELADON_CITY",
   "requires_flash": false,
   "weather": "WEATHER_SUNNY",
@@ -45,6 +44,7 @@
       "flag": "0"
     },
     {
+      "local_id": "LOCALID_CAMPUS_RUNNER",
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_COOLTRAINER_M",
       "x": 12,
@@ -59,6 +59,7 @@
       "flag": "0"
     },
     {
+      "local_id": "LOCALID_CAMPUS_STADIUM_STUDENT",
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_COOLTRAINER_F",
       "x": 16,
@@ -225,6 +226,111 @@
       "trainer_sight_or_berry_tree_id": "0",
       "script": "CeladonUniversity_EventScript_BaldingMan14",
       "flag": "0"
+    },
+    {
+      "local_id": "LOCALID_CAMPUS_KAI",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_CAMPER_FRLG",
+      "x": 44,
+      "y": 46,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_RIGHT",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Act2_EventScript_CampusKai",
+      "flag": "FLAG_TEMP_1"
+    },
+    {
+      "local_id": "LOCALID_CAMPUS_MINA",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_PICNICKER_FRLG",
+      "x": 47,
+      "y": 46,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_UP",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Act2_EventScript_CampusMina",
+      "flag": "FLAG_TEMP_1"
+    },
+    {
+      "local_id": "LOCALID_CAMPUS_ROWAN",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_BOY",
+      "x": 48,
+      "y": 46,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_LEFT",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Act2_EventScript_CampusRowan",
+      "flag": "FLAG_TEMP_1"
+    },
+    {
+      "local_id": "LOCALID_CAMPUS_NIGHT_KAI",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_CAMPER_FRLG",
+      "x": 16,
+      "y": 12,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "0x0",
+      "flag": "FLAG_TEMP_2"
+    },
+    {
+      "local_id": "LOCALID_CAMPUS_NIGHT_MINA",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_PICNICKER_FRLG",
+      "x": 14,
+      "y": 13,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "0x0",
+      "flag": "FLAG_TEMP_2"
+    },
+    {
+      "local_id": "LOCALID_CAMPUS_NIGHT_ROWAN",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_BOY",
+      "x": 18,
+      "y": 13,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "0x0",
+      "flag": "FLAG_TEMP_2"
+    },
+    {
+      "local_id": "LOCALID_CAMPUS_DALE",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_COOLTRAINER_M",
+      "x": 16,
+      "y": 10,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "0x0",
+      "flag": "FLAG_TEMP_3"
     }
   ],
   "warp_events": [
@@ -313,14 +419,14 @@
       "dest_warp_id": "0"
     },
     {
-      "x": 38,
+      "x": 39,
       "y": 44,
       "elevation": 0,
       "dest_map": "MAP_CELADON_UNIVERSITY_DORM_LOBBY",
       "dest_warp_id": "1"
     },
     {
-      "x": 42,
+      "x": 46,
       "y": 44,
       "elevation": 0,
       "dest_map": "MAP_CELADON_UNIVERSITY_DORM_ROOM",
@@ -334,7 +440,62 @@
       "dest_warp_id": "1"
     }
   ],
-  "coord_events": [],
+  "coord_events": [
+    {
+      "type": "trigger",
+      "x": 15,
+      "y": 17,
+      "elevation": 3,
+      "var": "VAR_ACT2_PROGRESS",
+      "var_value": "4",
+      "script": "Act2_EventScript_ClubNight1"
+    },
+    {
+      "type": "trigger",
+      "x": 16,
+      "y": 17,
+      "elevation": 3,
+      "var": "VAR_ACT2_PROGRESS",
+      "var_value": "4",
+      "script": "Act2_EventScript_ClubNight1"
+    },
+    {
+      "type": "trigger",
+      "x": 15,
+      "y": 17,
+      "elevation": 3,
+      "var": "VAR_ACT2_PROGRESS",
+      "var_value": "8",
+      "script": "Act2_EventScript_ClubNight2"
+    },
+    {
+      "type": "trigger",
+      "x": 16,
+      "y": 17,
+      "elevation": 3,
+      "var": "VAR_ACT2_PROGRESS",
+      "var_value": "8",
+      "script": "Act2_EventScript_ClubNight2"
+    },
+    {
+      "type": "trigger",
+      "x": 15,
+      "y": 17,
+      "elevation": 3,
+      "var": "VAR_ACT2_PROGRESS",
+      "var_value": "12",
+      "script": "Act2_EventScript_ClubNight3"
+    },
+    {
+      "type": "trigger",
+      "x": 16,
+      "y": 17,
+      "elevation": 3,
+      "var": "VAR_ACT2_PROGRESS",
+      "var_value": "12",
+      "script": "Act2_EventScript_ClubNight3"
+    }
+  ],
   "bg_events": [
     {
       "type": "sign",
@@ -418,7 +579,7 @@
     },
     {
       "type": "sign",
-      "x": 40,
+      "x": 42,
       "y": 45,
       "elevation": 0,
       "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
@@ -426,7 +587,7 @@
     },
     {
       "type": "sign",
-      "x": 56,
+      "x": 52,
       "y": 39,
       "elevation": 0,
       "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
@@ -450,11 +611,12 @@
     },
     {
       "type": "sign",
-      "x": 10,
-      "y": 45,
+      "x": 12,
+      "y": 46,
       "elevation": 0,
       "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
       "script": "CeladonUniversity_EventScript_Sign14"
     }
-  ]
+  ],
+  "region": "REGION_KANTO"
 }

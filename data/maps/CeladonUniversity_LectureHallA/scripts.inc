@@ -1,6 +1,7 @@
 @ Celadon University: Lecture Hall A (Act 2, docs/hack/celadon_university.md).
 
 CeladonUniversity_LectureHallA_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, CeladonUniversity_LectureHallA_OnTransition
 	.byte 0
 
 CeladonUniversity_LectureHallA_EventScript_Woman20::

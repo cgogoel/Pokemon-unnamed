@@ -1,6 +1,7 @@
 @ Celadon University: Audiovisual Classroom (Act 2, docs/hack/celadon_university.md).
 
 CeladonUniversity_LectureHallB_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, CeladonUniversity_LectureHallB_OnTransition
 	.byte 0
 
 CeladonUniversity_LectureHallB_EventScript_OldMan20::

@@ -21,6 +21,7 @@
 #include "constants/field_effects.h"
 #include "constants/script_commands.h"
 #include "constants/trainer_types.h"
+#include "act2_story.h"
 
 // this file's functions
 static u8 CheckTrainer(u8 objectEventId);
@@ -440,6 +441,9 @@ bool8 CheckForTrainersWantingBattle(void)
     u8 trainerObjectsCount = 0;
 
     if (FlagGet(OW_FLAG_NO_TRAINER_SEE))
+        return FALSE;
+    // Act 2: no Trainer Card yet, so trainers don't challenge the player
+    if (Act2_TrainersLocked())
         return FALSE;
 
     gNoOfApproachingTrainers = 0;

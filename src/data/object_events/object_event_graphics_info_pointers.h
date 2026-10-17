@@ -173,6 +173,7 @@ extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_DiamondCush
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_BallCushion;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_GrassCushion;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_FireCushion;
+extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_DockFire;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_WaterCushion;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_BigSnorlaxDoll;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_BigRhydonDoll;
@@ -739,6 +740,7 @@ const struct ObjectEventGraphicsInfo *const gObjectEventGraphicsInfoPointers[NUM
     [OBJ_EVENT_GFX_POKEDEX]                  = &gObjectEventGraphicsInfo_Pokedex,
     [OBJ_EVENT_GFX_CUTTABLE_TREE_FRLG]       = &gObjectEventGraphicsInfo_CuttableTreeFrlg,
     [OBJ_EVENT_GFX_BREAKABLE_ROCK_FRLG]      = &gObjectEventGraphicsInfo_BreakableRockFrlg,
+    [OBJ_EVENT_GFX_DOCK_FIRE]                = &gObjectEventGraphicsInfo_DockFire,
     [OBJ_EVENT_GFX_PUSHABLE_BOULDER_FRLG]    = &gObjectEventGraphicsInfo_PushableBoulderFrlg,
     [OBJ_EVENT_GFX_FOSSIL_FRLG]              = &gObjectEventGraphicsInfo_FossilFrlg,
     [OBJ_EVENT_GFX_RUBY]                     = &gObjectEventGraphicsInfo_Ruby,

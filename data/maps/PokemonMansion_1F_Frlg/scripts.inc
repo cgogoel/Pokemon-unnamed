@@ -9,9 +9,12 @@ PokemonMansion_1F_OnLoad::
 
 PokemonMansion_1F_OnTransition::
 	setworldmapflag FLAG_WORLD_MAP_POKEMON_MANSION_1F
+	call PokemonMansion_1F_EventScript_Act2Objects
 	end
 
 PokemonMansion_1F_EventScript_Statue::
+	goto_if_eq VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP, Act2_EventScript_MansionStatue
+PokemonMansion_1F_EventScript_StatueSwitch::
 	lockall
 	setvar VAR_0x8004, 0
 	call PokemonMansion_EventScript_SecretSwitch

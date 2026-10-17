@@ -1,6 +1,7 @@
 @ Celadon University: Home Economics (Act 2, docs/hack/celadon_university.md).
 
 CeladonUniversity_HomeEconomics_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, CeladonUniversity_HomeEconomics_OnTransition
 	.byte 0
 
 CeladonUniversity_HomeEconomics_EventScript_Beauty0::

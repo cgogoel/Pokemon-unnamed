@@ -1,5 +1,6 @@
 #include "global.h"
 #include "act1_story.h"
+#include "act2_story.h"
 #include "bg.h"
 #include "event_data.h"
 #include "gpu_regs.h"
@@ -11,6 +12,7 @@
 #include "sprite.h"
 #include "text.h"
 #include "window.h"
+#include "constants/heal_locations.h"
 #include "constants/rgb.h"
 #include "constants/story.h"
 
@@ -138,6 +140,10 @@ static void CB2_PrologueEnd(void)
         FreeAllWindowBuffers();
         TRY_FREE_AND_SET_NULL(sTilemap);
         VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+        VarSet(VAR_ACT2_PROGRESS, ACT2_START);
+        Act2_RaisePartyLevels();
+        Act2_GiveRemoteDesktop();
+        SetLastHealLocationWarp(HEAL_LOCATION_CELADON_CITY);
         SetWarpDestination(MAP_GROUP(ACT2_START_MAP), MAP_NUM(ACT2_START_MAP), WARP_ID_NONE, ACT2_START_X, ACT2_START_Y);
         WarpIntoMap();
         gMain.state = 0;

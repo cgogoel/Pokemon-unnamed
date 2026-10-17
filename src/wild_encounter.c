@@ -63,6 +63,7 @@ EWRAM_DATA bool8 gIsSurfingEncounter = 0;
 EWRAM_DATA u8 gChainFishingDexNavStreak = 0;
 
 #include "data/wild_encounters.h"
+#include "act2_story.h"
 
 const struct WildPokemon gWildFeebas = {20, 25, SPECIES_FEEBAS};
 
@@ -376,6 +377,10 @@ u8 ChooseWildMonLevel(const struct WildPokemon *wildPokemon, u8 wildMonIndex, en
     u8 range;
     u8 rand;
 
+    // Act 2: scaled to the player's Pokémon instead
+    if (Act2_UsesAct2WildPokemon())
+        return Act2_GetWildLevel();
+
     if (LURE_STEP_COUNT == 0)
     {
         // Make sure minimum level is less than maximum level
@@ -418,9 +423,38 @@ u8 ChooseWildMonLevel(const struct WildPokemon *wildPokemon, u8 wildMonIndex, en
     }
 }
 
+// Act 2's own tables (sAct2_*_FireRed in wild_encounters.json: a label without FireRed or LeafGreen would be
+// Emerald-only), told apart by their contents: Porymap reorders the file,
+// so they can sit before or after the area's own table. Add new Act 2 tables here.
+static const struct WildPokemonInfo *const sAct2WildMonsInfos[] =
+{
+    &sAct2_PokemonMansion1F_FireRed_LandMonsInfo,
+    &sAct2_PokemonMansion2F_FireRed_LandMonsInfo,
+    &sAct2_PokemonMansion3F_FireRed_LandMonsInfo,
+    &sAct2_PokemonMansionB1F_FireRed_LandMonsInfo,
+    &sAct2_VermilionCity_FireRed_FishingMonsInfo,
+    &sAct2_Route6_FireRed_LandMonsInfo,
+    &sAct2_Route22_FireRed_LandMonsInfo,
+    &sAct2_CeladonCity_FireRed_FishingMonsInfo,
+    &sAct2_Route7_FireRed_LandMonsInfo,
+};
+
+static bool32 IsAct2WildMonHeader(u32 headerId)
+{
+    const struct WildEncounterTypes *types = &gWildMonHeaders[headerId].encounterTypes[TIME_OF_DAY_DEFAULT];
+    u32 i;
+    for (i = 0; i < ARRAY_COUNT(sAct2WildMonsInfos); i++)
+    {
+        if (types->landMonsInfo == sAct2WildMonsInfos[i] || types->fishingMonsInfo == sAct2WildMonsInfos[i])
+            return TRUE;
+    }
+    return FALSE;
+}
+
 u16 GetCurrentMapWildMonHeaderId(void)
 {
     u16 i;
+    u16 found = HEADER_NONE;
 
     for (i = 0; ; i++)
     {
@@ -431,6 +465,16 @@ u16 GetCurrentMapWildMonHeaderId(void)
         if (gWildMonHeaders[i].mapGroup == gSaveBlock1Ptr->location.mapGroup &&
             gWildMonHeaders[i].mapNum == gSaveBlock1Ptr->location.mapNum)
         {
+            // Act 2's own table for this area, if it has one (Act2_UsesAct2WildPokemon); otherwise the area's own
+            if (IsAct2WildMonHeader(i))
+            {
+                if (Act2_UsesAct2WildPokemon())
+                    return i;
+                continue;
+            }
+            if (found != HEADER_NONE)
+                continue;
+
             if (gSaveBlock1Ptr->location.mapGroup == MAP_GROUP(MAP_ALTERING_CAVE) &&
                 gSaveBlock1Ptr->location.mapNum == MAP_NUM(MAP_ALTERING_CAVE))
             {
@@ -438,14 +482,16 @@ u16 GetCurrentMapWildMonHeaderId(void)
                 if (alteringCaveId >= NUM_ALTERING_CAVE_TABLES)
                     alteringCaveId = 0;
 
-                i += alteringCaveId;
+                found = i + alteringCaveId;
             }
-
-            return i;
+            else
+            {
+                found = i;
+            }
         }
     }
 
-    return HEADER_NONE;
+    return found;
 }
 
 enum TimeOfDay GetTimeOfDayForEncounters(u32 headerId, enum WildPokemonArea area)

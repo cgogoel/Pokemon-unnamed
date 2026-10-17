@@ -3,26 +3,10 @@ VermilionCity_Frlg_MapScripts::
 	map_script MAP_SCRIPT_ON_FRAME_TABLE, VermilionCity_OnFrame
 	.byte 0
 
-VermilionCity_OnFrame::
-	map_script_2 VAR_MAP_SCENE_VERMILION_CITY, 2, VermilionCity_EventScript_ExitSSAnne
-	.2byte 0
-
-VermilionCity_EventScript_ExitSSAnne::
-	lockall
-	applymovement LOCALID_PLAYER, VermilionCity_Movement_ExitSSAnne
-	waitmovement 0
-	setvar VAR_MAP_SCENE_VERMILION_CITY, 3
-	releaseall
-	end
-
-VermilionCity_Movement_ExitSSAnne::
-	walk_up
-	walk_up
-	step_end
-
 VermilionCity_OnTransition::
 	setworldmapflag FLAG_WORLD_MAP_VERMILION_CITY
 	call_if_set FLAG_TALKED_TO_OAKS_AIDE_IN_VERMILION, VermilionCity_EventScript_HideOaksAide
+	call VermilionCity_EventScript_Act2Objects
 	end
 
 VermilionCity_EventScript_HideOaksAide::
@@ -165,10 +149,6 @@ VermilionCity_EventScript_ChooseSeagallopDestTriPass::
 	end
 
 @ Unreachable
-Vermilion_EventScript_Unused::
-	release
-	end
-
 VermilionCity_EventScript_CheckTicketLeft::
 	lockall
 	goto VermilionCity_EventScript_CheckTicket

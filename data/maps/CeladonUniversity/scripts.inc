@@ -1,6 +1,8 @@
 @ Celadon University's campus (Act 2, docs/hack/celadon_university.md).
 
 CeladonUniversity_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, CeladonUniversity_OnTransition
+	map_script MAP_SCRIPT_ON_FRAME_TABLE, CeladonUniversity_OnFrame
 	.byte 0
 
 CeladonUniversity_EventScript_Lass0::

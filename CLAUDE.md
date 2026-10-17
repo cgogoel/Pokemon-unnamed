@@ -21,6 +21,8 @@ Per-release notes live in `docs/changelogs/<X.Y.x>/` (`docs/CHANGELOG.md` is jus
 - Vanilla Emerald / LeafGreen builds: `make emerald` / `make leafgreen` (run `make clean` when switching game versions)
 - Build with debug symbols: `make debug`
 - Release build (strips debug features): `make release`
+- Act 2 playtest build (a new game starts at Act 2): `make act2` (writes `pokemon-unnamed-act2.gba`). Build it
+  alongside the normal ROM after each change.
 - Run expansion test suite: `make check`
 - Clean: `make clean`
 
@@ -72,13 +74,18 @@ that grow in length. Act 3 retells Kanto events (Red, Blue, Oak, Giovanni, Silph
 - **Act ends** once the player has beaten the town's 2 strongest unique Pokémon and befriended a 3rd.
 
 ### Act 2 — University (medium)
-- Time skip: the player finished local schooling and was accepted to university.
+- Time skip: the player finished local schooling and was accepted to university (Celadon University).
 - Introduces Poké Balls and teams of up to 3.
 - **3v3 battles:** each turn the player chooses which of their 3 Pokémon attacks and which of the
   3 opponents it targets. The enemy side does the same. Each move hits 1, 2 or all 3 targets.
-- Structure: one course per major type. Each course is about finding that type's best move and testing
-  what Pokémon can reach through inherent ability and training.
-- **Act ends** with a final exam where the player discovers an **ultimate move that's super effective against every type**.
+- Structure (docs/hack/act2_story.md): three courses, Fire, Water and Grass, in that order. Each is a field trip
+  (Cinnabar Island, Vermilion City, Viridian City) with a research sheet: catch a Pokémon of the type, use and
+  record its moves, solve the site's puzzle with it. That makes a TM (Flamethrower, BubbleBeam, Giga Drain), and
+  the professor's exam only counts if the TM's move is used.
+- The friends' club teams grow with what they caught on each field trip.
+- Between courses, the player's friends take them to a secret battle club at the campus stadium at night.
+- No Trainer Card until the third night's exam: until then trainers refuse to battle; only wild Pokémon do.
+- **Act ends** with a final research project: catch a Pokémon that's two of Fire, Water and Grass.
 
 ### Act 3 — Workforce (large)
 - Time skip: the player is a lead researcher at Silph Co.
@@ -87,6 +94,7 @@ that grow in length. Act 3 retells Kanto events (Red, Blue, Oak, Giovanni, Silph
 - Familiar characters seen from a new angle: Red, Blue, Professor Oak, Giovanni and others.
 - **Climax:** Team Rocket invades Silph. The player defends a key Pokémon, a **Lapras that has mastered the
   ultimate move**, and hands it to Red, who uses it to defeat Giovanni.
+  It's the young Lapras the player saved on Vermilion's docks in Act 2 (`FLAG_ACT2_GOT_LAPRAS`), now in Silph's lab.
 
 ### Open decisions
 - Names: player, hometown, university, the professor, the mole.

@@ -141,6 +141,10 @@ In both builds, the Pokémon the player starts Act 2 with know the moves they'd 
 - **The Remote Desktop**: a key item that opens the Pokémon Storage System anywhere (the expansion's Pokémon Box
   Link, renamed: `ITEM_REMOTE_DESKTOP`). Given when Act 2 starts, kept in Act 3 (`Act2_GiveStartingKit`; saves
   already in Act 2 get it on campus).
+- **The Heal Dash**: a key item (new, `ITEM_HEAL_DASH`, `src/heal_dash.c`) that spins the player away, as with
+  Teleport, to the front of the nurse in the last Pokémon Center they went into (the white-out respawn point). On a
+  field trip it's always the trip town's Pokémon Center, visited or not (`Act2_GetTripHealLocation`). Given with the
+  Remote Desktop; PROF. ASHFORD mentions it in his Cinnabar briefing.
 - **The time skip**: at the end of the prologue, the two Pokémon the player brought go up to level 10
   (`ACT2_START_LEVEL`) with the moves they'd know there (`Act2_RaisePartyLevels`). Blacking out returns the player
   to Celadon's Pokémon Center; on a field trip, to that city's.

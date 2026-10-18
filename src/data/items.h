@@ -14195,6 +14195,22 @@ const struct ItemInfo gItemsInfo[] =
         .iconPalette = gItemIconPalette_PokemonBoxLink,
     },
 
+    [ITEM_HEAL_DASH] =
+    {
+        .name = ITEM_NAME("Heal Dash"),
+        .price = 0,
+        .description = COMPOUND_STRING(
+            "Dashes back to\n"
+            "the last Pokémon\n"
+            "Center visited."),
+        .importance = 1,
+        .pocket = POCKET_KEY_ITEMS,
+        .type = ITEM_USE_FIELD,
+        .fieldUseFunc = ItemUseOutOfBattle_HealDash,
+        .iconPic = gItemIcon_HeavyDutyBoots,
+        .iconPalette = gItemIconPalette_HeavyDutyBoots,
+    },
+
     [ITEM_COIN_CASE] =
     {
         .name = ITEM_NAME("Coin Case"),

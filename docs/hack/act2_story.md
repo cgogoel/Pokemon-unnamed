@@ -41,6 +41,11 @@ After that, talking to the professor shows the **research sheet** (`Act2_BufferR
    (`Act2_RecordMoveUse`, from `Cmd_printattackstring`; `VAR_ACT2_MOVES_SEEN`).
 4. Solve the site's puzzle (below).
 
+In battle, tasks 1 and 3 show their counter ("Research: 2 of 3 WATER moves recorded!" / "... POKéMON caught!") each
+time they go up, until they're done: a new move once the move in progress is over (`MOVEEND_ACT2_RESEARCH`,
+`Act2_TakeResearchMoveMessage`), a new species after it's caught (`BS_Act2ResearchCatch` in
+`BattleScript_SuccessBallThrowEnd`, `Act2_BufferResearchCatchMessage`).
+
 With all four done, the professor makes the course's **TM** with the player. The **exam** needs a Pokémon of the
 course's type that knows the TM's move (`Act2_PartyCanUseCourseTM`), and only counts if it uses that move in the
 battle (`ACT2_RESEARCH_USED_TM_MOVE`); a win without it is retaken. Progress is `VAR_ACT2_RESEARCH`
@@ -129,6 +134,9 @@ Pokédex (`Act2_StartPlaytest`). Oak's speech still plays first.
 | MINA (night 2) | Stadium | See the club's teams |
 | PROF. FERN (Grass) | Viridian City | Psyduck 19, Diglett 19, Poliwhirl 20: weak to Grass |
 | DALE, League examiner (night 3) | Stadium | Pidgeotto 23, Raticate 23, Kadabra 24 |
+
+From Act 2 on there are no Gym badges to earn, so the player's Pokémon always obey, whatever their level or OT
+(`GetAttackerObedienceForAction`).
 
 ## Characters (names are placeholders)
 

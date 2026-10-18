@@ -207,19 +207,55 @@ static u32 CountMovesRecorded(void)
     return count;
 }
 
+// A research counter to show once the move in progress is over (MOVEEND_ACT2_RESEARCH)
+static EWRAM_DATA bool8 sResearchMessagePending = FALSE;
+
+static const u8 sText_ResearchCount[] = _("Research: {STR_VAR_2} of 3 {STR_VAR_3}\n");
+static const u8 sText_ResearchMoves[] = _("moves recorded!");
+static const u8 sText_ResearchPokemon[] = _("POKéMON caught!");
+
+// The counter's message in gStringVar1, for STRINGID_ACT2RESEARCH
+static void BufferResearchMessage(const struct Act2Course *course, u32 count, const u8 *what)
+{
+    ConvertIntToDecimalStringN(gStringVar2, count, STR_CONV_MODE_LEFT_ALIGN, 1);
+    StringCopy(gStringVar3, course->typeName);
+    StringExpandPlaceholders(gStringVar1, sText_ResearchCount);
+    StringAppend(gStringVar1, what);
+}
+
 // From the battle, each time a Pokémon uses a move (Cmd_printattackstring)
 void Act2_RecordMoveUse(u32 battler, u32 move)
 {
     const struct Act2Course *course = GetCurrentCourse();
+    u32 seen;
     if (course == NULL || GetMoveType(move) != course->type)
         return;
     // Different moves light different bits (by move ID): good enough to count a handful of them
-    VarSet(VAR_ACT2_MOVES_SEEN, VarGet(VAR_ACT2_MOVES_SEEN) | (1 << (move % 16)));
+    seen = VarGet(VAR_ACT2_MOVES_SEEN);
+    if (!(seen & (1 << (move % 16))))
+    {
+        VarSet(VAR_ACT2_MOVES_SEEN, seen | (1 << (move % 16)));
+        if (CountMovesRecorded() <= RESEARCH_MOVES_TO_RECORD)
+            sResearchMessagePending = TRUE;
+    }
     if (!IsOnPlayerSide(battler))
         return;
     VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_USED_MOVE);
     if (move == course->tmMove && (gBattleTypeFlags & BATTLE_TYPE_TRAINER) && TRAINER_BATTLE_PARAM.opponentA == course->professor)
         VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_USED_TM_MOVE);
+}
+
+// From the battle, at the end of a move: TRUE when a new move was recorded (its counter is in gStringVar1)
+bool32 Act2_TakeResearchMoveMessage(void)
+{
+    const struct Act2Course *course = GetCurrentCourse();
+    if (!sResearchMessagePending)
+        return FALSE;
+    sResearchMessagePending = FALSE;
+    if (course == NULL)
+        return FALSE;
+    BufferResearchMessage(course, CountMovesRecorded(), sText_ResearchMoves);
+    return TRUE;
 }
 
 #define RESEARCH_SPECIES_TO_CATCH 3
@@ -241,19 +277,55 @@ static bool32 CountsAsCaught(u32 species, bool32 isEgg, enum Type type, u16 *see
     return TRUE;
 }
 
-// The first task: how many different species of the type the player has, in the party and the PC (up to the 3 needed)
-u32 Act2_CountCaughtSpeciesOfType(enum Type type)
+static u32 CountCaughtSpecies(enum Type type, u32 limit)
 {
-    u16 seen[RESEARCH_SPECIES_TO_CATCH];
+    u16 seen[RESEARCH_SPECIES_TO_CATCH + 1];
     u32 count = 0, i, box, pos;
-    for (i = 0; i < PARTY_SIZE && count < RESEARCH_SPECIES_TO_CATCH; i++)
+    for (i = 0; i < PARTY_SIZE && count < limit; i++)
         CountsAsCaught(GetMonData(&gPlayerParty[i], MON_DATA_SPECIES), GetMonData(&gPlayerParty[i], MON_DATA_IS_EGG), type, seen, &count);
-    for (box = 0; box < TOTAL_BOXES_COUNT && count < RESEARCH_SPECIES_TO_CATCH; box++)
+    for (box = 0; box < TOTAL_BOXES_COUNT && count < limit; box++)
     {
-        for (pos = 0; pos < IN_BOX_COUNT && count < RESEARCH_SPECIES_TO_CATCH; pos++)
+        for (pos = 0; pos < IN_BOX_COUNT && count < limit; pos++)
             CountsAsCaught(GetBoxMonDataAt(box, pos, MON_DATA_SPECIES), GetBoxMonDataAt(box, pos, MON_DATA_IS_EGG), type, seen, &count);
     }
     return count;
+}
+
+// The first task: how many different species of the type the player has, in the party and the PC (up to the 3 needed)
+u32 Act2_CountCaughtSpeciesOfType(enum Type type)
+{
+    return CountCaughtSpecies(type, RESEARCH_SPECIES_TO_CATCH);
+}
+
+static u32 CountSpeciesOwned(u32 species)
+{
+    u32 count = 0, i, box, pos;
+    for (i = 0; i < PARTY_SIZE; i++)
+        count += GetMonData(&gPlayerParty[i], MON_DATA_SPECIES) == species;
+    for (box = 0; box < TOTAL_BOXES_COUNT; box++)
+    {
+        for (pos = 0; pos < IN_BOX_COUNT; pos++)
+            count += GetBoxMonDataAt(box, pos, MON_DATA_SPECIES) == species;
+    }
+    return count;
+}
+
+// From the battle, once a caught Pokémon was given to the player: TRUE when it's a new species toward the course's
+// first task (its counter is in gStringVar1)
+bool32 Act2_BufferResearchCatchMessage(u32 species)
+{
+    const struct Act2Course *course = GetCurrentCourse();
+    u32 count;
+    if (course == NULL || species == SPECIES_LAPRAS
+     || (GetSpeciesType(species, 0) != course->type && GetSpeciesType(species, 1) != course->type)
+     || CountSpeciesOwned(species) != 1)
+        return FALSE;
+    // One more than needed tells whether the task was already done before this one
+    count = CountCaughtSpecies(course->type, RESEARCH_SPECIES_TO_CATCH + 1);
+    if (count > RESEARCH_SPECIES_TO_CATCH)
+        return FALSE;
+    BufferResearchMessage(course, count, sText_ResearchPokemon);
+    return TRUE;
 }
 
 static u32 GetResearchDone(void)

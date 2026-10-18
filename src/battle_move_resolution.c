@@ -1,4 +1,5 @@
 #include "global.h"
+#include "act2_story.h"
 #include "battle.h"
 #include "battle_arena.h"
 #include "battle_environment.h"
@@ -4961,6 +4962,15 @@ static enum MoveEndResult MoveEndOpportunist(struct BattleCalcValues *cv)
     return MOVEEND_RESULT_CONTINUE;
 }
 
+static enum MoveEndResult MoveEndAct2Research(struct BattleCalcValues *cv)
+{
+    gBattleScripting.moveendState++;
+    if (!Act2_TakeResearchMoveMessage())
+        return MOVEEND_RESULT_CONTINUE;
+    BattleScriptCall(BattleScript_Act2ResearchMessage);
+    return MOVEEND_RESULT_RUN_SCRIPT;
+}
+
 static enum MoveEndResult MoveEndThirdMoveBlock(struct BattleCalcValues *cv)
 {
     enum MoveEndResult result = MOVEEND_RESULT_CONTINUE;
@@ -5364,6 +5374,7 @@ static enum MoveEndResult (*const sMoveEndHandlers[])(struct BattleCalcValues *c
     [MOVEEND_CONFUSION_AFTER_SKY_DROP] = MoveEndConfusionAfterSkyDrop,
     [MOVEEND_SPRAY_LEPPA_BLUNDER] = MoveEndSprayLeppaBlunder,
     [MOVEEND_ITEM_ON_STAT_CHANGE] = MoveEndItemOnStatChange,
+    [MOVEEND_ACT2_RESEARCH] = MoveEndAct2Research,
     [MOVEEND_SEND_OUT_REPLACEMENTS] = MoveEndSendOutReplacements,
     [MOVEEND_CLEAR_BITS] = MoveEndClearBits,
     [MOVEEND_DANCER] = MoveEndDancer,

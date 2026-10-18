@@ -226,10 +226,23 @@ static const struct Act2Course *GetCurrentCourse(void)
 
 static u32 CountMovesRecorded(void)
 {
-    u32 seen = VarGet(VAR_ACT2_MOVES_SEEN), count = 0;
-    for (; seen != 0; seen >>= 1)
-        count += seen & 1;
-    return count;
+    return (VarGet(VAR_ACT2_MOVE_SEEN_1) != MOVE_NONE) + (VarGet(VAR_ACT2_MOVE_SEEN_2) != MOVE_NONE)
+         + ((VarGet(VAR_ACT2_RESEARCH) & ACT2_RESEARCH_MOVES_DONE) != 0);
+}
+
+// TRUE if the move is new: the first two are kept, the third only needs to be counted
+static bool32 RecordMoveSeen(u32 move)
+{
+    u32 first = VarGet(VAR_ACT2_MOVE_SEEN_1), second = VarGet(VAR_ACT2_MOVE_SEEN_2);
+    if (move == first || move == second || CountMovesRecorded() >= RESEARCH_MOVES_TO_RECORD)
+        return FALSE;
+    if (first == MOVE_NONE)
+        VarSet(VAR_ACT2_MOVE_SEEN_1, move);
+    else if (second == MOVE_NONE)
+        VarSet(VAR_ACT2_MOVE_SEEN_2, move);
+    else
+        VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_MOVES_DONE);
+    return TRUE;
 }
 
 // A research counter to show once the move in progress is over (MOVEEND_ACT2_RESEARCH)
@@ -252,22 +265,56 @@ static void BufferResearchMessage(const struct Act2Course *course, u32 count, co
 void Act2_RecordMoveUse(u32 battler, u32 move)
 {
     const struct Act2Course *course = GetCurrentCourse();
-    u32 seen;
     if (course == NULL || GetMoveType(move) != course->type)
         return;
-    // Different moves light different bits (by move ID): good enough to count a handful of them
-    seen = VarGet(VAR_ACT2_MOVES_SEEN);
-    if (!(seen & (1 << (move % 16))))
-    {
-        VarSet(VAR_ACT2_MOVES_SEEN, seen | (1 << (move % 16)));
-        if (CountMovesRecorded() <= RESEARCH_MOVES_TO_RECORD)
-            sResearchMessagePending = TRUE;
-    }
+    if (RecordMoveSeen(move))
+        sResearchMessagePending = TRUE;
     if (!IsOnPlayerSide(battler))
         return;
     VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_USED_MOVE);
     if (move == course->tmMove && (gBattleTypeFlags & BATTLE_TYPE_TRAINER) && TRAINER_BATTLE_PARAM.opponentA == course->professor)
         VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_USED_TM_MOVE);
+}
+
+// On a field trip, a wild Pokémon of the course's type knows its type's moves from up to this many levels ahead, so
+// there are a few different ones to record without training up first
+#define ACT2_TYPE_MOVE_LOOKAHEAD 8
+
+static bool32 MonKnowsMove(struct Pokemon *mon, u32 move)
+{
+    u32 i;
+    for (i = 0; i < MAX_MON_MOVES; i++)
+    {
+        if (GetMonData(mon, MON_DATA_MOVE1 + i) == move)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+// From CreateWildMon: a course-type Pokémon's other moves make way for its course-type ones (learned or coming up)
+void Act2_TeachWildCourseMoves(struct Pokemon *mon)
+{
+    const struct Act2Course *course = GetCurrentCourse();
+    const struct LevelUpMove *learnset;
+    u32 species = GetMonData(mon, MON_DATA_SPECIES), level = GetMonData(mon, MON_DATA_LEVEL), i, slot;
+    if (course == NULL || (GetSpeciesType(species, 0) != course->type && GetSpeciesType(species, 1) != course->type))
+        return;
+    learnset = GetSpeciesLevelUpLearnset(species);
+    for (i = 0; learnset[i].move != LEVEL_UP_MOVE_END && learnset[i].level <= level + ACT2_TYPE_MOVE_LOOKAHEAD; i++)
+    {
+        u32 move = learnset[i].move;
+        if (GetMoveType(move) != course->type || MonKnowsMove(mon, move))
+            continue;
+        for (slot = 0; slot < MAX_MON_MOVES; slot++)
+        {
+            u32 known = GetMonData(mon, MON_DATA_MOVE1 + slot);
+            if (known == MOVE_NONE || GetMoveType(known) != course->type)
+                break;
+        }
+        if (slot == MAX_MON_MOVES)
+            return;
+        SetMonMoveSlot(mon, move, slot);
+    }
 }
 
 // From the battle, at the end of a move: TRUE when a new move was recorded (its counter is in gStringVar1)

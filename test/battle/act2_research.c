@@ -22,3 +22,25 @@ WILD_BATTLE_TEST("Act 2: a newly recorded course-type move shows the research co
         NOT MESSAGE("Research: 1 of 3 WATER\nmoves recorded!");
     }
 }
+
+WILD_BATTLE_TEST("Act 2: the whole party gains experience, as with the Exp. Share on")
+{
+    u32 act = 0;
+    PARAMETRIZE { act = STORY_ACT_CHILDHOOD; }
+    PARAMETRIZE { act = STORY_ACT_UNIVERSITY; }
+    GIVEN {
+        VarSet(VAR_STORY_ACT, act);
+        PLAYER(SPECIES_WOBBUFFET) { Level(20); }
+        PLAYER(SPECIES_WYNAUT) { Level(20); }
+        OPPONENT(SPECIES_CATERPIE) { Level(10); HP(1); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_SCRATCH); }
+    } SCENE {
+        MESSAGE("The wild Caterpie fainted!");
+        EXPERIENCE_BAR(player);
+        if (act == STORY_ACT_UNIVERSITY)
+            MESSAGE("The rest of your team gained Exp. Points thanks to the Exp. Share!");
+        else
+            NOT MESSAGE("The rest of your team gained Exp. Points thanks to the Exp. Share!");
+    }
+}

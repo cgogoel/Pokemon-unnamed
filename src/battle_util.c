@@ -9734,6 +9734,9 @@ bool32 MoveEffectIsGuaranteed(enum BattlerId battler, enum Ability battlerAbilit
 
 bool32 IsGen6ExpShareEnabled(void)
 {
+    // Acts 2 and 3: the whole party always shares the experience
+    if (VarGet(VAR_STORY_ACT) >= STORY_ACT_UNIVERSITY)
+        return TRUE;
     if (I_EXP_SHARE_FLAG <= TEMP_FLAGS_END)
         return FALSE;
 

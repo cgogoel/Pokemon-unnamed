@@ -820,6 +820,10 @@ static const struct SpriteFrameImage sPicTable_DockFire[] = {
     obj_frame_tiles(gObjectEventPic_DockFire),
 };
 
+static const struct SpriteFrameImage sPicTable_WitheredPlant[] = {
+    obj_frame_tiles(gObjectEventPic_WitheredPlant),
+};
+
 static const struct SpriteFrameImage sPicTable_WaterCushion[] = {
     obj_frame_tiles(gObjectEventPic_WaterCushion),
 };

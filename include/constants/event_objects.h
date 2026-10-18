@@ -414,6 +414,7 @@ enum
     OBJ_EVENT_GFX_CUTTABLE_TREE_FRLG,
     OBJ_EVENT_GFX_BREAKABLE_ROCK_FRLG,
     OBJ_EVENT_GFX_DOCK_FIRE, // Act 2: the Water course's puzzle (docs/hack/act2_story.md)
+    OBJ_EVENT_GFX_WITHERED_PLANT, // Act 2: the Grass course's puzzle
     NUM_OBJ_EVENT_GFX,
 };
 

@@ -3185,6 +3185,24 @@ const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_DockFire = {
     .images = sPicTable_DockFire,
 };
 
+const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_WitheredPlant = {
+    .tileTag = TAG_NONE,
+    .paletteTag = OBJ_EVENT_PAL_TAG_NPC_1,
+    .reflectionPaletteTag = OBJ_EVENT_PAL_TAG_NONE,
+    .size = 128,
+    .width = 16,
+    .height = 16,
+    .paletteSlot = PALSLOT_NPC_1,
+    .shadowSize = SHADOW_SIZE_S,
+    .inanimate = TRUE,
+    .compressed = FALSE,
+    .tracks = TRACKS_NONE,
+    .oam = &gObjectEventBaseOam_16x16,
+    .subspriteTables = sOamTables_16x16,
+    .anims = sAnimTable_Inanimate,
+    .images = sPicTable_WitheredPlant,
+};
+
 const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_WaterCushion = {
     .tileTag = TAG_NONE,
     .paletteTag = OBJ_EVENT_PAL_TAG_NPC_1,

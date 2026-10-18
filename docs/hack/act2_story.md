@@ -56,7 +56,7 @@ battle (`ACT2_RESEARCH_USED_TM_MOVE`); a win without it is retaken. Progress is 
 |---|---|---|---|---|
 | Fire | TM35 Flamethrower | Pokémon Mansion | Relight 3 cold furnaces on 1F (on the walls at (6,2), (31,2), (4,12); `METATILE_PokemonMansion_Furnace_Cold`, swapped for `_Lit` once relit, drawn by `tools/hack/draw_mansion_furnace.py`). Until then, the statue switch is cold. | The switch opens the sealed room; the old research journal there (23,13) |
 | Water | TM51 BubbleBeam (new: `FOREACH_TM` in `include/constants/tms_hms.h`) | Vermilion City | Put out 3 fires on the docks ((26,28), (33,30), (37,24); `OBJ_EVENT_GFX_DOCK_FIRE`, a new placeholder sprite) | A young Lapras surfaces by the dock (28,31): talking to it. Then it asks to come along (see below) |
-| Grass | TM19 Giga Drain | Route 22 | Regrow 3 withered patches ((24,13), (38,6), (44,10)); they grow into young trees | The field blooms |
+| Grass | TM19 Giga Drain | Route 22 | Regrow 3 withered plants ((24,13), (38,6), (44,10); `OBJ_EVENT_GFX_WITHERED_PLANT`, a dried-out shrub); they grow into young trees | The field blooms |
 
 **The young Lapras.** After it's recorded, the Lapras nuzzles the player and asks to come along; saying no just
 makes it ask again. It joins at level 15 (`ACT2_LAPRAS_LEVEL`): into the party, or straight to the PC if the party

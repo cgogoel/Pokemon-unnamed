@@ -85,6 +85,9 @@ placeholders of the same size).
 starts at Act 2's beginning, in the dorm room, with Teddiursa and Tynamo at level 10, 5 Potions and the National
 Pokédex (`Act2_StartPlaytest`). Oak's speech still plays first.
 
+In both builds, the Pokémon the player starts Act 2 with know the moves they'd have learned by level 10, and at least
+2: Tackle fills in for one that only has one (Blipbug) (`Act2_GiveStartingMoves`).
+
 ## The rules of Act 2
 
 - **No Trainer Card, no trainer battles** (until `ACT2_GOT_TRAINER_CARD`, `Act2_TrainersLocked`): trainers don't

@@ -3895,6 +3895,9 @@ void ExpandBattleTextBuffPlaceholders(const u8 *src, u8 *dst)
     }
 }
 
+// B_TEXT_NEEDS_BUTTON_PRESS: a message is in the message box that the player hasn't dismissed yet
+EWRAM_DATA bool8 gBattleMessageAwaitsButton = FALSE;
+
 void BattlePutTextOnWindow(const u8 *text, u8 windowId)
 {
     const struct BattleWindowText *textInfo = sBattleTextOnWindowsInfo[gBattleScripting.windowsType];
@@ -3912,6 +3915,8 @@ void BattlePutTextOnWindow(const u8 *text, u8 windowId)
         FillWindowPixelBuffer(windowId, textInfo[windowId].fillValue);
         copyToVram = TRUE;
     }
+    if (windowId == B_WIN_MSG)
+        gBattleMessageAwaitsButton = (text[0] != EOS);
 
     printerTemplate.currentChar = text;
     printerTemplate.type = WINDOW_TEXT_PRINTER;

@@ -1524,6 +1524,7 @@ static bool32 WaitForButtonAfterMessage(void)
         return FALSE;
     }
     PlaySE(SE_SELECT);
+    gBattleMessageAwaitsButton = FALSE;
     FillWindowPixelRect(B_WIN_MSG, PIXEL_FILL(15), x, y, TILE_WIDTH, TILE_HEIGHT * 2);
     CopyWindowToVram(B_WIN_MSG, COPYWIN_GFX);
     sWaitArrowCounter = 0;
@@ -1546,8 +1547,8 @@ static void Cmd_waitmessage(void)
             u16 toWait = cmd->time;
             if (gTestRunnerHeadless)
                 gPauseCounterBattle = toWait;
-            // A blank message (nothing printed) doesn't wait for a button
-            if (BattleMessageWaitsForButton() && gDisplayedStringBattle[0] != EOS ? WaitForButtonAfterMessage() : ++gPauseCounterBattle >= toWait)
+            // Only a message the player hasn't dismissed yet waits for a button: not a blank one, nor one already waited on
+            if (BattleMessageWaitsForButton() && gBattleMessageAwaitsButton ? WaitForButtonAfterMessage() : ++gPauseCounterBattle >= toWait)
             {
                 gPauseCounterBattle = 0;
                 gBattlescriptCurrInstr = cmd->nextInstr;

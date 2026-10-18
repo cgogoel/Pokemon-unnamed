@@ -81,6 +81,7 @@ enum {
     MOVE_SPEED_FASTER, // mach bike's max speed
     MOVE_SPEED_FASTEST,
     MOVE_SPEED_PLAYER_WALK, // the player's own walk, 1.5x normal (16 px in 11 frames; see AdjustWalkSpeed)
+    MOVE_SPEED_PLAYER_RUN, // the player's own run (B held), 1.5x their walk (16 px in 7 frames; see AdjustWalkSpeed)
 };
 
 enum {
@@ -5867,7 +5868,7 @@ bool8 FollowablePlayerMovement_Step(struct ObjectEvent *objectEvent, struct Spri
     {
         ObjectEventSetSingleMovement(objectEvent, sprite, GetWalkSlowMovementAction(direction));
     }
-    else if (gSprites[gPlayerAvatar.spriteId].data[4] == MOVE_SPEED_FAST_1)
+    else if (gSprites[gPlayerAvatar.spriteId].data[4] == MOVE_SPEED_FAST_1 || gSprites[gPlayerAvatar.spriteId].data[4] == MOVE_SPEED_PLAYER_RUN)
     {
         objectEvent->movementActionId = GetWalkFastMovementAction(direction);
     }
@@ -7018,13 +7019,17 @@ void InitNpcForMovement(struct ObjectEvent *objectEvent, struct Sprite *sprite, 
     sprite->sActionFuncId = 1;
 }
 
-// The player walks at 1.5x the usual speed, and their follower keeps up. Only when the player is in control:
-// in scripted scenes they walk at the usual speed, in step with everyone else.
+// The player walks at 1.5x the usual speed and runs at 1.5x that, and their follower keeps up. Only when the player
+// is in control: in scripted scenes they move at the usual speeds, in step with everyone else.
 static u8 AdjustWalkSpeed(struct ObjectEvent *objectEvent, u8 speed)
 {
-    if (speed == MOVE_SPEED_NORMAL && (objectEvent->isPlayer || objectEvent->localId == OBJ_EVENT_ID_FOLLOWER)
-     && !ArePlayerFieldControlsLocked())
+    if (!(objectEvent->isPlayer || objectEvent->localId == OBJ_EVENT_ID_FOLLOWER) || ArePlayerFieldControlsLocked())
+        return speed;
+    if (speed == MOVE_SPEED_NORMAL)
         return MOVE_SPEED_PLAYER_WALK;
+    // The follower runs along with the player (who started the step first)
+    if (speed == MOVE_SPEED_FAST_1 && !objectEvent->isPlayer && gSprites[gPlayerAvatar.spriteId].data[4] == MOVE_SPEED_PLAYER_RUN)
+        return MOVE_SPEED_PLAYER_RUN;
     return speed;
 }
 
@@ -7041,7 +7046,10 @@ static void InitMovementNormal(struct ObjectEvent *objectEvent, struct Sprite *s
 
 static void StartRunningAnim(struct ObjectEvent *objectEvent, struct Sprite *sprite, enum Direction direction)
 {
-    InitNpcForMovement(objectEvent, sprite, direction, MOVE_SPEED_FAST_1);
+    u8 speed = MOVE_SPEED_FAST_1;
+    if (objectEvent->isPlayer && !ArePlayerFieldControlsLocked())
+        speed = MOVE_SPEED_PLAYER_RUN;
+    InitNpcForMovement(objectEvent, sprite, direction, speed);
     SetStepAnimHandleAlternation(objectEvent, sprite, GetRunningDirectionAnimNum(objectEvent->facingDirection));
 }
 
@@ -10663,6 +10671,17 @@ static const SpriteStepFunc sStepPlayerWalkFuncs[] = {
     Step1,
 };
 
+// 1.5x the player's walk: 16 px in 7 frames (as close to 7.11 as whole pixels get)
+static const SpriteStepFunc sStepPlayerRunFuncs[] = {
+    Step2,
+    Step2,
+    Step3,
+    Step2,
+    Step2,
+    Step3,
+    Step2,
+};
+
 static const SpriteStepFunc *const sNpcStepFuncTables[] = {
     [MOVE_SPEED_NORMAL] = sStep1Funcs,
     [MOVE_SPEED_FAST_1] = sStep2Funcs,
@@ -10670,6 +10689,7 @@ static const SpriteStepFunc *const sNpcStepFuncTables[] = {
     [MOVE_SPEED_FASTER] = sStep4Funcs,
     [MOVE_SPEED_FASTEST] = sStep8Funcs,
     [MOVE_SPEED_PLAYER_WALK] = sStepPlayerWalkFuncs,
+    [MOVE_SPEED_PLAYER_RUN] = sStepPlayerRunFuncs,
 };
 
 static const s16 sStepTimes[] = {
@@ -10679,6 +10699,7 @@ static const s16 sStepTimes[] = {
     [MOVE_SPEED_FASTER] = ARRAY_COUNT(sStep4Funcs),
     [MOVE_SPEED_FASTEST] = ARRAY_COUNT(sStep8Funcs),
     [MOVE_SPEED_PLAYER_WALK] = ARRAY_COUNT(sStepPlayerWalkFuncs),
+    [MOVE_SPEED_PLAYER_RUN] = ARRAY_COUNT(sStepPlayerRunFuncs),
 };
 
 static bool8 NpcTakeStep(struct Sprite *sprite)

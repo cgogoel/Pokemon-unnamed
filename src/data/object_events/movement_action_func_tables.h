@@ -701,6 +701,7 @@ static u8 (*const sDirectionAnimFuncsBySpeed[])(enum Direction) = {
     [MOVE_SPEED_FASTER] = GetMoveDirectionFasterAnimNum,
     [MOVE_SPEED_FASTEST] = GetMoveDirectionFastestAnimNum,
     [MOVE_SPEED_PLAYER_WALK] = GetMoveDirectionAnimNum, // One foot per step, like walking
+    [MOVE_SPEED_PLAYER_RUN] = GetMoveDirectionFastAnimNum, // The follower running along
 };
 
 u8 (*const gMovementActionFuncs_WalkSlowDiagonalUpLeft[])(struct ObjectEvent *, struct Sprite *) = {

@@ -517,27 +517,37 @@ bool16 Act2_PartyCanUseCourseTM(void)
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-// The club's battles: each friend brings their partner and what they caught on the field trips so far, picking
-// species the player doesn't have in their party right now
+// The club's battles (3v3): each friend brings their partner and what they caught on the field trips so far, picking
+// species the player doesn't have in their party right now. Every foe is at the average level of the player's three.
 
 struct ClubSlot
 {
-    u8 level;
     u16 species[5]; // In order of preference; SPECIES_NONE ends the list
 };
 
 static const struct ClubSlot sKaiTeam[] =
 {
-    { 14, { SPECIES_MANKEY } },
-    { 15, { SPECIES_GROWLITHE, SPECIES_PONYTA, SPECIES_VULPIX, SPECIES_SLUGMA } },
+    { { SPECIES_MANKEY } },
+    { { SPECIES_GROWLITHE, SPECIES_PONYTA, SPECIES_VULPIX, SPECIES_SLUGMA } },
+    { { SPECIES_PONYTA, SPECIES_VULPIX, SPECIES_SLUGMA, SPECIES_GROWLITHE } },
 };
 
 static const struct ClubSlot sMinaTeam[] =
 {
-    { 17, { SPECIES_CLEFAIRY } },
-    { 17, { SPECIES_VULPIX, SPECIES_PONYTA, SPECIES_GROWLITHE, SPECIES_SLUGMA } },
-    { 18, { SPECIES_STARYU, SPECIES_PSYDUCK, SPECIES_POLIWAG, SPECIES_HORSEA, SPECIES_KRABBY } },
+    { { SPECIES_CLEFAIRY } },
+    { { SPECIES_VULPIX, SPECIES_PONYTA, SPECIES_GROWLITHE, SPECIES_SLUGMA } },
+    { { SPECIES_STARYU, SPECIES_PSYDUCK, SPECIES_POLIWAG, SPECIES_HORSEA, SPECIES_KRABBY } },
 };
+
+static const struct ClubSlot sExaminerTeam[] =
+{
+    { { SPECIES_PIDGEOTTO } },
+    { { SPECIES_RATICATE } },
+    { { SPECIES_KADABRA } },
+};
+
+#define CLUB_IVS     14
+#define EXAMINER_IVS 18
 
 static bool32 PlayerPartyHasSpecies(u32 species)
 {
@@ -550,28 +560,129 @@ static bool32 PlayerPartyHasSpecies(u32 species)
     return FALSE;
 }
 
+static bool32 TeamHasSpecies(struct Pokemon *party, u32 count, u32 species)
+{
+    u32 i;
+    for (i = 0; i < count; i++)
+    {
+        if (GetMonData(&party[i], MON_DATA_SPECIES) == species)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+// The average level of the player's Pokémon (in a club battle, just the three battling)
+static u32 GetPlayerPartyAverageLevel(void)
+{
+    u32 i, total = 0, count = 0;
+    for (i = 0; i < PARTY_SIZE; i++)
+    {
+        if (GetMonData(&gPlayerParty[i], MON_DATA_SPECIES) == SPECIES_NONE || GetMonData(&gPlayerParty[i], MON_DATA_IS_EGG))
+            continue;
+        total += GetMonData(&gPlayerParty[i], MON_DATA_LEVEL);
+        count++;
+    }
+    return count == 0 ? ACT2_START_LEVEL : (total + count / 2) / count;
+}
+
 // After the trainer's party is made (DoTrainerBattle)
 void Act2_MakeClubParty(struct Pokemon *party, u32 trainerId)
 {
     const struct ClubSlot *team;
-    u32 count, i, j;
+    u32 count, i, j, level, ivs = CLUB_IVS;
     if (trainerId == TRAINER_ACT2_KAI)
         team = sKaiTeam, count = ARRAY_COUNT(sKaiTeam);
     else if (trainerId == TRAINER_ACT2_MINA)
         team = sMinaTeam, count = ARRAY_COUNT(sMinaTeam);
+    else if (trainerId == TRAINER_ACT2_EXAMINER)
+        team = sExaminerTeam, count = ARRAY_COUNT(sExaminerTeam), ivs = EXAMINER_IVS;
     else
         return;
+    level = GetPlayerPartyAverageLevel();
     for (i = 0; i < count; i++)
     {
         u32 species = team[i].species[0];
         for (j = 0; j < ARRAY_COUNT(team[i].species) && team[i].species[j] != SPECIES_NONE; j++)
         {
             species = team[i].species[j];
-            if (!PlayerPartyHasSpecies(species))
+            if (!PlayerPartyHasSpecies(species) && !TeamHasSpecies(party, i, species))
                 break;
         }
-        CreateMonWithIVs(&party[i], species, team[i].level, Random32(), OTID_STRUCT_RANDOM_NO_SHINY, 14);
+        CreateMonWithIVs(&party[i], species, level, Random32(), OTID_STRUCT_RANDOM_NO_SHINY, ivs);
+        GiveMonInitialMoveset(&party[i]);
     }
+}
+
+// The club battles with the first three Pokémon in the party able to battle: first in front, second in the middle,
+// third in back (the starting formation follows party order). The rest sit out: set aside for the battle
+// (Act2_SetAsideClubBench) and put back in their slots after it (Act2_RestoreClubBench).
+#define CLUB_TEAM_SIZE 3
+
+static EWRAM_DATA struct Pokemon sClubFullParty[PARTY_SIZE] = {0};
+static EWRAM_DATA u8 sClubTeamSlots[CLUB_TEAM_SIZE] = {0};
+static EWRAM_DATA u8 sClubTeamCount = 0;
+
+static u32 GetClubTeamSlots(u8 *slots)
+{
+    u32 i, count = 0;
+    for (i = 0; i < PARTY_SIZE && count < CLUB_TEAM_SIZE; i++)
+    {
+        struct Pokemon *mon = &gPlayerParty[i];
+        if (GetMonData(mon, MON_DATA_SPECIES) != SPECIES_NONE && !GetMonData(mon, MON_DATA_IS_EGG) && GetMonData(mon, MON_DATA_HP) != 0)
+            slots[count++] = i;
+    }
+    return count;
+}
+
+static const u8 sText_ClubTeam3[] = _("So it's {STR_VAR_1} in front,\n{STR_VAR_2} in the middle\land {STR_VAR_3} in back.");
+static const u8 sText_ClubTeam2[] = _("So it's {STR_VAR_1} in front\nand {STR_VAR_2} in back.");
+static const u8 sText_ClubTeam1[] = _("So it's just {STR_VAR_1}.");
+
+static void BufferNickname(u8 *dest, u32 slot)
+{
+    GetMonData(&gPlayerParty[slot], MON_DATA_NICKNAME, dest);
+    StringGet_Nickname(dest);
+}
+
+// specialvar VAR_RESULT, Act2_BufferClubTeam: who battles and where, in gStringVar4; returns how many
+u16 Act2_BufferClubTeam(void)
+{
+    static const u8 *const sTexts[] = { sText_ClubTeam1, sText_ClubTeam1, sText_ClubTeam2, sText_ClubTeam3 };
+    u8 slots[CLUB_TEAM_SIZE];
+    u32 count = GetClubTeamSlots(slots);
+    u8 *const vars[] = { gStringVar1, gStringVar2, gStringVar3 };
+    u32 i;
+    for (i = 0; i < count; i++)
+        BufferNickname(vars[i], slots[i]);
+    StringExpandPlaceholders(gStringVar4, sTexts[count]);
+    return count;
+}
+
+// special Act2_SetAsideClubBench: right before the club battle, the party is just the three battling, in order
+void Act2_SetAsideClubBench(void)
+{
+    u32 i;
+    sClubTeamCount = GetClubTeamSlots(sClubTeamSlots);
+    for (i = 0; i < PARTY_SIZE; i++)
+        sClubFullParty[i] = gPlayerParty[i];
+    ZeroPlayerPartyMons();
+    for (i = 0; i < sClubTeamCount; i++)
+        gPlayerParty[i] = sClubFullParty[sClubTeamSlots[i]];
+    CalculatePlayerPartyCount();
+}
+
+// special Act2_RestoreClubBench: right after it, the three go back to their slots and the rest return
+void Act2_RestoreClubBench(void)
+{
+    u32 i;
+    if (sClubTeamCount == 0)
+        return;
+    for (i = 0; i < sClubTeamCount; i++)
+        sClubFullParty[sClubTeamSlots[i]] = gPlayerParty[i];
+    for (i = 0; i < PARTY_SIZE; i++)
+        gPlayerParty[i] = sClubFullParty[i];
+    sClubTeamCount = 0;
+    CalculatePlayerPartyCount();
 }
 
 // ---------------------------------------------------------------------------------------------------------------

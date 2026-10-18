@@ -51,6 +51,7 @@
 #define ACT2_RESEARCH_GOT_TM        (1 << 5)
 #define ACT2_RESEARCH_USED_TM_MOVE  (1 << 6) // In the exam, the player's Pokémon used the TM's move
 #define ACT2_RESEARCH_BRIEFED       (1 << 7) // The professor explained the assignment at the site
+#define ACT2_RESEARCH_CLUB_ARRIVED  (1 << 9) // A club night: the friends explained tonight's battle (cleared by the next course)
 #define ACT2_RESEARCH_MOVES_DONE    (1 << 8) // A third different move of the type was seen (after VAR_ACT2_MOVE_SEEN_1/2)
 
 // The young Lapras saved on Vermilion's docks (the Water course), which asks to come along. In Act 3 it's the

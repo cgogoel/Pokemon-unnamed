@@ -225,35 +225,130 @@ Act2_EventScript_ClubMorning:
 	releaseall
 	end
 
+@ Arriving on a club night (coord events at the gate): the friends explain tonight's battle, then the player can line
+@ up their team and talk to the night's opponent (or any friend) when ready. ACT2_RESEARCH_CLUB_ARRIVED: explained.
 Act2_EventScript_ClubNight1::
+	call Act2_EventScript_CheckClubArrived
 	lockall
 	call Act2_EventScript_ClubArrive
 	msgbox Act2_Text_Night1
-	closemessage
-	trainerbattle_no_intro TRAINER_ACT2_KAI, Act2_Text_KaiDefeat
-	msgbox Act2_Text_Night1After
-	setvar VAR_ACT2_PROGRESS, ACT2_CLUB_1_DONE
-	goto Act2_EventScript_ClubMorning
+	msgbox Act2_Text_ClubRules
+	goto Act2_EventScript_ClubArrived
 
 Act2_EventScript_ClubNight2::
+	call Act2_EventScript_CheckClubArrived
 	lockall
 	call Act2_EventScript_ClubArrive
 	msgbox Act2_Text_Night2
-	closemessage
-	trainerbattle_no_intro TRAINER_ACT2_MINA, Act2_Text_MinaDefeat
-	msgbox Act2_Text_Night2After
-	setvar VAR_ACT2_PROGRESS, ACT2_CLUB_2_DONE
-	goto Act2_EventScript_ClubMorning
+	msgbox Act2_Text_ClubRulesReminder
+	goto Act2_EventScript_ClubArrived
 
 @ The third night: an examiner from the POKéMON LEAGUE, and a real Trainer Card
 Act2_EventScript_ClubNight3::
+	call Act2_EventScript_CheckClubArrived
 	lockall
 	call Act2_EventScript_ClubArrive
 	msgbox Act2_Text_Night3
 	msgbox Act2_Text_DaleIntro
+	msgbox Act2_Text_ClubRulesExaminer
+	goto Act2_EventScript_ClubArrived
+
+Act2_EventScript_CheckClubArrived:
+	setvar VAR_0x8004, ACT2_RESEARCH_CLUB_ARRIVED
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	goto_if_eq VAR_RESULT, TRUE, Act2_EventScript_ClubEnd
+	return
+
+Act2_EventScript_ClubArrived:
+	setvar VAR_0x8004, ACT2_RESEARCH_CLUB_ARRIVED
+	special Act2_SetResearchFlag
+	releaseall
+Act2_EventScript_ClubEnd:
+	end
+
+@ Talking to a friend (or DALE) at the Sports Complex on a club night
+Act2_EventScript_ClubTalk::
+	lock
+	faceplayer
+	setvar VAR_0x8004, ACT2_RESEARCH_CLUB_ARRIVED
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_ClubComeIn
+	goto_if_eq VAR_ACT2_PROGRESS, ACT2_FIRE_INVITED, Act2_EventScript_ClubBattle1
+	goto_if_eq VAR_ACT2_PROGRESS, ACT2_WATER_INVITED, Act2_EventScript_ClubBattle2
+	goto_if_eq VAR_ACT2_PROGRESS, ACT2_GRASS_INVITED, Act2_EventScript_ClubBattle3
+	release
+	end
+
+Act2_EventScript_ClubComeIn:
+	msgbox Act2_Text_ClubComeIn
+	release
+	end
+
+@ The team: the first three in the party able to battle. YES in VAR_RESULT to battle.
+Act2_EventScript_ClubConfirmTeam:
+	specialvar VAR_RESULT, Act2_BufferClubTeam
+	msgbox gStringVar4
+	msgbox Act2_Text_ClubReady, MSGBOX_YESNO
+	return
+
+Act2_EventScript_ClubNotYet:
+	msgbox Act2_Text_ClubNotYet
+	release
+	end
+
+@ A loss doesn't stop the story: the player can go again, or call it a night
+Act2_EventScript_ClubGoAgain:
+	msgbox Act2_Text_ClubGoAgain, MSGBOX_YESNO
+	return
+
+Act2_EventScript_ClubBattle1:
+	call Act2_EventScript_ClubConfirmTeam
+	goto_if_eq VAR_RESULT, NO, Act2_EventScript_ClubNotYet
 	closemessage
-	trainerbattle_no_intro TRAINER_ACT2_EXAMINER, Act2_Text_DaleDefeat
+	special Act2_SetAsideClubBench
+	trainerbattle_earlyrival TRAINER_ACT2_KAI, RIVAL_BATTLE_HEAL_AFTER, Act2_Text_KaiDefeat, Act2_Text_KaiWins
+	special Act2_RestoreClubBench
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_ClubWon1
+	msgbox Act2_Text_KaiAfterLoss
+	call Act2_EventScript_ClubGoAgain
+	goto_if_eq VAR_RESULT, YES, Act2_EventScript_ClubBattle1
+Act2_EventScript_ClubWon1:
+	msgbox Act2_Text_Night1After
+	setvar VAR_ACT2_PROGRESS, ACT2_CLUB_1_DONE
+	goto Act2_EventScript_ClubMorning
+
+Act2_EventScript_ClubBattle2:
+	call Act2_EventScript_ClubConfirmTeam
+	goto_if_eq VAR_RESULT, NO, Act2_EventScript_ClubNotYet
+	closemessage
+	special Act2_SetAsideClubBench
+	trainerbattle_earlyrival TRAINER_ACT2_MINA, RIVAL_BATTLE_HEAL_AFTER, Act2_Text_MinaDefeat, Act2_Text_MinaWins
+	special Act2_RestoreClubBench
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_ClubWon2
+	msgbox Act2_Text_MinaAfterLoss
+	call Act2_EventScript_ClubGoAgain
+	goto_if_eq VAR_RESULT, YES, Act2_EventScript_ClubBattle2
+Act2_EventScript_ClubWon2:
+	msgbox Act2_Text_Night2After
+	setvar VAR_ACT2_PROGRESS, ACT2_CLUB_2_DONE
+	goto Act2_EventScript_ClubMorning
+
+Act2_EventScript_ClubBattle3:
+	call Act2_EventScript_ClubConfirmTeam
+	goto_if_eq VAR_RESULT, NO, Act2_EventScript_ClubNotYet
+	closemessage
+	special Act2_SetAsideClubBench
+	trainerbattle_earlyrival TRAINER_ACT2_EXAMINER, RIVAL_BATTLE_HEAL_AFTER, Act2_Text_DaleDefeat, Act2_Text_DaleWins
+	special Act2_RestoreClubBench
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_ClubWon3
+	msgbox Act2_Text_DaleAfterLoss
+	call Act2_EventScript_ClubGoAgain
+	goto_if_eq VAR_RESULT, YES, Act2_EventScript_ClubBattle3
+	msgbox Act2_Text_DalePassesAnyway
+	goto Act2_EventScript_ClubTrainerCard
+Act2_EventScript_ClubWon3:
 	msgbox Act2_Text_DalePasses
+Act2_EventScript_ClubTrainerCard:
 	playfanfare MUS_RG_OBTAIN_KEY_ITEM
 	message Act2_Text_GotTrainerCard
 	waitmessage
@@ -1098,7 +1193,7 @@ Act2_Text_MeetFriends:
 
 Act2_Text_Night1:
 	.string "KAI: Welcome to the club!\n"
-	.string "No professors, no rules.\p"
+	.string "No professors allowed.\p"
 	.string "Officially, we're not TRAINERS.\n"
 	.string "Unofficially… let's battle!$"
 
@@ -1161,6 +1256,99 @@ Act2_Text_RoomPlateMina:
 
 Act2_Text_RoomPlateRowan:
 	.string "ROWAN's room.$"
+
+Act2_Text_ClubRules:
+	.string "KAI: None of us have our TRAINER\n"
+	.string "CARD, so we had to figure out\l"
+	.string "our own rules.\p"
+	.string "Three POKéMON a side, all on the\n"
+	.string "field at once. Three on three!\p"
+	.string "MINA: You'll have to be smart.\n"
+	.string "Only one POKéMON gets to act\l"
+	.string "before your opponent responds.\p"
+	.string "ROWAN: I recommend setting your\n"
+	.string "team up in formation: front,\l"
+	.string "middle and back.\p"
+	.string "Defense in front, offense in back.\n"
+	.string "That way, direct attacks hit your\l"
+	.string "strong defense first.\p"
+	.string "MINA: That's why I always win,\n"
+	.string "ROWAN. My indirect attacks bypass\l"
+	.string "your front line and hit your\l"
+	.string "damage dealers in back!\p"
+	.string "Remember, you can change the order\n"
+	.string "of your team at any time without\l"
+	.string "losing your chance to act.\p"
+	.string "KAI: {PLAYER}, don't forget to study\n"
+	.string "your moves before you act.\p"
+	.string "Direct attacks like TACKLE always\n"
+	.string "hit the front POKéMON, blocking\l"
+	.string "the others.\p"
+	.string "Indirect attacks, like electric,\n"
+	.string "psychic and flying ones, can hit\l"
+	.string "any POKéMON on the field.\p"
+	.string "ROWAN: If you forget how they work\n"
+	.string "like I do, every move is labeled.\p"
+	.string "The RED ARROWS show where it can\n"
+	.string "reach, and the COLORED CIRCLES\l"
+	.string "how many POKéMON it hits.\p"
+	.string "KAI: Before we start, set your\n"
+	.string "order in the POKéMON menu.\p"
+	.string "First in your party goes in FRONT,\n"
+	.string "second in MIDDLE, and third in\l"
+	.string "BACK. Talk to me when you're ready!$"
+
+Act2_Text_ClubRulesReminder:
+	.string "MINA: Same rules as last time.\n"
+	.string "Your first three, front to back.\p"
+	.string "Check your order, then talk to me\n"
+	.string "when you're ready!$"
+
+Act2_Text_ClubRulesExaminer:
+	.string "ROWAN: He said our rules are fine.\n"
+	.string "Your first three, front to back.\p"
+	.string "Check your order, then talk to\n"
+	.string "DALE when you're ready!$"
+
+Act2_Text_ClubComeIn:
+	.string "Come on in!$"
+
+Act2_Text_ClubReady:
+	.string "Ready to battle?$"
+
+Act2_Text_ClubNotYet:
+	.string "Take your time. Talk to me when\n"
+	.string "you're ready.$"
+
+Act2_Text_ClubGoAgain:
+	.string "Want to go again?$"
+
+Act2_Text_KaiWins:
+	.string "Ha! Got you this time!$"
+
+Act2_Text_KaiAfterLoss:
+	.string "KAI: Hey, nobody wins every time.\n"
+	.string "That's what the club's for!$"
+
+Act2_Text_MinaWins:
+	.string "Yes! I finally won one!$"
+
+Act2_Text_MinaAfterLoss:
+	.string "MINA: Don't worry about it. We all\n"
+	.string "lose sometimes. Even KAI!$"
+
+Act2_Text_DaleWins:
+	.string "Not this time.$"
+
+Act2_Text_DaleAfterLoss:
+	.string "DALE: You lost, but you kept your\n"
+	.string "head. That counts for a lot.$"
+
+Act2_Text_DalePassesAnyway:
+	.string "DALE: Nobody wins every battle.\n"
+	.string "You think like a TRAINER, and\l"
+	.string "that's what I'm here to see.\p"
+	.string "You passed. This is yours now.$"
 
 Act2_Text_KaiDefeat:
 	.string "Whoa, you're a natural!$"

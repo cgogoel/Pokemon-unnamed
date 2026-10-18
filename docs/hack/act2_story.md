@@ -73,15 +73,32 @@ friends, `FLAG_TEMP_2-4` the unsolved parts, `FLAG_TEMP_5-7` what replaces them,
 
 ## The club's teams
 
-Each friend brings their partner and what they caught on the field trips so far, picking species that aren't in
-the player's party when the battle starts (`Act2_MakeClubParty`, from `DoTrainerBattle`; the `.party` entries are
-placeholders of the same size).
+The club nights are 3v3 battles (`Battle Type: Triples`). Arriving at the Sports Complex (the gate's coord events),
+the friends explain the night's battle and leave the player free to line up their team
+(`ACT2_RESEARCH_CLUB_ARRIVED`); talking to any of them (or DALE) starts it (`Act2_EventScript_ClubTalk`).
 
-| Night | Who | Partner | Fire course catch | Water course catch |
+- **Night 1:** the club's own 3v3 rules, explained by the three friends: three a side, one acts per turn; the
+  formation (front, middle, back: defense in front, offense in back); direct attacks hit the front Pokémon, indirect
+  ones (electric, psychic, flying) anyone; the move menu's red arrows (reach) and colored circles (how many it hits);
+  party order sets the formation.
+- **The team** is the first three Pokémon in the party able to battle: first in front, second in the middle, third
+  in back (the formation follows party order). Talking to a friend shows the lineup and asks if the player is ready
+  (`Act2_BufferClubTeam`). For the battle the rest of the party is set aside, and put back in its slots afterwards
+  (`Act2_SetAsideClubBench`, `Act2_RestoreClubBench`).
+- **Levels:** every foe is at the average level of the player's three, with its level's moves.
+- **Losing** doesn't white out or stop the story (`trainerbattle_earlyrival`, healed after): the friend says nobody
+  wins every time and offers to go again. Saying no carries on as after a win; on night 3, DALE passes the player
+  anyway.
+
+Each friend brings their partner and what they caught on the field trips so far, picking species that aren't in
+the player's party (the three battling) or already on their team (`Act2_MakeClubParty`, from `DoTrainerBattle`; the
+`.party` entries are placeholders of the same size).
+
+| Night | Who | Partner | Fire course catches | Water course catch |
 |---|---|---|---|---|
-| 1 | KAI | Mankey 14 | Growlithe, Ponyta, Vulpix or Slugma, 15 | |
-| 2 | MINA | Clefairy 17 | Vulpix, Ponyta, Growlithe or Slugma, 17 | Staryu, Psyduck, Poliwag, Horsea or Krabby, 18 |
-| 3 | DALE (examiner) | Pidgeotto 23, Raticate 23, Kadabra 24 | | |
+| 1 | KAI | Mankey | Growlithe, Ponyta, Vulpix or Slugma (two of them) | |
+| 2 | MINA | Clefairy | Vulpix, Ponyta, Growlithe or Slugma | Staryu, Psyduck, Poliwag, Horsea or Krabby |
+| 3 | DALE (examiner) | Pidgeotto, Raticate, Kadabra | | |
 
 ## The Act 2 playtest build
 

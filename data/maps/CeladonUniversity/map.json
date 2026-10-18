@@ -284,7 +284,7 @@
       "movement_range_y": 1,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
-      "script": "0x0",
+      "script": "Act2_EventScript_ClubTalk",
       "flag": "FLAG_TEMP_2"
     },
     {
@@ -299,7 +299,7 @@
       "movement_range_y": 1,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
-      "script": "0x0",
+      "script": "Act2_EventScript_ClubTalk",
       "flag": "FLAG_TEMP_2"
     },
     {
@@ -314,7 +314,7 @@
       "movement_range_y": 1,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
-      "script": "0x0",
+      "script": "Act2_EventScript_ClubTalk",
       "flag": "FLAG_TEMP_2"
     },
     {
@@ -329,7 +329,7 @@
       "movement_range_y": 1,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
-      "script": "0x0",
+      "script": "Act2_EventScript_ClubTalk",
       "flag": "FLAG_TEMP_3"
     }
   ],

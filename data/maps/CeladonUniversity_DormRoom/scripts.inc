@@ -40,8 +40,8 @@ CeladonUniversity_DormRoom_Text_Sign1::
 	.string "taped to the mirror.$"
 
 CeladonUniversity_DormRoom_Text_Sign2::
-	.string "Textbooks, one for each type,\n"
-	.string "still in their shrink-wrap.$"
+	.string "Textbooks from four years of\n"
+	.string "courses, covered in notes.$"
 
 CeladonUniversity_DormRoom_Text_Sign3::
 	.string "A study desk. Nothing on it\n"

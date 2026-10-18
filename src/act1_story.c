@@ -64,8 +64,9 @@ static void UpdateWoodsJangmoOSpawn(void)
         SetObjEventTemplateCoords(LOCALID_WOODS_JANGMO_O, sJangmoOSpawns[best].x, sJangmoOSpawns[best].y);
 }
 
-// Until the player has Dad's Hard Stone, Jangmo-o charges at them as soon as they're in its sight, and they black
-// out. With the stone it doesn't (it's talked to instead), so a failed encounter doesn't start another right away.
+// Jangmo-o charges at the player as soon as they're in its sight. Until they have Dad's Hard Stone, they black out;
+// with it, the befriending encounter starts. After an encounter it stays calm until the player leaves the Woods
+// (FLAG_TEMP_1, set by Woods_EventScript_JangmoOEncounter), so a failed one doesn't start another right away.
 bool32 TryStartWoodsJangmoOCharge(void)
 {
     struct ObjectEvent *jangmoO, *player;
@@ -77,7 +78,7 @@ bool32 TryStartWoodsJangmoOCharge(void)
     if (FlagGet(FLAG_BEFRIENDED_JANGMO_O))
         return FALSE;
     UpdateWoodsJangmoOSpawn();
-    if (VarGet(VAR_ACT1_PROGRESS) >= ACT1_GOT_HARD_STONE)
+    if (FlagGet(FLAG_TEMP_1))
         return FALSE;
     if (TryGetObjectEventIdByLocalIdAndMap(LOCALID_WOODS_JANGMO_O, MAP_NUM(MAP_WOODS), MAP_GROUP(MAP_WOODS), &objectEventId))
         return FALSE;

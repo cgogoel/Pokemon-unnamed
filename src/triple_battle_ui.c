@@ -92,10 +92,17 @@ void ResetTripleMoveIndicator(void)
     sIndicatorSpriteId = MAX_SPRITES;
 }
 
+// Only destroys the indicator itself: the remembered sprite slot can be stale (it's only reset when a 3v3 starts), and
+// destroying whatever sprite holds it took out the player's healthbox in single battles, or crashed the game
 void HideTripleMoveIndicator(void)
 {
-    if (sIndicatorSpriteId == MAX_SPRITES)
+    if (sIndicatorSpriteId >= MAX_SPRITES)
         return;
+    if (!gSprites[sIndicatorSpriteId].inUse || gSprites[sIndicatorSpriteId].template->tileTag != TAG_TRIPLE_INDICATOR)
+    {
+        sIndicatorSpriteId = MAX_SPRITES;
+        return;
+    }
     DestroySprite(&gSprites[sIndicatorSpriteId]);
     sIndicatorSpriteId = MAX_SPRITES;
     FreeSpriteTilesByTag(TAG_TRIPLE_INDICATOR);

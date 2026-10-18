@@ -27,15 +27,15 @@
 #define ACT2_START                  0  // Woke up in the dorm room; the friends wait in the dorm lobby
 #define ACT2_MET_FRIENDS            1  // Fire course: its professor in Lecture Hall A
 #define ACT2_FIRE_TRIP              2  // Field trip to Cinnabar Island: catch a Fire type, pass the exam
-#define ACT2_FIRE_PASSED            3  // Back at the dorms with the friends
-#define ACT2_FIRE_INVITED           4  // The club meets at the stadium tonight
+#define ACT2_FIRE_SEE_KAI           3  // Passed; back at the dorms at night: KAI asked the player to come by his room
+#define ACT2_FIRE_INVITED           4  // KAI: the club meets at the Sports Complex tonight
 #define ACT2_CLUB_1_DONE            5  // Water course: its professor in the audiovisual classroom
 #define ACT2_WATER_TRIP             6  // Field trip to Vermilion City (the harbor; Route 6)
-#define ACT2_WATER_PASSED           7
+#define ACT2_WATER_SEE_MINA         7  // Back at night: see MINA in her room
 #define ACT2_WATER_INVITED          8
 #define ACT2_CLUB_2_DONE            9  // Grass course: its professor in Home Economics
 #define ACT2_GRASS_TRIP             10 // Field trip to Viridian City (Route 22's grass)
-#define ACT2_GRASS_PASSED           11
+#define ACT2_GRASS_SEE_ROWAN        11 // Back at night: see ROWAN in their room
 #define ACT2_GRASS_INVITED          12 // One more night: battle for a real Trainer Card
 #define ACT2_GOT_TRAINER_CARD       13 // Trainers battle again. The director at the Science Research Institute waits.
 #define ACT2_FINAL_PROJECT          14 // Catch a Pokémon that's two of Fire, Water and Grass

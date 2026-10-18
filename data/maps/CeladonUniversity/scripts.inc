@@ -146,9 +146,9 @@ CeladonUniversity_Text_Lass0::
 	.string "That's the signal for lunch!$"
 
 CeladonUniversity_Text_Youngster1::
-	.string "First week too?\p"
-	.string "The MAIN HALL is the one\n"
-	.string "with the clock tower.$"
+	.string "Final year already?\p"
+	.string "Feels like yesterday I got lost\n"
+	.string "looking for the MAIN HALL.$"
 
 CeladonUniversity_Text_CooltrainerM2::
 	.string "Phys Ed means laps.\n"
@@ -254,7 +254,7 @@ CeladonUniversity_Text_Sign11::
 	.string "HOME ECONOMICS$"
 
 CeladonUniversity_Text_Sign12::
-	.string "STADIUM\n"
+	.string "SPORTS COMPLEX\n"
 	.string "Physical Education$"
 
 CeladonUniversity_Text_Sign13::

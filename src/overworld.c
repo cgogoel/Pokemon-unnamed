@@ -1,4 +1,5 @@
 #include "global.h"
+#include "act2_story.h"
 #include "overworld.h"
 #include "battle_pyramid.h"
 #include "battle_setup.h"
@@ -1704,6 +1705,12 @@ void UpdateTimeOfDay(bool32 updateBlend)
     RtcCalcLocalTime();
     hours = sHoursOverride ? sHoursOverride : gLocalTime.hours;
     minutes = sHoursOverride ? 0 : gLocalTime.minutes;
+    // Act 2's club nights: night until the club's battle, whatever the clock says
+    if (!sHoursOverride && Act2_IsClubNight())
+    {
+        hours = ACT2_CLUB_NIGHT_HOUR;
+        minutes = 0;
+    }
 
     if (IsBetweenHours(hours, MORNING_HOUR_BEGIN, MORNING_HOUR_MIDDLE)) // night->morning
     {

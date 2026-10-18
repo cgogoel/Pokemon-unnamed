@@ -4,7 +4,7 @@
 static const u8 sText_BefriendHint_Blipbug[] = _("It keeps peering up at you, as if\nit wants to study you at its level.");
 static const u8 sText_BefriendHint_Tynamo[] = _("It flickers weakly, glancing around\nas if looking for others of its kind.");
 static const u8 sText_BefriendHint_Hatenna[] = _("Its ears twitch toward soft sounds.\nSomething gentle might soothe it.");
-static const u8 sText_BefriendHint_Teddiursa[] = _("It licks its paws, eyeing your hands.\nIt seems to want you to reach out.");
+static const u8 sText_BefriendHint_Teddiursa[] = _("It's backed into a corner but looks\nlike it needs some comfort.");
 static const u8 sText_BefriendHint_JangmoO[] = _("It clangs its scales at you.\nIt's daring you to stand your ground.");
 static const u8 sText_BefriendHint_Default[] = _("It's eyeing you closely.");
 

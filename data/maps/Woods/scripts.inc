@@ -102,16 +102,19 @@ Woods_EventScript_SetBefriendedThree:
 	setvar VAR_ACT1_PROGRESS, ACT1_BEFRIENDED_THREE
 	return
 
-@ Without Dad's Hard Stone, Jangmo-o charges (also when it spots the player, src/act1_story.c). With it, the
-@ encounter starts: throwing the stone blacks the player out, offering it wins Jangmo-o over.
+@ Jangmo-o charges when talked to, or when it spots the player (src/act1_story.c). Without Dad's Hard Stone the player
+@ blacks out; with it, the encounter starts: throwing the stone blacks the player out, offering it wins Jangmo-o over.
 Woods_EventScript_JangmoO::
 	lock
 	faceplayer
 	goto_if_lt VAR_ACT1_PROGRESS, ACT1_GOT_HARD_STONE, Woods_EventScript_JangmoOCharges
+Woods_EventScript_JangmoOEncounter:
+	setflag FLAG_TEMP_1
 	befriendbattle SPECIES_JANGMO_O, 10
 	goto_if_eq VAR_RESULT, B_OUTCOME_CAUGHT, Woods_EventScript_JangmoOBefriended
 	goto_if_eq VAR_RESULT, B_OUTCOME_LOST, Act1_EventScript_BlackOut
 	release
+	releaseall
 	end
 
 Woods_EventScript_JangmoOBefriended:
@@ -129,8 +132,14 @@ Woods_EventScript_JangmoOSpotted::
 Woods_EventScript_JangmoOCharges:
 	playmoncry SPECIES_JANGMO_O, CRY_MODE_ENCOUNTER
 	waitmoncry
+	goto_if_ge VAR_ACT1_PROGRESS, ACT1_GOT_HARD_STONE, Woods_EventScript_JangmoOChargesWithStone
 	msgbox Woods_Text_JangmoOCharged
 	goto Act1_EventScript_BlackOut
+
+Woods_EventScript_JangmoOChargesWithStone:
+	msgbox Woods_Text_JangmoOChargesWithStone
+	closemessage
+	goto Woods_EventScript_JangmoOEncounter
 
 @ The Chesto Berry for Hatenna is in the mailbox by the Keep Out sign. Offered and lost, it's back next time
 @ (special Act1_RestockLovedItems clears FLAG_ACT1_ITEM_CHESTO_BERRY).
@@ -205,6 +214,11 @@ Woods_Text_TooWaryTalkToDad:
 	.string "It's keeping its distance.\p"
 	.string "Maybe Dad knows something about\n"
 	.string "the POKéMON in these woods.$"
+
+Woods_Text_JangmoOChargesWithStone:
+	.string "JANGMO-O charged at you!\p"
+	.string "{PLAYER} gripped DAD's HARD STONE\n"
+	.string "and stood firm!$"
 
 Woods_Text_JangmoOCharged:
 	.string "JANGMO-O charged at you!\p"

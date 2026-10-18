@@ -402,10 +402,10 @@ Farmyard_Text_MomBehindYou:
 
 Farmyard_Text_OakBringTwoFriends:
 	.string "OAK: Splendid! Oh, one more thing.\p"
-	.string "You should bring two of the friends\n"
-	.string "you've made along with you.\p"
-	.string "Just one would get lonely while\n"
-	.string "you're in class!\p"
+	.string "You expected me to say you can only\n"
+	.string "bring one?\p"
+	.string "It would get lonely while you're in\n"
+	.string "class. Go grab two friends!\p"
 	.string "To travel with them, you'll need\n"
 	.string "POKé BALLS.\p"
 	.string "Here, take two POKé BALLS to bring\n"

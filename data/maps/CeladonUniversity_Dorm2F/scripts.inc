@@ -1,6 +1,7 @@
 @ Celadon University: Dorms 2F (Act 2, docs/hack/celadon_university.md).
 
 CeladonUniversity_Dorm2F_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, CeladonUniversity_Dorm2F_OnTransition
 	.byte 0
 
 CeladonUniversity_Dorm2F_EventScript_CooltrainerM0::
@@ -26,3 +27,10 @@ CeladonUniversity_Dorm2F_Text_Lass1::
 CeladonUniversity_Dorm2F_Text_Sign0::
 	.string "A message board covered in\n"
 	.string "notes about study groups.$"
+
+CeladonUniversity_Dorm2F_EventScript_Bed::
+	msgbox CeladonUniversity_Dorm2F_Text_Bed, MSGBOX_SIGN
+	end
+
+CeladonUniversity_Dorm2F_Text_Bed::
+	.string "A neatly made bed. Someone here\nstudies late, by the look of it.$"

@@ -92,7 +92,8 @@ Pokédex (`Act2_StartPlaytest`). Oak's speech still plays first.
   They're the `sAct2_*_FireRed` entries in `src/data/wild_encounters.json` (the name needs `FireRed`: a label
   without FireRed or LeafGreen is built for Emerald only). `GetCurrentMapWildMonHeaderId` tells them apart by their
   contents (`sAct2WildMonsInfos` in `src/wild_encounter.c`; add new ones there), since Porymap reorders the file.
-  Kanto's tables stay as they were for Act 3.
+  Their encounter rates are half the usual ones (5 in the Mansion, 10 in grass, 5 fishing). Kanto's tables stay as
+  they were for Act 3.
 
   | Area | Pokémon | Levels |
   |---|---|---|

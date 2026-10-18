@@ -72,7 +72,8 @@ Act2_EventScript_MeetFriends::
 	applymovement LOCALID_CAMPUS_KAI, Act2_Movement_KaiToClass
 	applymovement LOCALID_CAMPUS_MINA, Act2_Movement_MinaToClass
 	applymovement LOCALID_CAMPUS_ROWAN, Act2_Movement_RowanToClass
-	waitmovement LOCALID_CAMPUS_ROWAN
+	@ Until ROWAN, the last, is out of sight (10 steps along the path, after its 2-step wait), not the whole walk
+	delay 196
 	removeobject LOCALID_CAMPUS_KAI
 	removeobject LOCALID_CAMPUS_MINA
 	removeobject LOCALID_CAMPUS_ROWAN
@@ -106,7 +107,7 @@ Act2_Movement_KaiToClass:
 	step_end
 
 Act2_Movement_MinaToClass:
-	delay_16
+	delay_8
 	walk_left
 	walk_left
 	walk_left
@@ -134,7 +135,6 @@ Act2_Movement_MinaToClass:
 	step_end
 
 Act2_Movement_RowanToClass:
-	delay_16
 	delay_16
 	delay_16
 	walk_left

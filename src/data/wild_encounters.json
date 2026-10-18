@@ -13882,7 +13882,7 @@
           "map": "MAP_POKEMON_MANSION_1F",
           "base_label": "sAct2_PokemonMansion1F_FireRed",
           "land_mons": {
-            "encounter_rate": 10,
+            "encounter_rate": 5,
             "mons": [
               {
                 "min_level": 10,
@@ -14089,7 +14089,7 @@
           "map": "MAP_POKEMON_MANSION_2F",
           "base_label": "sAct2_PokemonMansion2F_FireRed",
           "land_mons": {
-            "encounter_rate": 10,
+            "encounter_rate": 5,
             "mons": [
               {
                 "min_level": 10,
@@ -14296,7 +14296,7 @@
           "map": "MAP_POKEMON_MANSION_3F",
           "base_label": "sAct2_PokemonMansion3F_FireRed",
           "land_mons": {
-            "encounter_rate": 10,
+            "encounter_rate": 5,
             "mons": [
               {
                 "min_level": 10,
@@ -14503,7 +14503,7 @@
           "map": "MAP_POKEMON_MANSION_B1F",
           "base_label": "sAct2_PokemonMansionB1F_FireRed",
           "land_mons": {
-            "encounter_rate": 10,
+            "encounter_rate": 5,
             "mons": [
               {
                 "min_level": 10,
@@ -29296,7 +29296,7 @@
           "map": "MAP_ROUTE6",
           "base_label": "sAct2_Route6_FireRed",
           "land_mons": {
-            "encounter_rate": 21,
+            "encounter_rate": 10,
             "mons": [
               {
                 "min_level": 13,
@@ -29503,7 +29503,7 @@
           "map": "MAP_ROUTE7",
           "base_label": "sAct2_Route7_FireRed",
           "land_mons": {
-            "encounter_rate": 21,
+            "encounter_rate": 10,
             "mons": [
               {
                 "min_level": 20,
@@ -33050,7 +33050,7 @@
           "map": "MAP_ROUTE22",
           "base_label": "sAct2_Route22_FireRed",
           "land_mons": {
-            "encounter_rate": 21,
+            "encounter_rate": 10,
             "mons": [
               {
                 "min_level": 16,
@@ -34755,7 +34755,7 @@
           "map": "MAP_VERMILION_CITY",
           "base_label": "sAct2_VermilionCity_FireRed",
           "fishing_mons": {
-            "encounter_rate": 10,
+            "encounter_rate": 5,
             "mons": [
               {
                 "min_level": 13,
@@ -34992,7 +34992,7 @@
           "map": "MAP_CELADON_CITY",
           "base_label": "sAct2_CeladonCity_FireRed",
           "fishing_mons": {
-            "encounter_rate": 10,
+            "encounter_rate": 5,
             "mons": [
               {
                 "min_level": 20,

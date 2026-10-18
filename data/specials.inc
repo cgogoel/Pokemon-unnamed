@@ -656,6 +656,9 @@ gSpecials::
 	def_special Act2_GiveStartingKit
 	def_special Act2_IsResearchDone
 	def_special Act2_BufferResearchSheet
+	def_special Act2_BufferClubTeam
+	def_special Act2_SetAsideClubBench
+	def_special Act2_RestoreClubBench
 	def_special Act2_PartyCanUseCourseTM
 	def_special Act2_FindCourseMoveUser
 	def_special Act2_SolvePuzzlePart

@@ -13857,7 +13857,7 @@ Class: Camper Frlg
 Pic: Camper Frlg
 Gender: Male
 Music: Serious
-Double Battle: No
+Battle Type: Triples
 AI: Check Bad Move
 
 Mankey
@@ -13868,13 +13868,17 @@ Growlithe
 Level: 15
 IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
 
+Ponyta
+Level: 15
+IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
+
 === TRAINER_ACT2_MINA ===
 Name: MINA
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
 Gender: Female
 Music: Cute
-Double Battle: No
+Battle Type: Triples
 AI: Check Bad Move
 
 Clefairy
@@ -13895,7 +13899,7 @@ Class: Cooltrainer Frlg
 Pic: Cooltrainer M Frlg
 Gender: Male
 Music: Serious
-Double Battle: No
+Battle Type: Triples
 AI: Check Bad Move / Try To Faint
 
 Pidgeotto

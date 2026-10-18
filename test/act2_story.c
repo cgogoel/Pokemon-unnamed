@@ -6,10 +6,12 @@
 #include "pokemon.h"
 #include "rtc.h"
 #include "string_util.h"
+#include "triple_battle.h"
 #include "wild_encounter.h"
 #include "test/test.h"
 #include "constants/map_groups.h"
 #include "constants/moves.h"
+#include "constants/opponents.h"
 #include "constants/story.h"
 
 // Act 2's story, see docs/hack/act2_story.md
@@ -238,4 +240,83 @@ TEST("Act 2: a wild Pokémon that knew a move early skips it when it levels up t
     SetMonData(mon, MON_DATA_LEVEL, &level);
     EXPECT_EQ(MonTryLearningNewMove(mon, TRUE), MON_HAS_MAX_MOVES);
     EXPECT_EQ(gMoveToLearn, MOVE_FLAME_WHEEL);
+}
+
+static void MakePartyMon(u32 slot, u32 species, u32 level)
+{
+    CreateMonWithIVs(&gPlayerParty[slot], species, level, 0, OTID_STRUCT_PLAYER_ID, 10);
+    GiveMonInitialMoveset(&gPlayerParty[slot]);
+}
+
+TEST("Act 2: the club battles with the first three Pokémon able to battle, and puts the rest back after")
+{
+    u32 hp = 0, level = 30;
+    ZeroPlayerPartyMons();
+    MakePartyMon(0, SPECIES_TEDDIURSA, 10);
+    MakePartyMon(1, SPECIES_TYNAMO, 10);
+    SetMonData(&gPlayerParty[1], MON_DATA_HP, &hp); // Fainted: sits out
+    MakePartyMon(2, SPECIES_GROWLITHE, 12);
+    MakePartyMon(3, SPECIES_PSYDUCK, 14);
+    MakePartyMon(4, SPECIES_ODDISH, 16);
+    CalculatePlayerPartyCount();
+
+    EXPECT_EQ(Act2_BufferClubTeam(), 3);
+    EXPECT_EQ(StringCompare(gStringVar1, GetSpeciesName(SPECIES_TEDDIURSA)), 0);
+    EXPECT_EQ(StringCompare(gStringVar3, GetSpeciesName(SPECIES_PSYDUCK)), 0);
+
+    Act2_SetAsideClubBench();
+    EXPECT_EQ(CalculatePlayerPartyCount(), 3);
+    EXPECT_EQ(GetMonData(&gPlayerParty[0], MON_DATA_SPECIES), SPECIES_TEDDIURSA);
+    EXPECT_EQ(GetMonData(&gPlayerParty[1], MON_DATA_SPECIES), SPECIES_GROWLITHE);
+    EXPECT_EQ(GetMonData(&gPlayerParty[2], MON_DATA_SPECIES), SPECIES_PSYDUCK);
+    EXPECT_EQ(GetMonData(&gPlayerParty[3], MON_DATA_SPECIES), SPECIES_NONE);
+    SetMonData(&gPlayerParty[1], MON_DATA_LEVEL, &level); // What the battle changes comes back with it
+
+    Act2_RestoreClubBench();
+    EXPECT_EQ(CalculatePlayerPartyCount(), 5);
+    EXPECT_EQ(GetMonData(&gPlayerParty[1], MON_DATA_SPECIES), SPECIES_TYNAMO);
+    EXPECT_EQ(GetMonData(&gPlayerParty[2], MON_DATA_SPECIES), SPECIES_GROWLITHE);
+    EXPECT_EQ(GetMonData(&gPlayerParty[2], MON_DATA_LEVEL), 30);
+    EXPECT_EQ(GetMonData(&gPlayerParty[4], MON_DATA_SPECIES), SPECIES_ODDISH);
+    ZeroPlayerPartyMons();
+}
+
+TEST("Act 2: the club's foes are at the average level of the player's three, with their moves")
+{
+    struct Pokemon *foes = gParties[B_TRAINER_OPPONENT_A];
+    u32 trainer = 0, i;
+    PARAMETRIZE { trainer = TRAINER_ACT2_KAI; }
+    PARAMETRIZE { trainer = TRAINER_ACT2_MINA; }
+    PARAMETRIZE { trainer = TRAINER_ACT2_EXAMINER; }
+    ZeroPlayerPartyMons();
+    ZeroEnemyPartyMons();
+    MakePartyMon(0, SPECIES_GROWLITHE, 10);
+    MakePartyMon(1, SPECIES_PSYDUCK, 12);
+    MakePartyMon(2, SPECIES_ODDISH, 15);
+    CalculatePlayerPartyCount();
+    Act2_MakeClubParty(foes, trainer);
+    for (i = 0; i < 3; i++)
+    {
+        EXPECT_NE(GetMonData(&foes[i], MON_DATA_SPECIES), SPECIES_NONE);
+        EXPECT_EQ(GetMonData(&foes[i], MON_DATA_LEVEL), 12);
+        EXPECT_NE(GetMonData(&foes[i], MON_DATA_MOVE1), MOVE_NONE);
+        EXPECT_GT(GetMonData(&foes[i], MON_DATA_HP), 0);
+        if (trainer != TRAINER_ACT2_EXAMINER)
+            EXPECT_NE(GetMonData(&foes[i], MON_DATA_SPECIES), SPECIES_GROWLITHE); // The player has one
+    }
+    EXPECT_NE(GetMonData(&foes[1], MON_DATA_SPECIES), GetMonData(&foes[2], MON_DATA_SPECIES));
+    ZeroPlayerPartyMons();
+    ZeroEnemyPartyMons();
+}
+
+TEST("Act 2: the club's three against the player's three is a 3v3")
+{
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    ZeroPlayerPartyMons();
+    MakePartyMon(0, SPECIES_GROWLITHE, 10);
+    MakePartyMon(1, SPECIES_PSYDUCK, 12);
+    MakePartyMon(2, SPECIES_ODDISH, 15);
+    CalculatePlayerPartyCount();
+    EXPECT_EQ(GetTripleBattleTypeFlagsForFoes(3), BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE);
+    ZeroPlayerPartyMons();
 }

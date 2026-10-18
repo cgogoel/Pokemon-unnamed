@@ -77,9 +77,10 @@ The club nights are 3v3 battles (`Battle Type: Triples`). Arriving at the Sports
 the friends explain the night's battle and leave the player free to line up their team
 (`ACT2_RESEARCH_CLUB_ARRIVED`); talking to any of them (or DALE) starts it (`Act2_EventScript_ClubTalk`).
 
-- **Night 1:** the club's own 3v3 rules, explained by the three friends: three a side, one acts per turn; the line
-  (front, middle, back); moves that reach only the front foe or anyone, and hit one, two or all three; the move menu's
-  ovals and red arrows; the HP bars; L/R and SELECT; physical moves in front, special moves in back.
+- **Night 1:** the club's own 3v3 rules, explained by the three friends: three a side, one acts per turn; the
+  formation (front, middle, back: defense in front, offense in back); direct attacks hit the front Pokémon, indirect
+  ones (electric, psychic, flying) anyone; the move menu's red arrows (reach) and colored circles (how many it hits);
+  party order sets the formation.
 - **The team** is the first three Pokémon in the party able to battle: first in front, second in the middle, third
   in back (the formation follows party order). Talking to a friend shows the lineup and asks if the player is ready
   (`Act2_BufferClubTeam`). For the battle the rest of the party is set aside, and put back in its slots afterwards

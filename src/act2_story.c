@@ -7,6 +7,7 @@
 #include "move.h"
 #include "overworld.h"
 #include "pokemon.h"
+#include "pokemon_storage_system.h"
 #include "random.h"
 #include "string_util.h"
 #include "constants/characters.h"
@@ -221,18 +222,38 @@ void Act2_RecordMoveUse(u32 battler, u32 move)
         VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_USED_TM_MOVE);
 }
 
-// The first task: a Pokémon of the type the player caught (the Lapras from Vermilion's docks was a gift)
-static bool32 PartyHasCaughtType(enum Type type)
+#define RESEARCH_SPECIES_TO_CATCH 3
+
+static bool32 CountsAsCaught(u32 species, bool32 isEgg, enum Type type, u16 *seen, u32 *count)
 {
     u32 i;
-    for (i = 0; i < PARTY_SIZE; i++)
+    // The Lapras from Vermilion's docks was a gift
+    if (species == SPECIES_NONE || species == SPECIES_LAPRAS || isEgg)
+        return FALSE;
+    if (GetSpeciesType(species, 0) != type && GetSpeciesType(species, 1) != type)
+        return FALSE;
+    for (i = 0; i < *count; i++)
     {
-        struct Pokemon *mon = &gPlayerParty[i];
-        u32 species = GetMonData(mon, MON_DATA_SPECIES);
-        if (species != SPECIES_NONE && species != SPECIES_LAPRAS && !GetMonData(mon, MON_DATA_IS_EGG) && MonHasType(mon, type))
-            return TRUE;
+        if (seen[i] == species)
+            return FALSE;
     }
-    return FALSE;
+    seen[(*count)++] = species;
+    return TRUE;
+}
+
+// The first task: how many different species of the type the player has, in the party and the PC (up to the 3 needed)
+u32 Act2_CountCaughtSpeciesOfType(enum Type type)
+{
+    u16 seen[RESEARCH_SPECIES_TO_CATCH];
+    u32 count = 0, i, box, pos;
+    for (i = 0; i < PARTY_SIZE && count < RESEARCH_SPECIES_TO_CATCH; i++)
+        CountsAsCaught(GetMonData(&gPlayerParty[i], MON_DATA_SPECIES), GetMonData(&gPlayerParty[i], MON_DATA_IS_EGG), type, seen, &count);
+    for (box = 0; box < TOTAL_BOXES_COUNT && count < RESEARCH_SPECIES_TO_CATCH; box++)
+    {
+        for (pos = 0; pos < IN_BOX_COUNT && count < RESEARCH_SPECIES_TO_CATCH; pos++)
+            CountsAsCaught(GetBoxMonDataAt(box, pos, MON_DATA_SPECIES), GetBoxMonDataAt(box, pos, MON_DATA_IS_EGG), type, seen, &count);
+    }
+    return count;
 }
 
 static u32 GetResearchDone(void)
@@ -241,7 +262,7 @@ static u32 GetResearchDone(void)
     u32 research = VarGet(VAR_ACT2_RESEARCH), done = 0;
     if (course == NULL)
         return 0;
-    if (PartyHasCaughtType(course->type))
+    if (Act2_CountCaughtSpeciesOfType(course->type) >= RESEARCH_SPECIES_TO_CATCH)
         done |= 1 << 0;
     if (research & ACT2_RESEARCH_USED_MOVE)
         done |= 1 << 1;
@@ -262,8 +283,9 @@ static const u8 sText_SheetTitle[] = _("RESEARCH SHEET: the ");
 static const u8 sText_Course[] = _(" course");
 static const u8 sText_Done[] = _("Done!");
 static const u8 sText_NotYet[] = _("Not yet.");
-static const u8 sText_Catch[] = _("Catch a ");
+static const u8 sText_Catch[] = _("Catch 3 different ");
 static const u8 sText_PokemonSuffix[] = _(" POKéMON.");
+static const u8 sText_Caught[] = _("Caught: ");
 static const u8 sText_Use[] = _("Use a ");
 static const u8 sText_MoveSuffix[] = _(" move in battle.");
 static const u8 sText_Record[] = _("Record 3 different ");
@@ -300,7 +322,17 @@ void Act2_BufferResearchSheet(void)
     StringAppend(dest, course->typeName);
     StringAppend(dest, sText_Course);
     AppendTask(dest, sText_Catch, course->typeName, sText_PokemonSuffix);
-    StringAppend(dest, (done & (1 << 0)) ? sText_Done : sText_NotYet);
+    if (done & (1 << 0))
+    {
+        StringAppend(dest, sText_Done);
+    }
+    else
+    {
+        StringAppend(dest, sText_Caught);
+        ConvertIntToDecimalStringN(count, Act2_CountCaughtSpeciesOfType(course->type), STR_CONV_MODE_LEFT_ALIGN, 1);
+        StringAppend(dest, count);
+        StringAppend(dest, sText_OfThree);
+    }
     AppendTask(dest, sText_Use, course->typeName, sText_MoveSuffix);
     StringAppend(dest, (done & (1 << 1)) ? sText_Done : sText_NotYet);
     AppendTask(dest, sText_Record, course->typeName, sText_Moves);

@@ -17,6 +17,7 @@ void Act2_GiveStartingKit(void);
 bool32 Act2_HasTrainerCard(void);
 void Act2_RecordMoveUse(u32 battler, u32 move);
 bool16 Act2_IsResearchDone(void);
+u32 Act2_CountCaughtSpeciesOfType(enum Type type);
 void Act2_BufferResearchSheet(void);
 bool16 Act2_PartyCanUseCourseTM(void);
 void Act2_MakeClubParty(struct Pokemon *party, u32 trainerId);

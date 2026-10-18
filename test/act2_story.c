@@ -86,3 +86,17 @@ TEST("Act 2: it's night from coming back to the dorms until the club's battle")
     VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
     VarSet(VAR_ACT2_PROGRESS, 0);
 }
+
+TEST("Act 2: the research needs 3 different species of the course's type, not counting the Lapras")
+{
+    ZeroPlayerPartyMons();
+    CreateMon(&gPlayerParty[0], SPECIES_PSYDUCK, 10, 0, OTID_STRUCT_PLAYER_ID);
+    CreateMon(&gPlayerParty[1], SPECIES_PSYDUCK, 10, 0, OTID_STRUCT_PLAYER_ID); // Same species
+    CreateMon(&gPlayerParty[2], SPECIES_LAPRAS, 15, 0, OTID_STRUCT_PLAYER_ID);  // A gift
+    CreateMon(&gPlayerParty[3], SPECIES_GROWLITHE, 10, 0, OTID_STRUCT_PLAYER_ID); // Another type
+    EXPECT_EQ(Act2_CountCaughtSpeciesOfType(TYPE_WATER), 1);
+    CreateMon(&gPlayerParty[4], SPECIES_POLIWAG, 10, 0, OTID_STRUCT_PLAYER_ID);
+    CreateMon(&gPlayerParty[5], SPECIES_GOLDEEN, 10, 0, OTID_STRUCT_PLAYER_ID);
+    EXPECT_EQ(Act2_CountCaughtSpeciesOfType(TYPE_WATER), 3);
+    ZeroPlayerPartyMons();
+}

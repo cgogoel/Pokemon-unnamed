@@ -31,7 +31,8 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 ## The courses
 
 Each course opens on campus: the professor introduces it and the class leaves on the field trip. On arrival, the
-professor explains the assignment and gives 5 Poké Balls (a frame script, once per course: `ACT2_RESEARCH_BRIEFED`).
+professor explains the assignment and gives 5 Poké Balls (a frame script, once per course: `ACT2_RESEARCH_BRIEFED`); a player out of
+Poké Balls gets 5 more each time they talk to the professor (`Act2_EventScript_RefillBalls`).
 After that, talking to the professor shows the **research sheet** (`Act2_BufferResearchSheet`):
 
 1. Catch 3 different Pokémon (species) of the course's type: counted in the party and the PC, not the gifted Lapras

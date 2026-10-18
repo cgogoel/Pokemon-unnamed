@@ -548,6 +548,8 @@
 #define METATILE_PokemonLeague_Floor_ShadeFull_Lance     0x311
 
 // gTileset_PokemonMansion
+#define METATILE_PokemonMansion_Furnace_Cold                            0x382
+#define METATILE_PokemonMansion_Furnace_Lit                             0x383
 #define METATILE_PokemonMansion_Barrier_Horizontal_BottomLeft            0x300
 #define METATILE_PokemonMansion_Barrier_Horizontal_BottomLeft_Basement   0x354
 #define METATILE_PokemonMansion_Barrier_Horizontal_BottomMid             0x301

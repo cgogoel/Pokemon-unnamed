@@ -39,7 +39,10 @@ After that, talking to the professor shows the **research sheet** (`Act2_BufferR
    (`Act2_CountCaughtSpeciesOfType`).
 2. Use a move of that type in battle.
 3. Record 3 different moves of that type in battle: the player's Pokémon's or wild ones'
-   (`Act2_RecordMoveUse`, from `Cmd_printattackstring`; `VAR_ACT2_MOVES_SEEN`).
+   (`Act2_RecordMoveUse`, from `Cmd_printattackstring`; the first two in `VAR_ACT2_MOVE_SEEN_1/2`, the third sets
+   `ACT2_RESEARCH_MOVES_DONE`). So there are enough different ones without training up first, a wild Pokémon of the
+   course's type on the trip also knows its type's moves from up to 8 levels ahead, in place of its other moves
+   (`Act2_TeachWildCourseMoves`, from `CreateWildMon`).
 4. Solve the site's puzzle (below).
 
 In battle, tasks 1 and 3 show their counter ("Research: 2 of 3 WATER moves recorded!" / "... POKéMON caught!") each
@@ -139,7 +142,8 @@ In both builds, the Pokémon the player starts Act 2 with know the moves they'd 
 | PROF. FERN (Grass) | Viridian City | Psyduck 19, Diglett 19, Poliwhirl 20: weak to Grass |
 | DALE, League examiner (night 3) | Stadium | Pidgeotto 23, Raticate 23, Kadabra 24 |
 
-From Act 2 on there are no Gym badges to earn, so the player's Pokémon always obey, whatever their level or OT
+From Act 2 on, the whole party gains experience from every battle, as with the Exp. Share on
+(`IsGen6ExpShareEnabled`). There are also no Gym badges to earn, so the player's Pokémon always obey, whatever their level or OT
 (`GetAttackerObedienceForAction`).
 
 ## Characters (names are placeholders)

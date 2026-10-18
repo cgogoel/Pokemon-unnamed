@@ -393,7 +393,8 @@ Act2_EventScript_StartFire:
 	msgbox Act2_Text_StartFire
 	closemessage
 	setvar VAR_ACT2_RESEARCH, 0
-	setvar VAR_ACT2_MOVES_SEEN, 0
+	setvar VAR_ACT2_MOVE_SEEN_1, MOVE_NONE
+	setvar VAR_ACT2_MOVE_SEEN_2, MOVE_NONE
 	setvar VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP
 	setrespawn HEAL_LOCATION_CINNABAR_ISLAND
 	warp MAP_CINNABAR_ISLAND, 8, 5
@@ -474,7 +475,8 @@ Act2_EventScript_StartWater:
 	msgbox Act2_Text_StartWater
 	closemessage
 	setvar VAR_ACT2_RESEARCH, 0
-	setvar VAR_ACT2_MOVES_SEEN, 0
+	setvar VAR_ACT2_MOVE_SEEN_1, MOVE_NONE
+	setvar VAR_ACT2_MOVE_SEEN_2, MOVE_NONE
 	setvar VAR_ACT2_PROGRESS, ACT2_WATER_TRIP
 	setrespawn HEAL_LOCATION_VERMILION_CITY
 	warp MAP_VERMILION_CITY, 32, 19
@@ -555,7 +557,8 @@ Act2_EventScript_StartGrass:
 	msgbox Act2_Text_StartGrass
 	closemessage
 	setvar VAR_ACT2_RESEARCH, 0
-	setvar VAR_ACT2_MOVES_SEEN, 0
+	setvar VAR_ACT2_MOVE_SEEN_1, MOVE_NONE
+	setvar VAR_ACT2_MOVE_SEEN_2, MOVE_NONE
 	setvar VAR_ACT2_PROGRESS, ACT2_GRASS_TRIP
 	setrespawn HEAL_LOCATION_VIRIDIAN_CITY
 	warp MAP_VIRIDIAN_CITY, 4, 17

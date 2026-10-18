@@ -5093,9 +5093,6 @@ bool32 IsSpeciesInHoennDex(enum Species species)
 
 u16 GetBattleBGM(void)
 {
-    // Befriending (Act 1) is calm: the area's own music keeps playing. Jangmo-o, the boss, keeps the battle music.
-    if (IsBefriendBattle() && GetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_SPECIES) != SPECIES_JANGMO_O)
-        return GetCurrLocationDefaultMusic();
     if (gBattleTypeFlags & BATTLE_TYPE_LEGENDARY)
     {
         switch (GetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_SPECIES))

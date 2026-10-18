@@ -378,10 +378,10 @@ Farmyard_Text_OakCeladonUniversity:
 	.string "a TRAINER…\p"
 	.string "…but you should be admitted to\n"
 	.string "CELADON UNIVERSITY!\p"
-	.string "As a distinguished youth scholar in\n"
-	.string "POKéMON behavior!\p"
+	.string "I think you have a future studying\n"
+	.string "POKéMON behavior.\p"
 	.string "I used to teach at CELADON, you\n"
-	.string "know. I'll get you all set up!$"
+	.string "know. I can get you all set up!$"
 
 Farmyard_Text_ParentsSurprised:
 	.string "MOM: CELADON UNIVERSITY?!\p"
@@ -401,9 +401,12 @@ Farmyard_Text_MomBehindYou:
 	.string "way!$"
 
 Farmyard_Text_OakBringTwoFriends:
-	.string "OAK: Splendid! Oh, one more thing.\p"
-	.string "You expected me to say you can only\n"
-	.string "bring one?\p"
+	.string "OAK: Splendid! Oh, one more thing:\n"
+	.string "you should choose two POKéMON to\l"
+	.string "come with you.\p"
+	.string "…\p"
+	.string "What, you expected me to say you\n"
+	.string "can only choose one?\p"
 	.string "It would get lonely while you're in\n"
 	.string "class. Go grab two friends!\p"
 	.string "To travel with them, you'll need\n"

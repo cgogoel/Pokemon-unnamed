@@ -2,6 +2,9 @@
 #include "act2_story.h"
 #include "battle.h"
 #include "event_data.h"
+#include "heal_dash.h"
+#include "item.h"
+#include "overworld.h"
 #include "move.h"
 #include "pokemon.h"
 #include "rtc.h"
@@ -9,6 +12,8 @@
 #include "triple_battle.h"
 #include "wild_encounter.h"
 #include "test/test.h"
+#include "constants/heal_locations.h"
+#include "constants/items.h"
 #include "constants/map_groups.h"
 #include "constants/moves.h"
 #include "constants/opponents.h"
@@ -319,4 +324,35 @@ TEST("Act 2: the club's three against the player's three is a 3v3")
     CalculatePlayerPartyCount();
     EXPECT_EQ(GetTripleBattleTypeFlagsForFoes(3), BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE);
     ZeroPlayerPartyMons();
+}
+
+TEST("Heal Dash: the last Pokémon Center visited, or the field trip's town in Act 2")
+{
+    VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+    SetLastHealLocationWarp(HEAL_LOCATION_CELADON_CITY);
+    EXPECT_EQ(HealDash_GetDestination(), HEAL_LOCATION_NONE); // Not before Act 2
+
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_CLUB_1_DONE);
+    EXPECT_EQ(HealDash_GetDestination(), HEAL_LOCATION_CELADON_CITY);
+    SetLastHealLocationWarp(HEAL_LOCATION_PEWTER_CITY);
+    EXPECT_EQ(HealDash_GetDestination(), HEAL_LOCATION_PEWTER_CITY);
+
+    VarSet(VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP);
+    EXPECT_EQ(HealDash_GetDestination(), HEAL_LOCATION_CINNABAR_ISLAND);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_WATER_TRIP);
+    EXPECT_EQ(HealDash_GetDestination(), HEAL_LOCATION_VERMILION_CITY);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_GRASS_TRIP);
+    EXPECT_EQ(HealDash_GetDestination(), HEAL_LOCATION_VIRIDIAN_CITY);
+
+    VarSet(VAR_STORY_ACT, STORY_ACT_WORKFORCE);
+    EXPECT_EQ(HealDash_GetDestination(), HEAL_LOCATION_PEWTER_CITY); // Act 3: no field trips
+}
+
+TEST("Heal Dash: given with Act 2's starting kit")
+{
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    Act2_GiveStartingKit();
+    EXPECT(CheckBagHasItem(ITEM_HEAL_DASH, 1));
+    EXPECT(CheckBagHasItem(ITEM_REMOTE_DESKTOP, 1));
 }

@@ -1452,6 +1452,11 @@ Act2_Text_FireBriefing:
 	.string "Catch more POKéMON than you can\n"
 	.string "carry, and they go to your boxes.\l"
 	.string "Swap them out any time!\p"
+	.string "If you find yourself weakened and\n"
+	.string "unable to continue battling,\l"
+	.string "I suggest you open your KEY ITEMS\l"
+	.string "and DASH back to the POKéMON\l"
+	.string "CENTER.\p"
 	.string "Now, you'll need these.$"
 
 Act2_Text_FireSheetIntro:

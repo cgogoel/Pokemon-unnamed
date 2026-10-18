@@ -124,6 +124,8 @@ void Act2_GiveStartingKit(void)
     FlagSet(FLAG_SYS_POKEMON_GET);
     if (!CheckBagHasItem(ITEM_REMOTE_DESKTOP, 1))
         AddBagItem(ITEM_REMOTE_DESKTOP, 1);
+    if (!CheckBagHasItem(ITEM_HEAL_DASH, 1))
+        AddBagItem(ITEM_HEAL_DASH, 1);
 }
 
 // Whether the player has a real Trainer Card yet: from the third club night in Act 2 on (the start menu's player entry
@@ -193,6 +195,7 @@ struct Act2Course
     enum Type type;
     u16 tmMove;
     u16 professor;
+    u16 healLocation; // The trip town's Pokémon Center (the Heal Dash goes there on the trip)
     const u8 *typeName;
     const u8 *puzzleTask;
 };
@@ -206,9 +209,9 @@ static const u8 sText_PuzzleGrass[] = _("Regrow the withered patches.");
 
 static const struct Act2Course sCourses[] =
 {
-    { ACT2_FIRE_TRIP,  TYPE_FIRE,  MOVE_FLAMETHROWER, TRAINER_ACT2_PROF_FIRE,  sText_Fire,  sText_PuzzleFire },
-    { ACT2_WATER_TRIP, TYPE_WATER, MOVE_BUBBLE_BEAM,  TRAINER_ACT2_PROF_WATER, sText_Water, sText_PuzzleWater },
-    { ACT2_GRASS_TRIP, TYPE_GRASS, MOVE_GIGA_DRAIN,   TRAINER_ACT2_PROF_GRASS, sText_Grass, sText_PuzzleGrass },
+    { ACT2_FIRE_TRIP,  TYPE_FIRE,  MOVE_FLAMETHROWER, TRAINER_ACT2_PROF_FIRE,  HEAL_LOCATION_CINNABAR_ISLAND, sText_Fire,  sText_PuzzleFire },
+    { ACT2_WATER_TRIP, TYPE_WATER, MOVE_BUBBLE_BEAM,  TRAINER_ACT2_PROF_WATER, HEAL_LOCATION_VERMILION_CITY,  sText_Water, sText_PuzzleWater },
+    { ACT2_GRASS_TRIP, TYPE_GRASS, MOVE_GIGA_DRAIN,   TRAINER_ACT2_PROF_GRASS, HEAL_LOCATION_VIRIDIAN_CITY,   sText_Grass, sText_PuzzleGrass },
 };
 
 static const struct Act2Course *GetCurrentCourse(void)
@@ -222,6 +225,13 @@ static const struct Act2Course *GetCurrentCourse(void)
             return &sCourses[i];
     }
     return NULL;
+}
+
+// The Heal Dash's destination on a field trip: the trip town's Pokémon Center (HEAL_LOCATION_NONE off a trip)
+u32 Act2_GetTripHealLocation(void)
+{
+    const struct Act2Course *course = GetCurrentCourse();
+    return course == NULL ? HEAL_LOCATION_NONE : course->healLocation;
 }
 
 static u32 CountMovesRecorded(void)

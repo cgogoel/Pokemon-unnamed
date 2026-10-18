@@ -1,4 +1,5 @@
 #include "global.h"
+#include "heal_dash.h"
 #include "act2_story.h"
 #include "overworld.h"
 #include "battle_pyramid.h"
@@ -759,6 +760,8 @@ void SetWarpDestinationToLastHealLocation(void)
 
 void SetWarpDestinationForTeleport(void)
 {
+    if (HealDash_TakeWarp(&sWarpDestination))
+        return;
     sWarpDestination = gSaveBlock1Ptr->lastHealLocation;
 }
 

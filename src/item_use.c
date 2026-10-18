@@ -1,4 +1,6 @@
 #include "global.h"
+#include "heal_dash.h"
+#include "constants/heal_locations.h"
 #include "item_use.h"
 #include "battle.h"
 #include "battle_anim.h"
@@ -744,6 +746,34 @@ static void Task_AccessPokemonBoxLink(u8 taskId)
 {
     ScriptContext_SetupScript(EventScript_AccessPokemonBoxLink);
     DestroyTask(taskId);
+}
+
+// The Heal Dash: back to the nearest Pokémon Center visited (src/heal_dash.c)
+static const u8 sText_HealDashNowhere[] = _("There's no POKéMON CENTER\nto dash back to.");
+static const u8 sText_HealDashHere[] = _("You're already at the\nPOKéMON CENTER.");
+
+static void Task_UseHealDash(u8 taskId)
+{
+    HealDash_Start(HealDash_GetDestination());
+    DestroyTask(taskId);
+}
+
+void ItemUseOutOfBattle_HealDash(u8 taskId)
+{
+    u32 destination = HealDash_GetDestination();
+    if (destination == HEAL_LOCATION_NONE || !CheckFollowerNPCFlag(FOLLOWER_NPC_FLAG_CAN_LEAVE_ROUTE))
+    {
+        DisplayCannotUseItemMessage(taskId, gTasks[taskId].tUsingRegisteredKeyItem, sText_HealDashNowhere);
+    }
+    else if (HealDash_IsAtDestination(destination))
+    {
+        DisplayCannotUseItemMessage(taskId, gTasks[taskId].tUsingRegisteredKeyItem, sText_HealDashHere);
+    }
+    else
+    {
+        sItemUseOnFieldCB = Task_UseHealDash;
+        SetUpItemUseOnFieldCallback(taskId);
+    }
 }
 
 void ItemUseOutOfBattle_CoinCase(u8 taskId)

@@ -1053,6 +1053,9 @@ enum __attribute__((packed)) Item
     ITEM_TATSUGIRINITE = 872,
     ITEM_GLIMMORANITE = 873,
 
+// The hack's own items
+    ITEM_HEAL_DASH = 874, // Acts 2 and 3: back to the last Pokémon Center (src/heal_dash.c)
+
     ITEMS_COUNT,
     ITEM_FIELD_ARROW = ITEMS_COUNT,
 };

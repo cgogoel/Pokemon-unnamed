@@ -31,7 +31,8 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 ## The courses
 
 Each course opens on campus: the professor introduces it and the class leaves on the field trip. On arrival, the
-professor explains the assignment and gives 5 Poké Balls (a frame script, once per course: `ACT2_RESEARCH_BRIEFED`).
+professor explains the assignment and gives 5 Poké Balls (a frame script, once per course: `ACT2_RESEARCH_BRIEFED`); a player out of
+Poké Balls gets 5 more each time they talk to the professor (`Act2_EventScript_RefillBalls`).
 After that, talking to the professor shows the **research sheet** (`Act2_BufferResearchSheet`):
 
 1. Catch 3 different Pokémon (species) of the course's type: counted in the party and the PC, not the gifted Lapras
@@ -83,6 +84,9 @@ placeholders of the same size).
 `make act2` builds `pokemon-unnamed-act2.gba` (objects in `build/firered-act2`, `-DACT2_PLAYTEST`). A new game there
 starts at Act 2's beginning, in the dorm room, with Teddiursa and Tynamo at level 10, 5 Potions and the National
 Pokédex (`Act2_StartPlaytest`). Oak's speech still plays first.
+
+In both builds, the Pokémon the player starts Act 2 with know the moves they'd have learned by level 10, and at least
+2: Tackle fills in for one that only has one (Blipbug) (`Act2_GiveStartingMoves`).
 
 ## The rules of Act 2
 

@@ -13,6 +13,7 @@ bool16 Act2_IsClubNight(void);
 // The hour it is on a club night (any night hour)
 #define ACT2_CLUB_NIGHT_HOUR 2
 void Act2_RaisePartyLevels(void);
+void Act2_GiveStartingMoves(struct Pokemon *mon);
 void Act2_GiveStartingKit(void);
 bool32 Act2_HasTrainerCard(void);
 void Act2_RecordMoveUse(u32 battler, u32 move);

@@ -7,6 +7,7 @@
 #include "wild_encounter.h"
 #include "test/test.h"
 #include "constants/map_groups.h"
+#include "constants/moves.h"
 #include "constants/story.h"
 
 // Act 2's story, see docs/hack/act2_story.md
@@ -124,4 +125,41 @@ TEST("Act 2: a new species of the course's type shows the catch counter")
     EXPECT(!Act2_BufferResearchCatchMessage(SPECIES_STARYU)); // Not on a course trip
     ZeroPlayerPartyMons();
     VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+}
+
+TEST("Act 2: the Woods' Pokémon start Act 2 with their level's moves, at least 2 of them")
+{
+    static const u16 sWoods[] = { SPECIES_BLIPBUG, SPECIES_TYNAMO, SPECIES_HATENNA, SPECIES_TEDDIURSA, SPECIES_JANGMO_O };
+    u32 i, j, moves;
+    ZeroPlayerPartyMons();
+    for (i = 0; i < ARRAY_COUNT(sWoods); i++)
+        CreateMon(&gPlayerParty[i], sWoods[i], 5, 0, OTID_STRUCT_PLAYER_ID); // CreateMon gives no moves
+    Act2_RaisePartyLevels();
+    for (i = 0; i < ARRAY_COUNT(sWoods); i++)
+    {
+        EXPECT_EQ(GetMonData(&gPlayerParty[i], MON_DATA_LEVEL), ACT2_START_LEVEL);
+        for (moves = 0, j = 0; j < MAX_MON_MOVES; j++)
+        {
+            if (GetMonData(&gPlayerParty[i], MON_DATA_MOVE1 + j) != MOVE_NONE)
+            {
+                moves++;
+                EXPECT_GT(GetMonData(&gPlayerParty[i], MON_DATA_PP1 + j), 0);
+            }
+        }
+        EXPECT_GE(moves, 2);
+    }
+    EXPECT_EQ(GetMonData(&gPlayerParty[0], MON_DATA_MOVE1), MOVE_STRUGGLE_BUG); // Blipbug's only move by then
+    EXPECT_EQ(GetMonData(&gPlayerParty[0], MON_DATA_MOVE2), MOVE_TACKLE);
+    EXPECT_EQ(GetMonData(&gPlayerParty[1], MON_DATA_MOVE1), MOVE_TACKLE);       // Tynamo's level-1 moves
+    EXPECT_EQ(GetMonData(&gPlayerParty[1], MON_DATA_MOVE4), MOVE_CHARGE_BEAM);
+    ZeroPlayerPartyMons();
+}
+
+TEST("Act 2: the playtest party knows its moves")
+{
+    Act2_GivePlaytestParty();
+    EXPECT_NE(GetMonData(&gPlayerParty[0], MON_DATA_MOVE1), MOVE_NONE);
+    EXPECT_NE(GetMonData(&gPlayerParty[0], MON_DATA_MOVE2), MOVE_NONE);
+    EXPECT_NE(GetMonData(&gPlayerParty[1], MON_DATA_MOVE2), MOVE_NONE);
+    ZeroPlayerPartyMons();
 }

@@ -413,6 +413,7 @@ Act2_EventScript_ProfAshfordTrip::
 	special Act2_BufferResearchSheet
 	msgbox gStringVar4
 	msgbox Act2_Text_FireHint
+	call Act2_EventScript_RefillBalls
 	release
 	end
 
@@ -493,6 +494,7 @@ Act2_EventScript_ProfMarloweTrip::
 	special Act2_BufferResearchSheet
 	msgbox gStringVar4
 	msgbox Act2_Text_WaterHint
+	call Act2_EventScript_RefillBalls
 	release
 	end
 
@@ -573,6 +575,7 @@ Act2_EventScript_ProfFernTrip::
 	special Act2_BufferResearchSheet
 	msgbox gStringVar4
 	msgbox Act2_Text_GrassHint
+	call Act2_EventScript_RefillBalls
 	release
 	end
 
@@ -652,6 +655,15 @@ Act2_EventScript_CheckBriefing:
 	specialvar VAR_RESULT, Act2_HasResearchFlag
 	goto_if_eq VAR_RESULT, TRUE, Common_EventScript_NopReturn
 	setvar VAR_TEMP_1, 1
+	return
+
+@ Out of POKé BALLS on a field trip: the professor hands out more
+Act2_EventScript_RefillBalls:
+	checkitem ITEM_POKE_BALL
+	goto_if_eq VAR_RESULT, TRUE, Act2_EventScript_RefillBallsEnd
+	msgbox Act2_Text_OutOfBalls
+	giveitem ITEM_POKE_BALL, 5
+Act2_EventScript_RefillBallsEnd:
 	return
 
 Act2_EventScript_Briefed:
@@ -1216,6 +1228,10 @@ Act2_Text_FireBriefing:
 Act2_Text_FireSheetIntro:
 	.string "PROF. ASHFORD: Let's see your\n"
 	.string "research sheet.$"
+
+Act2_Text_OutOfBalls:
+	.string "Out of POKé BALLS already?\n"
+	.string "Here, the department has plenty.$"
 
 Act2_Text_FireHint:
 	.string "FIRE POKéMON live in the old\n"

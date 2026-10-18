@@ -137,6 +137,28 @@ bool32 Act2_HasTrainerCard(void)
 
 // The time skip: the Pokémon the player brings to university have grown, to at least ACT2_START_LEVEL, and know
 // the moves they'd know at that level
+#define ACT2_MIN_STARTING_MOVES 2
+
+static u32 CountMonMoves(struct Pokemon *mon)
+{
+    u32 i, count = 0;
+    for (i = 0; i < MAX_MON_MOVES; i++)
+        count += GetMonData(mon, MON_DATA_MOVE1 + i) != MOVE_NONE;
+    return count;
+}
+
+// The moves a Pokémon starts Act 2 with: the ones it would have learned by its level, at least
+// ACT2_MIN_STARTING_MOVES of them (Tackle fills in)
+void Act2_GiveStartingMoves(struct Pokemon *mon)
+{
+    u32 i;
+    for (i = 0; i < MAX_MON_MOVES; i++)
+        SetMonMoveSlot(mon, MOVE_NONE, i);
+    GiveMonInitialMoveset(mon);
+    if (CountMonMoves(mon) < ACT2_MIN_STARTING_MOVES)
+        GiveMoveToMon(mon, MOVE_TACKLE);
+}
+
 void Act2_RaisePartyLevels(void)
 {
     u32 i;
@@ -145,12 +167,15 @@ void Act2_RaisePartyLevels(void)
         struct Pokemon *mon = &gPlayerParty[i];
         u32 species = GetMonData(mon, MON_DATA_SPECIES);
         u32 exp;
-        if (species == SPECIES_NONE || GetMonData(mon, MON_DATA_IS_EGG) || GetMonData(mon, MON_DATA_LEVEL) >= ACT2_START_LEVEL)
+        if (species == SPECIES_NONE || GetMonData(mon, MON_DATA_IS_EGG))
             continue;
-        exp = gExperienceTables[gSpeciesInfo[species].growthRate][ACT2_START_LEVEL];
-        SetMonData(mon, MON_DATA_EXP, &exp);
-        CalculateMonStats(mon);
-        GiveMonInitialMoveset(mon);
+        if (GetMonData(mon, MON_DATA_LEVEL) < ACT2_START_LEVEL)
+        {
+            exp = gExperienceTables[gSpeciesInfo[species].growthRate][ACT2_START_LEVEL];
+            SetMonData(mon, MON_DATA_EXP, &exp);
+            CalculateMonStats(mon);
+        }
+        Act2_GiveStartingMoves(mon);
     }
 }
 
@@ -607,6 +632,7 @@ void Act2_GivePlaytestParty(void)
         CreateMon(&gPlayerParty[i], sFriends[i], ACT2_START_LEVEL, Random32(), OTID_STRUCT_PLAYER_ID);
         SetMonData(&gPlayerParty[i], MON_DATA_POKEBALL, &(u32){ BALL_POKE });
         CalculateMonStats(&gPlayerParty[i]);
+        Act2_GiveStartingMoves(&gPlayerParty[i]);
     }
     CalculatePlayerPartyCount();
 }

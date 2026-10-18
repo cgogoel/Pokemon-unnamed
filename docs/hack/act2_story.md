@@ -14,16 +14,16 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 | `ACT2_START` | The end of the prologue: the player wakes in their dorm room | Stepping outside, KAI, MINA and ROWAN introduce themselves: they're in the Fire course too. |
 | `ACT2_MET_FRIENDS` | Meeting them | PROF. ASHFORD (Lecture Hall A) introduces the course and the field trip leaves. On arrival, he explains the assignment, the Remote Desktop, and gives 5 Poké Balls (`Act2_EventScript_FireBriefing`, `ACT2_RESEARCH_BRIEFED`). |
 | `ACT2_FIRE_TRIP` | The field trip: warped to Cinnabar Island (8,5) | The research sheet (the Pokémon Mansion), the TM (Flamethrower), the exam. |
-| `ACT2_FIRE_PASSED` | Passing: warped to the dorm lobby | The friends: the secret club, the stadium, tonight. |
-| `ACT2_FIRE_INVITED` | | Walking into the stadium: it's night; KAI battles the player. Then morning, in the dorm room. |
+| `ACT2_FIRE_SEE_KAI` | Passing (KAI: come see me in my dorm room when we get back; the party is healed): warped to the dorm lobby, at night | KAI's room (Dorms 2F, the first room): the secret club meets at the Sports Complex. He heads there. |
+| `ACT2_FIRE_INVITED` | | The friends wait at the Sports Complex (the stadium); walking in, KAI battles the player. Then morning, in the dorm room (healed). |
 | `ACT2_CLUB_1_DONE` | | PROF. MARLOWE (the audiovisual classroom) introduces the Water course; on arrival he explains the assignment and gives 5 Poké Balls and the Good Rod. |
 | `ACT2_WATER_TRIP` | Warped to Vermilion City (32,19) | The research sheet (fishing at the harbor, or Route 6's grass; the docks), the TM (BubbleBeam), the exam. |
-| `ACT2_WATER_PASSED` | Warped to the dorm lobby | The club meets again tonight. |
+| `ACT2_WATER_SEE_MINA` | Passing (MINA asks the player over): the dorm lobby, at night | MINA's room (2F, the second room): club night at the Sports Complex. |
 | `ACT2_WATER_INVITED` | | Night: MINA battles the player. |
 | `ACT2_CLUB_2_DONE` | | PROF. FERN (Home Economics) introduces the Grass course; on arrival she explains the assignment and gives 5 Poké Balls. |
 | `ACT2_GRASS_TRIP` | Warped to Viridian City (4,17) | The research sheet (Route 22, west of the city), the TM (Giga Drain), the exam. |
-| `ACT2_GRASS_PASSED` | Warped to the dorm lobby | One more night: battle for a real Trainer Card. |
-| `ACT2_GRASS_INVITED` | | Night: the friends bring DALE, a Pokémon League examiner. Beating him: the Trainer Card. |
+| `ACT2_GRASS_SEE_ROWAN` | Passing (ROWAN asks the player over): the dorm lobby, at night | ROWAN's room (3F, the last room): a League examiner is coming; battle for a real Trainer Card. |
+| `ACT2_GRASS_INVITED` | | The friends and DALE, a Pokémon League examiner, wait at the Sports Complex. Beating him: the Trainer Card. |
 | `ACT2_GOT_TRAINER_CARD` | Winning | **Trainers battle the player again.** The director of the Science Research Institute has the final project. |
 | `ACT2_FINAL_PROJECT` | Talking to the director (10 Poké Balls) | Catch a Pokémon that's two of Fire, Water and Grass. |
 | `ACT2_PROJECT_DONE` | Showing the director one | "End of Act 2." Act 3 isn't built yet. |
@@ -112,7 +112,10 @@ Pokédex (`Act2_StartPlaytest`). Oak's speech still plays first.
 - **The time skip**: at the end of the prologue, the two Pokémon the player brought go up to level 10
   (`ACT2_START_LEVEL`) with the moves they'd know there (`Act2_RaisePartyLevels`). Blacking out returns the player
   to Celadon's Pokémon Center; on a field trip, to that city's.
-- **Night**: the club scenes set the time of day to night (`special Act2_SetNight`) until the next warp.
+- **Night**: from coming back to the dorms after a course until that night's club battle, it's night everywhere
+  (`Act2_IsClubNight`, `UpdateTimeOfDay`). The Sports Complex's daytime students are gone then.
+- **The friends' rooms**: KAI and MINA on Dorms 2F, ROWAN on 3F, with name plates by their doorways. Each is in their
+  room on the night they asked the player over, and from the Trainer Card on.
 
 ## The battles
 

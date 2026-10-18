@@ -652,7 +652,7 @@ gSpecials::
 	def_special Act1_StartPrologueEnd
 	def_special Act2_PartyHasType
 	def_special Act2_PartyHasProjectPokemon
-	def_special Act2_SetNight
+	def_special Act2_IsClubNight
 	def_special Act2_GiveStartingKit
 	def_special Act2_IsResearchDone
 	def_special Act2_BufferResearchSheet

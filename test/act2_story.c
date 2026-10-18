@@ -2,6 +2,7 @@
 #include "act2_story.h"
 #include "event_data.h"
 #include "pokemon.h"
+#include "rtc.h"
 #include "wild_encounter.h"
 #include "test/test.h"
 #include "constants/map_groups.h"
@@ -69,4 +70,19 @@ TEST("Act 2: an area with an Act 2 table uses it in Act 2, and its own table oth
     EXPECT_NE(ownHeader, act2Header);
     EXPECT_EQ(gWildMonHeaders[ownHeader].encounterTypes[TIME_OF_DAY_DEFAULT].landMonsInfo->wildPokemon[0].species, SPECIES_RATTATA);
     EXPECT_EQ(gWildMonHeaders[act2Header].encounterTypes[TIME_OF_DAY_DEFAULT].landMonsInfo->wildPokemon[0].species, SPECIES_ODDISH);
+}
+
+TEST("Act 2: it's night from coming back to the dorms until the club's battle")
+{
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_FIRE_SEE_KAI);
+    EXPECT_EQ(GetTimeOfDay(), TIME_NIGHT);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_FIRE_INVITED);
+    EXPECT_EQ(GetTimeOfDay(), TIME_NIGHT);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_GRASS_INVITED);
+    EXPECT_EQ(GetTimeOfDay(), TIME_NIGHT);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_CLUB_1_DONE);
+    EXPECT(!Act2_IsClubNight());
+    VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+    VarSet(VAR_ACT2_PROGRESS, 0);
 }

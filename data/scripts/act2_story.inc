@@ -29,13 +29,34 @@ Act2_EventScript_ShowObjectsTemp1::
 @ ---------------------------------------------------------------------------------------------------------------
 @ The campus: meeting the friends, and the club nights at the stadium
 
+@ FLAG_TEMP_1: the friends at Act 2's start. FLAG_TEMP_2: the friends waiting at the Sports Complex on a club night,
+@ FLAG_TEMP_3: DALE on the third. FLAG_TEMP_4: the students there by day (gone at night).
 CeladonUniversity_OnTransition::
 	special Act2_GiveStartingKit
 	setflag FLAG_TEMP_1
 	setflag FLAG_TEMP_2
 	setflag FLAG_TEMP_3
+	clearflag FLAG_TEMP_4
 	call_if_eq VAR_ACT2_PROGRESS, ACT2_START, Act2_EventScript_ShowObjectsTemp1
+	call_if_eq VAR_ACT2_PROGRESS, ACT2_FIRE_INVITED, Act2_EventScript_ShowClubFriends
+	call_if_eq VAR_ACT2_PROGRESS, ACT2_WATER_INVITED, Act2_EventScript_ShowClubFriends
+	call_if_eq VAR_ACT2_PROGRESS, ACT2_GRASS_INVITED, Act2_EventScript_ShowClubFriends
+	call_if_eq VAR_ACT2_PROGRESS, ACT2_GRASS_INVITED, Act2_EventScript_ShowExaminer
+	specialvar VAR_RESULT, Act2_IsClubNight
+	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_HideDayStudents
 	end
+
+Act2_EventScript_ShowClubFriends:
+	clearflag FLAG_TEMP_2
+	return
+
+Act2_EventScript_ShowExaminer:
+	clearflag FLAG_TEMP_3
+	return
+
+Act2_EventScript_HideDayStudents:
+	setflag FLAG_TEMP_4
+	return
 
 CeladonUniversity_OnFrame::
 	map_script_2 VAR_ACT2_PROGRESS, ACT2_START, Act2_EventScript_MeetFriends
@@ -188,21 +209,10 @@ Act2_EventScript_CampusRowan::
 	msgbox Act2_Text_MeetFriends, MSGBOX_NPC
 	end
 
-@ Walking into the stadium on a club night (coord events at its gate). It's late; the friends are waiting.
+@ Walking into the Sports Complex on a club night (coord events at its gate): the friends are waiting
 Act2_EventScript_ClubArrive:
-	msgbox Act2_Text_SneakOut
-	closemessage
-	fadescreenswapbuffers FADE_TO_BLACK
-	special Act2_SetNight
-	removeobject LOCALID_CAMPUS_RUNNER
-	removeobject LOCALID_CAMPUS_STADIUM_STUDENT
-	clearflag FLAG_TEMP_2
-	addobject LOCALID_CAMPUS_NIGHT_KAI
-	addobject LOCALID_CAMPUS_NIGHT_MINA
-	addobject LOCALID_CAMPUS_NIGHT_ROWAN
 	applymovement LOCALID_PLAYER, Common_Movement_WalkUp2
 	waitmovement 0
-	fadescreenswapbuffers FADE_FROM_BLACK
 	return
 
 @ After a club night: back to bed, and it's morning
@@ -240,11 +250,6 @@ Act2_EventScript_ClubNight3::
 	lockall
 	call Act2_EventScript_ClubArrive
 	msgbox Act2_Text_Night3
-	closemessage
-	fadescreenswapbuffers FADE_TO_BLACK
-	clearflag FLAG_TEMP_3
-	addobject LOCALID_CAMPUS_DALE
-	fadescreenswapbuffers FADE_FROM_BLACK
 	msgbox Act2_Text_DaleIntro
 	closemessage
 	trainerbattle_no_intro TRAINER_ACT2_EXAMINER, Act2_Text_DaleDefeat
@@ -258,52 +263,109 @@ Act2_EventScript_ClubNight3::
 	goto Act2_EventScript_ClubMorning
 
 @ ---------------------------------------------------------------------------------------------------------------
-@ The dorm lobby: the friends after each course
+@ The friends' dorm rooms (KAI and MINA on 2F, ROWAN on 3F). Back from each course it's night: the friend who asked
+@ the player to come by says where the club meets, then heads there. Night lasts until the club battle
+@ (Act2_IsClubNight).
 
-CeladonUniversity_DormLobby_OnTransition::
-	setflag FLAG_TEMP_1
-	call_if_eq VAR_ACT2_PROGRESS, ACT2_FIRE_PASSED, Act2_EventScript_ShowObjectsTemp1
-	call_if_eq VAR_ACT2_PROGRESS, ACT2_WATER_PASSED, Act2_EventScript_ShowObjectsTemp1
-	call_if_eq VAR_ACT2_PROGRESS, ACT2_GRASS_PASSED, Act2_EventScript_ShowObjectsTemp1
+CeladonUniversity_Dorm2F_OnTransition::
+	setflag FLAG_TEMP_5
+	setflag FLAG_TEMP_6
+	setvar VAR_0x8004, ACT2_FIRE_SEE_KAI
+	call Act2_EventScript_CheckFriendInRoom
+	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_ShowTemp5
+	setvar VAR_0x8004, ACT2_WATER_SEE_MINA
+	call Act2_EventScript_CheckFriendInRoom
+	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_ShowTemp6
 	end
 
-CeladonUniversity_DormLobby_OnFrame::
-	map_script_2 VAR_ACT2_PROGRESS, ACT2_FIRE_PASSED, Act2_EventScript_BackFromFire
-	map_script_2 VAR_ACT2_PROGRESS, ACT2_WATER_PASSED, Act2_EventScript_BackFromWater
-	map_script_2 VAR_ACT2_PROGRESS, ACT2_GRASS_PASSED, Act2_EventScript_BackFromGrass
-	.2byte 0
+CeladonUniversity_Dorm3F_OnTransition::
+	setflag FLAG_TEMP_5
+	setvar VAR_0x8004, ACT2_GRASS_SEE_ROWAN
+	call Act2_EventScript_CheckFriendInRoom
+	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_ShowTemp5
+	end
 
-Act2_EventScript_BackFromFire::
-	lockall
-	msgbox Act2_Text_BackFromFire
+@ A friend is in their room on the night they asked the player over (VAR_0x8004), and once the courses are done
+Act2_EventScript_CheckFriendInRoom:
+	setvar VAR_RESULT, FALSE
+	call_if_eq VAR_ACT2_PROGRESS, VAR_0x8004, Act2_EventScript_SetResultTrue
+	call_if_ge VAR_ACT2_PROGRESS, ACT2_GOT_TRAINER_CARD, Act2_EventScript_SetResultTrue
+	return
+
+Act2_EventScript_SetResultTrue:
+	setvar VAR_RESULT, TRUE
+	return
+
+Act2_EventScript_ShowTemp5:
+	clearflag FLAG_TEMP_5
+	return
+
+Act2_EventScript_ShowTemp6:
+	clearflag FLAG_TEMP_6
+	return
+
+Act2_EventScript_RoomKai::
+	lock
+	faceplayer
+	goto_if_ne VAR_ACT2_PROGRESS, ACT2_FIRE_SEE_KAI, Act2_EventScript_RoomKaiDay
+	msgbox Act2_Text_RoomKaiInvite
 	setvar VAR_ACT2_PROGRESS, ACT2_FIRE_INVITED
-	releaseall
+	setvar VAR_0x8005, LOCALID_DORM_KAI
+	goto Act2_EventScript_FriendHeadsOut
+
+Act2_EventScript_RoomKaiDay:
+	msgbox Act2_Text_RoomKai
+	release
 	end
 
-Act2_EventScript_BackFromWater::
-	lockall
-	msgbox Act2_Text_BackFromWater
+Act2_EventScript_RoomMina::
+	lock
+	faceplayer
+	goto_if_ne VAR_ACT2_PROGRESS, ACT2_WATER_SEE_MINA, Act2_EventScript_RoomMinaDay
+	msgbox Act2_Text_RoomMinaInvite
 	setvar VAR_ACT2_PROGRESS, ACT2_WATER_INVITED
-	releaseall
+	setvar VAR_0x8005, LOCALID_DORM_MINA
+	goto Act2_EventScript_FriendHeadsOut
+
+Act2_EventScript_RoomMinaDay:
+	msgbox Act2_Text_RoomMina
+	release
 	end
 
-Act2_EventScript_BackFromGrass::
-	lockall
-	msgbox Act2_Text_BackFromGrass
+Act2_EventScript_RoomRowan::
+	lock
+	faceplayer
+	goto_if_ne VAR_ACT2_PROGRESS, ACT2_GRASS_SEE_ROWAN, Act2_EventScript_RoomRowanDay
+	msgbox Act2_Text_RoomRowanInvite
 	setvar VAR_ACT2_PROGRESS, ACT2_GRASS_INVITED
-	releaseall
+	setvar VAR_0x8005, LOCALID_DORM_ROWAN
+	goto Act2_EventScript_FriendHeadsOut
+
+Act2_EventScript_RoomRowanDay:
+	msgbox Act2_Text_RoomRowan
+	release
 	end
 
-Act2_EventScript_LobbyKai::
-	msgbox Act2_Text_SeeYouTonight, MSGBOX_NPC
+@ The friend (VAR_0x8005) heads off to the Sports Complex
+Act2_EventScript_FriendHeadsOut:
+	closemessage
+	fadescreen FADE_TO_BLACK
+	removeobject VAR_0x8005
+	fadescreen FADE_FROM_BLACK
+	msgbox Act2_Text_FriendHeadedOut
+	release
 	end
 
-Act2_EventScript_LobbyMina::
-	msgbox Act2_Text_SeeYouTonight, MSGBOX_NPC
+Act2_EventScript_RoomPlateKai::
+	msgbox Act2_Text_RoomPlateKai, MSGBOX_SIGN
 	end
 
-Act2_EventScript_LobbyRowan::
-	msgbox Act2_Text_SeeYouTonight, MSGBOX_NPC
+Act2_EventScript_RoomPlateMina::
+	msgbox Act2_Text_RoomPlateMina, MSGBOX_SIGN
+	end
+
+Act2_EventScript_RoomPlateRowan::
+	msgbox Act2_Text_RoomPlateRowan, MSGBOX_SIGN
 	end
 
 @ ---------------------------------------------------------------------------------------------------------------
@@ -378,7 +440,8 @@ Act2_EventScript_FireExam:
 	specialvar VAR_RESULT, Act2_HasResearchFlag
 	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_FireExamNoMove
 	msgbox Act2_Text_FirePassed
-	setvar VAR_ACT2_PROGRESS, ACT2_FIRE_PASSED
+	msgbox Act2_Text_FireComeSeeKai
+	setvar VAR_ACT2_PROGRESS, ACT2_FIRE_SEE_KAI
 	goto Act2_EventScript_BackToDorms
 
 Act2_EventScript_FireExamNoMove:
@@ -457,7 +520,8 @@ Act2_EventScript_WaterExam:
 	specialvar VAR_RESULT, Act2_HasResearchFlag
 	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_WaterExamNoMove
 	msgbox Act2_Text_WaterPassed
-	setvar VAR_ACT2_PROGRESS, ACT2_WATER_PASSED
+	msgbox Act2_Text_WaterComeSeeMina
+	setvar VAR_ACT2_PROGRESS, ACT2_WATER_SEE_MINA
 	goto Act2_EventScript_BackToDorms
 
 Act2_EventScript_WaterExamNoMove:
@@ -536,7 +600,8 @@ Act2_EventScript_GrassExam:
 	specialvar VAR_RESULT, Act2_HasResearchFlag
 	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_GrassExamNoMove
 	msgbox Act2_Text_GrassPassed
-	setvar VAR_ACT2_PROGRESS, ACT2_GRASS_PASSED
+	msgbox Act2_Text_GrassComeSeeRowan
+	setvar VAR_ACT2_PROGRESS, ACT2_GRASS_SEE_ROWAN
 	goto Act2_EventScript_BackToDorms
 
 Act2_EventScript_GrassExamNoMove:
@@ -978,15 +1043,71 @@ Act2_Text_MeetFriends:
 	.string "LECTURE HALL A, the MAIN HALL's\l"
 	.string "west wing. Let's go!$"
 
-Act2_Text_SneakOut:
-	.string "It's late. Everyone's asleep…\n"
-	.string "Time to sneak into the stadium.$"
-
 Act2_Text_Night1:
-	.string "KAI: You came! Welcome to the\n"
-	.string "club. No professors, no rules.\p"
+	.string "KAI: Welcome to the club!\n"
+	.string "No professors, no rules.\p"
 	.string "Officially, we're not TRAINERS.\n"
 	.string "Unofficially… let's battle!$"
+
+Act2_Text_FireComeSeeKai:
+	.string "KAI: We passed! Hey, come see me\n"
+	.string "in my dorm room when we get back.\p"
+	.string "2F, the first room. Don't forget!$"
+
+Act2_Text_WaterComeSeeMina:
+	.string "MINA: Two courses down! Come see\n"
+	.string "me in my room when we get back.\p"
+	.string "2F, the second room!$"
+
+Act2_Text_GrassComeSeeRowan:
+	.string "ROWAN: That's all three courses.\n"
+	.string "Come find me in my room tonight.\p"
+	.string "3F, the room at the end.$"
+
+Act2_Text_RoomKaiInvite:
+	.string "KAI: You came! Okay, here's the\n"
+	.string "secret: some of us have a club.\p"
+	.string "We battle at night, at the SPORTS\n"
+	.string "COMPLEX. No professors, no rules.\p"
+	.string "The others are already there.\n"
+	.string "Come on, let's go!$"
+
+Act2_Text_RoomMinaInvite:
+	.string "MINA: Club night! Everyone's\n"
+	.string "meeting at the SPORTS COMPLEX.\p"
+	.string "I'll see you there!$"
+
+Act2_Text_RoomRowanInvite:
+	.string "ROWAN: Tonight's the big one.\n"
+	.string "We invited someone from the\l"
+	.string "POKéMON LEAGUE.\p"
+	.string "Win, and you get a real TRAINER\n"
+	.string "CARD. Meet us at the SPORTS\l"
+	.string "COMPLEX!$"
+
+Act2_Text_FriendHeadedOut:
+	.string "Off to the SPORTS COMPLEX…$"
+
+Act2_Text_RoomKai:
+	.string "KAI: Welcome to my room!\n"
+	.string "Don't mind the mess.$"
+
+Act2_Text_RoomMina:
+	.string "MINA: My room! That poster is a\n"
+	.string "STARYU. My favorite.$"
+
+Act2_Text_RoomRowan:
+	.string "ROWAN: Shh, I'm reading.\n"
+	.string "Kidding. Come in!$"
+
+Act2_Text_RoomPlateKai:
+	.string "KAI's room.$"
+
+Act2_Text_RoomPlateMina:
+	.string "MINA's room.$"
+
+Act2_Text_RoomPlateRowan:
+	.string "ROWAN's room.$"
 
 Act2_Text_KaiDefeat:
 	.string "Whoa, you're a natural!$"
@@ -1013,10 +1134,9 @@ Act2_Text_Night2After:
 	.string "for you. Get some sleep!$"
 
 Act2_Text_Night3:
-	.string "ROWAN: Here's the surprise.\p"
-	.string "We asked someone from the POKéMON\n"
-	.string "LEAGUE to come see you battle.\p"
-	.string "If you win, you get a real\n"
+	.string "ROWAN: Here he is: our examiner\n"
+	.string "from the POKéMON LEAGUE.\p"
+	.string "Win, and you get a real\n"
 	.string "TRAINER CARD!$"
 
 Act2_Text_DaleIntro:
@@ -1043,28 +1163,6 @@ Act2_Text_Night3After:
 	.string "KAI: Oh, and the director of the\n"
 	.string "SCIENCE RESEARCH INSTITUTE wants\l"
 	.string "to see you. Your final project!$"
-
-Act2_Text_BackFromFire:
-	.string "KAI: We all passed the FIRE course!\p"
-	.string "MINA: Listen… we have a club.\n"
-	.string "A secret one. We battle at night.\p"
-	.string "ROWAN: Meet us at the STADIUM\n"
-	.string "tonight. Don't tell anyone!$"
-
-Act2_Text_BackFromWater:
-	.string "MINA: Two courses down!\p"
-	.string "KAI: The club meets again tonight.\n"
-	.string "Same place, the STADIUM.$"
-
-Act2_Text_BackFromGrass:
-	.string "ROWAN: That's all three courses!\p"
-	.string "KAI: Meet us at the STADIUM one\n"
-	.string "more time tonight.\p"
-	.string "MINA: Tonight you battle for a\n"
-	.string "real TRAINER CARD!$"
-
-Act2_Text_SeeYouTonight:
-	.string "See you at the STADIUM tonight!$"
 
 Act2_Text_ProfAshfordEarly:
 	.string "PROF. ASHFORD: Classes start soon.$"

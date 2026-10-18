@@ -254,7 +254,7 @@ CeladonUniversity_Text_Sign11::
 	.string "HOME ECONOMICS$"
 
 CeladonUniversity_Text_Sign12::
-	.string "STADIUM\n"
+	.string "SPORTS COMPLEX\n"
 	.string "Physical Education$"
 
 CeladonUniversity_Text_Sign13::

@@ -19,9 +19,6 @@
 
 // Act 2's story (docs/hack/act2_story.md)
 
-// The hour Act2_SetNight shows (any night hour; 0 would mean no override)
-#define CLUB_NIGHT_HOUR 2
-
 // Until the player has a Trainer Card, trainers won't battle them: they don't notice the player
 // (CheckForTrainersWantingBattle) and turn them down when talked to (ConfigureTrainerBattle).
 bool32 Act2_TrainersLocked(void)
@@ -97,11 +94,23 @@ bool16 Act2_PartyHasProjectPokemon(void)
     return FALSE;
 }
 
-// special Act2_SetNight: the club meets late at night, whatever the clock says. Lasts until the next warp.
-void Act2_SetNight(void)
+// From coming back to the dorms after a course until the club's battle that night, it's night (UpdateTimeOfDay),
+// whatever the clock says
+bool16 Act2_IsClubNight(void)
 {
-    SetTimeOfDay(CLUB_NIGHT_HOUR);
-    UpdateTimeOfDay(TRUE);
+    if (VarGet(VAR_STORY_ACT) != STORY_ACT_UNIVERSITY)
+        return FALSE;
+    switch (VarGet(VAR_ACT2_PROGRESS))
+    {
+    case ACT2_FIRE_SEE_KAI:
+    case ACT2_FIRE_INVITED:
+    case ACT2_WATER_SEE_MINA:
+    case ACT2_WATER_INVITED:
+    case ACT2_GRASS_SEE_ROWAN:
+    case ACT2_GRASS_INVITED:
+        return TRUE;
+    }
+    return FALSE;
 }
 
 // What Act 2 starts with: the POKéMON start menu entry (Act 1 never sets it: no Poké Balls, the Pokémon follow), and

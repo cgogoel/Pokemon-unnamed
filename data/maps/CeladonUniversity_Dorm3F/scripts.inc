@@ -1,6 +1,7 @@
 @ Celadon University: Dorms 3F (Act 2, docs/hack/celadon_university.md).
 
 CeladonUniversity_Dorm3F_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, CeladonUniversity_Dorm3F_OnTransition
 	.byte 0
 
 CeladonUniversity_Dorm3F_EventScript_Rocker0::

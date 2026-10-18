@@ -34,11 +34,17 @@ Each course opens on campus: the professor introduces it and the class leaves on
 professor explains the assignment and gives 5 Poké Balls (a frame script, once per course: `ACT2_RESEARCH_BRIEFED`).
 After that, talking to the professor shows the **research sheet** (`Act2_BufferResearchSheet`):
 
-1. Catch a Pokémon of the course's type (one in the party).
+1. Catch 3 different Pokémon (species) of the course's type: counted in the party and the PC, not the gifted Lapras
+   (`Act2_CountCaughtSpeciesOfType`).
 2. Use a move of that type in battle.
 3. Record 3 different moves of that type in battle: the player's Pokémon's or wild ones'
    (`Act2_RecordMoveUse`, from `Cmd_printattackstring`; `VAR_ACT2_MOVES_SEEN`).
 4. Solve the site's puzzle (below).
+
+In battle, tasks 1 and 3 show their counter ("Research: 2 of 3 WATER moves recorded!" / "... POKéMON caught!") each
+time they go up, until they're done: a new move once the move in progress is over (`MOVEEND_ACT2_RESEARCH`,
+`Act2_TakeResearchMoveMessage`), a new species after it's caught (`BS_Act2ResearchCatch` in
+`BattleScript_SuccessBallThrowEnd`, `Act2_BufferResearchCatchMessage`).
 
 With all four done, the professor makes the course's **TM** with the player. The **exam** needs a Pokémon of the
 course's type that knows the TM's move (`Act2_PartyCanUseCourseTM`), and only counts if it uses that move in the
@@ -128,6 +134,9 @@ Pokédex (`Act2_StartPlaytest`). Oak's speech still plays first.
 | MINA (night 2) | Stadium | See the club's teams |
 | PROF. FERN (Grass) | Viridian City | Psyduck 19, Diglett 19, Poliwhirl 20: weak to Grass |
 | DALE, League examiner (night 3) | Stadium | Pidgeotto 23, Raticate 23, Kadabra 24 |
+
+From Act 2 on there are no Gym badges to earn, so the player's Pokémon always obey, whatever their level or OT
+(`GetAttackerObedienceForAction`).
 
 ## Characters (names are placeholders)
 

@@ -171,6 +171,7 @@ enum MoveEndState
     MOVEEND_CONFUSION_AFTER_SKY_DROP, // If target was previously rampaging, it should be confused when dropped
     MOVEEND_SPRAY_LEPPA_BLUNDER, // Throat Spray, Leppa Berry, Blunder Policy
     MOVEEND_ITEM_ON_STAT_CHANGE,
+    MOVEEND_ACT2_RESEARCH, // Act 2: a new course-type move was recorded
     MOVEEND_SEND_OUT_REPLACEMENTS, // For all non-forced switching effects
     MOVEEND_CLEAR_BITS,
     MOVEEND_DANCER,

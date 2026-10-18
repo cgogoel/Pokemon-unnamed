@@ -921,6 +921,7 @@ const u8 *const gBattleStringsTable[STRINGID_COUNT] =
     [STRINGID_BEFRIENDTHROWSTONE] = COMPOUND_STRING("You threw the Hard Stone at\n{B_DEF_NAME}!"),
     [STRINGID_BEFRIENDSTONEHURTS] = COMPOUND_STRING("Who throws a stone? Honestly!\pThat really hurts!\pIt's going to have a lump there\nyou idiot."),
     [STRINGID_BEFRIENDBLACKEDOUT] = COMPOUND_STRING("{B_DEF_NAME} slammed into you!\pYou blacked out!"),
+    [STRINGID_ACT2RESEARCH] = COMPOUND_STRING("{B_COPY_VAR_1}"),
 };
 
 const u16 gTrainerUsedItemStringIds[] =

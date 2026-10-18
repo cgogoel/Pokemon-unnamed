@@ -209,8 +209,15 @@ BattleScript_TryNicknameCaughtMon::
 BattleScript_GiveCaughtMonEnd::
 	givecaughtmon BattleScript_SuccessBallThrowEnd
 BattleScript_SuccessBallThrowEnd::
+	callnative BS_Act2ResearchCatch
 	setbyte gBattleOutcome, B_OUTCOME_CAUGHT
 	finishturn
+
+@ Act 2: a research counter (its text in gStringVar1)
+BattleScript_Act2ResearchMessage::
+	printstring STRINGID_ACT2RESEARCH
+	waitmessage B_WAIT_TIME_LONG
+	return
 
 BattleScript_WallyBallThrow::
 	printstring STRINGID_GOTCHAPKMNCAUGHTWALLY

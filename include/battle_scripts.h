@@ -39,6 +39,7 @@ extern const u8 BattleScript_SmokeBallEscape[];
 extern const u8 BattleScript_RanAwayUsingMonAbility[];
 extern const u8 BattleScript_GotAwaySafely[];
 extern const u8 BattleScript_WildMonFled[];
+extern const u8 BattleScript_Act2ResearchMessage[];
 extern const u8 BattleScript_BefriendAct[];
 extern const u8 BattleScript_BefriendItem[];
 extern const u8 BattleScript_BefriendWatch[];

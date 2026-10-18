@@ -44,6 +44,7 @@
 #include "pokedex.h"
 #include "mail.h"
 #include "field_weather.h"
+#include "constants/story.h"
 #include "constants/abilities.h"
 #include "constants/battle_anim.h"
 #include "constants/battle_move_effects.h"
@@ -5697,6 +5698,9 @@ enum Obedience GetAttackerObedienceForAction(void)
     if (B_OBEDIENCE_MECHANICS < GEN_8 && !IsOtherTrainer(gBattleMons[gBattlerAttacker].otId, gBattleMons[gBattlerAttacker].otName))
         return OBEYS;
     if (FlagGet(FLAG_BADGE08_GET)) // Rain Badge, ignore obedience altogether
+        return OBEYS;
+    // The hack has no Gym badges to earn in Acts 2 and 3: the player's Pokémon always obey
+    if (VarGet(VAR_STORY_ACT) >= STORY_ACT_UNIVERSITY)
         return OBEYS;
 
     obedienceLevel = 10;

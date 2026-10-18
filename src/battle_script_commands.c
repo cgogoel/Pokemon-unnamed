@@ -1546,7 +1546,8 @@ static void Cmd_waitmessage(void)
             u16 toWait = cmd->time;
             if (gTestRunnerHeadless)
                 gPauseCounterBattle = toWait;
-            if (BattleMessageWaitsForButton() ? WaitForButtonAfterMessage() : ++gPauseCounterBattle >= toWait)
+            // A blank message (nothing printed) doesn't wait for a button
+            if (BattleMessageWaitsForButton() && gDisplayedStringBattle[0] != EOS ? WaitForButtonAfterMessage() : ++gPauseCounterBattle >= toWait)
             {
                 gPauseCounterBattle = 0;
                 gBattlescriptCurrInstr = cmd->nextInstr;
@@ -9199,6 +9200,15 @@ void RestoreTarget(void)
 }
 
 // Befriending battles: continue with the script picked for the reaction (befriended, ran away, warning).
+// Act 2: a caught Pokémon toward the course's research shows its counter
+void BS_Act2ResearchCatch(void)
+{
+    NATIVE_ARGS();
+    gBattlescriptCurrInstr = cmd->nextInstr;
+    if (Act2_BufferResearchCatchMessage(gBattleResults.caughtMonSpecies))
+        BattleScriptCall(BattleScript_Act2ResearchMessage);
+}
+
 void BS_BefriendFinish(void)
 {
     NATIVE_ARGS();

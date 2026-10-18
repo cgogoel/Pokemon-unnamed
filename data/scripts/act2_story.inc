@@ -1,5 +1,5 @@
 @ Act 2's story (docs/hack/act2_story.md). Progress is VAR_ACT2_PROGRESS (ACT2_* in include/constants/story.h).
-@ Three courses (Fire, Water, Grass), each a field trip: catch a Pokémon of the course's type, then pass the
+@ Three courses (Fire, Water, Grass), each a field trip: catch 3 Pokémon of the course's type, then pass the
 @ professor's exam. After each, the friends (KAI, MINA, ROWAN) meet the player at the dorms and invite them to the
 @ secret battle club at the stadium that night. The third night is the Trainer Card exam; then the final project.
 
@@ -370,7 +370,7 @@ Act2_EventScript_RoomPlateRowan::
 
 @ ---------------------------------------------------------------------------------------------------------------
 @ The courses. Each professor starts their course on campus: what to do, Poké Balls, then the field trip. There,
-@ the professor's research sheet: catch a Pokémon of the type, use a move of it, record 3 different moves of it,
+@ the professor's research sheet: catch 3 different Pokémon of the type, use a move of it, record 3 different moves of it,
 @ and solve the site's puzzle. With all four done, the professor helps make the course's TM; the exam only counts if
 @ the player's Pokémon of the type uses its move (src/act2_story.c tracks all this).
 
@@ -1192,8 +1192,9 @@ Act2_Text_FireBriefing:
 	.string "Famous for its wild FIRE POKéMON,\n"
 	.string "it should be the perfect host for\l"
 	.string "our field assignment.\p"
-	.string "Catch a FIRE POKéMON. Battle with\n"
-	.string "it, and watch how FIRE moves work.\p"
+	.string "Catch three different FIRE\n"
+	.string "POKéMON. Battle with them, and\l"
+	.string "watch how FIRE moves work.\p"
 	.string "Inside the mansion, you may also\n"
 	.string "find some old research that will\l"
 	.string "help with your assignment.\p"
@@ -1276,8 +1277,9 @@ Act2_Text_WaterBriefing:
 	.string "Its harbor is full of wild WATER\n"
 	.string "POKéMON. A fine host for our field\l"
 	.string "assignment.\p"
-	.string "Catch a WATER POKéMON. Battle with\n"
-	.string "it, and watch how WATER moves work.\p"
+	.string "Catch three different WATER\n"
+	.string "POKéMON. Battle with them, and\l"
+	.string "watch how WATER moves work.\p"
 	.string "Fish at the harbor, or look in the\n"
 	.string "grass on ROUTE 6, to the north.\p"
 	.string "And keep an eye on the docks. Your\n"
@@ -1350,8 +1352,9 @@ Act2_Text_GrassBriefing:
 	.string "CITY, the gateway to the forests.\p"
 	.string "West of here, ROUTE 22's fields are\n"
 	.string "home to wild GRASS POKéMON.\p"
-	.string "Catch a GRASS POKéMON. Battle with\n"
-	.string "it, and watch how GRASS moves work.\p"
+	.string "Catch three different GRASS\n"
+	.string "POKéMON. Battle with them, and\l"
+	.string "watch how GRASS moves work.\p"
 	.string "Parts of the field have withered.\n"
 	.string "See what your POKéMON can do.\p"
 	.string "Finish the sheet, and you may just\n"

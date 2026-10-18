@@ -3,6 +3,7 @@
 #include "event_data.h"
 #include "pokemon.h"
 #include "rtc.h"
+#include "string_util.h"
 #include "wild_encounter.h"
 #include "test/test.h"
 #include "constants/map_groups.h"
@@ -85,4 +86,42 @@ TEST("Act 2: it's night from coming back to the dorms until the club's battle")
     EXPECT(!Act2_IsClubNight());
     VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
     VarSet(VAR_ACT2_PROGRESS, 0);
+}
+
+TEST("Act 2: the research needs 3 different species of the course's type, not counting the Lapras")
+{
+    ZeroPlayerPartyMons();
+    CreateMon(&gPlayerParty[0], SPECIES_PSYDUCK, 10, 0, OTID_STRUCT_PLAYER_ID);
+    CreateMon(&gPlayerParty[1], SPECIES_PSYDUCK, 10, 0, OTID_STRUCT_PLAYER_ID); // Same species
+    CreateMon(&gPlayerParty[2], SPECIES_LAPRAS, 15, 0, OTID_STRUCT_PLAYER_ID);  // A gift
+    CreateMon(&gPlayerParty[3], SPECIES_GROWLITHE, 10, 0, OTID_STRUCT_PLAYER_ID); // Another type
+    EXPECT_EQ(Act2_CountCaughtSpeciesOfType(TYPE_WATER), 1);
+    CreateMon(&gPlayerParty[4], SPECIES_POLIWAG, 10, 0, OTID_STRUCT_PLAYER_ID);
+    CreateMon(&gPlayerParty[5], SPECIES_GOLDEEN, 10, 0, OTID_STRUCT_PLAYER_ID);
+    EXPECT_EQ(Act2_CountCaughtSpeciesOfType(TYPE_WATER), 3);
+    ZeroPlayerPartyMons();
+}
+
+TEST("Act 2: a new species of the course's type shows the catch counter")
+{
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_WATER_TRIP);
+    ZeroPlayerPartyMons();
+    CreateMon(&gPlayerParty[0], SPECIES_PSYDUCK, 10, 0, OTID_STRUCT_PLAYER_ID);
+    EXPECT(Act2_BufferResearchCatchMessage(SPECIES_PSYDUCK));
+    EXPECT_EQ(StringCompare(gStringVar1, COMPOUND_STRING("Research: 1 of 3 WATER\nPOKéMON caught!")), 0);
+    CreateMon(&gPlayerParty[1], SPECIES_PSYDUCK, 10, 0, OTID_STRUCT_PLAYER_ID); // Not new
+    EXPECT(!Act2_BufferResearchCatchMessage(SPECIES_PSYDUCK));
+    CreateMon(&gPlayerParty[2], SPECIES_GROWLITHE, 10, 0, OTID_STRUCT_PLAYER_ID); // Another type
+    EXPECT(!Act2_BufferResearchCatchMessage(SPECIES_GROWLITHE));
+    CreateMon(&gPlayerParty[3], SPECIES_POLIWAG, 10, 0, OTID_STRUCT_PLAYER_ID);
+    CreateMon(&gPlayerParty[4], SPECIES_GOLDEEN, 10, 0, OTID_STRUCT_PLAYER_ID);
+    EXPECT(Act2_BufferResearchCatchMessage(SPECIES_GOLDEEN));
+    EXPECT_EQ(StringCompare(gStringVar1, COMPOUND_STRING("Research: 3 of 3 WATER\nPOKéMON caught!")), 0);
+    CreateMon(&gPlayerParty[5], SPECIES_STARYU, 10, 0, OTID_STRUCT_PLAYER_ID); // The task was done already
+    EXPECT(!Act2_BufferResearchCatchMessage(SPECIES_STARYU));
+    VarSet(VAR_ACT2_PROGRESS, 0);
+    EXPECT(!Act2_BufferResearchCatchMessage(SPECIES_STARYU)); // Not on a course trip
+    ZeroPlayerPartyMons();
+    VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
 }

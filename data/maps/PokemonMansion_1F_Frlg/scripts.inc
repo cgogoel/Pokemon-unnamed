@@ -5,6 +5,7 @@ PokemonMansion_1F_Frlg_MapScripts::
 
 PokemonMansion_1F_OnLoad::
 	call_if_set FLAG_POKEMON_MANSION_SWITCH_STATE, PokemonMansion_EventScript_PressSwitch_1F
+	call Act2_EventScript_DrawLitFurnaces
 	end
 
 PokemonMansion_1F_OnTransition::

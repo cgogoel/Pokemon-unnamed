@@ -755,16 +755,34 @@ Route22_OnTransition::
 @ Fire: three cold furnaces in the Pokémon Mansion (1F). Lit, they wake the statue switch, which opens the sealed
 @ room with the old research journal.
 Act2_EventScript_Furnace1::
-	setvar VAR_0x8004, 1
+	call Act2_EventScript_Furnace1Spot
 	goto Act2_EventScript_Furnace
+
+Act2_EventScript_Furnace1Spot:
+	setvar VAR_0x8004, 1
+	setvar VAR_0x8005, 6
+	setvar VAR_0x8006, 2
+	return
 
 Act2_EventScript_Furnace2::
-	setvar VAR_0x8004, 2
+	call Act2_EventScript_Furnace2Spot
 	goto Act2_EventScript_Furnace
 
+Act2_EventScript_Furnace2Spot:
+	setvar VAR_0x8004, 2
+	setvar VAR_0x8005, 31
+	setvar VAR_0x8006, 2
+	return
+
 Act2_EventScript_Furnace3::
-	setvar VAR_0x8004, 3
+	call Act2_EventScript_Furnace3Spot
 	goto Act2_EventScript_Furnace
+
+Act2_EventScript_Furnace3Spot:
+	setvar VAR_0x8004, 3
+	setvar VAR_0x8005, 4
+	setvar VAR_0x8006, 12
+	return
 
 Act2_EventScript_Furnace:
 	lockall
@@ -776,12 +794,32 @@ Act2_EventScript_Furnace:
 	msgbox Act2_Text_FurnaceAsk, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, Act2_EventScript_PuzzleRelease
 	playse SE_M_EMBER
+	setmetatile VAR_0x8005, VAR_0x8006, METATILE_PokemonMansion_Furnace_Lit, TRUE
+	special DrawWholeMapView
 	msgbox Act2_Text_FurnaceRelit
 	waitse
 	specialvar VAR_RESULT, Act2_SolvePuzzlePart
 	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_FurnacesAllLit
 	releaseall
 	end
+
+@ On the Mansion's load (1F): a furnace relit on this trip still burns
+Act2_EventScript_DrawLitFurnaces::
+	goto_if_ne VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP, Act2_EventScript_DrawLitFurnacesEnd
+	call Act2_EventScript_Furnace1Spot
+	call Act2_EventScript_DrawFurnaceIfLit
+	call Act2_EventScript_Furnace2Spot
+	call Act2_EventScript_DrawFurnaceIfLit
+	call Act2_EventScript_Furnace3Spot
+	call Act2_EventScript_DrawFurnaceIfLit
+Act2_EventScript_DrawLitFurnacesEnd:
+	return
+
+Act2_EventScript_DrawFurnaceIfLit:
+	specialvar VAR_RESULT, Act2_IsPuzzlePartSolved
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_DrawLitFurnacesEnd
+	setmetatile VAR_0x8005, VAR_0x8006, METATILE_PokemonMansion_Furnace_Lit, TRUE
+	return
 
 Act2_EventScript_FurnacesAllLit:
 	msgbox Act2_Text_FurnacesAllLit

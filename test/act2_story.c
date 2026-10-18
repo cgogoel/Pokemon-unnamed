@@ -1,5 +1,6 @@
 #include "global.h"
 #include "act2_story.h"
+#include "battle.h"
 #include "event_data.h"
 #include "move.h"
 #include "pokemon.h"
@@ -208,4 +209,33 @@ TEST("Act 2: on a field trip, wild Pokémon of the course's type know its moves 
     EXPECT_GE(fireMoves, 2);
     CreateWildMon(SPECIES_RATTATA, 8); // Not the course's type: its usual moves
     EXPECT(!MonKnowsMoveForTest(mon, MOVE_EMBER));
+}
+
+TEST("Act 2: a wild Pokémon that knew a move early skips it when it levels up to it")
+{
+    struct Pokemon *mon = &gParties[B_TRAINER_OPPONENT_A][0];
+    u32 i, j, level = 12; // Growlithe learns Flame Wheel at 12
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP);
+    CreateWildMon(SPECIES_GROWLITHE, 8);
+    EXPECT(MonKnowsMoveForTest(mon, MOVE_FLAME_WHEEL));
+    SetMonData(mon, MON_DATA_LEVEL, &level);
+    EXPECT_EQ(MonTryLearningNewMove(mon, TRUE), MON_ALREADY_KNOWS_MOVE);
+    EXPECT_EQ(MonTryLearningNewMove(mon, FALSE), MOVE_NONE);
+    for (i = 0; i < MAX_MON_MOVES; i++) // Nothing learned twice
+    {
+        for (j = i + 1; j < MAX_MON_MOVES; j++)
+        {
+            if (GetMonData(mon, MON_DATA_MOVE1 + i) != MOVE_NONE)
+                EXPECT_NE(GetMonData(mon, MON_DATA_MOVE1 + i), GetMonData(mon, MON_DATA_MOVE1 + j));
+        }
+    }
+
+    // Off the trip, the same Growlithe (with 4 moves) is offered it at 12 as usual
+    VarSet(VAR_ACT2_PROGRESS, ACT2_START);
+    CreateWildMon(SPECIES_GROWLITHE, 8);
+    EXPECT(!MonKnowsMoveForTest(mon, MOVE_FLAME_WHEEL));
+    SetMonData(mon, MON_DATA_LEVEL, &level);
+    EXPECT_EQ(MonTryLearningNewMove(mon, TRUE), MON_HAS_MAX_MOVES);
+    EXPECT_EQ(gMoveToLearn, MOVE_FLAME_WHEEL);
 }

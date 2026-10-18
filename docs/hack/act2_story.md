@@ -42,7 +42,8 @@ After that, talking to the professor shows the **research sheet** (`Act2_BufferR
    (`Act2_RecordMoveUse`, from `Cmd_printattackstring`; the first two in `VAR_ACT2_MOVE_SEEN_1/2`, the third sets
    `ACT2_RESEARCH_MOVES_DONE`). So there are enough different ones without training up first, a wild Pokémon of the
    course's type on the trip also knows its type's moves from up to 8 levels ahead, in place of its other moves
-   (`Act2_TeachWildCourseMoves`, from `CreateWildMon`).
+   (`Act2_TeachWildCourseMoves`, from `CreateWildMon`). Caught, it skips those moves when it reaches their level:
+   the level-up code passes over a move a Pokémon already knows (`MON_ALREADY_KNOWS_MOVE`).
 4. Solve the site's puzzle (below).
 
 In battle, tasks 1 and 3 show their counter ("Research: 2 of 3 WATER moves recorded!" / "... POKéMON caught!") each

@@ -180,6 +180,7 @@ void InitBattleControllers(void)
     InitBtlControllersInternal();
 
     SetBattlePartyIds();
+    ResetTripleMoveIndicator(); // Every battle: the move menu hides it, triple battle or not
     if (IsTripleBattle())
         InitTripleFormation();
 

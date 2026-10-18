@@ -402,6 +402,9 @@ BattleScript_BefriendSuccess::
 	setbyte gBattleCommunication, 0
 	displaydexinfo
 BattleScript_BefriendGiveMon:
+	@ givecaughtmon goes by gBattleCommunication's state: reset it, as the catch script does, or the Pokédex screen's
+	@ leftover state makes it print a stale "transferred to the PC" message
+	setbyte gBattleCommunication, 0
 	givecaughtmon BattleScript_BefriendSuccessEnd
 	printfromtable gCaughtMonStringIds
 	waitmessage B_WAIT_TIME_LONG

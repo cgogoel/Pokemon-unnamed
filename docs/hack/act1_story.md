@@ -16,7 +16,7 @@ Progress is `VAR_ACT1_PROGRESS`, with stages `ACT1_*` in `include/constants/stor
 | `ACT1_BEFRIENDED_THREE` | Befriending all three | Mom: go show Dad. **The Woods close until Dad gives the Hard Stone** (the edge says who to see next). |
 | `ACT1_DAD_SAYS_TOO_DANGEROUS` | Talking to Dad | Dad: Jangmo-o is still too dangerous; go see Mom. |
 | `ACT1_MOM_SAYS_FOLLOW_HEART` | Talking to Mom | Mom: Dad's scared for you, but follow your heart; your kindness may reach Jangmo-o. |
-| `ACT1_GOT_HARD_STONE` | Talking to Dad | Dad gives the Hard Stone, "throw it if it attacks". **Talking to Jangmo-o starts its encounter.** |
+| `ACT1_GOT_HARD_STONE` | Talking to Dad | Dad gives the Hard Stone, "throw it if it attacks". **Jangmo-o still charges (on sight or when talked to), but now the encounter starts**; after one, it stays calm until the player leaves the Woods (`FLAG_TEMP_1`). |
 | `ACT1_BEFRIENDED_JANGMO_O` | Befriending Jangmo-o | Bringing it home through the farmyard gate: Mom and Dad can't believe it (the player must understand Pokémon), and send them to bed. |
 | `ACT1_RESTED` | Waking up in the farmhouse 2F | Mom and Dad (Dad's in the house now): show your Pokédex to Oak. The Woods are closed. Walking out toward Pallet Town (x 21), Oak arrives: Jangmo-o was pacified? Befriended, not battled? Not a trainer yet, but a distinguished youth scholar for Celadon University. Mom and Dad: is that what you want? (asked until yes). Oak: bring two friends, here are two Poké Balls. |
 | `ACT1_CHOOSING_FRIENDS` | Saying yes | The player stays in the farmyard (its exits and doors turn them back) and talks to the farm Pokémon they befriended: a picture and "Are you sure you want to bring X with you?". After the second, Oak's last words, then the prologue ends. |
@@ -60,7 +60,7 @@ any row of the farmyard's entrances; Oak walks in from the Pallet Town edge on t
 - **Signs**: "Quincy Woods" past the entrance (39,59), "Warning: Aggressive POKéMON Nearby" by Jangmo-o's area
   (43,26), "Danger: Keep Out" top left (6,20). Until the player has the Hard Stone, it charges if it sees them (straight ahead, up to 4
   tiles, `src/act1_story.c`) or is talked to: the player blacks out and wakes up at home next to Mom
-  (`Act1_EventScript_BlackOut`). With the stone, talking to it starts the encounter, where Hum a tune becomes
+  (`Act1_EventScript_BlackOut`). With the stone, it still charges, but the encounter starts, where Hum a tune becomes
   **Throw stone**: Jangmo-o hits back ("Who throws a stone? Honestly! …") and the player blacks out, keeping the
   stone. Offering the stone from the bag (and one bold Approach) wins it over. If an offered stone is lost, Dad has
   another.

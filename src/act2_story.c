@@ -104,12 +104,25 @@ void Act2_SetNight(void)
     UpdateTimeOfDay(TRUE);
 }
 
-// The Remote Desktop: the Pokémon Storage System from anywhere, in Acts 2 and 3 (the expansion's Pokémon Box Link,
-// renamed). Given when Act 2 starts; special Act2_GiveRemoteDesktop on campus covers saves already in Act 2.
-void Act2_GiveRemoteDesktop(void)
+// What Act 2 starts with: the POKéMON start menu entry (Act 1 never sets it: no Poké Balls, the Pokémon follow), and
+// the Remote Desktop, the Pokémon Storage System from anywhere in Acts 2 and 3 (the expansion's Pokémon Box Link,
+// renamed). Given when Act 2 starts; special Act2_GiveStartingKit on campus covers saves already in Act 2.
+void Act2_GiveStartingKit(void)
 {
-    if (VarGet(VAR_STORY_ACT) >= STORY_ACT_UNIVERSITY && !CheckBagHasItem(ITEM_REMOTE_DESKTOP, 1))
+    if (VarGet(VAR_STORY_ACT) < STORY_ACT_UNIVERSITY)
+        return;
+    FlagSet(FLAG_SYS_POKEMON_GET);
+    if (!CheckBagHasItem(ITEM_REMOTE_DESKTOP, 1))
         AddBagItem(ITEM_REMOTE_DESKTOP, 1);
+}
+
+// Whether the player has a real Trainer Card yet: from the third club night in Act 2 on (the start menu's player entry
+// says where it would go until then)
+bool32 Act2_HasTrainerCard(void)
+{
+    if (VarGet(VAR_STORY_ACT) == STORY_ACT_UNIVERSITY)
+        return VarGet(VAR_ACT2_PROGRESS) >= ACT2_GOT_TRAINER_CARD;
+    return VarGet(VAR_STORY_ACT) > STORY_ACT_UNIVERSITY;
 }
 
 // The time skip: the Pokémon the player brings to university have grown, to at least ACT2_START_LEVEL, and know
@@ -496,7 +509,7 @@ void Act2_StartPlaytest(void)
     EnableNationalPokedex();
     Act2_GivePlaytestParty();
     AddBagItem(ITEM_POTION, 5);
-    Act2_GiveRemoteDesktop();
+    Act2_GiveStartingKit();
     SetLastHealLocationWarp(HEAL_LOCATION_CELADON_CITY);
     SetWarpDestination(MAP_GROUP(ACT2_START_MAP), MAP_NUM(ACT2_START_MAP), WARP_ID_NONE, ACT2_START_X, ACT2_START_Y);
     WarpIntoMap();

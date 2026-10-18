@@ -24,10 +24,11 @@ CeladonUniversity_MainHall_EventScript_Sign0::
 	end
 
 CeladonUniversity_MainHall_Text_Woman10::
-	.string "Welcome to CELADON UNIVERSITY.\n"
-	.string "This is the MAIN HALL.\p"
-	.string "There's a course for every\n"
-	.string "type, held all over campus.$"
+	.string "Welcome back to CELADON\n"
+	.string "UNIVERSITY.\p"
+	.string "Final-year students, your field\n"
+	.string "assignments start with your course\l"
+	.string "professors.$"
 
 CeladonUniversity_MainHall_Text_UnionRoomReceptionist1::
 	.string "The clock tower gallery is\n"
@@ -40,8 +41,9 @@ CeladonUniversity_MainHall_Text_CooltrainerF2::
 
 CeladonUniversity_MainHall_Text_BaldingMan3::
 	.string "I've taught here for thirty\n"
-	.string "years. Welcome, freshman.$"
+	.string "years. Final year? Make it count.$"
 
 CeladonUniversity_MainHall_Text_Sign0::
 	.string "NOTICE BOARD\n"
-	.string "Course registration is open!$"
+	.string "Final-year field assignments are\l"
+	.string "posted in each course's room.$"

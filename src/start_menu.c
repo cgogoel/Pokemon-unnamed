@@ -47,6 +47,7 @@
 #include "union_room.h"
 #include "dexnav.h"
 #include "wild_encounter.h"
+#include "act2_story.h"
 #include "constants/battle_frontier.h"
 #include "constants/rgb.h"
 #include "constants/songs.h"
@@ -737,6 +738,15 @@ static bool8 StartMenuPokeNavCallback(void)
 
 static bool8 StartMenuPlayerNameCallback(void)
 {
+    // No Trainer Card until Act 2's third club night (docs/hack/act2_story.md)
+    if (!Act2_HasTrainerCard() && !IsOverworldLinkActive() && !InUnionRoom())
+    {
+        RemoveExtraStartMenuWindows();
+        HideStartMenu();
+        ScriptContext_SetupScript(EventScript_NoTrainerCardYet);
+        return TRUE;
+    }
+
     if (!gPaletteFade.active)
     {
         PlayRainStoppingSoundEffect();

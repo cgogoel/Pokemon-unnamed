@@ -26,3 +26,10 @@ CeladonUniversity_Dorm2F_Text_Lass1::
 CeladonUniversity_Dorm2F_Text_Sign0::
 	.string "A message board covered in\n"
 	.string "notes about study groups.$"
+
+CeladonUniversity_Dorm2F_EventScript_Bed::
+	msgbox CeladonUniversity_Dorm2F_Text_Bed, MSGBOX_SIGN
+	end
+
+CeladonUniversity_Dorm2F_Text_Bed::
+	.string "A neatly made bed. Someone here\nstudies late, by the look of it.$"

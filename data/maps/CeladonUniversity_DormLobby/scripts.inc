@@ -32,9 +32,8 @@ CeladonUniversity_DormLobby_EventScript_Sign0::
 	end
 
 CeladonUniversity_DormLobby_Text_OldWoman0::
-	.string "Welcome home, dear! I'm the\n"
-	.string "dorm mother.\p"
-	.string "Rooms are upstairs.\n"
+	.string "Welcome home, dear! Your last year\n"
+	.string "here already. I'll miss you.\p"
 	.string "No battling in the halls!$"
 
 CeladonUniversity_DormLobby_Text_Meowth1::

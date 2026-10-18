@@ -11,6 +11,17 @@ Act2_EventScript_NoTrainerCard::
 	release
 	end
 
+@ The start menu's player entry, before the player has a Trainer Card (StartMenuPlayerNameCallback)
+EventScript_NoTrainerCardYet::
+	lockall
+	msgbox Act2_Text_NoTrainerCardYet
+	releaseall
+	end
+
+Act2_Text_NoTrainerCardYet:
+	.string "This is where a TRAINER CARD\n"
+	.string "would go.$"
+
 Act2_EventScript_ShowObjectsTemp1::
 	clearflag FLAG_TEMP_1
 	return
@@ -19,7 +30,7 @@ Act2_EventScript_ShowObjectsTemp1::
 @ The campus: meeting the friends, and the club nights at the stadium
 
 CeladonUniversity_OnTransition::
-	special Act2_GiveRemoteDesktop
+	special Act2_GiveStartingKit
 	setflag FLAG_TEMP_1
 	setflag FLAG_TEMP_2
 	setflag FLAG_TEMP_3
@@ -958,14 +969,14 @@ Act2_Text_NoTrainerCard:
 	.string "Sorry, I only battle TRAINERS.$"
 
 Act2_Text_MeetFriends:
-	.string "KAI: Hey! You're the new student\n"
-	.string "from the farm, right?\p"
-	.string "MINA: We're in the FIRE course,\n"
-	.string "too! I'm MINA. This is KAI, and\l"
-	.string "that's ROWAN.\p"
+	.string "KAI: Morning! Can you believe it's\n"
+	.string "our final year?\p"
+	.string "MINA: And we're all in the FIRE\n"
+	.string "course together. The field\l"
+	.string "assignments start today!\p"
 	.string "ROWAN: PROF. ASHFORD's class is in\n"
 	.string "LECTURE HALL A, the MAIN HALL's\l"
-	.string "west wing. See you there!$"
+	.string "west wing. Let's go!$"
 
 Act2_Text_SneakOut:
 	.string "It's late. Everyone's asleep…\n"

@@ -50,7 +50,7 @@ it in Porymap leaves the original alone). The Main Hall's two doors lead to the 
 | `LIBRARY` | (42,18) | Five Island Resort Gorgeous house |
 | `SCIENCE_INSTITUTE`, with `SCIENCE_LOUNGE`, `SCIENCE_RESEARCH_ROOM`, `SCIENCE_EXPERIMENT_ROOM` | (53,15) | Cinnabar Island Pokémon Lab and its three rooms |
 | `HOSPITAL` (the nurse heals), upstairs `HOSPITAL_2F` (the ward) | (20,42) | Pokémon Center 1F and 2F |
-| `DORM_LOBBY`, upstairs `DORM_2F`, `DORM_3F` (the roof is locked) | (39,44) | Celadon Condominiums 1F-3F |
+| `DORM_LOBBY`, upstairs `DORM_2F`, `DORM_3F` | (39,44) | Celadon Condominiums 1F; the floors are three bedrooms over a corridor each (`tools/hack/compose_dorm_floor.py`: the player's room without its exit, the Safari Zone office's partition wall, the Pallet Town house's stairs) |
 | `DORM_ROOM`, the player's | (46,44) | Lorelei's house. **Act 2 starts here**, at (2,3) beside the bed (`ACT2_START_MAP`) |
 | `HOME_ECONOMICS` | (53,38) | Celadon City Gym (the garden) |
 

@@ -103,8 +103,11 @@ Pokédex (`Act2_StartPlaytest`). Oak's speech still plays first.
   | Celadon City (fishing) | Lotad, Lombre (Water/Grass), Goldeen, Magikarp | 20-24 |
   | Route 7 | Capsakid (Grass; a Fire Stone from the Department Store makes Scovillain, Grass/Fire), Growlithe, Vulpix, Ponyta, Oddish, Meowth, Pidgey | 20-24 |
 
+- **The start menu**: Act 2 adds POKéMON (`FLAG_SYS_POKEMON_GET`, which Act 1 never sets). Until the Trainer Card,
+  the player's entry says "This is where a TRAINER CARD would go." (`Act2_HasTrainerCard`,
+  `StartMenuPlayerNameCallback`). Both come with `Act2_GiveStartingKit`.
 - **The Remote Desktop**: a key item that opens the Pokémon Storage System anywhere (the expansion's Pokémon Box
-  Link, renamed: `ITEM_REMOTE_DESKTOP`). Given when Act 2 starts, kept in Act 3 (`Act2_GiveRemoteDesktop`; saves
+  Link, renamed: `ITEM_REMOTE_DESKTOP`). Given when Act 2 starts, kept in Act 3 (`Act2_GiveStartingKit`; saves
   already in Act 2 get it on campus).
 - **The time skip**: at the end of the prologue, the two Pokémon the player brought go up to level 10
   (`ACT2_START_LEVEL`) with the moves they'd know there (`Act2_RaisePartyLevels`). Blacking out returns the player
@@ -142,5 +145,4 @@ Pokédex (`Act2_StartPlaytest`). Oak's speech still plays first.
 
 ## Not done yet
 
-- The start menu still shows the Trainer Card from the start.
 - Teams of up to 3 aren't enforced.

@@ -153,7 +153,9 @@ def main():
     for layers in (wall + top(0, 1, 2, 3), wall + top(0, 1, 4, 5)):
         metatiles += struct.pack('<8H', *layers)
     open(metatiles_path, 'wb').write(metatiles)
-    open(attrs_path, 'wb').write(open(attrs_path, 'rb').read()[:BASE_METATILES * 4] + wall_attr * 2)
+    attrs = open(attrs_path, 'rb').read()[:BASE_METATILES * 4]  # Read before reopening it to write (which empties it)
+    open(attrs_path, 'wb').write(attrs + wall_attr * 2)
+    assert os.path.getsize(attrs_path) * 4 == os.path.getsize(metatiles_path), 'metatile attributes out of step'
     print('METATILE_PokemonMansion_Furnace_Cold 0x%03X, _Lit 0x%03X'
           % (PRIMARY_METATILES + BASE_METATILES, PRIMARY_METATILES + BASE_METATILES + 1))
 

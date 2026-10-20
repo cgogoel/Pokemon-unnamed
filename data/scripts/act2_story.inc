@@ -921,6 +921,9 @@ Act2_EventScript_DrawFurnaceIfLit:
 
 Act2_EventScript_FurnacesAllLit:
 	msgbox Act2_Text_FurnacesAllLit
+	@ The journal appears in the sealed room now, not just the next time the player comes in (Act2_SetupSiteObjects)
+	clearflag FLAG_TEMP_8
+	addobject LOCALID_MANSION_JOURNAL
 	return
 
 Act2_EventScript_FurnaceCold:

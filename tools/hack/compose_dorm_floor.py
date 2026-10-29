@@ -22,6 +22,7 @@ ROOMS = 3
 W = ROOMS * ROOM_W + (ROOMS - 1)  # A black wall between rooms
 H = 13
 DOORWAY = (3, 4, 5)      # Each room's doorway columns, under its rug
+RUG_ROW = 7              # The dorm room's rug (at its exit); moved to the doorway, against the corridor
 
 VOID = 0x008 | SOLID     # Black outer wall
 WALL_TOP, WALL_FACE = 0x281 | SOLID, 0x289 | SOLID  # Safari Zone office partition wall
@@ -49,11 +50,13 @@ def compose(up_stairs):
         for y in range(ROOM_H):
             for x in range(ROOM_W):
                 put(x0 + x, y, room[y * rw + x])
-        # The partition wall under the room, with its doorway
+        # The partition wall under the room, with its doorway; the rug lies in the doorway, against the corridor
         for x in range(ROOM_W):
             doorway = x in DOORWAY
             put(x0 + x, 8, ROOM_FLOOR if doorway else WALL_TOP)
-            put(x0 + x, 9, ROOM_FLOOR if doorway else WALL_FACE)
+            put(x0 + x, 9, room[RUG_ROW * rw + x] if doorway else WALL_FACE)
+            if doorway:
+                put(x0 + x, RUG_ROW, ROOM_FLOOR)
         if r < ROOMS - 1:
             put(x0 + ROOM_W, 8, WALL_TOP)
             put(x0 + ROOM_W, 9, WALL_FACE)

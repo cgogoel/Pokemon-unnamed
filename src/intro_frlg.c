@@ -1,4 +1,5 @@
 #include "global.h"
+#include "act2_story.h"
 #include "bg.h"
 #include "decompress.h"
 #include "expansion_intro.h"
@@ -999,6 +1000,11 @@ bool8 SetUpCopyrightScreenFrlg(void)
         break;
     case 142:
         ResetSerial();
+#ifdef ACT2_PLAYTEST
+        // The Act 2 playtest build skips the title screen and Oak: a new game straight into the dorm
+        SetMainCallback2(CB2_Act2PlaytestNewGame);
+        break;
+#endif
         if (BOOT_TO_TITLE_SCREEN)
             SetMainCallback2(CB2_InitTitleScreen);
         else

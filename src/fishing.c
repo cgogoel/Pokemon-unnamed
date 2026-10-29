@@ -518,6 +518,8 @@ static u32 CalculateFishingBiteOdds(u32 rod, bool32 isStickyHold)
         odds *= 2;
 
     odds = min(100, odds);
+    if (I_FISHING_ALWAYS_BITE)
+        odds = 100;
     return odds;
 }
 

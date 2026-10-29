@@ -42,7 +42,9 @@ After that, talking to the professor shows the **research sheet** (`Act2_BufferR
    (`Act2_RecordMoveUse`, from `Cmd_printattackstring`; the first two in `VAR_ACT2_MOVE_SEEN_1/2`, the third sets
    `ACT2_RESEARCH_MOVES_DONE`). So there are enough different ones without training up first, a wild Pokémon of the
    course's type on the trip also knows its type's moves from up to 8 levels ahead, in place of its other moves
-   (`Act2_TeachWildCourseMoves`, from `CreateWildMon`). Caught, it skips those moves when it reaches their level:
+   (`Act2_TeachWildCourseMoves`, from `CreateWildMon`). None of them knows the course's TM move, so it can only be
+   made, not caught. In the trip areas, 35% of wild Pokémon are the type's basic Pokémon from beyond Kanto instead
+   (`Act2_ChooseWildSpecies`, `sOtherRegionFire/Water/Grass`). Every fishing cast gets a bite (`I_FISHING_ALWAYS_BITE`). Caught, it skips those moves when it reaches their level:
    the level-up code passes over a move a Pokémon already knows (`MON_ALREADY_KNOWS_MOVE`).
 4. Solve the site's puzzle (below).
 
@@ -71,7 +73,8 @@ The two small fires finish the puzzle task; the big one, which cuts off the pier
 TM move (`Act2_FindTmMoveUser`). The dock workers (the harbor's sailors, and one on the pier during the trip) call
 for help while it burns and thank the player after (`Act2_GetDockFireState`).
 
-**The young Lapras.** Once the big fire is out, the Lapras nuzzles the player and asks to come along; saying no just
+**The young Lapras.** It floats on the water, below the pier's elevation, so the player talks to it through a sign
+event on its square (`Act2_EventScript_DockLaprasFromPier`). Once the big fire is out, the Lapras nuzzles the player and asks to come along; saying no just
 makes it ask again. It joins at level 15 (`ACT2_LAPRAS_LEVEL`): into the party, or straight to the PC if the party
 is full. `FLAG_ACT2_GOT_LAPRAS` is set. It doesn't count as catching a Water Pokémon for the sheet (it's a gift),
 but it can take the BubbleBeam TM and the exam. **In Act 3, this is the Lapras in Silph Co.'s lab** that masters the

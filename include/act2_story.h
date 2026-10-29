@@ -20,6 +20,7 @@ bool32 Act2_HasTrainerCard(void);
 void Act2_RecordMoveUse(u32 battler, u32 move);
 bool32 Act2_TakeResearchMoveMessage(void);
 void Act2_TeachWildCourseMoves(struct Pokemon *mon);
+u32 Act2_ChooseWildSpecies(u32 species);
 bool32 Act2_BufferResearchCatchMessage(u32 species);
 bool16 Act2_IsResearchDone(void);
 u32 Act2_CountCaughtSpeciesOfType(enum Type type);

@@ -503,6 +503,14 @@
       "elevation": 0,
       "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
       "script": "Act2_EventScript_DockFire3"
+    },
+    {
+      "type": "sign",
+      "x": 21,
+      "y": 29,
+      "elevation": 0,
+      "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
+      "script": "Act2_EventScript_DockLaprasFromPier"
     }
   ]
 }

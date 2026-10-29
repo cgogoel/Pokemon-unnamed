@@ -413,3 +413,40 @@ TEST("Act 2: only the course's TM move puts out the big dock fire")
     EXPECT_EQ(StringCompare(gStringVar2, GetMoveName(MOVE_BUBBLE_BEAM)), 0);
     ZeroPlayerPartyMons();
 }
+
+TEST("Act 2: wild Pokémon on a field trip don't know the course's TM move")
+{
+    struct Pokemon *mon = &gParties[B_TRAINER_OPPONENT_A][0];
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_WATER_TRIP);
+    CreateWildMon(SPECIES_MARILL, 12); // Learns BubbleBeam at 6
+    EXPECT(!MonKnowsMoveForTest(mon, MOVE_BUBBLE_BEAM));
+    EXPECT_NE(GetMonData(mon, MON_DATA_MOVE1), MOVE_NONE);
+    CreateWildMon(SPECIES_POLIWAG, 12); // BubbleBeam at 18: within the look-ahead, but not taught
+    EXPECT(!MonKnowsMoveForTest(mon, MOVE_BUBBLE_BEAM));
+
+    VarSet(VAR_ACT2_PROGRESS, ACT2_START); // Off the trip, as usual
+    CreateWildMon(SPECIES_MARILL, 12);
+    EXPECT(MonKnowsMoveForTest(mon, MOVE_BUBBLE_BEAM));
+}
+
+TEST("Act 2: on a field trip, some wild Pokémon are the type's Pokémon from other regions")
+{
+    u32 i, swapped = 0, species;
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_START);
+    for (i = 0; i < 50; i++)
+        EXPECT_EQ(Act2_ChooseWildSpecies(SPECIES_PIDGEY), SPECIES_PIDGEY); // Off a trip
+    VarSet(VAR_ACT2_PROGRESS, ACT2_GRASS_TRIP);
+    for (i = 0; i < 200; i++)
+    {
+        species = Act2_ChooseWildSpecies(SPECIES_PIDGEY);
+        if (species == SPECIES_PIDGEY)
+            continue;
+        swapped++;
+        EXPECT(GetSpeciesType(species, 0) == TYPE_GRASS || GetSpeciesType(species, 1) == TYPE_GRASS);
+        EXPECT_GT(species, SPECIES_MEW); // Not from Kanto
+    }
+    EXPECT_GT(swapped, 30);
+    EXPECT_LT(swapped, 120);
+}

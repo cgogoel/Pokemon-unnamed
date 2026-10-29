@@ -1019,6 +1019,7 @@
 #define METATILE_Underwater_RockWall     0x21E
 
 // gTileset_VermilionCity
+#define METATILE_VermilionCity_DockFire_First 0x328 // Act 2: burning planks (tools/hack/draw_dock_fire.py)
 #define METATILE_VermilionCity_Door        0x29E
 #define METATILE_VermilionCity_SSAnneWarp  0x2E1
 

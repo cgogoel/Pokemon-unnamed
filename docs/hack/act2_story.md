@@ -59,10 +59,19 @@ battle (`ACT2_RESEARCH_USED_TM_MOVE`); a win without it is retaken. Progress is 
 | Course | TM | Site | Puzzle (each part: a Pokémon of the type that knows a move of it, `Act2_FindCourseMoveUser`) | Its end |
 |---|---|---|---|---|
 | Fire | TM35 Flamethrower | Pokémon Mansion | Relight 3 cold furnaces on 1F (on the walls at (6,2), (31,2), (4,12); `METATILE_PokemonMansion_Furnace_Cold`, swapped for `_Lit` once relit, drawn by `tools/hack/draw_mansion_furnace.py`). Until then, the statue switch is cold. | The switch opens the sealed room; the old research journal there (23,13) |
-| Water | TM51 BubbleBeam (new: `FOREACH_TM` in `include/constants/tms_hms.h`) | Vermilion City | Put out 3 fires on the docks ((26,28), (33,30), (37,24); `OBJ_EVENT_GFX_DOCK_FIRE`, a new placeholder sprite) | A young Lapras surfaces by the dock (28,31): talking to it. Then it asks to come along (see below) |
+| Water | TM51 BubbleBeam (new: `FOREACH_TM` in `include/constants/tms_hms.h`) | Vermilion City | Put out the 2 small dock fires (2x2 at (30,28) and (35,25)) with any WATER move | The big fire (2x3 at (24,28), across the pier) needs BubbleBeam; behind it a young Lapras surfaces (21,29) and asks to come along (see below) |
 | Grass | TM19 Giga Drain | Route 22 | Regrow 3 withered plants ((24,13), (38,6), (44,10); `OBJ_EVENT_GFX_WITHERED_PLANT`, a dried-out shrub); they grow into young trees | The field blooms |
 
-**The young Lapras.** After it's recorded, the Lapras nuzzles the player and asks to come along; saying no just
+**The dock fires.** The docks catch fire when the player catches a WATER Pokémon on the trip (`Act2_OnCaughtMon`,
+from the catch script; `ACT2_RESEARCH_DOCK_FIRE`). Back on Route 6 or in Vermilion after that battle, MINA runs up
+(`Act2_EventScript_CheckDockFireAlarm` on map resume, then the map's frame script) and takes the player to the pier
+to see it (`ACT2_RESEARCH_DOCK_FIRE_SEEN`, `_ARRIVING`). The fires are metatiles over the planks, drawn on Vermilion's
+load while burning (`Act2_DrawDockFires`; art by `tools/hack/draw_dock_fire.py`), with a sign event on each square.
+The two small fires finish the puzzle task; the big one, which cuts off the pier's west end, only goes out with the
+TM move (`Act2_FindTmMoveUser`). The dock workers (the harbor's sailors, and one on the pier during the trip) call
+for help while it burns and thank the player after (`Act2_GetDockFireState`).
+
+**The young Lapras.** Once the big fire is out, the Lapras nuzzles the player and asks to come along; saying no just
 makes it ask again. It joins at level 15 (`ACT2_LAPRAS_LEVEL`): into the party, or straight to the PC if the party
 is full. `FLAG_ACT2_GOT_LAPRAS` is set. It doesn't count as catching a Water Pokémon for the sheet (it's a gift),
 but it can take the BubbleBeam TM and the exam. **In Act 3, this is the Lapras in Silph Co.'s lab** that masters the

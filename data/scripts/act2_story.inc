@@ -782,6 +782,12 @@ CinnabarIsland_OnFrame::
 
 VermilionCity_OnFrame::
 	map_script_2 VAR_TEMP_1, 1, Act2_EventScript_WaterBriefing
+	map_script_2 VAR_TEMP_2, 1, VermilionCity_EventScript_DockFireAlarm
+	map_script_2 VAR_TEMP_3, 1, VermilionCity_EventScript_DockFireShow
+	.2byte 0
+
+Route6_OnFrame::
+	map_script_2 VAR_TEMP_2, 1, Route6_EventScript_DockFireAlarm
 	.2byte 0
 
 ViridianCity_OnFrame::
@@ -965,40 +971,77 @@ Act2_EventScript_MansionJournal::
 	release
 	end
 
-@ Water: three fires on Vermilion's docks. Put out, a young Lapras that was hiding under the docks surfaces.
+@ Water: the docks catch fire once the player catches a WATER POKéMON on the trip (Act2_OnCaughtMon). MINA finds
+@ the player and takes them to see it. The two small fires go out with any WATER move and finish the puzzle task; the
+@ big one, which cuts off the west end of the pier, only with the course's TM move. Behind it, a young Lapras.
+@ The fires are metatiles (Act2_DrawDockFires); each square has a sign event for its fire.
 Act2_EventScript_DockFire1::
 	setvar VAR_0x8004, 1
-	setvar VAR_0x8005, LOCALID_VERMILION_FIRE_1
-	goto Act2_EventScript_DockFire
+	goto Act2_EventScript_SmallDockFire
 
 Act2_EventScript_DockFire2::
 	setvar VAR_0x8004, 2
-	setvar VAR_0x8005, LOCALID_VERMILION_FIRE_2
-	goto Act2_EventScript_DockFire
+	goto Act2_EventScript_SmallDockFire
 
-Act2_EventScript_DockFire3::
-	setvar VAR_0x8004, 3
-	setvar VAR_0x8005, LOCALID_VERMILION_FIRE_3
-	goto Act2_EventScript_DockFire
-
-Act2_EventScript_DockFire:
+Act2_EventScript_SmallDockFire:
+	specialvar VAR_RESULT, Act2_IsDockFireBurningSpecial
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_DockFireEnd
 	lockall
 	specialvar VAR_RESULT, Act2_FindCourseMoveUser
 	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_DockFireNeedsWater
 	msgbox Act2_Text_DockFireAsk, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, Act2_EventScript_PuzzleRelease
-	playse SE_M_BUBBLE_BEAM
-	msgbox Act2_Text_DockFireOut
-	waitse
-	removeobject VAR_0x8005
+	call Act2_EventScript_DouseDockFire
 	specialvar VAR_RESULT, Act2_SolvePuzzlePart
-	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_LaprasSurfaces
+	setvar VAR_0x8004, 1
+	specialvar VAR_RESULT, Act2_IsPuzzlePartSolved
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_PuzzleRelease
+	setvar VAR_0x8004, 2
+	specialvar VAR_RESULT, Act2_IsPuzzlePartSolved
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_PuzzleRelease
+	msgbox Act2_Text_SmallDockFiresOut
+	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_DONE
+	special Act2_SetResearchFlag
+	msgbox Act2_Text_TaskComplete
 	releaseall
 	end
+
+@ The big fire: only the TM move puts it out
+Act2_EventScript_DockFire3::
+	setvar VAR_0x8004, 3
+	specialvar VAR_RESULT, Act2_IsDockFireBurningSpecial
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_DockFireEnd
+	lockall
+	specialvar VAR_RESULT, Act2_FindTmMoveUser
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_BigDockFireTooStrong
+	msgbox Act2_Text_DockFireAsk, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, Act2_EventScript_PuzzleRelease
+	call Act2_EventScript_DouseDockFire
+	specialvar VAR_RESULT, Act2_SolvePuzzlePart
+	call Act2_EventScript_LaprasSurfaces
+	releaseall
+	end
+
+@ With the fire in VAR_0x8004
+Act2_EventScript_DouseDockFire:
+	playse SE_M_BUBBLE_BEAM
+	special Act2_PutOutDockFire
+	special DrawWholeMapView
+	msgbox Act2_Text_DockFireOut
+	waitse
+	return
 
 Act2_EventScript_DockFireNeedsWater:
 	msgbox Act2_Text_DockFireNeedsWater
 	releaseall
+	end
+
+Act2_EventScript_BigDockFireTooStrong:
+	msgbox Act2_Text_BigDockFireTooStrong
+	releaseall
+	end
+
+Act2_EventScript_DockFireEnd:
 	end
 
 Act2_EventScript_LaprasSurfaces:
@@ -1009,7 +1052,94 @@ Act2_EventScript_LaprasSurfaces:
 	msgbox Act2_Text_LaprasSurfaces
 	return
 
-@ The young Lapras: recording it finishes the research, and then it asks to come along (it won't take no for an
+Act2_EventScript_OnResumeDockFire::
+	call Act2_EventScript_CheckDockFireAlarm
+	end
+
+@ After a battle (map resume) on ROUTE 6 or in VERMILION: the docks are burning and no one has shown the player yet.
+@ VAR_TEMP_2 is 1 for the map's frame script.
+Act2_EventScript_CheckDockFireAlarm::
+	setvar VAR_TEMP_2, 0
+	specialvar VAR_RESULT, Act2_IsDockFireAlarmDue
+	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_NopReturn
+	setvar VAR_TEMP_2, 1
+	return
+
+@ MINA runs up to the player (on ROUTE 6, her object waits hidden; in VERMILION she's already on the map)
+Route6_EventScript_DockFireAlarm::
+	lockall
+	setvar VAR_TEMP_2, 0
+	getplayerxy VAR_0x8005, VAR_0x8006
+	subvar VAR_0x8005, 1
+	setobjectxyperm LOCALID_ROUTE6_MINA, VAR_0x8005, VAR_0x8006
+	clearflag FLAG_TEMP_2
+	addobject LOCALID_ROUTE6_MINA
+	applymovement LOCALID_ROUTE6_MINA, Common_Movement_WalkInPlaceFasterRight
+	goto Act2_EventScript_DockFireAlarm
+
+VermilionCity_EventScript_DockFireAlarm::
+	lockall
+	setvar VAR_TEMP_2, 0
+	getplayerxy VAR_0x8005, VAR_0x8006
+	subvar VAR_0x8005, 1
+	setobjectxy LOCALID_VERMILION_MINA, VAR_0x8005, VAR_0x8006
+	applymovement LOCALID_VERMILION_MINA, Common_Movement_WalkInPlaceFasterRight
+	goto Act2_EventScript_DockFireAlarm
+
+Act2_EventScript_DockFireAlarm:
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
+	waitmovement 0
+	playse SE_PIN
+	msgbox Act2_Text_DockFireAlarm
+	closemessage
+	setvar VAR_0x8004, ACT2_RESEARCH_DOCK_FIRE_SEEN | ACT2_RESEARCH_DOCK_FIRE_ARRIVING
+	special Act2_SetResearchFlag
+	fadescreen FADE_TO_BLACK
+	warp MAP_VERMILION_CITY, 32, 29
+	waitstate
+	releaseall
+	end
+
+@ Arriving at the docks with MINA (VERMILION's transition): she stands beside the player; VAR_TEMP_3 is 1 for the
+@ frame script that shows them the fire
+VermilionCity_EventScript_DockFireArrival::
+	setvar VAR_TEMP_3, 0
+	setvar VAR_0x8004, ACT2_RESEARCH_DOCK_FIRE_ARRIVING
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_NopReturn
+	setobjectxyperm LOCALID_VERMILION_MINA, 33, 29
+	setobjectmovementtype LOCALID_VERMILION_MINA, MOVEMENT_TYPE_FACE_LEFT
+	setvar VAR_TEMP_3, 1
+	return
+
+VermilionCity_EventScript_DockFireShow::
+	lockall
+	setvar VAR_TEMP_3, 0
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
+	waitmovement 0
+	msgbox Act2_Text_DockFireShow
+	setvar VAR_0x8004, ACT2_RESEARCH_DOCK_FIRE_ARRIVING
+	special Act2_ClearResearchFlag
+	releaseall
+	end
+
+@ The dock workers (and the sailors of the harbor) on the Water trip, once the fires have started
+Act2_EventScript_DockWorker::
+	specialvar VAR_RESULT, Act2_GetDockFireState
+	goto_if_eq VAR_RESULT, DOCK_FIRE_BURNING, Act2_EventScript_DockWorkerFire
+	goto_if_eq VAR_RESULT, DOCK_FIRE_OUT, Act2_EventScript_DockWorkerThanks
+	msgbox Act2_Text_DockWorkerQuiet, MSGBOX_NPC
+	end
+
+Act2_EventScript_DockWorkerFire:
+	msgbox Act2_Text_DockWorkerFire, MSGBOX_NPC
+	end
+
+Act2_EventScript_DockWorkerThanks:
+	msgbox Act2_Text_DockWorkerThanks, MSGBOX_NPC
+	end
+
+@ The young Lapras: once the big fire is out, it asks to come along (it won't take no for an
 @ answer). In Act 3, it's the Lapras in Silph Co.'s lab.
 Act2_EventScript_DockLapras::
 	lock
@@ -1017,9 +1147,6 @@ Act2_EventScript_DockLapras::
 	playmoncry SPECIES_LAPRAS, CRY_MODE_NORMAL
 	msgbox Act2_Text_DockLapras
 	waitmoncry
-	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_DONE
-	special Act2_SetResearchFlag
-	msgbox Act2_Text_TaskComplete
 Act2_EventScript_LaprasAsks:
 	playmoncry SPECIES_LAPRAS, CRY_MODE_NORMAL
 	msgbox Act2_Text_LaprasWantsToCome, MSGBOX_YESNO
@@ -1709,15 +1836,55 @@ Act2_Text_DockFireOut:
 	.string "{STR_VAR_1} used {STR_VAR_2}!\n"
 	.string "The fire went out!$"
 
+Act2_Text_SmallDockFiresOut:
+	.string "The small fires are out!\p"
+	.string "But the big one at the end of the\n"
+	.string "pier is still burning…$"
+
+Act2_Text_BigDockFireTooStrong:
+	.string "The flames at the end of the pier\n"
+	.string "are too fierce to get near.\p"
+	.string "A small WATER move won't touch\n"
+	.string "this. It'll take something much\l"
+	.string "stronger…$"
+
 Act2_Text_LaprasSurfaces:
-	.string "Something big surfaced by the dock!\n"
-	.string "It's a young LAPRAS!$"
+	.string "Something big surfaced by the end\n"
+	.string "of the pier! It's a young LAPRAS!$"
 
 Act2_Text_DockLapras:
-	.string "The young LAPRAS was hiding under\n"
-	.string "the burning docks.\p"
-	.string "{PLAYER} recorded it on the\n"
-	.string "research sheet!$"
+	.string "The young LAPRAS was trapped by the\n"
+	.string "fire. It looks so relieved!$"
+
+Act2_Text_DockFireAlarm:
+	.string "MINA: {PLAYER}! There you are!\p"
+	.string "There's smoke over the harbor.\n"
+	.string "The docks are on fire!\p"
+	.string "Come on, quick!$"
+
+Act2_Text_DockFireShow:
+	.string "MINA: Look at it! The workers can't\n"
+	.string "get anywhere near it.\p"
+	.string "Your WATER POKéMON could put out\n"
+	.string "the small fires.\p"
+	.string "But that big one at the end of the\n"
+	.string "pier… We'd need a much stronger\l"
+	.string "WATER move for that.$"
+
+Act2_Text_DockWorkerQuiet:
+	.string "Busy day at the harbor.\n"
+	.string "Watch your step on the pier!$"
+
+Act2_Text_DockWorkerFire:
+	.string "Fire! The pier's on fire!\p"
+	.string "We can't get near it! Please,\n"
+	.string "help us put it out!\p"
+	.string "If only we had some WATER\n"
+	.string "POKéMON around here…$"
+
+Act2_Text_DockWorkerThanks:
+	.string "You put out the fires!\n"
+	.string "Thank you, kid!$"
 
 Act2_Text_LaprasWantsToCome:
 	.string "The LAPRAS nuzzles {PLAYER}.\n"

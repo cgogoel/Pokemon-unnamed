@@ -51,6 +51,14 @@
 #define ACT2_RESEARCH_GOT_TM        (1 << 5)
 #define ACT2_RESEARCH_USED_TM_MOVE  (1 << 6) // In the exam, the player's Pokémon used the TM's move
 #define ACT2_RESEARCH_BRIEFED       (1 << 7) // The professor explained the assignment at the site
+// Act2_GetDockFireState
+#define DOCK_FIRE_NONE    0
+#define DOCK_FIRE_BURNING 1
+#define DOCK_FIRE_OUT     2
+
+#define ACT2_RESEARCH_DOCK_FIRE          (1 << 10) // Water: a WATER Pokémon was caught on the trip, and the docks caught fire
+#define ACT2_RESEARCH_DOCK_FIRE_SEEN     (1 << 11) // Water: a friend took the player to see the fire
+#define ACT2_RESEARCH_DOCK_FIRE_ARRIVING (1 << 12) // Water: on the way there (the dock scene plays on arrival)
 #define ACT2_RESEARCH_CLUB_ARRIVED  (1 << 9) // A club night: the friends explained tonight's battle (cleared by the next course)
 #define ACT2_RESEARCH_MOVES_DONE    (1 << 8) // A third different move of the type was seen (after VAR_ACT2_MOVE_SEEN_1/2)
 

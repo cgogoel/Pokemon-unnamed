@@ -1,5 +1,13 @@
 Route6_Frlg_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, Route6_OnTransition
+	map_script MAP_SCRIPT_ON_RESUME, Act2_EventScript_OnResumeDockFire
+	map_script MAP_SCRIPT_ON_FRAME_TABLE, Route6_OnFrame
 	.byte 0
+
+@ Act 2: MINA waits out of sight, to run up when the docks catch fire
+Route6_OnTransition::
+	setflag FLAG_TEMP_2
+	end
 
 Route6_EventScript_UndergroundPathSign::
 	msgbox Route6_Text_UndergroundPathSign, MSGBOX_SIGN

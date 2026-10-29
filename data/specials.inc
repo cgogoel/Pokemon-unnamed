@@ -659,6 +659,12 @@ gSpecials::
 	def_special Act2_BufferClubTeam
 	def_special Act2_SetAsideClubBench
 	def_special Act2_RestoreClubBench
+	def_special Act2_DrawDockFires
+	def_special Act2_PutOutDockFire
+	def_special Act2_IsDockFireBurningSpecial
+	def_special Act2_IsDockFireAlarmDue
+	def_special Act2_GetDockFireState
+	def_special Act2_FindTmMoveUser
 	def_special Act2_PartyCanUseCourseTM
 	def_special Act2_FindCourseMoveUser
 	def_special Act2_SolvePuzzlePart

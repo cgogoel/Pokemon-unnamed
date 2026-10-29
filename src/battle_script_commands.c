@@ -9206,6 +9206,7 @@ void BS_Act2ResearchCatch(void)
 {
     NATIVE_ARGS();
     gBattlescriptCurrInstr = cmd->nextInstr;
+    Act2_OnCaughtMon(gBattleResults.caughtMonSpecies);
     if (Act2_BufferResearchCatchMessage(gBattleResults.caughtMonSpecies))
         BattleScriptCall(BattleScript_Act2ResearchMessage);
 }

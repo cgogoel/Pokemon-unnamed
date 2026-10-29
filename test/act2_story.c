@@ -356,3 +356,60 @@ TEST("Heal Dash: given with Act 2's starting kit")
     EXPECT(CheckBagHasItem(ITEM_HEAL_DASH, 1));
     EXPECT(CheckBagHasItem(ITEM_REMOTE_DESKTOP, 1));
 }
+
+TEST("Act 2: the dock fires start when a WATER Pokémon is caught on the Water trip")
+{
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    VarSet(VAR_ACT2_RESEARCH, 0);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP);
+    Act2_OnCaughtMon(SPECIES_PSYDUCK); // Not the Water trip
+    EXPECT_EQ(Act2_GetDockFireState(), DOCK_FIRE_NONE);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_WATER_TRIP);
+    Act2_OnCaughtMon(SPECIES_PIDGEY); // Not a WATER Pokémon
+    EXPECT_EQ(Act2_GetDockFireState(), DOCK_FIRE_NONE);
+    EXPECT(!Act2_IsDockFireAlarmDue());
+    Act2_OnCaughtMon(SPECIES_PSYDUCK);
+    EXPECT_EQ(Act2_GetDockFireState(), DOCK_FIRE_BURNING);
+    EXPECT(Act2_IsDockFireAlarmDue());
+    gSpecialVar_0x8004 = ACT2_RESEARCH_DOCK_FIRE_SEEN;
+    Act2_SetResearchFlag();
+    EXPECT(!Act2_IsDockFireAlarmDue()); // MINA showed the player
+}
+
+TEST("Act 2: the dock fires go out one by one, and the young Lapras appears after the big one")
+{
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_WATER_TRIP);
+    VarSet(VAR_ACT2_RESEARCH, ACT2_RESEARCH_DOCK_FIRE | ACT2_RESEARCH_PUZZLE_1 | ACT2_RESEARCH_PUZZLE_2);
+    gSpecialVar_0x8004 = 3;
+    EXPECT(Act2_IsDockFireBurningSpecial());
+    EXPECT_EQ(Act2_GetDockFireState(), DOCK_FIRE_BURNING);
+    gSpecialVar_0x8004 = ACT2_WATER_TRIP;
+    Act2_SetupSiteObjects();
+    EXPECT(FlagGet(FLAG_TEMP_8)); // The Lapras stays hidden while the big fire burns
+
+    VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_PUZZLE_3);
+    EXPECT_EQ(Act2_GetDockFireState(), DOCK_FIRE_OUT);
+    gSpecialVar_0x8004 = ACT2_WATER_TRIP;
+    Act2_SetupSiteObjects();
+    EXPECT(!FlagGet(FLAG_TEMP_8));
+    FlagSet(FLAG_ACT2_GOT_LAPRAS);
+    gSpecialVar_0x8004 = ACT2_WATER_TRIP;
+    Act2_SetupSiteObjects();
+    EXPECT(FlagGet(FLAG_TEMP_8)); // Gone once it came along
+    FlagClear(FLAG_ACT2_GOT_LAPRAS);
+}
+
+TEST("Act 2: only the course's TM move puts out the big dock fire")
+{
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_WATER_TRIP);
+    ZeroPlayerPartyMons();
+    MakePartyMon(0, SPECIES_PSYDUCK, 15); // WATER moves, but not BubbleBeam
+    EXPECT(Act2_FindCourseMoveUser());
+    EXPECT(!Act2_FindTmMoveUser());
+    SetMonMoveSlot(&gPlayerParty[0], MOVE_BUBBLE_BEAM, 3);
+    EXPECT(Act2_FindTmMoveUser());
+    EXPECT_EQ(StringCompare(gStringVar2, GetMoveName(MOVE_BUBBLE_BEAM)), 0);
+    ZeroPlayerPartyMons();
+}

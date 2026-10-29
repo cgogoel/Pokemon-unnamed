@@ -10,7 +10,9 @@
 #include "pokemon_storage_system.h"
 #include "random.h"
 #include "string_util.h"
+#include "fieldmap.h"
 #include "constants/characters.h"
+#include "constants/metatile_labels.h"
 #include "constants/heal_locations.h"
 #include "constants/pokeball.h"
 #include "constants/items.h"
@@ -204,7 +206,7 @@ static const u8 sText_Fire[] = _("FIRE");
 static const u8 sText_Water[] = _("WATER");
 static const u8 sText_Grass[] = _("GRASS");
 static const u8 sText_PuzzleFire[] = _("Relight the old furnaces.");
-static const u8 sText_PuzzleWater[] = _("Put out the fires on the docks.");
+static const u8 sText_PuzzleWater[] = _("Put out the small dock fires.");
 static const u8 sText_PuzzleGrass[] = _("Regrow the withered patches.");
 
 static const struct Act2Course sCourses[] =
@@ -764,8 +766,146 @@ void Act2_SetupSiteObjects(void)
         else
             FlagClear(FLAG_TEMP_2 + i);
     }
-    if ((research & ACT2_RESEARCH_PUZZLE_ALL) == ACT2_RESEARCH_PUZZLE_ALL && !(research & ACT2_RESEARCH_PUZZLE_DONE))
+    if (gSpecialVar_0x8004 == ACT2_WATER_TRIP)
+    {
+        // The young Lapras, once the big dock fire is out, until it comes along
+        if ((research & ACT2_RESEARCH_PUZZLE_3) && !FlagGet(FLAG_ACT2_GOT_LAPRAS))
+            FlagClear(FLAG_TEMP_8);
+    }
+    else if ((research & ACT2_RESEARCH_PUZZLE_ALL) == ACT2_RESEARCH_PUZZLE_ALL && !(research & ACT2_RESEARCH_PUZZLE_DONE))
+    {
         FlagClear(FLAG_TEMP_8);
+    }
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// The Water course's dock fires (Vermilion's harbor). They start once the player catches a WATER Pokémon on the trip
+// (Act2_OnCaughtMon); a friend then takes them to see it. Two small fires (parts 1 and 2) go out with any WATER move
+// and finish the puzzle task; the big one (part 3), which cuts off the west end of the pier where the young Lapras
+// hides, only with the course's TM move. The fires are metatiles over the planks (tools/hack/draw_dock_fire.py):
+// drawn on the map's load while burning, and the planks put back when one goes out.
+
+struct DockFireSquare
+{
+    u8 part, x, y;
+};
+
+static const struct DockFireSquare sDockFireSquares[] =
+{
+    { 1, 30, 28 }, { 1, 31, 28 }, { 1, 30, 29 }, { 1, 31, 29 },
+    { 2, 35, 25 }, { 2, 36, 25 }, { 2, 35, 26 }, { 2, 36, 26 },
+    { 3, 24, 28 }, { 3, 25, 28 }, { 3, 24, 29 }, { 3, 25, 29 }, { 3, 24, 30 }, { 3, 25, 30 },
+};
+
+// The planks with a burning version, in the order tools/hack/draw_dock_fire.py draws them (two looks each)
+static const u16 sDockFirePlanks[] = { 0x1BE, 0x1C6, 0x1C5, 0x1C7, 0x1CE };
+
+static bool32 IsDockFireBurning(u32 part)
+{
+    u32 research = VarGet(VAR_ACT2_RESEARCH);
+    return VarGet(VAR_STORY_ACT) == STORY_ACT_UNIVERSITY && VarGet(VAR_ACT2_PROGRESS) == ACT2_WATER_TRIP
+        && (research & ACT2_RESEARCH_DOCK_FIRE) && !(research & (ACT2_RESEARCH_PUZZLE_1 << (part - 1)));
+}
+
+static u32 GetLayoutBlockAt(u32 x, u32 y)
+{
+    return gMapHeader.mapLayout->map[x + y * gMapHeader.mapLayout->width];
+}
+
+// special Act2_DrawDockFires: on Vermilion's load, the fires still burning
+void Act2_DrawDockFires(void)
+{
+    u32 i, j;
+    for (i = 0; i < ARRAY_COUNT(sDockFireSquares); i++)
+    {
+        const struct DockFireSquare *square = &sDockFireSquares[i];
+        u32 plank = UNPACK_METATILE(GetLayoutBlockAt(square->x, square->y));
+        if (!IsDockFireBurning(square->part))
+            continue;
+        for (j = 0; j < ARRAY_COUNT(sDockFirePlanks); j++)
+        {
+            if (sDockFirePlanks[j] == plank)
+            {
+                u32 fire = METATILE_VermilionCity_DockFire_First + 2 * j + ((square->x + square->y) & 1);
+                MapGridSetMetatileIdAt(square->x + MAP_OFFSET, square->y + MAP_OFFSET, fire | MAPGRID_IMPASSABLE);
+                break;
+            }
+        }
+    }
+}
+
+// special Act2_PutOutDockFire with the fire (1-3) in VAR_0x8004: its planks come back (the script redraws the map)
+void Act2_PutOutDockFire(void)
+{
+    u32 i;
+    for (i = 0; i < ARRAY_COUNT(sDockFireSquares); i++)
+    {
+        const struct DockFireSquare *square = &sDockFireSquares[i];
+        if (square->part == gSpecialVar_0x8004)
+            MapGridSetMetatileIdAt(square->x + MAP_OFFSET, square->y + MAP_OFFSET, GetLayoutBlockAt(square->x, square->y));
+    }
+}
+
+// specialvar VAR_RESULT, Act2_IsDockFireBurning with the fire (1-3) in VAR_0x8004
+bool16 Act2_IsDockFireBurningSpecial(void)
+{
+    return IsDockFireBurning(gSpecialVar_0x8004);
+}
+
+// specialvar VAR_RESULT, Act2_GetDockFireState, for the dock workers: DOCK_FIRE_NONE (not on the Water trip, or
+// not started), DOCK_FIRE_BURNING or DOCK_FIRE_OUT (all three)
+u16 Act2_GetDockFireState(void)
+{
+    if (!(VarGet(VAR_ACT2_RESEARCH) & ACT2_RESEARCH_DOCK_FIRE) || VarGet(VAR_ACT2_PROGRESS) != ACT2_WATER_TRIP
+     || VarGet(VAR_STORY_ACT) != STORY_ACT_UNIVERSITY)
+        return DOCK_FIRE_NONE;
+    if (IsDockFireBurning(1) || IsDockFireBurning(2) || IsDockFireBurning(3))
+        return DOCK_FIRE_BURNING;
+    return DOCK_FIRE_OUT;
+}
+
+// specialvar VAR_RESULT, Act2_IsDockFireAlarmDue: the docks are burning and no one has shown the player yet
+bool16 Act2_IsDockFireAlarmDue(void)
+{
+    u32 research = VarGet(VAR_ACT2_RESEARCH);
+    return IsDockFireBurning(1) && !(research & ACT2_RESEARCH_DOCK_FIRE_SEEN);
+}
+
+// From the battle, when the player catches a Pokémon: on the Water trip, a WATER one starts the dock fires
+void Act2_OnCaughtMon(u32 species)
+{
+    const struct Act2Course *course = GetCurrentCourse();
+    if (course == NULL || course->tripStage != ACT2_WATER_TRIP
+     || (GetSpeciesType(species, 0) != course->type && GetSpeciesType(species, 1) != course->type))
+        return;
+    VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_DOCK_FIRE);
+}
+
+// specialvar VAR_RESULT, Act2_FindTmMoveUser: a Pokémon in the party that knows the course's TM move. Its nickname
+// goes in STR_VAR_1 and the move in STR_VAR_2.
+bool16 Act2_FindTmMoveUser(void)
+{
+    const struct Act2Course *course = GetCurrentCourse();
+    u32 i, j;
+    if (course == NULL)
+        return FALSE;
+    for (i = 0; i < PARTY_SIZE; i++)
+    {
+        struct Pokemon *mon = &gPlayerParty[i];
+        if (GetMonData(mon, MON_DATA_SPECIES) == SPECIES_NONE || GetMonData(mon, MON_DATA_IS_EGG))
+            continue;
+        for (j = 0; j < MAX_MON_MOVES; j++)
+        {
+            if (GetMonData(mon, MON_DATA_MOVE1 + j) == course->tmMove)
+            {
+                GetMonData(mon, MON_DATA_NICKNAME, gStringVar1);
+                StringGet_Nickname(gStringVar1);
+                StringCopy(gStringVar2, GetMoveName(course->tmMove));
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
 }
 
 // special Act2_SetResearchFlag / specialvar VAR_RESULT, Act2_HasResearchFlag / special Act2_ClearResearchFlag, with

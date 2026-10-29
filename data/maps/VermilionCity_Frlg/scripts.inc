@@ -1,12 +1,20 @@
 VermilionCity_Frlg_MapScripts::
+	map_script MAP_SCRIPT_ON_LOAD, VermilionCity_OnLoad
 	map_script MAP_SCRIPT_ON_TRANSITION, VermilionCity_OnTransition
+	map_script MAP_SCRIPT_ON_RESUME, Act2_EventScript_OnResumeDockFire
 	map_script MAP_SCRIPT_ON_FRAME_TABLE, VermilionCity_OnFrame
 	.byte 0
+
+@ Act 2: the dock fires still burning
+VermilionCity_OnLoad::
+	special Act2_DrawDockFires
+	end
 
 VermilionCity_OnTransition::
 	setworldmapflag FLAG_WORLD_MAP_VERMILION_CITY
 	call_if_set FLAG_TALKED_TO_OAKS_AIDE_IN_VERMILION, VermilionCity_EventScript_HideOaksAide
 	call VermilionCity_EventScript_Act2Objects
+	call VermilionCity_EventScript_DockFireArrival
 	end
 
 VermilionCity_EventScript_HideOaksAide::
@@ -31,6 +39,8 @@ VermilionCity_EventScript_OldMan1SSAnneLeft::
 	end
 
 VermilionCity_EventScript_FerrySailor::
+	specialvar VAR_RESULT, Act2_GetDockFireState
+	goto_if_ne VAR_RESULT, DOCK_FIRE_NONE, Act2_EventScript_DockWorker
 	lock
 	faceplayer
 	goto_if_eq VAR_MAP_SCENE_VERMILION_CITY, 3, VermilionCity_EventScript_CheckSeagallopPresent
@@ -194,6 +204,8 @@ VermilionCity_EventScript_CheckSeagallopPresentTrigger::
 	end
 
 VermilionCity_EventScript_Sailor::
+	specialvar VAR_RESULT, Act2_GetDockFireState
+	goto_if_ne VAR_RESULT, DOCK_FIRE_NONE, Act2_EventScript_DockWorker
 	msgbox VermilionCity_Text_SSAnneVisitsOnceAYear, MSGBOX_NPC
 	end
 

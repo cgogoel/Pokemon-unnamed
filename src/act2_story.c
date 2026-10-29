@@ -288,6 +288,51 @@ void Act2_RecordMoveUse(u32 battler, u32 move)
         VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_USED_TM_MOVE);
 }
 
+// On a field trip, the trip areas' wild Pokémon (Act 2 tables) are sometimes one of the type's Pokémon from
+// beyond Kanto instead (from GenerateWildMon / GenerateFishingWildMon): ACT2_OTHER_REGION_CHANCE percent of the time
+#define ACT2_OTHER_REGION_CHANCE 35
+
+static const u16 sOtherRegionFire[] =
+{
+    SPECIES_CYNDAQUIL, SPECIES_HOUNDOUR, SPECIES_TORCHIC, SPECIES_NUMEL, SPECIES_TORKOAL, SPECIES_CHIMCHAR,
+    SPECIES_TEPIG, SPECIES_PANSEAR, SPECIES_DARUMAKA, SPECIES_LITWICK, SPECIES_HEATMOR, SPECIES_LARVESTA,
+    SPECIES_FENNEKIN, SPECIES_LITLEO, SPECIES_LITTEN, SPECIES_SALANDIT, SPECIES_SCORBUNNY, SPECIES_SIZZLIPEDE,
+    SPECIES_CHARCADET, SPECIES_FUECOCO,
+};
+
+static const u16 sOtherRegionWater[] =
+{
+    SPECIES_TOTODILE, SPECIES_CHINCHOU, SPECIES_WOOPER, SPECIES_REMORAID, SPECIES_MUDKIP, SPECIES_WINGULL,
+    SPECIES_CORPHISH, SPECIES_BARBOACH, SPECIES_PIPLUP, SPECIES_BUIZEL, SPECIES_FINNEON, SPECIES_SHELLOS,
+    SPECIES_OSHAWOTT, SPECIES_TYMPOLE, SPECIES_DUCKLETT, SPECIES_FROAKIE, SPECIES_POPPLIO, SPECIES_WIMPOD,
+    SPECIES_SOBBLE, SPECIES_CHEWTLE, SPECIES_ARROKUDA, SPECIES_QUAXLY, SPECIES_FINIZEN,
+};
+
+static const u16 sOtherRegionGrass[] =
+{
+    SPECIES_CHIKORITA, SPECIES_SUNKERN, SPECIES_TREECKO, SPECIES_SEEDOT, SPECIES_SHROOMISH, SPECIES_BUDEW,
+    SPECIES_TURTWIG, SPECIES_CHERUBI, SPECIES_SNIVY, SPECIES_PANSAGE, SPECIES_PETILIL, SPECIES_COTTONEE,
+    SPECIES_CHESPIN, SPECIES_SKIDDO, SPECIES_ROWLET, SPECIES_FOMANTIS, SPECIES_MORELULL, SPECIES_BOUNSWEET,
+    SPECIES_GROOKEY, SPECIES_GOSSIFLEUR, SPECIES_SPRIGATITO, SPECIES_SMOLIV, SPECIES_BRAMBLIN,
+};
+
+// The species the table picked, or (sometimes, on a field trip) one from another region
+u32 Act2_ChooseWildSpecies(u32 species)
+{
+    const struct Act2Course *course = GetCurrentCourse();
+    const u16 *list;
+    u32 count;
+    if (course == NULL || Random() % 100 >= ACT2_OTHER_REGION_CHANCE)
+        return species;
+    if (course->type == TYPE_FIRE)
+        list = sOtherRegionFire, count = ARRAY_COUNT(sOtherRegionFire);
+    else if (course->type == TYPE_WATER)
+        list = sOtherRegionWater, count = ARRAY_COUNT(sOtherRegionWater);
+    else
+        list = sOtherRegionGrass, count = ARRAY_COUNT(sOtherRegionGrass);
+    return list[Random() % count];
+}
+
 // On a field trip, a wild Pokémon of the course's type knows its type's moves from up to this many levels ahead, so
 // there are a few different ones to record without training up first
 #define ACT2_TYPE_MOVE_LOOKAHEAD 8
@@ -303,19 +348,42 @@ static bool32 MonKnowsMove(struct Pokemon *mon, u32 move)
     return FALSE;
 }
 
-// From CreateWildMon: a course-type Pokémon's other moves make way for its course-type ones (learned or coming up)
+// The course's TM move is for the player to make: a wild Pokémon on the trip forgets it (Tackle if that leaves none)
+static void ForgetCourseTmMove(struct Pokemon *mon, u32 tmMove)
+{
+    u16 moves[MAX_MON_MOVES];
+    u32 i, count = 0;
+    if (!MonKnowsMove(mon, tmMove))
+        return;
+    for (i = 0; i < MAX_MON_MOVES; i++)
+    {
+        u32 move = GetMonData(mon, MON_DATA_MOVE1 + i);
+        if (move != MOVE_NONE && move != tmMove)
+            moves[count++] = move;
+    }
+    if (count == 0)
+        moves[count++] = MOVE_TACKLE;
+    for (i = 0; i < MAX_MON_MOVES; i++)
+        SetMonMoveSlot(mon, i < count ? moves[i] : MOVE_NONE, i);
+}
+
+// From CreateWildMon: a course-type Pokémon's other moves make way for its course-type ones (learned or coming up),
+// and no wild Pokémon on the trip knows the course's TM move
 void Act2_TeachWildCourseMoves(struct Pokemon *mon)
 {
     const struct Act2Course *course = GetCurrentCourse();
     const struct LevelUpMove *learnset;
     u32 species = GetMonData(mon, MON_DATA_SPECIES), level = GetMonData(mon, MON_DATA_LEVEL), i, slot;
-    if (course == NULL || (GetSpeciesType(species, 0) != course->type && GetSpeciesType(species, 1) != course->type))
+    if (course == NULL)
+        return;
+    ForgetCourseTmMove(mon, course->tmMove);
+    if (GetSpeciesType(species, 0) != course->type && GetSpeciesType(species, 1) != course->type)
         return;
     learnset = GetSpeciesLevelUpLearnset(species);
     for (i = 0; learnset[i].move != LEVEL_UP_MOVE_END && learnset[i].level <= level + ACT2_TYPE_MOVE_LOOKAHEAD; i++)
     {
         u32 move = learnset[i].move;
-        if (GetMoveType(move) != course->type || MonKnowsMove(mon, move))
+        if (GetMoveType(move) != course->type || move == course->tmMove || MonKnowsMove(mon, move))
             continue;
         for (slot = 0; slot < MAX_MON_MOVES; slot++)
         {

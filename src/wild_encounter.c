@@ -439,6 +439,18 @@ static const struct WildPokemonInfo *const sAct2WildMonsInfos[] =
     &sAct2_Route7_FireRed_LandMonsInfo,
 };
 
+// Whether the table is one of Act 2's own (its field trips' areas)
+static bool32 IsAct2WildMonsInfo(const struct WildPokemonInfo *info)
+{
+    u32 i;
+    for (i = 0; i < ARRAY_COUNT(sAct2WildMonsInfos); i++)
+    {
+        if (info == sAct2WildMonsInfos[i])
+            return TRUE;
+    }
+    return FALSE;
+}
+
 static bool32 IsAct2WildMonHeader(u32 headerId)
 {
     const struct WildEncounterTypes *types = &gWildMonHeaders[headerId].encounterTypes[TIME_OF_DAY_DEFAULT];
@@ -625,7 +637,10 @@ bool8 TryGenerateWildMon(const struct WildPokemonInfo *wildMonInfo, enum WildPok
     if (gMapHeader.mapLayoutId != LAYOUT_BATTLE_FRONTIER_BATTLE_PIKE_ROOM_WILD_MONS && flags & WILD_CHECK_KEEN_EYE && !IsAbilityAllowingEncounter(level))
         return FALSE;
 
-    CreateWildMon(wildMonInfo->wildPokemon[wildMonIndex].species, level);
+    if (IsAct2WildMonsInfo(wildMonInfo))
+        CreateWildMon(Act2_ChooseWildSpecies(wildMonInfo->wildPokemon[wildMonIndex].species), level);
+    else
+        CreateWildMon(wildMonInfo->wildPokemon[wildMonIndex].species, level);
     return TRUE;
 }
 
@@ -634,6 +649,9 @@ static u16 GenerateFishingWildMon(const struct WildPokemonInfo *wildMonInfo, u8 
     u8 wildMonIndex = ChooseWildMonIndex_Fishing(rod);
     enum Species wildMonSpecies = wildMonInfo->wildPokemon[wildMonIndex].species;
     u8 level = ChooseWildMonLevel(wildMonInfo->wildPokemon, wildMonIndex, WILD_AREA_FISHING);
+
+    if (IsAct2WildMonsInfo(wildMonInfo))
+        wildMonSpecies = Act2_ChooseWildSpecies(wildMonSpecies);
 
     UpdateChainFishingStreak();
     CreateWildMon(wildMonSpecies, level);

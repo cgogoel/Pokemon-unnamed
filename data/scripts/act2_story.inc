@@ -1147,6 +1147,14 @@ Act2_EventScript_DockLapras::
 	playmoncry SPECIES_LAPRAS, CRY_MODE_NORMAL
 	msgbox Act2_Text_DockLapras
 	waitmoncry
+@ The Lapras floats on the water, a lower elevation than the pier, so the pier's player talks to it through a sign
+@ event on its square (elevation 0) instead, while it's there
+Act2_EventScript_DockLaprasFromPier::
+	goto_if_set FLAG_TEMP_8, Act2_EventScript_DockFireEnd
+	goto_if_set FLAG_ACT2_GOT_LAPRAS, Act2_EventScript_DockFireEnd
+	setvar VAR_LAST_TALKED, LOCALID_VERMILION_LAPRAS
+	goto Act2_EventScript_DockLapras
+
 Act2_EventScript_LaprasAsks:
 	playmoncry SPECIES_LAPRAS, CRY_MODE_NORMAL
 	msgbox Act2_Text_LaprasWantsToCome, MSGBOX_YESNO

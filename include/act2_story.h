@@ -46,5 +46,6 @@ bool16 Act2_HasResearchFlag(void);
 void Act2_ClearResearchFlag(void);
 void Act2_GivePlaytestParty(void);
 void Act2_StartPlaytest(void);
+void CB2_Act2PlaytestNewGame(void);
 
 #endif // GUARD_ACT2_STORY_H

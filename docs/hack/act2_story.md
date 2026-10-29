@@ -116,7 +116,9 @@ the player's party (the three battling) or already on their team (`Act2_MakeClub
 
 `make act2` builds `pokemon-unnamed-act2.gba` (objects in `build/firered-act2`, `-DACT2_PLAYTEST`). A new game there
 starts at Act 2's beginning, in the dorm room, with Teddiursa and Tynamo at level 10, 5 Potions and the National
-Pokédex (`Act2_StartPlaytest`). Oak's speech still plays first.
+Pokédex (`Act2_StartPlaytest`). It skips the title screen and Oak's speech: every boot goes from the copyright
+screen straight into a new game, as GRAHAM (`CB2_Act2PlaytestNewGame`, from `src/intro_frlg.c`), so its saves
+aren't loaded.
 
 In both builds, the Pokémon the player starts Act 2 with know the moves they'd have learned by level 10, and at least
 2: Tackle fills in for one that only has one (Blipbug) (`Act2_GiveStartingMoves`).

@@ -6,6 +6,8 @@
 #include "item.h"
 #include "move.h"
 #include "overworld.h"
+#include "sprite.h"
+#include "task.h"
 #include "pokemon.h"
 #include "pokemon_storage_system.h"
 #include "random.h"
@@ -1014,6 +1016,20 @@ void Act2_GivePlaytestParty(void)
 }
 
 #ifdef ACT2_PLAYTEST
+// The playtest build boots straight into a new game (from the copyright screen): the player is GRAHAM
+void CB2_Act2PlaytestNewGame(void)
+{
+    static const u8 sText_PlayerName[] = _("GRAHAM");
+    static const u8 sText_RivalName[] = _("BLUE");
+    gSaveBlock2Ptr->playerGender = MALE;
+    StringCopy_PlayerName(gSaveBlock2Ptr->playerName, sText_PlayerName);
+    StringCopy_PlayerName(gSaveBlock1Ptr->rivalName, sText_RivalName);
+    ResetSpriteData();
+    FreeAllSpritePalettes();
+    ResetTasks();
+    SetMainCallback2(CB2_NewGame);
+}
+
 void Act2_StartPlaytest(void)
 {
     VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);

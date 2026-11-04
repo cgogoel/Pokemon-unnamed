@@ -14,6 +14,14 @@ The game follows an ordinary person's life with Pokémon in three acts, each lon
 
 ## Features added by this hack
 
+### New locations
+
+- **Act 1:** a farm just west of Pallet Town, with the player's farmhouse, a barn and a farmyard, and the Woods
+  beyond it.
+- **Act 2:** Celadon University, reached from Celadon City through a gate building. The campus has a main hall,
+  lecture halls, a library, a cafeteria, a faculty office, a hospital, a science institute and student dorms.
+- **Act 3:** none yet.
+
 ### Befriending (Act 1)
 
 ![A befriending battle](docs/readme/befriend.png)

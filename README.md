@@ -7,9 +7,9 @@ A Pokémon ROM hack for the Game Boy Advance, set in Kanto and built on the Fire
 
 The game follows an ordinary person's life with Pokémon in three acts, each longer than the one before.
 
-- **Act 1, Childhood.** The player grows up in a small town with no training and no Poké Balls. Pokémon are
-  befriended rather than caught, one Pokémon follows the player at a time, and moves are discovered by
-  experimenting. The act ends after the player has beaten the town's two strongest Pokémon and befriended a third.
+- **Act 1, Childhood.** The player grows up on a farm near a small town, with no training and no Poké Balls.
+  Pokémon are befriended rather than caught or battled. The player befriends Pokémon in the woods near home, the
+  last of them an aggressive Jangmo-o, after which Professor Oak offers them a place at university.
 - **Act 2, University.** The player attends Celadon University. Poké Balls and teams of up to three are introduced,
   along with 3v3 battles in which each side chooses one of its three Pokémon to act each turn. The act is organized
   around three courses (Fire, Water and Grass), each with a field trip, a research assignment, a TM and an exam, and
@@ -20,44 +20,60 @@ The game follows an ordinary person's life with Pokémon in three acts, each lon
 
 ## Features added by this hack
 
-These are changes made on top of `pokeemerald-expansion`.
+### Befriending (Act 1)
 
-**Story structure**
-- Three acts with time skips between them. The current act is stored in a variable, and maps, events and rules
-  check it.
+![A befriending battle](docs/readme/befriend.png)
 
-**Act 1**
-- Befriending replaces catching. In a befriending battle the player uses actions and items instead of attacking,
-  and each Pokémon reacts differently to them.
-- One Pokémon follows the player at a time. The others stay in a farmyard at the player's house.
+In Act 1 the player cannot attack or catch Pokémon. A befriending battle replaces the wild battle: the player
+chooses actions (such as holding out a hand or crouching down), offers items, or watches the Pokémon for hints.
+Each Pokémon reacts differently to each action and item. The bar under its name shows its aggression, and the
+Pokémon is befriended when it reaches zero. Every choice uses up some of its patience (the pips next to its name);
+when it runs out, the Pokémon runs away.
 
-**Battles**
-- 3v3 battles from Act 2 on. Each side has three Pokémon on the field and picks one of them to act each turn.
-- The three Pokémon stand in a front, middle and back formation that can be rearranged each turn without using up
-  the turn. Each move has a reach (only the front Pokémon, or any Pokémon) and hits one, two or three targets.
-  The move menu shows this for each move.
-- When each side has two Pokémon, the same rules apply as a 2v2.
-- Battle messages wait for a button press, and battles and battle transitions run at 1.5x speed.
+One befriended Pokémon follows the player at a time. The others live in a farmyard at the player's house.
 
-**Act 2**
-- Three courses (Fire, Water, Grass). Each has a field trip with a research sheet: catch three different Pokémon
-  of the type, use and record moves of the type, and solve a puzzle at the site. Completing the sheet produces a TM,
-  and the course exam only counts if the TM's move is used.
-- Wild Pokémon levels follow the party's average level. On field trips, some wild Pokémon are Pokémon of the
-  course's type from other regions.
-- Trainers will not battle the player until they earn a Trainer Card.
-- A night battle club with the player's friends, played 3v3 with the first three Pokémon in the party. Opponents
-  are set to the average level of those three, and losing does not stop the story.
+### 3v3 battles (Act 2 on)
 
-**Items and overworld**
-- Remote Desktop: a key item that opens the Pokémon Storage System from anywhere (Acts 2 and 3).
-- Heal Dash: a key item that returns the player to the last Pokémon Center they visited (Acts 2 and 3).
-- From Act 2 on, the whole party shares experience and all Pokémon obey the player regardless of level.
-- The player walks at 1.5x speed and can run with B from the start, at 1.5x the walking speed.
-- Text prints at 3x speed, and fishing always gets a bite.
+![A 3v3 battle](docs/readme/battle_3v3.png) ![The move menu in a 3v3 battle](docs/readme/battle_3v3_moves.png)
 
-**Development**
-- An Act 2 playtest build (`make act2`) that starts a new game at the beginning of Act 2.
+Each side has three Pokémon on the field, but only one Pokémon per side acts each turn. The player picks which one
+with L and R, then its move and target.
+
+Each side's three Pokémon stand in a formation: front, middle and back (from right to left on screen). Pressing
+SELECT moves the chosen Pokémon forward in the formation, which does not use up the turn. At the start of a battle
+the formation follows the party order: the first Pokémon is in front.
+
+Moves are either direct or indirect:
+
+- A **direct** attack travels out from the user or makes contact, so it hits the front Pokémon, which blocks the
+  others. Tackle is a direct attack.
+- An **indirect** attack can be aimed at any of the three Pokémon. Electric, Psychic and Flying moves, sound moves
+  and attacks from above or below are indirect. Thunder Shock is an indirect attack.
+
+A move hits one, two or all three Pokémon. With two targets, the second takes half damage; with three, each takes
+75%.
+
+**The move indicator.** In the move menu, next to the move's type, a small copy of the opponents' formation shows
+what the selected move does: the back Pokémon on the left, the front Pokémon on the right.
+
+![Move indicators for five moves](docs/readme/move_indicators.png)
+
+- **Shading:** dark is full damage, gray is reduced damage, white is not hit.
+- **Red arrows:** where the move can be aimed. One arrow over the front Pokémon for a direct attack; arrows over
+  all three for an indirect attack. Moves that hit all three have no arrows.
+
+When each side has only two Pokémon, the same rules apply with two Pokémon per side.
+
+### University courses (Act 2)
+
+Each course (Fire, Water, Grass) is a field trip with a research sheet: catch three different Pokémon of the type,
+use and record moves of the type, and solve a puzzle at the site using a Pokémon of the type. Completing the sheet
+lets the player make the course's TM, and the course exam only counts if the TM's move is used.
+
+### Key items (Acts 2 and 3)
+
+- **Remote Desktop:** opens the Pokémon Storage System from anywhere.
+- **Heal Dash:** returns the player to the last Pokémon Center they visited.
 
 ## Status
 

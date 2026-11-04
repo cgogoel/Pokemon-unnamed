@@ -1,53 +1,115 @@
-# About `pokeemerald-expansion`
+# Pokémon Unnamed (working title)
 
-![Gif that shows debugging functionality that is unique to pokeemerald-expansion such as rerolling Trainer ID, Cheat Start, PC from Debug Menu, Debug PC Fill, Pokémon Sprite Visualizer, Debug Warp to Map, and Battle Debug Menu](https://github.com/user-attachments/assets/cf9dfbee-4c6b-4bca-8e0a-07f116ef891c) ![Gif that shows overworld functionality that is unique to pokeemerald-expansion such as indoor running, BW2 style map popups, overworld followers, DNA Splicers, Gen 1 style fishing, OW Item descriptions, Quick Run from Battle, Use Last Ball, Wild Double Battles, and Catch from EXP](https://github.com/user-attachments/assets/383af243-0904-4d41-bced-721492fbc48e) ![Gif that shows off a number of modern Pokémon battle mechanics happening in the pokeemerald-expansion engine: 2 vs 1 battles, modern Pokémon, items, moves, abilities, fully customizable opponents and partners, Trainer Slides, and generational gimmicks](https://github.com/user-attachments/assets/50c576bc-415e-4d66-a38f-ad712f3316be)
+A Pokémon ROM hack for the Game Boy Advance, set in Kanto and built on the FireRed mode of
+[`pokeemerald-expansion`](https://github.com/rh-hideout/pokeemerald-expansion).
 
-<!-- If you want to re-record or change these gifs, here are some notes that I used: https://files.catbox.moe/05001g.md -->
+## Overview
 
-**`pokeemerald-expansion`** is a GBA ROM hack base that equips developers with a comprehensive toolkit for creating Pokémon ROM hacks. **`pokeemerald-expansion`** is built on top of [pret's `pokeemerald`](https://github.com/pret/pokeemerald) decompilation project. **It is not a playable Pokémon game on its own.**
+The game follows an ordinary person's life with Pokémon in three acts, each longer than the one before.
 
-# [Features](FEATURES.md)
+- **Act 1, Childhood.** The player grows up on a farm near a small town, with no training and no Poké Balls.
+  Pokémon are befriended rather than caught or battled. The player befriends Pokémon in the woods near home, the
+  last of them an aggressive Jangmo-o, after which Professor Oak offers them a place at university.
+- **Act 2, University.** The player attends Celadon University. Poké Balls and teams of up to three are introduced,
+  along with 3v3 battles in which each side chooses one of its three Pokémon to act each turn. The act is organized
+  around three courses (Fire, Water and Grass), each with a field trip, a research assignment, a TM and an exam, and
+  ends with a final research project.
+- **Act 3, Workforce.** The player works as a researcher at Silph Co. and investigates an employee who is passing
+  information to Team Rocket. This act revisits events from FireRed, including Team Rocket's takeover of Silph Co.,
+  from the point of view of someone working there.
 
-**`pokeemerald-expansion`** offers hundreds of features from various [core series Pokémon games](https://bulbapedia.bulbagarden.net/wiki/Core_series), along with popular quality-of-life enhancements designed to streamline development and improve the player experience. A full list of those features can be found in [`FEATURES.md`](FEATURES.md).
+## Features added by this hack
 
-# [Credits](CREDITS.md)
+### Befriending (Act 1)
 
- [![](https://img.shields.io/github/all-contributors/rh-hideout/pokeemerald-expansion/upcoming)](CREDITS.md)
+![A befriending battle](docs/readme/befriend.png)
 
-If you use **`pokeemerald-expansion`**, please credit **RHH (Rom Hacking Hideout)**. Optionally, include the version number for clarity.
+In Act 1 the player cannot attack or catch Pokémon. A befriending battle replaces the wild battle: the player
+chooses actions (such as holding out a hand or crouching down), offers items, or watches the Pokémon for hints.
+Each Pokémon reacts differently to each action and item. The bar under its name shows its aggression, and the
+Pokémon is befriended when it reaches zero. Every choice uses up some of its patience (the pips next to its name);
+when it runs out, the Pokémon runs away.
+
+One befriended Pokémon follows the player at a time. The others live in a farmyard at the player's house.
+
+### 3v3 battles (Act 2 on)
+
+![A 3v3 battle](docs/readme/battle_3v3.png) ![The move menu in a 3v3 battle](docs/readme/battle_3v3_moves.png)
+
+Each side has three Pokémon on the field, but only one Pokémon per side acts each turn. The player picks which one
+with L and R, then its move and target.
+
+Each side's three Pokémon stand in a formation: front, middle and back (from right to left on screen). Pressing
+SELECT moves the chosen Pokémon forward in the formation, which does not use up the turn. At the start of a battle
+the formation follows the party order: the first Pokémon is in front.
+
+Moves are either direct or indirect:
+
+- A **direct** attack travels out from the user or makes contact, so it hits the front Pokémon, which blocks the
+  others. Tackle is a direct attack.
+- An **indirect** attack can be aimed at any of the three Pokémon. Electric, Psychic and Flying moves, sound moves
+  and attacks from above or below are indirect. Thunder Shock is an indirect attack.
+
+A move hits one, two or all three Pokémon. With two targets, the second takes half damage; with three, each takes
+75%.
+
+**The move indicator.** In the move menu, next to the move's type, a small copy of the opponents' formation shows
+what the selected move does: the back Pokémon on the left, the front Pokémon on the right.
+
+![Move indicators for five moves](docs/readme/move_indicators.png)
+
+- **Shading:** dark is full damage, gray is reduced damage, white is not hit.
+- **Red arrows:** where the move can be aimed. One arrow over the front Pokémon for a direct attack; arrows over
+  all three for an indirect attack. Moves that hit all three have no arrows.
+
+When each side has only two Pokémon, the same rules apply with two Pokémon per side.
+
+### University courses (Act 2)
+
+Each course (Fire, Water, Grass) is a field trip with a research sheet: catch three different Pokémon of the type,
+use and record moves of the type, and solve a puzzle at the site using a Pokémon of the type. Completing the sheet
+lets the player make the course's TM, and the course exam only counts if the TM's move is used.
+
+### Key items (Acts 2 and 3)
+
+- **Remote Desktop:** opens the Pokémon Storage System from anywhere.
+- **Heal Dash:** returns the player to the last Pokémon Center they visited.
+
+## Status
+
+- **Act 1:** complete.
+- **Act 2:** in playtesting.
+- **Act 3:** not started.
+
+Design notes for the acts and the custom systems are in [`docs/hack/`](docs/hack/).
+
+## Building
+
+The hack builds the same way as `pokeemerald-expansion`; see [`INSTALL.md`](INSTALL.md) for the toolchain setup.
+No game ROM is included or needed to build.
 
 ```
-Based off RHH's pokeemerald-expansion 1.17.1 https://github.com/rh-hideout/pokeemerald-expansion/
+make               # pokemon-unnamed.gba
+make act2          # pokemon-unnamed-act2.gba, a playtest build that starts at the beginning of Act 2
+make check         # the test suite
 ```
 
-Please consider [crediting all contributors](CREDITS.md) involved in the project!
+## Credits
 
-# Choosing `pokeemerald` or **`pokeemerald-expansion`**
+This project is based on [RHH's `pokeemerald-expansion`](https://github.com/rh-hideout/pokeemerald-expansion), which
+is built on [pret's `pokeemerald`](https://github.com/pret/pokeemerald) decompilation project.
 
-- **`pokeemerald-expansion`** supports multiplayer functionality with other games built on **`pokeemerald-expansion`**. It is not compatible with official Pokémon games.
-- If compatibility with official games is important, use [`pokeemerald`](https://github.com/pret/pokeemerald). Otherwise, we recommend using **`pokeemerald-expansion`**.
-- **`pokeemerald-expansion`** incorporates regular updates from `pokeemerald`, including bug fixes and documentation improvements.
+```
+Based off RHH's pokeemerald-expansion 1.17.2 https://github.com/rh-hideout/pokeemerald-expansion/
+```
 
-# [Getting Started](INSTALL.md)
+See [`CREDITS.md`](CREDITS.md) for the contributors to `pokeemerald-expansion`.
 
-❗❗ **Important**: Do not use GitHub's "Download Zip" option as it will not include commit history. This is necessary if you want to update or merge other feature branches.
+## About `pokeemerald-expansion`
 
-If you're new to git and GitHub, [Team Aqua's Asset Repo](https://github.com/Pawkkie/Team-Aquas-Asset-Repo/) has a [guide to forking and cloning the repository](https://github.com/Pawkkie/Team-Aquas-Asset-Repo/wiki/The-Basics-of-GitHub). Then you can follow one of the following guides:
-
-## 📥 [Installing **`pokeemerald-expansion`**](INSTALL.md)
-## 🏗️ [Building **`pokeemerald-expansion`**](INSTALL.md#Building-pokeemerald-expansion)
-## 🚚 [Migrating from **`pokeemerald`**](INSTALL.md#Migrating-from-pokeemerald)
-## 🚀 [Updating **`pokeemerald-expansion`**](INSTALL.md#Updating-pokeemerald-expansion)
-
-# [Documentation](https://rh-hideout.github.io/pokeemerald-expansion/)
-
-For detailed documentation, visit the [pokeemerald-expansion documentation page](https://rh-hideout.github.io/pokeemerald-expansion/).
-
-# [Contributions](CONTRIBUTING.md)
-If you are looking to [report a bug](CONTRIBUTING.md#Bug-Report), [open a pull request](CONTRIBUTING.md#Pull-Requests), or [request a feature](CONTRIBUTING.md#Feature-Request), our [`CONTRIBUTING.md`](CONTRIBUTING.md) has guides for each.
-
-# [Community](https://discord.gg/6CzjAG6GZk)
-
-[![](https://dcbadge.limes.pink/api/server/6CzjAG6GZk)](https://discord.gg/6CzjAG6GZk)
-
-Our community uses the [ROM Hacking Hideout (RHH) Discord server](https://discord.gg/6CzjAG6GZk) to communicate and organize. Most of our discussions take place there, and we welcome anybody to join us!
+`pokeemerald-expansion` is a GBA ROM hack base built on top of pret's `pokeemerald`. Its feature list is in
+[`FEATURES.md`](FEATURES.md) and its documentation is at
+[rh-hideout.github.io/pokeemerald-expansion](https://rh-hideout.github.io/pokeemerald-expansion/). Questions and
+bug reports about the base itself belong with the
+[RHH project](https://github.com/rh-hideout/pokeemerald-expansion) and its
+[Discord server](https://discord.gg/6CzjAG6GZk).

@@ -7,16 +7,10 @@ A Pokémon ROM hack for the Game Boy Advance, set in Kanto and built on the Fire
 
 The game follows an ordinary person's life with Pokémon in three acts, each longer than the one before.
 
-- **Act 1, Childhood.** The player grows up on a farm near a small town, with no training and no Poké Balls.
-  Pokémon are befriended rather than caught or battled. The player befriends Pokémon in the woods near home, the
-  last of them an aggressive Jangmo-o, after which Professor Oak offers them a place at university.
-- **Act 2, University.** The player attends Celadon University. Poké Balls and teams of up to three are introduced,
-  along with 3v3 battles in which each side chooses one of its three Pokémon to act each turn. The act is organized
-  around three courses (Fire, Water and Grass), each with a field trip, a research assignment, a TM and an exam, and
-  ends with a final research project.
-- **Act 3, Workforce.** The player works as a researcher at Silph Co. and investigates an employee who is passing
-  information to Team Rocket. This act revisits events from FireRed, including Team Rocket's takeover of Silph Co.,
-  from the point of view of someone working there.
+- **Act 1, Childhood.** The player grows up on a farm near a small town, with no training and no Poké Balls. The
+  player must learn to befriend the local Pokémon without battling.
+- **Act 2, University.** The player attends university, where Poké Balls and 3v3 battles are introduced.
+- **Act 3, Workforce.** The player starts a career at Silph Co.
 
 ## Features added by this hack
 

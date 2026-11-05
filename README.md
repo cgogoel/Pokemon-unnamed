@@ -83,6 +83,11 @@ lets the player make the course's TM, and the course exam only counts if the TM'
 - **Remote Desktop:** opens the Pokémon Storage System from anywhere.
 - **Heal Dash:** returns the player to the last Pokémon Center they visited.
 
+  While it's part of the challenge of pokemon games to properly prepare for journeys many users (myself included)
+  prefer to just walk back to the pokemon centers to reset. The game punishes you for this by making you walk both
+  ways (back and forth) but I'm lessening the pain by only making you do one direction with a warp back to the latest
+  pokemon center always available to you in Key Items.
+
 ### Speed
 
 I typically play most pokemon games and rom hacks with fast forward enabled but I find I miss the atmosphere from

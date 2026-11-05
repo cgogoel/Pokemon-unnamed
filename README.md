@@ -86,8 +86,8 @@ lets the player make the course's TM, and the course exam only counts if the TM'
 ### Speed
 
 I typically play most pokemon games and rom hacks with fast forward enabled but I find I miss the atmosphere from
-the audio. I've tweaked the default walk/run/animation/text speeds to mimic a 1.5x fast forward while preserving the
-audio. Hopefully best of both worlds.
+the audio. I've tweaked the default walk/run/animation/text speeds to roughly match a 2x emulation speed while preserving
+the audio. Hopefully best of both worlds.
 
 - **Walking:** the player walks at 1.5x the usual speed.
 - **Running:** holding B runs from the start of the game (no Running Shoes needed), at 1.5x the faster walk.

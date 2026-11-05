@@ -308,6 +308,8 @@ TEST("Act 2: the club's foes are at the average level of the player's three, wit
         EXPECT_GT(GetMonData(&foes[i], MON_DATA_HP), 0);
         if (trainer != TRAINER_ACT2_EXAMINER)
             EXPECT_NE(GetMonData(&foes[i], MON_DATA_SPECIES), SPECIES_GROWLITHE); // The player has one
+        EXPECT_EQ(GetMonData(&foes[i], MON_DATA_DYNAMAX_LEVEL), BLOCK_AI_DYNAMAX); // No Dynamax
+        EXPECT_EQ(GetMonData(&foes[i], MON_DATA_TERA_TYPE), TYPE_MYSTERY);         // No Terastal
     }
     EXPECT_NE(GetMonData(&foes[1], MON_DATA_SPECIES), GetMonData(&foes[2], MON_DATA_SPECIES));
     ZeroPlayerPartyMons();
@@ -449,4 +451,44 @@ TEST("Act 2: on a field trip, some wild Pokémon are the type's Pokémon from ot
     }
     EXPECT_GT(swapped, 30);
     EXPECT_LT(swapped, 120);
+}
+
+TEST("Act 2: the Water TM comes from the first three tasks; the sheet is done only once every dock fire is out")
+{
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_WATER_TRIP);
+    ZeroPlayerPartyMons();
+    MakePartyMon(0, SPECIES_PSYDUCK, 15);
+    MakePartyMon(1, SPECIES_POLIWAG, 15);
+    MakePartyMon(2, SPECIES_GOLDEEN, 15);
+    VarSet(VAR_ACT2_MOVE_SEEN_1, MOVE_WATER_GUN);
+    VarSet(VAR_ACT2_MOVE_SEEN_2, MOVE_WATER_PULSE);
+    VarSet(VAR_ACT2_RESEARCH, ACT2_RESEARCH_USED_MOVE | ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_DOCK_FIRE
+                            | ACT2_RESEARCH_PUZZLE_1 | ACT2_RESEARCH_PUZZLE_2);
+    EXPECT(Act2_IsReadyForTM());
+    EXPECT(!Act2_IsResearchDone()); // The big fire still burns
+    VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_PUZZLE_3 | ACT2_RESEARCH_PUZZLE_DONE);
+    EXPECT(Act2_IsResearchDone());
+
+    // The other courses still need all four tasks for their TM
+    VarSet(VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP);
+    VarSet(VAR_ACT2_RESEARCH, ACT2_RESEARCH_USED_MOVE | ACT2_RESEARCH_MOVES_DONE);
+    EXPECT(!Act2_IsReadyForTM());
+    ZeroPlayerPartyMons();
+}
+
+TEST("Act 2: a save that left the Water trip without the young Lapras finds it waiting by the pier")
+{
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_WATER_SEE_MINA);
+    FlagClear(FLAG_ACT2_GOT_LAPRAS);
+    gSpecialVar_0x8004 = ACT2_WATER_TRIP;
+    Act2_SetupSiteObjects();
+    EXPECT(!FlagGet(FLAG_TEMP_8));
+    EXPECT(FlagGet(FLAG_TEMP_1)); // The class has gone home
+    FlagSet(FLAG_ACT2_GOT_LAPRAS);
+    gSpecialVar_0x8004 = ACT2_WATER_TRIP;
+    Act2_SetupSiteObjects();
+    EXPECT(FlagGet(FLAG_TEMP_8));
+    FlagClear(FLAG_ACT2_GOT_LAPRAS);
 }

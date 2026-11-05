@@ -77,6 +77,18 @@ lets the player make the course's TM, and the course exam only counts if the TM'
 - **Remote Desktop:** opens the Pokémon Storage System from anywhere.
 - **Heal Dash:** returns the player to the last Pokémon Center they visited.
 
+### Speed
+
+The game runs faster than FireRed without an emulator's fast-forward, so music and sound effects play normally.
+
+- **Walking:** the player walks at 1.5x the usual speed.
+- **Running:** holding B runs from the start of the game (no Running Shoes needed), at 1.5x the faster walk.
+- **Battles:** battles, including their animations and the transition into them, run at 1.5x. Sound and music stay
+  at their usual pace.
+- **Text:** all text prints at 3x, whatever the text speed option.
+
+Scripted scenes in the overworld play at the usual speed, so characters keep in step.
+
 ## Status
 
 - **Act 1:** complete.

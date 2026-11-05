@@ -584,27 +584,47 @@ Act2_EventScript_ProfMarloweTrip::
 	faceplayer
 	setvar VAR_0x8004, ACT2_RESEARCH_GOT_TM
 	specialvar VAR_RESULT, Act2_HasResearchFlag
-	goto_if_eq VAR_RESULT, TRUE, Act2_EventScript_WaterExam
-	specialvar VAR_RESULT, Act2_IsResearchDone
+	goto_if_eq VAR_RESULT, TRUE, Act2_EventScript_WaterAfterTM
+	specialvar VAR_RESULT, Act2_IsReadyForTM
 	goto_if_eq VAR_RESULT, TRUE, Act2_EventScript_WaterMakeTM
 	msgbox Act2_Text_WaterSheetIntro
 	special Act2_BufferResearchSheet
 	msgbox gStringVar4
-	msgbox Act2_Text_WaterHint
+	setvar VAR_0x8004, ACT2_RESEARCH_DOCK_FIRE
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	call_if_eq VAR_RESULT, FALSE, Act2_EventScript_WaterHint
+	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_WaterHintFire
 	call Act2_EventScript_RefillBalls
 	release
 	end
 
+Act2_EventScript_WaterHint:
+	msgbox Act2_Text_WaterHint
+	return
+
+Act2_EventScript_WaterHintFire:
+	msgbox Act2_Text_WaterHintFire
+	return
+
+@ The TM is made from the first three tasks; it's what puts out the big dock fire, the last one
 Act2_EventScript_WaterMakeTM:
 	msgbox Act2_Text_WaterResearchDone
 	giveitem ITEM_TM_BUBBLE_BEAM
 	setvar VAR_0x8004, ACT2_RESEARCH_GOT_TM
 	special Act2_SetResearchFlag
 	msgbox Act2_Text_WaterTeachTM
+	goto Act2_EventScript_WaterAfterTM
+
+@ The exam only once every task is done, the big dock fire included
+Act2_EventScript_WaterAfterTM:
+	specialvar VAR_RESULT, Act2_IsResearchDone
+	goto_if_eq VAR_RESULT, TRUE, Act2_EventScript_WaterExam
+	msgbox Act2_Text_WaterLastFire
 	release
 	end
 
 Act2_EventScript_WaterExam:
+	msgbox Act2_Text_WaterAllDone
 	specialvar VAR_RESULT, Act2_PartyCanUseCourseTM
 	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_WaterTeachTMFirst
 	msgbox Act2_Text_ReadyForWaterExam, MSGBOX_YESNO
@@ -753,6 +773,17 @@ Act2_EventScript_CheckBriefing:
 	specialvar VAR_RESULT, Act2_HasResearchFlag
 	goto_if_eq VAR_RESULT, TRUE, Common_EventScript_NopReturn
 	setvar VAR_TEMP_1, 1
+	return
+
+@ A puzzle's task just got done: whether that finishes the research sheet
+Act2_EventScript_TaskDone:
+	specialvar VAR_RESULT, Act2_IsResearchDone
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_TaskDoneMoreToGo
+	msgbox Act2_Text_TaskComplete
+	return
+
+Act2_EventScript_TaskDoneMoreToGo:
+	msgbox Act2_Text_TaskDoneMoreToGo
 	return
 
 @ Out of POKé BALLS on a field trip: the professor hands out more
@@ -967,7 +998,7 @@ Act2_EventScript_MansionJournal::
 	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_DONE
 	special Act2_SetResearchFlag
 	removeobject LOCALID_MANSION_JOURNAL
-	msgbox Act2_Text_TaskComplete
+	call Act2_EventScript_TaskDone
 	release
 	end
 
@@ -1000,9 +1031,6 @@ Act2_EventScript_SmallDockFire:
 	specialvar VAR_RESULT, Act2_IsPuzzlePartSolved
 	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_PuzzleRelease
 	msgbox Act2_Text_SmallDockFiresOut
-	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_DONE
-	special Act2_SetResearchFlag
-	msgbox Act2_Text_TaskComplete
 	releaseall
 	end
 
@@ -1019,6 +1047,15 @@ Act2_EventScript_DockFire3::
 	call Act2_EventScript_DouseDockFire
 	specialvar VAR_RESULT, Act2_SolvePuzzlePart
 	call Act2_EventScript_LaprasSurfaces
+	setvar VAR_0x8004, 1
+	specialvar VAR_RESULT, Act2_IsPuzzlePartSolved
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_PuzzleRelease
+	setvar VAR_0x8004, 2
+	specialvar VAR_RESULT, Act2_IsPuzzlePartSolved
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_PuzzleRelease
+	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_DONE
+	special Act2_SetResearchFlag
+	call Act2_EventScript_TaskDone
 	releaseall
 	end
 
@@ -1065,30 +1102,61 @@ Act2_EventScript_CheckDockFireAlarm::
 	setvar VAR_TEMP_2, 1
 	return
 
-@ MINA runs up to the player (on ROUTE 6, her object waits hidden; in VERMILION she's already on the map)
+@ MINA runs up to the player (on ROUTE 6, her object waits hidden; in VERMILION she's already on the map). She
+@ stands on a land square beside them (Act2_FindSpotBesidePlayer: behind, left, right, then in front; never water),
+@ facing them; with no free square, the player is just told and taken to the docks.
 Route6_EventScript_DockFireAlarm::
 	lockall
 	setvar VAR_TEMP_2, 0
-	getplayerxy VAR_0x8005, VAR_0x8006
-	subvar VAR_0x8005, 1
+	specialvar VAR_RESULT, Act2_FindSpotBesidePlayer
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_DockFireAlarm
 	setobjectxyperm LOCALID_ROUTE6_MINA, VAR_0x8005, VAR_0x8006
 	clearflag FLAG_TEMP_2
 	addobject LOCALID_ROUTE6_MINA
-	applymovement LOCALID_ROUTE6_MINA, Common_Movement_WalkInPlaceFasterRight
+	setvar VAR_0x8009, LOCALID_ROUTE6_MINA
+	call Act2_EventScript_FriendFacesPlayer
 	goto Act2_EventScript_DockFireAlarm
 
 VermilionCity_EventScript_DockFireAlarm::
 	lockall
 	setvar VAR_TEMP_2, 0
-	getplayerxy VAR_0x8005, VAR_0x8006
-	subvar VAR_0x8005, 1
+	specialvar VAR_RESULT, Act2_FindSpotBesidePlayer
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_DockFireAlarm
 	setobjectxy LOCALID_VERMILION_MINA, VAR_0x8005, VAR_0x8006
-	applymovement LOCALID_VERMILION_MINA, Common_Movement_WalkInPlaceFasterRight
+	setvar VAR_0x8009, LOCALID_VERMILION_MINA
+	call Act2_EventScript_FriendFacesPlayer
 	goto Act2_EventScript_DockFireAlarm
 
-Act2_EventScript_DockFireAlarm:
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
+@ The friend in VAR_0x8009 faces the way in VAR_0x8007, and the player faces back
+Act2_EventScript_FriendFacesPlayer:
+	call_if_eq VAR_0x8007, DIR_NORTH, Act2_EventScript_FriendFacesUp
+	call_if_eq VAR_0x8007, DIR_SOUTH, Act2_EventScript_FriendFacesDown
+	call_if_eq VAR_0x8007, DIR_WEST, Act2_EventScript_FriendFacesLeft
+	call_if_eq VAR_0x8007, DIR_EAST, Act2_EventScript_FriendFacesRight
 	waitmovement 0
+	return
+
+Act2_EventScript_FriendFacesUp:
+	applymovement VAR_0x8009, Common_Movement_WalkInPlaceFasterUp
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterDown
+	return
+
+Act2_EventScript_FriendFacesDown:
+	applymovement VAR_0x8009, Common_Movement_WalkInPlaceFasterDown
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
+	return
+
+Act2_EventScript_FriendFacesLeft:
+	applymovement VAR_0x8009, Common_Movement_WalkInPlaceFasterLeft
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterRight
+	return
+
+Act2_EventScript_FriendFacesRight:
+	applymovement VAR_0x8009, Common_Movement_WalkInPlaceFasterRight
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
+	return
+
+Act2_EventScript_DockFireAlarm:
 	playse SE_PIN
 	msgbox Act2_Text_DockFireAlarm
 	closemessage
@@ -1141,12 +1209,6 @@ Act2_EventScript_DockWorkerThanks:
 
 @ The young Lapras: once the big fire is out, it asks to come along (it won't take no for an
 @ answer). In Act 3, it's the Lapras in Silph Co.'s lab.
-Act2_EventScript_DockLapras::
-	lock
-	faceplayer
-	playmoncry SPECIES_LAPRAS, CRY_MODE_NORMAL
-	msgbox Act2_Text_DockLapras
-	waitmoncry
 @ The Lapras floats on the water, a lower elevation than the pier, so the pier's player talks to it through a sign
 @ event on its square (elevation 0) instead, while it's there
 Act2_EventScript_DockLaprasFromPier::
@@ -1155,6 +1217,12 @@ Act2_EventScript_DockLaprasFromPier::
 	setvar VAR_LAST_TALKED, LOCALID_VERMILION_LAPRAS
 	goto Act2_EventScript_DockLapras
 
+Act2_EventScript_DockLapras::
+	lock
+	faceplayer
+	playmoncry SPECIES_LAPRAS, CRY_MODE_NORMAL
+	msgbox Act2_Text_DockLapras
+	waitmoncry
 Act2_EventScript_LaprasAsks:
 	playmoncry SPECIES_LAPRAS, CRY_MODE_NORMAL
 	msgbox Act2_Text_LaprasWantsToCome, MSGBOX_YESNO
@@ -1259,7 +1327,7 @@ Act2_EventScript_FieldBlooms:
 	waitse
 	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_DONE
 	special Act2_SetResearchFlag
-	msgbox Act2_Text_TaskComplete
+	call Act2_EventScript_TaskDone
 	return
 
 Act2_EventScript_WitheredNeedsGrass:
@@ -1670,8 +1738,6 @@ Act2_Text_WaterBriefing:
 	.string "watch how WATER moves work.\p"
 	.string "Fish at the harbor, or look in the\n"
 	.string "grass on ROUTE 6, to the north.\p"
-	.string "And keep an eye on the docks. Your\n"
-	.string "POKéMON may be needed there.\p"
 	.string "Finish the sheet, and you may just\n"
 	.string "be able to make a TM based on your\l"
 	.string "newfound knowledge.\p"
@@ -1687,8 +1753,28 @@ Act2_Text_WaterSheetIntro:
 
 Act2_Text_WaterHint:
 	.string "Fish at the harbor, or try the\n"
-	.string "grass on ROUTE 6.\p"
-	.string "And those docks… I smell smoke.$"
+	.string "grass on ROUTE 6.$"
+
+Act2_Text_WaterHintFire:
+	.string "Fire on the docks, of all things!\p"
+	.string "Your notes could make a TM strong\n"
+	.string "enough to put it out.\p"
+	.string "Finish your research quickly,\n"
+	.string "{PLAYER}. Every minute counts!$"
+
+Act2_Text_WaterLastFire:
+	.string "PROF. MARLOWE: Now, to the docks!\n"
+	.string "The fire at the end of the pier\l"
+	.string "is still burning.\p"
+	.string "BUBBLEBEAM should be strong enough\n"
+	.string "to put it out.\p"
+	.string "And hurry. I saw a POKéMON\n"
+	.string "cowering from the flames there.$"
+
+Act2_Text_WaterAllDone:
+	.string "PROF. MARLOWE: The docks are safe,\n"
+	.string "and your research is complete.\p"
+	.string "Splendid work, {PLAYER}!$"
 
 Act2_Text_WaterResearchDone:
 	.string "PROF. MARLOWE: Splendid research!\p"
@@ -1794,6 +1880,10 @@ Act2_Text_ProfFernAfter:
 Act2_Text_TaskComplete:
 	.string "The last research task is done!\n"
 	.string "Time to report to the professor.$"
+
+Act2_Text_TaskDoneMoreToGo:
+	.string "That research task is done!\n"
+	.string "There's still more on the sheet.$"
 
 Act2_Text_FurnaceCold:
 	.string "An old furnace. It's stone cold.$"

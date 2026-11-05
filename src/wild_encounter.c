@@ -434,6 +434,7 @@ static const struct WildPokemonInfo *const sAct2WildMonsInfos[] =
     &sAct2_PokemonMansionB1F_FireRed_LandMonsInfo,
     &sAct2_VermilionCity_FireRed_FishingMonsInfo,
     &sAct2_Route6_FireRed_LandMonsInfo,
+    &sAct2_Route6_FireRed_FishingMonsInfo,
     &sAct2_Route22_FireRed_LandMonsInfo,
     &sAct2_CeladonCity_FireRed_FishingMonsInfo,
     &sAct2_Route7_FireRed_LandMonsInfo,

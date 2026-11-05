@@ -47,14 +47,17 @@ Custom battle mode for Act 2 onward. Not the Gen 5 Triple Battle: **only one Pok
   Moves not in the file (self/field/ally moves, Z/Max moves) keep their normal targeting.
 - Out of scope: link battles, recorded battles, Battle Frontier facilities in triple mode.
 
-### Move info indicator (UI)
-Shown with each move in the battle move menu, before the move type (`ShowTripleMoveIndicator`, `src/triple_battle_ui.c`).
-- A small copy of the foes' floor ovals: rear section on the left, middle, front section on the right.
-- Each section is shaded by the damage that foe takes: dark = full, gray = reduced (50% or 75%), white = not hit.
-  1 target: front dark. 2 targets: front dark, middle gray. 3 targets: all gray. (For ANY moves the dark section is
-  whichever foe is picked.)
-- Red arrows for reach: over the front section for `FRONT` moves, over all three for `ANY` moves, none for moves that
-  hit all three foes.
+### Move badge (UI)
+In the move menu's info box (`ShowTripleMoveIndicator`, `src/triple_battle_ui.c`), for moves in the 3v3 table:
+- The type moves up to the PP line, in place of the "PP" label (`BufferMoveSelectionPPLabel`, narrower font to fit;
+  the effectiveness icon follows it during target selection).
+- The type line shows a badge sprite, DIRECT (red, reach `FRONT`), INDIRECT (blue, reach `ANY`) or ALL (dark, all foes),
+  then "x1".."x3", how many foes it hits (2v2: at most x2). Art: `tools/hack/draw_triple_badges.py` (the game's small
+  font), `graphics/battle_interface/triple_badges.png`.
+- The badge stays up through target selection and the confirm step, and goes when the move is used or cancelled.
+- Moves with no target to pick that hit two or three foes show them flashing first; A uses the move, B goes back
+  (as Double Battles do for spread moves, `B_SHOW_TARGETS`).
+- Moves outside the table (self, field, ally moves) keep the normal "PP" and "TYPE/" lines.
 
 ### Field layout
 - Each team stands on a diagonal: rear Pokémon on the left, front Pokémon on the right, so the two front Pokémon face off
@@ -70,11 +73,12 @@ Shown with each move in the battle move menu, before the move type (`ShowTripleM
   with the cut behind the text box; its ovals sit in the strip just above the text box.
 - Haze (`sTripleHaze`): farther Pokémon fade toward the floor color, strongest for the foes' rear Pokémon.
 - Floor (`DrawTripleBattleFloor`): nested ovals along each team's diagonal on top of the location's background, with
-  the 1v1 platforms painted out. A solid base oval under the rear Pokémon, a half-shaded section out to the middle one
-  and an outlined outer ring out to the front one. Colors come from the location's floor color (same hue,
-  more saturated, dark base oval to pale outer section; `sFloorShadeSteps`). The oval tiles use BG palette 7 (`TRIPLE_FLOOR_BG_PALETTE`), a copy of
-  the floor palette with these colors added. Also drawn on a terrain's background (Electric Terrain...), with colors
-  from it.
+  the 1v1 platforms painted out, in the look of those platforms (`BuildFloorStyle`): their fill and dot texture, rim
+  and the line inside it, sampled from the opponent's 1v1 platform as palette indices. The outer oval (rear to front
+  Pokémon) gets the rim and line; the inner ovals' edges are lines on the fill. The oval test works on pixel centres
+  with no early rounding, so the tilted edges step evenly. The player's ovals reach further past the front Pokémon
+  and are thicker (`FLOOR_PLAYER_OVAL_PAD`). If an environment has no usable platform, the older shading is used:
+  darker shades of the floor color (`sFloorShadeSteps`) in BG palette 7 (`TRIPLE_FLOOR_BG_PALETTE`).
 
 ### HP bars and name tags
 - A short HP bar floats over each Pokémon's head, with a small status pill (`triple_status_pills.png`) on its left when

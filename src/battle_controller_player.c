@@ -620,6 +620,7 @@ void HandleInputChooseTarget(enum BattlerId battler)
         else
             BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, gMoveSelectionCursor[battler] | (target << 8));
         EndBounceEffect(gMultiUsePlayerCursor, BOUNCE_HEALTHBOX);
+        HideTripleMoveIndicator();
         TryHideLastUsedBall();
         HideGimmickTriggerSprite();
         BtlController_Complete(battler);
@@ -696,6 +697,7 @@ void HandleInputShowEntireFieldTargets(enum BattlerId battler)
     {
         PlaySE(SE_SELECT);
         HideAllTargets();
+        HideTripleMoveIndicator();
         if (gBattleStruct->gimmick.playerSelect)
             BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, gMoveSelectionCursor[battler] | RET_GIMMICK | (gMultiUsePlayerCursor << 8));
         else
@@ -724,6 +726,7 @@ void HandleInputShowTargets(enum BattlerId battler)
     {
         PlaySE(SE_SELECT);
         HideAllTargets();
+        HideTripleMoveIndicator();
         if (gBattleStruct->gimmick.playerSelect)
             BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, gMoveSelectionCursor[battler] | RET_GIMMICK | (gMultiUsePlayerCursor << 8));
         else
@@ -788,7 +791,6 @@ void HandleInputChooseMove(enum BattlerId battler)
     if (JOY_NEW(A_BUTTON) && !gBattleStruct->descriptionSubmenu)
     {
         TryToHideMoveInfoWindow();
-        HideTripleMoveIndicator();
         PlaySE(SE_SELECT);
 
         enum MoveTarget moveTarget = GetBattlerMoveSelectionTargetType(battler, moveInfo->moves[gMoveSelectionCursor[battler]]);
@@ -859,6 +861,18 @@ void HandleInputChooseMove(enum BattlerId battler)
             case TRIPLE_TARGET_CHOICE_NONE:
                 gMultiUsePlayerCursor = GetTripleFoeAtRank(battler, 0);
                 canSelectTarget = 0;
+                if (B_SHOW_TARGETS && GetTripleMoveInfo(moveInfo->moves[gMoveSelectionCursor[battler]])->aoe >= 2)
+                {
+                    // Show the two or three foes it hits (two: the front ones), then wait for A
+                    u32 hits = GetTripleMoveInfo(moveInfo->moves[gMoveSelectionCursor[battler]])->aoe;
+                    for (u32 i = 0; i < hits; i++)
+                    {
+                        enum BattlerId foe = GetTripleFoeAtRank(battler, i);
+                        if (foe != MAX_BATTLERS_COUNT)
+                            TryShowAsTarget(foe);
+                    }
+                    canSelectTarget = 4;
+                }
                 break;
             case TRIPLE_TARGET_CHOICE_ONE:
             case TRIPLE_TARGET_CHOICE_TWO:
@@ -873,6 +887,7 @@ void HandleInputChooseMove(enum BattlerId battler)
         {
         case 0:
         default:
+            HideTripleMoveIndicator(); // The triple battle badge stays up while targets are picked, until the move is used
             if (gBattleStruct->gimmick.playerSelect)
                 BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, gMoveSelectionCursor[battler] | RET_GIMMICK | (gMultiUsePlayerCursor << 8));
             else
@@ -902,6 +917,9 @@ void HandleInputChooseMove(enum BattlerId battler)
             break;
         case 3: // Entire field
             gBattlerControllerFuncs[battler] = HandleInputShowEntireFieldTargets;
+            break;
+        case 4: // Triple battles: the foes the move hits, to confirm (B_SHOW_TARGETS)
+            gBattlerControllerFuncs[battler] = HandleInputShowTargets;
             break;
         }
     }
@@ -1825,28 +1843,13 @@ static void MoveSelectionDisplayPPNumber(enum BattlerId battler)
     BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_PP_REMAINING);
 }
 
-static void MoveSelectionDisplayMoveType(enum BattlerId battler)
+// The type shown for the selected move (Tera Blast, Ivy Cudgel, Max Guard, dynamic types...)
+static enum Type GetMoveSelectionDisplayType(enum BattlerId battler)
 {
-    u8 *txtPtr, *end;
     enum Species speciesId = gBattleMons[battler].species;
     struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
     enum Move move = moveInfo->moves[gMoveSelectionCursor[battler]];
     enum Type type = GetMoveType(move);
-    u32 typeWidth = WindowWidthPx(B_WIN_MOVE_TYPE) - 25;
-
-    if (ShowTripleMoveIndicator(move))
-    {
-        // Triple battles: the area of effect indicator takes the place of the "TYPE/" label.
-        txtPtr = gDisplayedStringBattle;
-        *txtPtr++ = EXT_CTRL_CODE_BEGIN;
-        *txtPtr++ = EXT_CTRL_CODE_CLEAR_TO;
-        *txtPtr++ = TRIPLE_INDICATOR_TEXT_X;
-        typeWidth = WindowWidthPx(B_WIN_MOVE_TYPE) - TRIPLE_INDICATOR_TEXT_X;
-    }
-    else
-    {
-        txtPtr = StringCopy(gDisplayedStringBattle, gText_MoveInterfaceType);
-    }
     enum BattleMoveEffects effect = GetMoveEffect(move);
 
     if (effect == EFFECT_TERA_BLAST)
@@ -1877,8 +1880,49 @@ static void MoveSelectionDisplayMoveType(enum BattlerId battler)
         struct Pokemon *mon = GetBattlerMon(battler);
         type = CheckDynamicMoveType(mon, move, battler, MON_IN_BATTLE);
     }
-    end = StringCopy(txtPtr, gTypesInfo[type].name);
+    return type;
+}
 
+// The PP line's label: "PP", or in a triple battle the move's type when its badge takes the type line. Returns the end.
+static u8 *BufferMoveSelectionPPLabel(enum BattlerId battler, u8 *dest)
+{
+    struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
+    if (HasTripleMoveBadge(moveInfo->moves[gMoveSelectionCursor[battler]]))
+        return StringCopy(dest, gTypesInfo[GetMoveSelectionDisplayType(battler)].name);
+    return StringCopy(dest, gText_MoveInterfacePP);
+}
+
+static void MoveSelectionDisplayMoveType(enum BattlerId battler)
+{
+    u8 *txtPtr, *end;
+    struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
+    enum Move move = moveInfo->moves[gMoveSelectionCursor[battler]];
+    enum Type type = GetMoveSelectionDisplayType(battler);
+    u32 typeWidth = WindowWidthPx(B_WIN_MOVE_TYPE) - 25;
+
+    if (ShowTripleMoveIndicator(move))
+    {
+        // Triple battles: the badge (DIRECT / INDIRECT / ALL) and how many foes the move hits take the type line; the
+        // type goes up to the PP line
+        static const u8 sText_HitCount[] = _("x{STR_VAR_1}");
+        txtPtr = gDisplayedStringBattle;
+        *txtPtr++ = EXT_CTRL_CODE_BEGIN;
+        *txtPtr++ = EXT_CTRL_CODE_CLEAR_TO;
+        *txtPtr++ = GetTripleBadgeTextX(move);
+        ConvertIntToDecimalStringN(gStringVar1, GetTripleMoveHitCount(move), STR_CONV_MODE_LEFT_ALIGN, 1);
+        StringExpandPlaceholders(txtPtr, sText_HitCount);
+        BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_MOVE_TYPE);
+
+        end = BufferMoveSelectionPPLabel(battler, gDisplayedStringBattle);
+        PrependFontIdToFit(gDisplayedStringBattle, end, FONT_NARROW, WindowWidthPx(B_WIN_PP));
+        BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_PP);
+        return;
+    }
+
+    if (IsTripleBattle()) // Back to "PP" after a move with a badge
+        MoveSelectionDisplayPPString(battler);
+    txtPtr = StringCopy(gDisplayedStringBattle, gText_MoveInterfaceType);
+    end = StringCopy(txtPtr, gTypesInfo[type].name);
     PrependFontIdToFit(txtPtr, end, FONT_NORMAL, typeWidth);
     BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_MOVE_TYPE);
 }
@@ -2620,7 +2664,7 @@ static void MoveSelectionDisplayMoveEffectiveness(u32 foeEffectiveness, enum Bat
     struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
     u8 *txtPtr;
 
-    txtPtr = StringCopy(gDisplayedStringBattle, gText_MoveInterfacePP);
+    txtPtr = BufferMoveSelectionPPLabel(battler, gDisplayedStringBattle);
 
     if (!IsBattleMoveStatus(moveInfo->moves[gMoveSelectionCursor[battler]]))
     {
@@ -2651,5 +2695,7 @@ static void MoveSelectionDisplayMoveEffectiveness(u32 foeEffectiveness, enum Bat
         }
     }
 
+    if (IsTripleBattle())
+        PrependFontIdToFit(gDisplayedStringBattle, gDisplayedStringBattle + StringLength(gDisplayedStringBattle), FONT_NARROW, WindowWidthPx(B_WIN_PP));
     BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_PP);
 }

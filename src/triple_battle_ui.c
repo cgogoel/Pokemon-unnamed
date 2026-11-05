@@ -11,66 +11,35 @@
 #include "constants/pokemon.h"
 #include "malloc.h"
 
-// Move info indicator for triple battles, shown on the move type line of the move menu (docs/hack/triple_battles.md):
-// a small copy of the foes' floor ovals (rear on the left, front on the right) with each section shaded by the damage
-// that foe takes (dark = full, gray = reduced, white = not hit), and red arrows for reach: over the front section for
-// FRONT moves, over all three for ANY moves, none for moves that hit all three foes.
+// Move badge for triple battles, shown on the move type line of the move menu (docs/hack/triple_battles.md): how the
+// move reaches its targets, DIRECT (red: only the front foe, which blocks the others), INDIRECT (blue: any foe) or ALL
+// (dark: every foe), followed by how many foes it hits ("x1".."x3", printed by the move type window). The move's type
+// moves up to the PP line (GetTripleBadgeTextX, MoveSelectionDisplayMoveType). Art: tools/hack/draw_triple_badges.py.
 
 #define TAG_TRIPLE_INDICATOR 0xD7F4
 
-// Screen position of the indicator's top left corner, at the start of the move type window
+// Screen position of the badge's top left corner, at the start of the move type window
 #define INDICATOR_X 167
-#define INDICATOR_Y 138
-#define INDICATOR_WIDTH 32
-#define INDICATOR_HEIGHT 16
-#define INDICATOR_OVALS_Y 4 // Arrows above, ovals below
+#define INDICATOR_Y 140
+#define BADGE_FRAME_SIZE (64 * 32 / 2)
 
-// Palette: 1 red, 2 dark, 3 gray, 4 white, 5 black
 enum
 {
-    INDICATOR_COLOR_RED = 1,
-    INDICATOR_COLOR_DARK,
-    INDICATOR_COLOR_GRAY,
-    INDICATOR_COLOR_WHITE,
-    INDICATOR_COLOR_OUTLINE,
+    BADGE_DIRECT,
+    BADGE_INDIRECT,
+    BADGE_ALL,
 };
 
-static const u16 sIndicatorPalette[16] =
-{
-    RGB(0, 0, 0), RGB(29, 0, 0), RGB(7, 7, 7), RGB(19, 19, 19), RGB(31, 31, 31), RGB(3, 3, 3),
-};
+static const u32 sBadgeGfx[] = INCGFX_U32("graphics/battle_interface/triple_badges.png", ".4bpp");
+static const u16 sBadgePalette[] = INCGFX_U16("graphics/battle_interface/triple_badges.pal", ".gbapal");
+static const u8 sBadgeWidths[] = { [BADGE_DIRECT] = 34, [BADGE_INDIRECT] = 43, [BADGE_ALL] = 21 }; // From the tool
 
-// Nested ovals in tenths of a pixel (centre x, centre y, radius x, radius y): base (rear), middle, outer (front)
-static const s16 sIndicatorOvals[TRIPLE_RANK_COUNT][4] =
-{
-    { 50, 60, 50, 32 },
-    { 95, 60, 95, 43 },
-    { 140, 60, 140, 55 },
-};
-
-// Arrow centres over the rear, middle and front sections
-static const u8 sIndicatorArrowX[TRIPLE_RANK_COUNT] = { 4, 13, 23 };
-
-// 2v2: base (rear) and outer (front) only
-static const s16 sIndicatorOvals2v2[2][4] =
-{
-    { 68, 60, 68, 38 },
-    { 140, 60, 140, 55 },
-};
-static const u8 sIndicatorArrowX2v2[2] = { 6, 23 };
-
-// The ovals for the battle's side size
-static const s16 (*GetIndicatorOvals(void))[4]
-{
-    return (GetTripleSideSize() == 2) ? sIndicatorOvals2v2 : sIndicatorOvals;
-}
-
-static const struct SpritePalette sIndicatorSpritePalette = { sIndicatorPalette, TAG_TRIPLE_INDICATOR };
+static const struct SpritePalette sIndicatorSpritePalette = { sBadgePalette, TAG_TRIPLE_INDICATOR };
 
 static const struct OamData sOamData_Indicator =
 {
-    .shape = SPRITE_SHAPE(32x16),
-    .size = SPRITE_SIZE(32x16),
+    .shape = SPRITE_SHAPE(64x32),
+    .size = SPRITE_SIZE(64x32),
     .priority = 0,
 };
 
@@ -109,101 +78,42 @@ void HideTripleMoveIndicator(void)
     FreeSpritePaletteByTag(TAG_TRIPLE_INDICATOR);
 }
 
-static bool32 IsInIndicatorOval(u32 oval, s32 x, s32 y)
+static u32 GetTripleBadge(const struct TripleMoveInfo *info)
 {
-    const s16 (*ovals)[4] = GetIndicatorOvals();
-    s32 dx = x * 10 + 5 - ovals[oval][0], dy = y * 10 + 5 - ovals[oval][1];
-    s32 rx = ovals[oval][2], ry = ovals[oval][3];
-    return dx * dx * ry * ry + dy * dy * rx * rx <= rx * rx * ry * ry;
+    if (info->aoe >= 3)
+        return BADGE_ALL;
+    return (info->reach == TRIPLE_REACH_ANY) ? BADGE_INDIRECT : BADGE_DIRECT;
 }
 
-static bool32 IsIndicatorOvalEdge(u32 oval, s32 x, s32 y)
+// How many foes the move hits, for the "xN" after the badge (2v2 has two foes at most)
+u32 GetTripleMoveHitCount(enum Move move)
 {
-    return IsInIndicatorOval(oval, x, y)
-        && (!IsInIndicatorOval(oval, x - 1, y) || !IsInIndicatorOval(oval, x + 1, y)
-         || !IsInIndicatorOval(oval, x, y - 1) || !IsInIndicatorOval(oval, x, y + 1));
+    return min(GetTripleMoveInfo(move)->aoe, GetTripleSideSize());
 }
 
-static void SetIndicatorPixel(u8 *tiles, u32 x, u32 y, u32 color)
+// Where the move type window's text starts, after the badge
+u32 GetTripleBadgeTextX(enum Move move)
 {
-    // 32x16 sprite in 1D tile order: 4 tiles per row
-    u8 *byte = &tiles[((y / 8) * (INDICATOR_WIDTH / 8) + x / 8) * TILE_SIZE_4BPP + (y % 8) * 4 + (x % 8) / 2];
-    if (x & 1)
-        *byte = (*byte & 0x0F) | (color << 4);
-    else
-        *byte = (*byte & 0xF0) | color;
+    return sBadgeWidths[GetTripleBadge(GetTripleMoveInfo(move))] + 3;
 }
 
-// fills: color of each section from the rear (count sections). arrows: bit per section.
-static void DrawIndicator(u8 *tiles, const u8 *fills, u32 arrows, u32 count, const u8 *arrowX)
+// Whether the move gets a badge (a move in the 3v3 table, in a triple battle)
+bool32 HasTripleMoveBadge(enum Move move)
 {
-    for (s32 y = 0; y < INDICATOR_HEIGHT - INDICATOR_OVALS_Y; y++)
-    {
-        for (s32 x = 0; x < INDICATOR_WIDTH; x++)
-        {
-            u32 section;
-            bool32 edge = FALSE;
-            for (section = 0; section < count && !IsInIndicatorOval(section, x, y); section++)
-                ;
-            if (section == count)
-                continue;
-            for (u32 i = 0; i < count; i++)
-                edge |= IsIndicatorOvalEdge(i, x, y);
-            SetIndicatorPixel(tiles, x, y + INDICATOR_OVALS_Y, edge ? INDICATOR_COLOR_OUTLINE : fills[section]);
-        }
-    }
-    for (u32 section = 0; section < count; section++)
-    {
-        if (!(arrows & (1 << section)))
-            continue;
-        for (s32 row = 0; row < 3; row++)
-        {
-            for (s32 dx = -(2 - row); dx <= 2 - row; dx++)
-                SetIndicatorPixel(tiles, arrowX[section] + dx, row, INDICATOR_COLOR_RED);
-        }
-    }
+    return IsTripleBattle() && GetTripleMoveInfo(move)->aoe != 0;
 }
 
-// Returns whether the indicator is shown, i.e. whether the move type line should leave room for it.
+// Returns whether the badge is shown, i.e. whether the move type line should leave room for it.
 bool32 ShowTripleMoveIndicator(enum Move move)
 {
-    const struct TripleMoveInfo *info = GetTripleMoveInfo(move);
-    u8 fills[TRIPLE_RANK_COUNT];
-    u32 arrows;
-
     HideTripleMoveIndicator();
-    if (!IsTripleBattle() || info->aoe == 0)
+    if (!HasTripleMoveBadge(move))
         return FALSE;
 
-    // The main target is shown as the front foe; ANY moves can pick any of them.
-    // Sections from the rear: front = count - 1. 2-target moves also hit the one behind it.
-    u32 count = GetTripleSideSize();
-    for (u32 i = 0; i < count; i++)
-    {
-        if (info->aoe >= 3 || (info->aoe == 2 && i == count - 2))
-            fills[i] = INDICATOR_COLOR_GRAY;
-        else if (i == count - 1)
-            fills[i] = (info->aoe == 2 || info->aoe == 1) ? INDICATOR_COLOR_DARK : INDICATOR_COLOR_GRAY;
-        else
-            fills[i] = INDICATOR_COLOR_WHITE;
-    }
-    if (info->aoe == 3)
-        arrows = 0; // Every foe is hit, reach doesn't matter
-    else if (info->reach == TRIPLE_REACH_ANY)
-        arrows = (1 << count) - 1;
-    else
-        arrows = 1 << (count - 1);
-
-    u32 *tiles = AllocZeroed(INDICATOR_WIDTH * INDICATOR_HEIGHT / 2);
-    if (tiles == NULL)
-        return FALSE;
-    DrawIndicator((u8 *)tiles, fills, arrows, count, (count == 2) ? sIndicatorArrowX2v2 : sIndicatorArrowX);
-    struct SpriteSheet sheet = { tiles, INDICATOR_WIDTH * INDICATOR_HEIGHT / 2, TAG_TRIPLE_INDICATOR };
+    struct SpriteSheet sheet = { (const u8 *)sBadgeGfx + GetTripleBadge(GetTripleMoveInfo(move)) * BADGE_FRAME_SIZE, BADGE_FRAME_SIZE, TAG_TRIPLE_INDICATOR };
     LoadSpriteSheet(&sheet);
-    Free(tiles);
     LoadSpritePalette(&sIndicatorSpritePalette);
-
-    sIndicatorSpriteId = CreateSprite(&sIndicatorSpriteTemplate, INDICATOR_X + INDICATOR_WIDTH / 2, INDICATOR_Y + INDICATOR_HEIGHT / 2, 0);
+    sIndicatorSpriteId = CreateSprite(&sIndicatorSpriteTemplate, INDICATOR_X + 32, INDICATOR_Y + 16, 0);
     return TRUE;
 }
 
@@ -381,6 +291,8 @@ void GetTripleHealthboxCoords(enum BattlerId battler, s16 *x, s16 *y)
 #define FLOOR_GROUND_OFFSET 28        // From a foe's sprite centre to its feet
 #define FLOOR_PLAYER_GROUND_OFFSET 20 // The player's back sprites are cut off by the text box: their ovals sit just above it
 #define FLOOR_OVAL_PAD 22    // How far an oval reaches past the Pokémon at its ends
+#define FLOOR_PLAYER_OVAL_PAD 34 // The player's bigger sprites need more: the front one stands clear of the tip
+#define FLOOR_PLAYER_OVAL_THICKER 3
 #define FLOOR_TEAM_SPLIT_Y 68 // Each team's ovals stay on its own side of this line
 
 enum
@@ -458,17 +370,23 @@ static void InitFloorTeam(struct FloorTeam *team, enum BattleSide side)
             distance = ((x[1] - x[0]) * team->cos + (y[1] - y[0]) * team->sin) / 256 * 2 / 5;
         team->ovals[i].cx = x[0] + (team->cos * distance) / 512;
         team->ovals[i].cy = y[0] + (team->sin * distance) / 512;
-        team->ovals[i].rx = distance / 2 + FLOOR_OVAL_PAD;
-        team->ovals[i].ry = 7 + 4 * i * (TRIPLE_RANK_COUNT - 1) / (count - 1);
+        team->ovals[i].rx = distance / 2 + ((side == B_SIDE_PLAYER) ? FLOOR_PLAYER_OVAL_PAD : FLOOR_OVAL_PAD);
+        team->ovals[i].ry = 7 + 4 * i * (TRIPLE_RANK_COUNT - 1) / (count - 1) + ((side == B_SIDE_PLAYER) ? FLOOR_PLAYER_OVAL_THICKER : 0);
     }
 }
 
+// Whether a pixel's centre is in an oval (shrunk by shrinkX/shrinkY, in eighths of a pixel). Exact: no rounding before
+// the comparison, so the edges step evenly.
 static bool32 IsInFloorOval(const struct FloorTeam *team, const struct FloorOval *oval, s32 shrinkX, s32 shrinkY, s32 px, s32 py)
 {
-    s32 rx = oval->rx - shrinkX, ry = oval->ry - shrinkY;
-    s32 u = ((px - oval->cx) * team->cos + (py - oval->cy) * team->sin) / 256;
-    s32 v = (-(px - oval->cx) * team->sin + (py - oval->cy) * team->cos) / 256;
-    return u * u * ry * ry + v * v * rx * rx <= rx * rx * ry * ry;
+    s64 rx = oval->rx * 8 - shrinkX, ry = oval->ry * 8 - shrinkY; // Eighths of a pixel
+    s64 dx = (px * 2 + 1) - oval->cx * 2, dy = (py * 2 + 1) - oval->cy * 2; // Half pixels, from the centre
+    s64 u = dx * team->cos + dy * team->sin;  // Half pixels, Q8
+    s64 v = -dx * team->sin + dy * team->cos;
+    if (rx <= 0 || ry <= 0)
+        return FALSE;
+    // (u / 512)^2 / (rx / 8)^2 + (v / 512)^2 / (ry / 8)^2 <= 1
+    return u * u * ry * ry + v * v * rx * rx <= rx * rx * ry * ry * 4096;
 }
 
 static u32 GetFloorShade(const struct FloorTeam *teams, s32 px, s32 py)
@@ -484,7 +402,7 @@ static u32 GetFloorShade(const struct FloorTeam *teams, s32 px, s32 py)
         {
             if (!IsInFloorOval(team, &team->ovals[i], 0, 0, px, py))
                 break; // Ovals are nested: outside this one means outside the smaller ones
-            if (!IsInFloorOval(team, &team->ovals[i], 2, 1, px, py))
+            if (!IsInFloorOval(team, &team->ovals[i], 16, 8, px, py))
                 return FLOOR_OUTLINE;
             // Base under the rear Pokémon, the outer section pale; 3v3 has a half shade between them
             shade = (i == 0) ? FLOOR_BASE : (i == (s32)team->count - 1) ? FLOOR_LIGHT : FLOOR_HALF;
@@ -618,19 +536,187 @@ static void BuildFloorShades(struct FloorShades *shades, const u16 *tilemap, con
     }
 }
 
+// The ovals take the look of the environment's own 1v1 platforms: their fill with its dot texture, the rim and the
+// line inside it, sampled from the opponent's platform (at the same place in every environment's background) as
+// indices of its palette. The outer oval gets the rim and the line; the inner ovals' edges are lines on the fill.
+#define PLATFORM_TEX_X   150 // A patch of the platform's middle: fill and dots
+#define PLATFORM_TEX_Y   57
+#define PLATFORM_TEX_W   48
+#define PLATFORM_TEX_H   12
+#define PLATFORM_RIM_X   113 // The platform's left rim, a few pixels wide
+#define PLATFORM_RIM_W   5
+#define PLATFORM_ROW_Y   60  // Rows through the platform's middle
+#define PLATFORM_ROWS    6
+#define PLATFORM_FLOOR_X 100 // The floor left of the platform
+
+enum
+{
+    FLOOR_ROLE_NONE,
+    FLOOR_ROLE_FILL,
+    FLOOR_ROLE_EDGE,
+    FLOOR_ROLE_RIM,
+};
+
+struct FloorStyle
+{
+    bool8 valid;
+    u8 palette;
+    u8 rim, edge;
+    u8 tex[PLATFORM_TEX_H][PLATFORM_TEX_W];
+    u8 map[3][16]; // Each index of the style's palette, as the closest color in environment palettes 2-4
+};
+
+static u32 GetFloorBgPixel(const u16 *tilemap, const u8 *tiles, u32 x, u32 y, u32 *palette)
+{
+    u16 entry = tilemap[(y / 8) * 32 + x / 8];
+    u32 sx = x & 7, sy = y & 7;
+    if (entry & 0x400)
+        sx = 7 - sx;
+    if (entry & 0x800)
+        sy = 7 - sy;
+    *palette = entry >> 12;
+    u8 byte = tiles[(entry & 0x3FF) * TILE_SIZE_4BPP + sy * 4 + sx / 2];
+    return (sx & 1) ? (byte >> 4) : (byte & 0xF);
+}
+
+static u32 GetMostCommonIndex(const u8 *counts)
+{
+    u32 best = 0;
+    for (u32 i = 1; i < 16; i++)
+    {
+        if (counts[i] > counts[best])
+            best = i;
+    }
+    return best;
+}
+
+static void BuildFloorStyle(struct FloorStyle *style, const u16 *tilemap, const u8 *tiles)
+{
+    u8 counts[16] = {0};
+    u32 palette, p, fill, floor;
+    bool32 samePalette = TRUE;
+
+    style->valid = FALSE;
+    style->palette = 0;
+
+    // The rim: the most common color down the platform's left side
+    for (u32 y = PLATFORM_ROW_Y; y < PLATFORM_ROW_Y + PLATFORM_ROWS; y++)
+    {
+        for (u32 x = PLATFORM_RIM_X; x < PLATFORM_RIM_X + PLATFORM_RIM_W; x++)
+        {
+            counts[GetFloorBgPixel(tilemap, tiles, x, y, &palette)]++;
+            if (style->palette == 0)
+                style->palette = palette;
+            samePalette &= (palette == style->palette);
+        }
+    }
+    style->rim = GetMostCommonIndex(counts);
+
+    // The line inside it: the first other color going right from the rim, on the middle row
+    style->edge = style->rim;
+    for (u32 x = PLATFORM_RIM_X; x < PLATFORM_RIM_X + 24; x++)
+    {
+        u32 index = GetFloorBgPixel(tilemap, tiles, x, PLATFORM_ROW_Y + PLATFORM_ROWS / 2, &palette);
+        if (index != style->rim)
+        {
+            style->edge = index;
+            break;
+        }
+    }
+
+    // The fill with its dots
+    for (u32 i = 0; i < 16; i++)
+        counts[i] = 0;
+    for (u32 y = 0; y < PLATFORM_TEX_H; y++)
+    {
+        for (u32 x = 0; x < PLATFORM_TEX_W; x++)
+        {
+            style->tex[y][x] = GetFloorBgPixel(tilemap, tiles, PLATFORM_TEX_X + x, PLATFORM_TEX_Y + y, &palette);
+            samePalette &= (palette == style->palette);
+            if (counts[style->tex[y][x]] < 255)
+                counts[style->tex[y][x]]++;
+        }
+    }
+    fill = GetMostCommonIndex(counts);
+    floor = GetFloorBgPixel(tilemap, tiles, PLATFORM_FLOOR_X, PLATFORM_ROW_Y + PLATFORM_ROWS / 2, &palette);
+
+    // No platform where expected (or one made of several palettes): keep the plain shading
+    if (!samePalette || style->palette < 2 || style->palette > 4 || style->rim == fill || style->edge == style->rim
+     || (fill == floor && palette == style->palette))
+        return;
+
+    for (p = 0; p < 3; p++)
+    {
+        const u16 *from = &gPlttBufferUnfaded[BG_PLTT_ID(style->palette)];
+        const u16 *to = &gPlttBufferUnfaded[BG_PLTT_ID(2 + p)];
+        for (u32 i = 0; i < 16; i++)
+        {
+            u32 best = i, bestDistance = 0xFFFFFFFF;
+            if (2 + p == style->palette)
+            {
+                style->map[p][i] = i;
+                continue;
+            }
+            for (u32 j = 1; j < 16; j++)
+            {
+                s32 dr = GET_R(to[j]) - GET_R(from[i]), dg = GET_G(to[j]) - GET_G(from[i]), db = GET_B(to[j]) - GET_B(from[i]);
+                u32 distance = dr * dr + dg * dg + db * db;
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    best = j;
+                }
+            }
+            style->map[p][i] = best;
+        }
+    }
+    style->valid = TRUE;
+}
+
+// What a pixel is in the platform look (FLOOR_ROLE_*)
+static u32 GetFloorRole(const struct FloorTeam *teams, s32 px, s32 py)
+{
+    for (u32 t = 0; t < NUM_BATTLE_SIDES; t++)
+    {
+        const struct FloorTeam *team = &teams[t];
+        const struct FloorOval *outer = &team->ovals[team->count - 1];
+        s32 rimX = max(24, outer->rx * 16 / 25), rimY = 13; // Eighths of a pixel
+
+        if (py < team->yMin || py >= team->yMax || !IsInFloorOval(team, outer, 0, 0, px, py))
+            continue;
+        if (!IsInFloorOval(team, outer, rimX, rimY, px, py))
+            return FLOOR_ROLE_RIM;
+        if (!IsInFloorOval(team, outer, rimX + 8, rimY + 6, px, py))
+            return FLOOR_ROLE_EDGE;
+        for (s32 i = team->count - 2; i >= 0; i--)
+        {
+            if (IsInFloorOval(team, &team->ovals[i], 0, 0, px, py) && !IsInFloorOval(team, &team->ovals[i], 8, 8, px, py))
+                return FLOOR_ROLE_EDGE;
+        }
+        return FLOOR_ROLE_FILL;
+    }
+    return FLOOR_ROLE_NONE;
+}
+
 void DrawTripleBattleFloor(void)
 {
     struct FloorTeam teams[NUM_BATTLE_SIDES];
     struct FloorShades *shades = Alloc(sizeof(struct FloorShades));
+    struct FloorStyle *style = Alloc(sizeof(struct FloorStyle));
     u16 *tilemap = (u16 *)BG_SCREEN_ADDR(26);
     const u8 *tiles = (const u8 *)BG_CHAR_ADDR(2);
     u32 newTiles = 0;
 
-    if (shades == NULL)
+    if (shades == NULL || style == NULL)
+    {
+        TRY_FREE_AND_SET_NULL(shades);
+        TRY_FREE_AND_SET_NULL(style);
         return;
+    }
     InitFloorTeam(&teams[B_SIDE_PLAYER], B_SIDE_PLAYER);
     InitFloorTeam(&teams[B_SIDE_OPPONENT], B_SIDE_OPPONENT);
     BuildFloorShades(shades, tilemap, tiles);
+    BuildFloorStyle(style, tilemap, tiles); // Before the tilemap is painted over: it reads the 1v1 platform
 
     for (u32 row = 0; row < FLOOR_ROWS; row++)
     {
@@ -652,9 +738,25 @@ void DrawTripleBattleFloor(void)
                     u32 sx = hFlip ? 7 - x : x, sy = vFlip ? 7 - y : y;
                     u8 byte = tiles[sourceTile * TILE_SIZE_4BPP + sy * 4 + sx / 2];
                     u32 color = (sx & 1) ? (byte >> 4) : (byte & 0xF);
-                    u32 shade = GetFloorShade(teams, col * 8 + x, row * 8 + y);
+                    u32 px = col * 8 + x, py = row * 8 + y;
+                    u32 shade = style->valid ? FLOOR_NONE : GetFloorShade(teams, px, py);
 
-                    if (shade != FLOOR_NONE && palette >= 2 && palette <= 4)
+                    if (style->valid && palette >= 2 && palette <= 4)
+                    {
+                        u32 role = GetFloorRole(teams, px, py), index = color;
+                        if (role == FLOOR_ROLE_FILL)
+                            index = style->tex[py % PLATFORM_TEX_H][px % PLATFORM_TEX_W];
+                        else if (role == FLOOR_ROLE_EDGE)
+                            index = style->edge;
+                        else if (role == FLOOR_ROLE_RIM)
+                            index = style->rim;
+                        if (role != FLOOR_ROLE_NONE)
+                        {
+                            color = style->map[palette - 2][index];
+                            painted = TRUE;
+                        }
+                    }
+                    else if (shade != FLOOR_NONE && palette >= 2 && palette <= 4)
                     {
                         if (shades->reserved[palette - 2])
                             color = shades->index[shade];
@@ -691,11 +793,12 @@ void DrawTripleBattleFloor(void)
                 CpuCopy32(words, (void *)(tiles + (FLOOR_FIRST_TILE + tile) * TILE_SIZE_4BPP), sizeof(words));
                 newTiles++;
             }
-            if (palette >= 2 && palette <= 4 && shades->reserved[palette - 2])
+            if (!style->valid && palette >= 2 && palette <= 4 && shades->reserved[palette - 2])
                 tilemap[row * 32 + col] = (FLOOR_FIRST_TILE + tile) | (FLOOR_PALETTE << 12);
             else
                 tilemap[row * 32 + col] = (FLOOR_FIRST_TILE + tile) | (palette << 12);
         }
     }
     Free(shades);
+    Free(style);
 }

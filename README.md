@@ -55,14 +55,20 @@ Moves are either direct or indirect:
 A move hits one, two or all three Pokémon. With two targets, the second takes half damage; with three, each takes
 75%.
 
-**The move indicator.** In the move menu, next to the move's type, a small copy of the opponents' formation shows
-what the selected move does: the back Pokémon on the left, the front Pokémon on the right.
+**The move badge.** In the move menu, the move's type moves up beside its PP, and the line below shows how the
+selected move reaches its targets and how many Pokémon it hits:
 
-![Move indicators for five moves](docs/readme/move_indicators.png)
+![Move badges for five moves](docs/readme/move_indicators.png)
 
-- **Shading:** dark is full damage, gray is reduced damage, white is not hit.
-- **Red arrows:** where the move can be aimed. One arrow over the front Pokémon for a direct attack; arrows over
-  all three for an indirect attack. Moves that hit all three have no arrows.
+- **DIRECT** (red): hits the front Pokémon, which blocks the others.
+- **INDIRECT** (blue): can be aimed at any of the Pokémon.
+- **ALL** (dark): hits every Pokémon on the other side.
+- **x1, x2, x3:** how many Pokémon the move hits.
+
+After choosing a move that hits two or three Pokémon, they flash and the player confirms with A (B goes back).
+
+The floor under each team is drawn in the style of the terrain's own battle platforms: the same colors, texture and
+rim as in a normal battle on that terrain.
 
 When each side has only two Pokémon, the same rules apply with two Pokémon per side.
 

@@ -11,66 +11,35 @@
 #include "constants/pokemon.h"
 #include "malloc.h"
 
-// Move info indicator for triple battles, shown on the move type line of the move menu (docs/hack/triple_battles.md):
-// a small copy of the foes' floor ovals (rear on the left, front on the right) with each section shaded by the damage
-// that foe takes (dark = full, gray = reduced, white = not hit), and red arrows for reach: over the front section for
-// FRONT moves, over all three for ANY moves, none for moves that hit all three foes.
+// Move badge for triple battles, shown on the move type line of the move menu (docs/hack/triple_battles.md): how the
+// move reaches its targets, DIRECT (red: only the front foe, which blocks the others), INDIRECT (blue: any foe) or ALL
+// (dark: every foe), followed by how many foes it hits ("x1".."x3", printed by the move type window). The move's type
+// moves up to the PP line (GetTripleBadgeTextX, MoveSelectionDisplayMoveType). Art: tools/hack/draw_triple_badges.py.
 
 #define TAG_TRIPLE_INDICATOR 0xD7F4
 
-// Screen position of the indicator's top left corner, at the start of the move type window
+// Screen position of the badge's top left corner, at the start of the move type window
 #define INDICATOR_X 167
-#define INDICATOR_Y 138
-#define INDICATOR_WIDTH 32
-#define INDICATOR_HEIGHT 16
-#define INDICATOR_OVALS_Y 4 // Arrows above, ovals below
+#define INDICATOR_Y 140
+#define BADGE_FRAME_SIZE (64 * 32 / 2)
 
-// Palette: 1 red, 2 dark, 3 gray, 4 white, 5 black
 enum
 {
-    INDICATOR_COLOR_RED = 1,
-    INDICATOR_COLOR_DARK,
-    INDICATOR_COLOR_GRAY,
-    INDICATOR_COLOR_WHITE,
-    INDICATOR_COLOR_OUTLINE,
+    BADGE_DIRECT,
+    BADGE_INDIRECT,
+    BADGE_ALL,
 };
 
-static const u16 sIndicatorPalette[16] =
-{
-    RGB(0, 0, 0), RGB(29, 0, 0), RGB(7, 7, 7), RGB(19, 19, 19), RGB(31, 31, 31), RGB(3, 3, 3),
-};
+static const u32 sBadgeGfx[] = INCGFX_U32("graphics/battle_interface/triple_badges.png", ".4bpp");
+static const u16 sBadgePalette[] = INCGFX_U16("graphics/battle_interface/triple_badges.pal", ".gbapal");
+static const u8 sBadgeWidths[] = { [BADGE_DIRECT] = 34, [BADGE_INDIRECT] = 43, [BADGE_ALL] = 21 }; // From the tool
 
-// Nested ovals in tenths of a pixel (centre x, centre y, radius x, radius y): base (rear), middle, outer (front)
-static const s16 sIndicatorOvals[TRIPLE_RANK_COUNT][4] =
-{
-    { 50, 60, 50, 32 },
-    { 95, 60, 95, 43 },
-    { 140, 60, 140, 55 },
-};
-
-// Arrow centres over the rear, middle and front sections
-static const u8 sIndicatorArrowX[TRIPLE_RANK_COUNT] = { 4, 13, 23 };
-
-// 2v2: base (rear) and outer (front) only
-static const s16 sIndicatorOvals2v2[2][4] =
-{
-    { 68, 60, 68, 38 },
-    { 140, 60, 140, 55 },
-};
-static const u8 sIndicatorArrowX2v2[2] = { 6, 23 };
-
-// The ovals for the battle's side size
-static const s16 (*GetIndicatorOvals(void))[4]
-{
-    return (GetTripleSideSize() == 2) ? sIndicatorOvals2v2 : sIndicatorOvals;
-}
-
-static const struct SpritePalette sIndicatorSpritePalette = { sIndicatorPalette, TAG_TRIPLE_INDICATOR };
+static const struct SpritePalette sIndicatorSpritePalette = { sBadgePalette, TAG_TRIPLE_INDICATOR };
 
 static const struct OamData sOamData_Indicator =
 {
-    .shape = SPRITE_SHAPE(32x16),
-    .size = SPRITE_SIZE(32x16),
+    .shape = SPRITE_SHAPE(64x32),
+    .size = SPRITE_SIZE(64x32),
     .priority = 0,
 };
 
@@ -109,101 +78,42 @@ void HideTripleMoveIndicator(void)
     FreeSpritePaletteByTag(TAG_TRIPLE_INDICATOR);
 }
 
-static bool32 IsInIndicatorOval(u32 oval, s32 x, s32 y)
+static u32 GetTripleBadge(const struct TripleMoveInfo *info)
 {
-    const s16 (*ovals)[4] = GetIndicatorOvals();
-    s32 dx = x * 10 + 5 - ovals[oval][0], dy = y * 10 + 5 - ovals[oval][1];
-    s32 rx = ovals[oval][2], ry = ovals[oval][3];
-    return dx * dx * ry * ry + dy * dy * rx * rx <= rx * rx * ry * ry;
+    if (info->aoe >= 3)
+        return BADGE_ALL;
+    return (info->reach == TRIPLE_REACH_ANY) ? BADGE_INDIRECT : BADGE_DIRECT;
 }
 
-static bool32 IsIndicatorOvalEdge(u32 oval, s32 x, s32 y)
+// How many foes the move hits, for the "xN" after the badge (2v2 has two foes at most)
+u32 GetTripleMoveHitCount(enum Move move)
 {
-    return IsInIndicatorOval(oval, x, y)
-        && (!IsInIndicatorOval(oval, x - 1, y) || !IsInIndicatorOval(oval, x + 1, y)
-         || !IsInIndicatorOval(oval, x, y - 1) || !IsInIndicatorOval(oval, x, y + 1));
+    return min(GetTripleMoveInfo(move)->aoe, GetTripleSideSize());
 }
 
-static void SetIndicatorPixel(u8 *tiles, u32 x, u32 y, u32 color)
+// Where the move type window's text starts, after the badge
+u32 GetTripleBadgeTextX(enum Move move)
 {
-    // 32x16 sprite in 1D tile order: 4 tiles per row
-    u8 *byte = &tiles[((y / 8) * (INDICATOR_WIDTH / 8) + x / 8) * TILE_SIZE_4BPP + (y % 8) * 4 + (x % 8) / 2];
-    if (x & 1)
-        *byte = (*byte & 0x0F) | (color << 4);
-    else
-        *byte = (*byte & 0xF0) | color;
+    return sBadgeWidths[GetTripleBadge(GetTripleMoveInfo(move))] + 3;
 }
 
-// fills: color of each section from the rear (count sections). arrows: bit per section.
-static void DrawIndicator(u8 *tiles, const u8 *fills, u32 arrows, u32 count, const u8 *arrowX)
+// Whether the move gets a badge (a move in the 3v3 table, in a triple battle)
+bool32 HasTripleMoveBadge(enum Move move)
 {
-    for (s32 y = 0; y < INDICATOR_HEIGHT - INDICATOR_OVALS_Y; y++)
-    {
-        for (s32 x = 0; x < INDICATOR_WIDTH; x++)
-        {
-            u32 section;
-            bool32 edge = FALSE;
-            for (section = 0; section < count && !IsInIndicatorOval(section, x, y); section++)
-                ;
-            if (section == count)
-                continue;
-            for (u32 i = 0; i < count; i++)
-                edge |= IsIndicatorOvalEdge(i, x, y);
-            SetIndicatorPixel(tiles, x, y + INDICATOR_OVALS_Y, edge ? INDICATOR_COLOR_OUTLINE : fills[section]);
-        }
-    }
-    for (u32 section = 0; section < count; section++)
-    {
-        if (!(arrows & (1 << section)))
-            continue;
-        for (s32 row = 0; row < 3; row++)
-        {
-            for (s32 dx = -(2 - row); dx <= 2 - row; dx++)
-                SetIndicatorPixel(tiles, arrowX[section] + dx, row, INDICATOR_COLOR_RED);
-        }
-    }
+    return IsTripleBattle() && GetTripleMoveInfo(move)->aoe != 0;
 }
 
-// Returns whether the indicator is shown, i.e. whether the move type line should leave room for it.
+// Returns whether the badge is shown, i.e. whether the move type line should leave room for it.
 bool32 ShowTripleMoveIndicator(enum Move move)
 {
-    const struct TripleMoveInfo *info = GetTripleMoveInfo(move);
-    u8 fills[TRIPLE_RANK_COUNT];
-    u32 arrows;
-
     HideTripleMoveIndicator();
-    if (!IsTripleBattle() || info->aoe == 0)
+    if (!HasTripleMoveBadge(move))
         return FALSE;
 
-    // The main target is shown as the front foe; ANY moves can pick any of them.
-    // Sections from the rear: front = count - 1. 2-target moves also hit the one behind it.
-    u32 count = GetTripleSideSize();
-    for (u32 i = 0; i < count; i++)
-    {
-        if (info->aoe >= 3 || (info->aoe == 2 && i == count - 2))
-            fills[i] = INDICATOR_COLOR_GRAY;
-        else if (i == count - 1)
-            fills[i] = (info->aoe == 2 || info->aoe == 1) ? INDICATOR_COLOR_DARK : INDICATOR_COLOR_GRAY;
-        else
-            fills[i] = INDICATOR_COLOR_WHITE;
-    }
-    if (info->aoe == 3)
-        arrows = 0; // Every foe is hit, reach doesn't matter
-    else if (info->reach == TRIPLE_REACH_ANY)
-        arrows = (1 << count) - 1;
-    else
-        arrows = 1 << (count - 1);
-
-    u32 *tiles = AllocZeroed(INDICATOR_WIDTH * INDICATOR_HEIGHT / 2);
-    if (tiles == NULL)
-        return FALSE;
-    DrawIndicator((u8 *)tiles, fills, arrows, count, (count == 2) ? sIndicatorArrowX2v2 : sIndicatorArrowX);
-    struct SpriteSheet sheet = { tiles, INDICATOR_WIDTH * INDICATOR_HEIGHT / 2, TAG_TRIPLE_INDICATOR };
+    struct SpriteSheet sheet = { (const u8 *)sBadgeGfx + GetTripleBadge(GetTripleMoveInfo(move)) * BADGE_FRAME_SIZE, BADGE_FRAME_SIZE, TAG_TRIPLE_INDICATOR };
     LoadSpriteSheet(&sheet);
-    Free(tiles);
     LoadSpritePalette(&sIndicatorSpritePalette);
-
-    sIndicatorSpriteId = CreateSprite(&sIndicatorSpriteTemplate, INDICATOR_X + INDICATOR_WIDTH / 2, INDICATOR_Y + INDICATOR_HEIGHT / 2, 0);
+    sIndicatorSpriteId = CreateSprite(&sIndicatorSpriteTemplate, INDICATOR_X + 32, INDICATOR_Y + 16, 0);
     return TRUE;
 }
 

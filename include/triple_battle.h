@@ -73,10 +73,12 @@ u32 GetTripleBattleTypeFlagsForFoes(u32 foePartySize);
 u32 GetTripleAiSecondTargetByte(enum BattlerId battlerAtk, enum BattlerId mainTarget, u32 moveIndex);
 void RemoveUnreachableTripleMoveScores(enum BattlerId battlerAtk, enum BattlerId battlerDef, s32 *scores);
 // triple_battle_ui.c
-#define TRIPLE_INDICATOR_TEXT_X 30 // Pixels before the move type name when the area of effect indicator is shown
 void ResetTripleMoveIndicator(void);
 void HideTripleMoveIndicator(void);
 bool32 ShowTripleMoveIndicator(enum Move move);
+bool32 HasTripleMoveBadge(enum Move move);
+u32 GetTripleBadgeTextX(enum Move move);
+u32 GetTripleMoveHitCount(enum Move move);
 u32 GetTripleSpriteScale(enum BattlerId battler);
 u32 ScaleTripleMonPic(u8 *pic, enum BattlerId battler);
 #define TRIPLE_HEALTHBAR_OFFSET_Y 7 // From the healthbox to the HP bar under it

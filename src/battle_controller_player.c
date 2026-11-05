@@ -742,6 +742,20 @@ void HandleInputShowTargets(enum BattlerId battler)
     }
 }
 
+static void TryShowAsTarget(enum BattlerId battler);
+
+// Triple battles: a move with no target to pick that hits two or three foes shows them first, as Double Battles do
+// for spread moves (B_SHOW_TARGETS); A uses it, B goes back to the moves with their indicator.
+static void HandleInputShowTripleTargets(enum BattlerId battler)
+{
+    HandleInputShowTargets(battler);
+    if (gBattlerControllerFuncs[battler] == HandleInputChooseMove)
+    {
+        struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
+        ShowTripleMoveIndicator(moveInfo->moves[gMoveSelectionCursor[battler]]);
+    }
+}
+
 static void TryShowAsTarget(enum BattlerId battler)
 {
     if (IsBattlerAlive(battler))
@@ -859,6 +873,18 @@ void HandleInputChooseMove(enum BattlerId battler)
             case TRIPLE_TARGET_CHOICE_NONE:
                 gMultiUsePlayerCursor = GetTripleFoeAtRank(battler, 0);
                 canSelectTarget = 0;
+                if (B_SHOW_TARGETS && GetTripleMoveInfo(moveInfo->moves[gMoveSelectionCursor[battler]])->aoe >= 2)
+                {
+                    // Show the two or three foes it hits (two: the front ones), then wait for A
+                    u32 hits = GetTripleMoveInfo(moveInfo->moves[gMoveSelectionCursor[battler]])->aoe;
+                    for (u32 i = 0; i < hits; i++)
+                    {
+                        enum BattlerId foe = GetTripleFoeAtRank(battler, i);
+                        if (foe != MAX_BATTLERS_COUNT)
+                            TryShowAsTarget(foe);
+                    }
+                    canSelectTarget = 4;
+                }
                 break;
             case TRIPLE_TARGET_CHOICE_ONE:
             case TRIPLE_TARGET_CHOICE_TWO:
@@ -902,6 +928,9 @@ void HandleInputChooseMove(enum BattlerId battler)
             break;
         case 3: // Entire field
             gBattlerControllerFuncs[battler] = HandleInputShowEntireFieldTargets;
+            break;
+        case 4: // Triple battles: the foes the move hits, to confirm
+            gBattlerControllerFuncs[battler] = HandleInputShowTripleTargets;
             break;
         }
     }

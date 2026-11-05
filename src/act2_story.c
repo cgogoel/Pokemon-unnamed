@@ -13,6 +13,9 @@
 #include "random.h"
 #include "string_util.h"
 #include "fieldmap.h"
+#include "metatile_behavior.h"
+#include "field_player_avatar.h"
+#include "event_object_movement.h"
 #include "constants/characters.h"
 #include "constants/metatile_labels.h"
 #include "constants/heal_locations.h"
@@ -208,7 +211,7 @@ static const u8 sText_Fire[] = _("FIRE");
 static const u8 sText_Water[] = _("WATER");
 static const u8 sText_Grass[] = _("GRASS");
 static const u8 sText_PuzzleFire[] = _("Relight the old furnaces.");
-static const u8 sText_PuzzleWater[] = _("Put out the small dock fires.");
+static const u8 sText_PuzzleWater[] = _("Put out the fires on the docks.");
 static const u8 sText_PuzzleGrass[] = _("Regrow the withered patches.");
 
 static const struct Act2Course sCourses[] =
@@ -505,6 +508,16 @@ bool16 Act2_IsResearchDone(void)
     return GetResearchDone() == 0xF;
 }
 
+// specialvar VAR_RESULT, Act2_IsReadyForTM: the research the course's TM is made from. All four tasks, except on
+// the Water trip: there the TM is what puts out the big dock fire (the fourth task), so the other three are enough.
+bool16 Act2_IsReadyForTM(void)
+{
+    const struct Act2Course *course = GetCurrentCourse();
+    if (course != NULL && course->tripStage == ACT2_WATER_TRIP)
+        return (GetResearchDone() & 0x7) == 0x7;
+    return GetResearchDone() == 0xF;
+}
+
 static const u8 sText_SheetTitle[] = _("RESEARCH SHEET: the ");
 static const u8 sText_Course[] = _(" course");
 static const u8 sText_Done[] = _("Done!");
@@ -692,6 +705,10 @@ void Act2_MakeClubParty(struct Pokemon *party, u32 trainerId)
         }
         CreateMonWithIVs(&party[i], species, level, Random32(), OTID_STRUCT_RANDOM_NO_SHINY, ivs);
         GiveMonInitialMoveset(&party[i]);
+        // No Dynamax or Terastal: the markers the trainer party loader sets (CreateNPCTrainerPartyFromTrainer),
+        // without which the AI may use them
+        SetMonData(&party[i], MON_DATA_DYNAMAX_LEVEL, &(u32){ BLOCK_AI_DYNAMAX });
+        SetMonData(&party[i], MON_DATA_TERA_TYPE, &(u32){ TYPE_MYSTERY });
     }
 }
 
@@ -827,7 +844,13 @@ void Act2_SetupSiteObjects(void)
     for (i = 0; i < 8; i++)
         FlagSet(FLAG_TEMP_1 + i);
     if (!onTrip)
+    {
+        // A save that left the Water trip without the young Lapras: it waits by the pier for the rest of Act 2
+        if (gSpecialVar_0x8004 == ACT2_WATER_TRIP && VarGet(VAR_STORY_ACT) == STORY_ACT_UNIVERSITY
+         && VarGet(VAR_ACT2_PROGRESS) > ACT2_WATER_TRIP && !FlagGet(FLAG_ACT2_GOT_LAPRAS))
+            FlagClear(FLAG_TEMP_8);
         return;
+    }
     FlagClear(FLAG_TEMP_1);
     for (i = 0; i < 3; i++)
     {
@@ -932,6 +955,47 @@ u16 Act2_GetDockFireState(void)
     if (IsDockFireBurning(1) || IsDockFireBurning(2) || IsDockFireBurning(3))
         return DOCK_FIRE_BURNING;
     return DOCK_FIRE_OUT;
+}
+
+// Whether a friend can stand on a map square (map coords, MAP_OFFSET included): land the player could walk on at
+// their elevation, with no one there
+static bool32 IsFreeLandSquare(s16 x, s16 y, u8 elevation)
+{
+    u8 squareElevation = MapGridGetElevationAt(x, y);
+    if (MapGridGetCollisionAt(x, y) || MetatileBehavior_IsSurfableWaterOrUnderwater(MapGridGetMetatileBehaviorAt(x, y)))
+        return FALSE;
+    if (squareElevation != elevation && squareElevation != 0 && squareElevation != 15)
+        return FALSE;
+    return GetObjectEventIdByXY(x, y) == OBJECT_EVENTS_COUNT;
+}
+
+// specialvar VAR_RESULT, Act2_FindSpotBesidePlayer: a land square next to the player for a friend to run up to
+// (behind them first, then to their left, then their right, then in front), in VAR_0x8005/VAR_0x8006 (map
+// coordinates without MAP_OFFSET, for setobjectxy). VAR_0x8007 is the way the friend faces to look at the player.
+// FALSE if there's none.
+bool16 Act2_FindSpotBesidePlayer(void)
+{
+    static const s8 sOffsets[][2] = { [DIR_SOUTH] = { 0, 1 }, [DIR_NORTH] = { 0, -1 }, [DIR_WEST] = { -1, 0 }, [DIR_EAST] = { 1, 0 } };
+    static const u8 sOpposite[] = { [DIR_SOUTH] = DIR_NORTH, [DIR_NORTH] = DIR_SOUTH, [DIR_WEST] = DIR_EAST, [DIR_EAST] = DIR_WEST };
+    static const u8 sLeft[] = { [DIR_SOUTH] = DIR_EAST, [DIR_NORTH] = DIR_WEST, [DIR_WEST] = DIR_SOUTH, [DIR_EAST] = DIR_NORTH };
+    struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
+    u8 facing = GetPlayerFacingDirection(), dirs[4], i;
+    dirs[0] = sOpposite[facing];
+    dirs[1] = sLeft[facing];
+    dirs[2] = sOpposite[sLeft[facing]];
+    dirs[3] = facing;
+    for (i = 0; i < ARRAY_COUNT(dirs); i++)
+    {
+        s16 x = player->currentCoords.x + sOffsets[dirs[i]][0], y = player->currentCoords.y + sOffsets[dirs[i]][1];
+        if (IsFreeLandSquare(x, y, player->currentElevation))
+        {
+            gSpecialVar_0x8005 = x - MAP_OFFSET;
+            gSpecialVar_0x8006 = y - MAP_OFFSET;
+            gSpecialVar_0x8007 = sOpposite[dirs[i]];
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 // specialvar VAR_RESULT, Act2_IsDockFireAlarmDue: the docks are burning and no one has shown the player yet

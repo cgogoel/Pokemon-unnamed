@@ -655,6 +655,7 @@ gSpecials::
 	def_special Act2_IsClubNight
 	def_special Act2_GiveStartingKit
 	def_special Act2_IsResearchDone
+	def_special Act2_IsReadyForTM
 	def_special Act2_BufferResearchSheet
 	def_special Act2_BufferClubTeam
 	def_special Act2_SetAsideClubBench
@@ -663,6 +664,7 @@ gSpecials::
 	def_special Act2_PutOutDockFire
 	def_special Act2_IsDockFireBurningSpecial
 	def_special Act2_IsDockFireAlarmDue
+	def_special Act2_FindSpotBesidePlayer
 	def_special Act2_GetDockFireState
 	def_special Act2_FindTmMoveUser
 	def_special Act2_PartyCanUseCourseTM

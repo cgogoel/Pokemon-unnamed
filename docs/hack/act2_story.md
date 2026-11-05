@@ -69,8 +69,14 @@ from the catch script; `ACT2_RESEARCH_DOCK_FIRE`). Back on Route 6 or in Vermili
 (`Act2_EventScript_CheckDockFireAlarm` on map resume, then the map's frame script) and takes the player to the pier
 to see it (`ACT2_RESEARCH_DOCK_FIRE_SEEN`, `_ARRIVING`). The fires are metatiles over the planks, drawn on Vermilion's
 load while burning (`Act2_DrawDockFires`; art by `tools/hack/draw_dock_fire.py`), with a sign event on each square.
-The two small fires finish the puzzle task; the big one, which cuts off the pier's west end, only goes out with the
-TM move (`Act2_FindTmMoveUser`). The dock workers (the harbor's sailors, and one on the pier during the trip) call
+The puzzle task needs all three fires out. The small ones go out with any WATER move; the big one, which cuts off
+the pier's west end, only with the TM move (`Act2_FindTmMoveUser`). So on the Water trip the TM is made from the
+other three tasks (`Act2_IsReadyForTM`), and the exam waits for all four (`Act2_IsResearchDone`). PROF. MARLOWE's
+lines follow the stage: the usual hint, then (fires started) the TM is urgent, then (TM made, big fire still
+burning) go put it out, a POKéMON is cowering there, then the exam. A save that left the trip without the Lapras
+finds it waiting by the pier for the rest of Act 2. When a puzzle's task is done, the message says whether the
+sheet is finished (`Act2_EventScript_TaskDone`). MINA's alarm puts her on a land square beside the player
+(`Act2_FindSpotBesidePlayer`). The dock workers (the harbor's sailors, and one on the pier during the trip) call
 for help while it burns and thank the player after (`Act2_GetDockFireState`).
 
 **The young Lapras.** It floats on the water, below the pier's elevation, so the player talks to it through a sign

@@ -81,6 +81,7 @@ static s32 AI_PowerfulStatus(enum BattlerId battlerAtk, enum BattlerId battlerDe
 static s32 AI_DynamicFunc(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score);
 static s32 AI_PredictSwitch(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score);
 static s32 AI_CheckPpStall(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score);
+static s32 AI_TargetThreat(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score);
 
 static s32 (*const sBattleAiFuncTable[])(enum BattlerId, enum BattlerId, enum Move, s32) =
 {
@@ -121,7 +122,7 @@ static s32 (*const sBattleAiFuncTable[])(enum BattlerId, enum BattlerId, enum Mo
     [34] = NULL,                     // AI_FLAG_ABILITY_OMNISCIENCE
     [35] = NULL,                     // AI_FLAG_ITEM_OMNISCIENCE
     [36] = NULL,                     // AI_FLAG_MOVE_OMNISCIENCE
-    [37] = NULL,                     // Unused
+    [37] = AI_TargetThreat,          // AI_FLAG_TARGET_THREAT
     [38] = NULL,                     // Unused
     [39] = NULL,                     // Unused
     [40] = NULL,                     // Unused
@@ -3131,6 +3132,47 @@ static bool32 ShouldTriggerPartnerAbility(enum BattlerId battlerAtk, enum Move m
 }
 
 // double battle logic
+// The opposing battler expected to deal the most damage to anyone on battlerAtk's side (its best move against its
+// best target), or MAX_BATTLERS_COUNT if none stands out (a tie, or no damage at all)
+static enum BattlerId GetBiggestThreatToSide(enum BattlerId battlerAtk)
+{
+    enum BattlerId threat = MAX_BATTLERS_COUNT;
+    u32 mostDamage = 0;
+    bool32 tied = FALSE;
+
+    for (enum BattlerId foe = 0; foe < gBattlersCount; foe++)
+    {
+        u32 damage = 0;
+        if (IsBattlerAlly(battlerAtk, foe) || !IsBattlerAlive(foe))
+            continue;
+        for (enum BattlerId target = 0; target < gBattlersCount; target++)
+        {
+            if (IsBattlerAlly(battlerAtk, target) && IsBattlerAlive(target))
+                damage = max(damage, GetBestDmgFromBattler(foe, target, AI_DEFENDING));
+        }
+        if (damage > mostDamage)
+        {
+            mostDamage = damage;
+            threat = foe;
+            tied = FALSE;
+        }
+        else if (damage == mostDamage && damage != 0)
+        {
+            tied = TRUE;
+        }
+    }
+    return tied ? MAX_BATTLERS_COUNT : threat;
+}
+
+// AI_FLAG_TARGET_THREAT: in doubles (and 3v3), hit the foe that threatens this side most
+static s32 AI_TargetThreat(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score)
+{
+    if (IsDoubleBattle() && !IsBattleMoveStatus(move) && !IsBattlerAlly(battlerAtk, battlerDef)
+     && battlerDef == GetBiggestThreatToSide(battlerAtk))
+        ADJUST_SCORE(WEAK_EFFECT);
+    return score;
+}
+
 static s32 AI_DoubleBattle(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score)
 {
     // move data
@@ -3156,6 +3198,7 @@ static s32 AI_DoubleBattle(enum BattlerId battlerAtk, enum BattlerId battlerDef,
     u32 noOfHitsToKOPartner = GetNoOfHitsToKOBattler(battlerAtk, battlerAtkPartner, gAiThinkingStruct->movesetIndex, AI_ATTACKING_PARTNER, CONSIDER_ENDURE);
     bool32 wouldPartnerFaint = hasPartner && CanIndexMoveFaintTarget(battlerAtk, battlerAtkPartner, gAiThinkingStruct->movesetIndex, AI_ATTACKING_PARTNER) && !partnerProtecting;
     bool32 isFriendlyFireOK = !wouldPartnerFaint && (noOfHitsToKOPartner == 0 || noOfHitsToKOPartner > friendlyFireThreshold);
+
 
     // check what effect partner is using
     if (aiData->partnerMove != MOVE_NONE && hasPartner)

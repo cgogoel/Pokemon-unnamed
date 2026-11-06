@@ -651,7 +651,6 @@ gSpecials::
 	def_special Act1_FinishChoosing
 	def_special Act1_StartPrologueEnd
 	def_special Act2_PartyHasType
-	def_special Act2_PartyHasProjectPokemon
 	def_special Act2_IsClubNight
 	def_special Act2_GiveStartingKit
 	def_special Act2_IsResearchDone
@@ -675,3 +674,4 @@ gSpecials::
 	def_special Act2_SetResearchFlag
 	def_special Act2_HasResearchFlag
 	def_special Act2_ClearResearchFlag
+	def_special Act2_ResetWoodsNoise

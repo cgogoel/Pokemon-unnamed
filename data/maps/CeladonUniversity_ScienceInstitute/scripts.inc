@@ -1,6 +1,7 @@
 @ Celadon University: Science Research Institute (Act 2, docs/hack/celadon_university.md).
 
 CeladonUniversity_ScienceInstitute_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, Act2_EventScript_InstituteObjects
 	.byte 0
 
 CeladonUniversity_ScienceInstitute_EventScript_Scientist0::

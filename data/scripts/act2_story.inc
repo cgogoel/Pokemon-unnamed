@@ -1340,46 +1340,6 @@ Act2_EventScript_Regrown::
 	end
 
 @ ---------------------------------------------------------------------------------------------------------------
-@ The final project: the director of the Science Research Institute
-
-Act2_EventScript_Director::
-	lock
-	faceplayer
-	goto_if_eq VAR_ACT2_PROGRESS, ACT2_GOT_TRAINER_CARD, Act2_EventScript_AssignProject
-	goto_if_eq VAR_ACT2_PROGRESS, ACT2_FINAL_PROJECT, Act2_EventScript_CheckProject
-	goto_if_eq VAR_ACT2_PROGRESS, ACT2_DONE, Act2_EventScript_DirectorAfter
-	msgbox Act2_Text_DirectorEarly
-	release
-	end
-
-Act2_EventScript_AssignProject:
-	msgbox Act2_Text_AssignProject
-	giveitem ITEM_POKE_BALL, 10
-	msgbox Act2_Text_ProjectHints
-	setvar VAR_ACT2_PROGRESS, ACT2_FINAL_PROJECT
-	release
-	end
-
-Act2_EventScript_CheckProject:
-	specialvar VAR_RESULT, Act2_PartyHasProjectPokemon
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_ProjectNotYet
-	msgbox Act2_Text_ProjectDone
-	setvar VAR_ACT2_PROGRESS, ACT2_DONE
-	msgbox Act2_Text_EndOfAct2
-	release
-	end
-
-Act2_EventScript_ProjectNotYet:
-	msgbox Act2_Text_ProjectHints
-	release
-	end
-
-Act2_EventScript_DirectorAfter:
-	msgbox Act2_Text_EndOfAct2
-	release
-	end
-
-@ ---------------------------------------------------------------------------------------------------------------
 
 Act2_Text_NoTrainerCard:
 	.string "You want to battle?\n"
@@ -1608,7 +1568,8 @@ Act2_Text_Night3After:
 	.string "MINA: You did it!\p"
 	.string "KAI: Oh, and the director of the\n"
 	.string "SCIENCE RESEARCH INSTITUTE wants\l"
-	.string "to see you. Your final project!$"
+	.string "all four of us in the morning.\p"
+	.string "ROWAN: The final project!$"
 
 Act2_Text_ProfAshfordEarly:
 	.string "PROF. ASHFORD: Classes start soon.$"
@@ -2044,34 +2005,7 @@ Act2_Text_TripRowan:
 	.string "ROWAN: Take your time.\n"
 	.string "Rushing never works with POKéMON.$"
 
-Act2_Text_DirectorEarly:
-	.string "DIRECTOR: Welcome to the SCIENCE\n"
-	.string "RESEARCH INSTITUTE.\p"
-	.string "Finish your courses, then come see\n"
-	.string "me about your final project.$"
 
-Act2_Text_AssignProject:
-	.string "DIRECTOR: Ah, the student with the\n"
-	.string "new TRAINER CARD. Congratulations.\p"
-	.string "Your final project: find and catch\n"
-	.string "a POKéMON that's two of the types\l"
-	.string "you've studied.\p"
-	.string "FIRE and WATER, WATER and GRASS,\n"
-	.string "or GRASS and FIRE. Take these.$"
 
-Act2_Text_ProjectHints:
-	.string "DIRECTOR: There are reports of a\n"
-	.string "WATER and GRASS POKéMON in the\l"
-	.string "pond in CELADON CITY. Try fishing.\p"
-	.string "And on ROUTE 7, there's a little\n"
-	.string "GRASS POKéMON that a FIRE STONE\l"
-	.string "would change…$"
 
-Act2_Text_ProjectDone:
-	.string "DIRECTOR: That's it! Two types in\n"
-	.string "one POKéMON. Remarkable work.\p"
-	.string "Your project passes.\n"
-	.string "Congratulations, graduate!$"
 
-Act2_Text_EndOfAct2:
-	.string "(End of Act 2.)$"

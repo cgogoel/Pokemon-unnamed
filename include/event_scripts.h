@@ -811,6 +811,9 @@ extern const u8 EventScript_Indigo_HighestAuthority[];
 
 // Act 2 (docs/hack/act2_story.md)
 extern const u8 Act2_EventScript_NoTrainerCard[];
+extern const u8 Act2_EventScript_WoodsNoiseLouder[];
+extern const u8 Act2_EventScript_WoodsNoiseNear[];
+extern const u8 Act2_EventScript_WoodsNoiseQuieter[];
 extern const u8 EventScript_NoTrainerCardYet[];
 
 #endif // GUARD_EVENT_SCRIPTS_H

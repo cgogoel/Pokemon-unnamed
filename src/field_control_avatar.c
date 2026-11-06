@@ -1,4 +1,5 @@
 #include "global.h"
+#include "act2_finale.h"
 #include "act1_story.h"
 #include "battle_setup.h"
 #include "bike.h"
@@ -733,6 +734,8 @@ static bool8 TryStartMiscWalkingScripts(u16 metatileBehavior)
 {
     s16 x, y;
 
+    if (Act2_TryStartWoodsNoise())
+        return TRUE;
     if (MetatileBehavior_IsCrackedFloorHole(metatileBehavior))
     {
         ScriptContext_SetupScript(EventScript_FallDownHole);

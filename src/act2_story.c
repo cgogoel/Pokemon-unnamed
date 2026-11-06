@@ -86,22 +86,6 @@ bool16 Act2_PartyHasType(void)
     return FALSE;
 }
 
-// specialvar VAR_RESULT, Act2_PartyHasProjectPokemon: the final project, a Pokémon that's two of Fire, Water and
-// Grass (Lotad's family is Water and Grass; Scovillain, Capsakid evolved with a Fire Stone, is Grass and Fire)
-bool16 Act2_PartyHasProjectPokemon(void)
-{
-    u32 i;
-    for (i = 0; i < PARTY_SIZE; i++)
-    {
-        struct Pokemon *mon = &gPlayerParty[i];
-        if (GetMonData(mon, MON_DATA_SPECIES) == SPECIES_NONE || GetMonData(mon, MON_DATA_IS_EGG))
-            continue;
-        if (MonHasType(mon, TYPE_FIRE) + MonHasType(mon, TYPE_WATER) + MonHasType(mon, TYPE_GRASS) >= 2)
-            return TRUE;
-    }
-    return FALSE;
-}
-
 // From coming back to the dorms after a course until the club's battle that night, it's night (UpdateTimeOfDay),
 // whatever the clock says
 bool16 Act2_IsClubNight(void)

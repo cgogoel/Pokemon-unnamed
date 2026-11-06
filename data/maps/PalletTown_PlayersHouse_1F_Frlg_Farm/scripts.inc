@@ -5,9 +5,11 @@ PalletTown_PlayersHouse_1F_Frlg_Farm_MapScripts::
 	map_script MAP_SCRIPT_ON_FRAME_TABLE, Farmhouse1F_OnFrame
 	.byte 0
 
-@ Dad is home the morning after Jangmo-o (FLAG_TEMP_1 hides him otherwise)
+@ Dad is home the morning after Jangmo-o, and from Act 2 on (FLAG_TEMP_1 hides him otherwise)
 Farmhouse1F_OnTransition:
+	goto_if_ge VAR_STORY_ACT, STORY_ACT_UNIVERSITY, Farmhouse1F_EventScript_DadHome
 	call_if_ne VAR_ACT1_PROGRESS, ACT1_RESTED, Farmhouse1F_EventScript_HideDad
+Farmhouse1F_EventScript_DadHome:
 	end
 
 Farmhouse1F_EventScript_HideDad:
@@ -15,6 +17,7 @@ Farmhouse1F_EventScript_HideDad:
 	return
 
 Farmhouse1F_EventScript_Dad::
+	goto_if_ge VAR_STORY_ACT, STORY_ACT_UNIVERSITY, Act2_EventScript_FarmhouseParents
 	msgbox Farmhouse1F_Text_DadShowOak, MSGBOX_NPC
 	end
 
@@ -34,7 +37,7 @@ Farmhouse1F_EventScript_WokeUp::
 Farmhouse1F_EventScript_Mom::
 	lock
 	faceplayer
-	goto_if_ne VAR_STORY_ACT, STORY_ACT_CHILDHOOD, PalletTown_PlayersHouse_1F_EventScript_Mom
+	goto_if_ge VAR_STORY_ACT, STORY_ACT_UNIVERSITY, Act2_EventScript_FarmhouseParents
 	switch VAR_ACT1_PROGRESS
 	case ACT1_START, Farmhouse1F_EventScript_MomStart
 	case ACT1_GOT_POKEDEX, Farmhouse1F_EventScript_MomGotPokedex

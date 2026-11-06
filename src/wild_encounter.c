@@ -63,6 +63,7 @@ EWRAM_DATA bool8 gIsSurfingEncounter = 0;
 EWRAM_DATA u8 gChainFishingDexNavStreak = 0;
 
 #include "data/wild_encounters.h"
+#include "act2_road.h"
 #include "act2_story.h"
 
 const struct WildPokemon gWildFeebas = {20, 25, SPECIES_FEEBAS};
@@ -377,6 +378,9 @@ u8 ChooseWildMonLevel(const struct WildPokemon *wildPokemon, u8 wildMonIndex, en
     u8 range;
     u8 rand;
 
+    // Act 2's final project: scaled for the road home (Act2Road_GetWildLevel)
+    if (Act2Road_IsActive())
+        return Act2Road_GetWildLevel();
     // Act 2: scaled to the player's Pokémon instead
     if (Act2_UsesAct2WildPokemon())
         return Act2_GetWildLevel();
@@ -642,6 +646,7 @@ bool8 TryGenerateWildMon(const struct WildPokemonInfo *wildMonInfo, enum WildPok
         CreateWildMon(Act2_ChooseWildSpecies(wildMonInfo->wildPokemon[wildMonIndex].species), level);
     else
         CreateWildMon(wildMonInfo->wildPokemon[wildMonIndex].species, level);
+    Act2Road_OnWildMonCreated(&gParties[B_TRAINER_OPPONENT_A][0]);
     return TRUE;
 }
 
@@ -656,7 +661,8 @@ static u16 GenerateFishingWildMon(const struct WildPokemonInfo *wildMonInfo, u8 
 
     UpdateChainFishingStreak();
     CreateWildMon(wildMonSpecies, level);
-    return wildMonSpecies;
+    Act2Road_OnWildMonCreated(&gParties[B_TRAINER_OPPONENT_A][0]);
+    return GetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_SPECIES);
 }
 
 static bool8 EncounterOddsCheck(u16 encounterRate)

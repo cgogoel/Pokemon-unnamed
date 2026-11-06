@@ -137,7 +137,8 @@ In both builds, the Pokémon the player starts Act 2 with know the moves they'd 
   The story's own battles are the exception (`Act2_IsStoryTrainer`: the professors, KAI, MINA, DALE). Only wild
   Pokémon battle the player.
 - **Wild levels follow the player**: every wild Pokémon in Act 2 is the party's average level, give or take 3
-  (`ACT2_WILD_LEVEL_SPREAD`, `Act2_GetWildLevel`, from `ChooseWildMonLevel`). The tables below still pick the species;
+  (`ACT2_WILD_LEVEL_SPREAD`, `Act2_GetWildLevel`, from `ChooseWildMonLevel`). From the final project, the road home's
+  rules take over ([act2_finale.md](act2_finale.md#the-road-home)). The tables below still pick the species;
   their levels only matter outside Act 2.
 - **Act 2's own wild Pokémon**: some areas have an Act 2 table, used for all of Act 2 (`Act2_UsesAct2WildPokemon`).
   They're the `sAct2_*_FireRed` entries in `src/data/wild_encounters.json` (the name needs `FireRed`: a label

@@ -37,14 +37,46 @@ The most direct route home, which needs no HMs:
 Celadon City → Route 7 → (gate) → Saffron City → (gate) → Route 6 → Vermilion City → Route 11 → Diglett's Cave →
 Route 2 → Viridian City → Route 1 → Pallet Town → the farm.
 
-- From `ACT2_FINAL_PROJECT`, the Route 7 and Route 6 gate guards let the player through, and Route 2's Cut trees are
-  gone (`FLAG_ACT2_ROUTE_OPEN`).
-- **Levels** (from `ACT2_FINAL_PROJECT` while in Act 2), against the party's average level:
-  - On the direct route: trainers' Pokémon are the average; wild Pokémon are 3 below.
-  - Everywhere else: both are 15 above.
-  - A scaled Pokémon evolves the way it would have by that level (level-up evolutions).
-- **Pokémon from other regions** are sprinkled in, wild and trainers', matching the original's type and evolution
-  stage.
+The code is `src/act2_road.c`.
+
+- **Open** (`Act2Road_IsRouteOpen`: `FLAG_ACT2_ROUTE_OPEN`, or `VAR_ACT2_PROGRESS` at `ACT2_FINAL_PROJECT` or later in
+  Act 2): the thirsty guards in the Route 7 and Route 6 gates (`Route7_EastEntrance`, `Route6_NorthEntrance`) say
+  "Oh, you've got a TRAINER CARD. Go right on through!" instead of turning the player back (once per visit,
+  `VAR_TEMP_2`; their TEA scene and `VAR_MAP_SCENE_ROUTE5_ROUTE6_ROUTE7_ROUTE8_GATES` are untouched). Route 2's Cut
+  trees at (18,26), (16,62) and (15,69) are gone (`Route2_OnTransition` sets their `FLAG_TEMP_*`). Nothing else on
+  the way needs an HM: the ledges on Routes 6, 7, 1 and 2 face south, toward home.
+- **Levels** (`Act2Road_IsActive`: `ACT2_FINAL_PROJECT` or later while in Act 2), against the party's average level,
+  between 1 and 100:
+  - On the route home: trainers' Pokémon are the average (`ACT2_ROUTE_TRAINER_OFFSET`); wild Pokémon are 3 below
+    (`ACT2_ROUTE_WILD_OFFSET`), with no spread.
+  - Everywhere else: both are 15 above (`ACT2_OFF_ROUTE_OFFSET`).
+  - The story's trainers keep their parties (`Act2_IsStoryTrainer`, and every trainer from `TRAINER_ACT2_PROF_FIRE`
+    on, so ones the finale adds too).
+  - A scaled Pokémon evolves the way it would have by that level (`Act2Road_EvolveSpeciesToLevel`): level-up
+    evolutions, including gendered and personality ones (Combee, Wurmple), and Kanto's where a region decides; not
+    friendship, time, item or trade ones.
+  - Trainers' Pokémon are rebuilt in place (`Act2Road_ScaleTrainerParty`, from `DoTrainerBattle`, for both
+    opponents): the new species and level, the moves they'd know there, full HP; personality, IVs, EVs, held item,
+    ball and the no-Dynamax/no-Tera markers stay. Wild ones the same way after they're made
+    (`Act2Road_OnWildMonCreated`; the level from `Act2Road_GetWildLevel` in `ChooseWildMonLevel`).
+- **Pokémon from other regions**: 30% of scaled Pokémon (`ACT2_ROAD_OTHER_REGION_CHANCE`), wild and trainers', are
+  one from beyond Kanto (National Dex 152 on) with the same primary type (or else its second type) and evolution stage
+  (basic, stage 1, stage 2; babies don't count, so Pikachu is basic), then evolved for the level. The pools are
+  generated: `python3 tools/hack/gen_other_region_pools.py` writes `src/data/act2_other_region_pools.h` (724
+  Pokémon). Left out: legendaries, mythicals, Ultra Beasts, paradox Pokémon, regional forms, Megas and other
+  battle forms, any form but a species' first, babies, and species defined through a macro (Unown, Vivillon's line,
+  Furfrou, Minior, Alcremie, Mothim).
+
+The route home (`sRouteHomeMaps`; a city's buildings aren't on it):
+
+| Stretch | Maps |
+|---|---|
+| Celadon | `CELADON_UNIVERSITY`, `CELADON_CITY_UNIVERSITY_GATE`, `CELADON_CITY` |
+| To Saffron | `ROUTE7`, `ROUTE7_EAST_ENTRANCE`, `SAFFRON_CITY_CONNECTION`, `SAFFRON_CITY` |
+| To Vermilion | `ROUTE6_NORTH_ENTRANCE`, `ROUTE6`, `VERMILION_CITY` |
+| Diglett's Cave | `ROUTE11`, `DIGLETTS_CAVE_SOUTH_ENTRANCE`, `DIGLETTS_CAVE_B1F`, `DIGLETTS_CAVE_NORTH_ENTRANCE` |
+| To Pallet | `ROUTE2`, `ROUTE2_EAST_BUILDING`, `VIRIDIAN_CITY`, `ROUTE1`, `PALLET_TOWN` |
+| Home | `FARMYARD`, `WOODS` |
 
 ## Home
 

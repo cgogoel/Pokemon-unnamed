@@ -527,6 +527,7 @@ const u16 gObjectEventPic_Woman2Frlg[] = INCGFX_U16("graphics/object_events/pics
 const u16 gObjectEventPic_OldMan1[] = INCGFX_U16("graphics/object_events/pics/people/old_man_1.png", ".4bpp", "-mwidth 2 -mheight 4");
 const u16 gObjectEventPic_OldManLyingDown[] = INCGFX_U16("graphics/object_events/pics/people/old_man_lying_down.png", ".4bpp");
 const u16 gObjectEventPic_WorkerM[] = INCGFX_U16("graphics/object_events/pics/people/worker_m.png", ".4bpp", "-mwidth 2 -mheight 4");
+const u16 gObjectEventPic_PlayerLabCoat[] = INCGFX_U16("graphics/object_events/pics/people/player_lab_coat.png", ".4bpp", "-mwidth 2 -mheight 4");
 const u16 gObjectEventPic_WorkerF[] = INCGFX_U16("graphics/object_events/pics/people/worker_f.png", ".4bpp", "-mwidth 2 -mheight 4");
 const u16 gObjectEventPic_BeautyFrlg[] = INCGFX_U16("graphics/object_events/pics/people/beauty_frlg.png", ".4bpp", "-mwidth 2 -mheight 4");
 const u16 gObjectEventPic_Chef[] = INCGFX_U16("graphics/object_events/pics/people/chef.png", ".4bpp", "-mwidth 2 -mheight 4");

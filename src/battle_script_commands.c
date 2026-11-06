@@ -1,4 +1,5 @@
 #include "global.h"
+#include "act2_legends.h"
 #include "battle.h"
 #include "befriend.h"
 #include "battle_hold_effects.h"
@@ -3091,7 +3092,8 @@ static void PlayAnimation(enum BattlerId battler, u8 animId, const u16 *argPtr, 
      || animId == B_ANIM_ULTRA_BURST
      || animId == B_ANIM_TERA_CHARGE
      || animId == B_ANIM_TERA_ACTIVATE
-     || animId == B_ANIM_FORM_CHANGE_INSTANT)
+     || animId == B_ANIM_FORM_CHANGE_INSTANT
+     || animId == B_ANIM_ACT2_LEGENDS_TRIO) // A story scene: plays even with battle animations off
     {
         BtlController_EmitBattleAnimation(battler, B_COMM_TO_CONTROLLER, animId, *argPtr);
         MarkBattlerForControllerExec(battler);
@@ -10542,7 +10544,7 @@ void BS_JumpIfRoarFails(void)
              && !IsOnPlayerSide(gBattlerAttacker)
              && !IsOnPlayerSide(gBattlerTarget))
         gBattlescriptCurrInstr = cmd->jumpInstr;
-    else if (FlagGet(WE_FLAG_NO_RUNNING))
+    else if (FlagGet(WE_FLAG_NO_RUNNING) || IsAct2LegendsBattle())
         gBattlescriptCurrInstr = cmd->jumpInstr;
     else
         gBattlescriptCurrInstr = cmd->nextInstr;

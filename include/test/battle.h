@@ -584,6 +584,7 @@ enum {
     BATTLE_TEST_TRIPLES_2V2,
     BATTLE_TEST_AI_TRIPLES_2V2,
     BATTLE_TEST_BEFRIEND,
+    BATTLE_TEST_ACT2_LEGENDS,
 };
 
 typedef void (*SingleBattleTestFunction)(void *, const u32, struct BattlePokemon *, struct BattlePokemon *);
@@ -1032,6 +1033,9 @@ bool32 IsAITest(void);
 // 3v3, one acting battler per side per turn. See docs/hack/triple_battles.md
 #define TRIPLE_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_TRIPLE(_name, BATTLE_TEST_TRIPLES, __VA_ARGS__)
 #define AI_TRIPLE_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_TRIPLE(_name, BATTLE_TEST_AI_TRIPLES, __VA_ARGS__)
+// Act 2's legendary trio battle (src/act2_legends.c): a wild 3v3; the opponents never act, so only the player's side
+// takes actions in TURN.
+#define ACT2_LEGENDS_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_TRIPLE(_name, BATTLE_TEST_ACT2_LEGENDS, __VA_ARGS__)
 // The 3v3 rules with 2 Pokémon per side: playerLeft/Right and opponentLeft/Right, no middle battlers.
 #define TRIPLE_2V2_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_DOUBLE(_name, BATTLE_TEST_TRIPLES_2V2, __VA_ARGS__)
 #define AI_TRIPLE_2V2_BATTLE_TEST(_name, ...) BATTLE_TEST_ARGS_DOUBLE(_name, BATTLE_TEST_AI_TRIPLES_2V2, __VA_ARGS__)

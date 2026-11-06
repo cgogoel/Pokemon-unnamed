@@ -700,3 +700,4 @@ MOVE_SUPERCELL_SLAM,Supercell Slam,ELECTRIC,Physical,100,Y,SELECTED,2,N,FRONT,a 
 MOVE_PSYCHIC_NOISE,Psychic Noise,PSYCHIC,Special,75,N,SELECTED,2,N,ANY,"a sound wave; psychic sound waves, so you pick both targets"
 MOVE_UPPER_HAND,Upper Hand,FIGHTING,Physical,65,Y,SELECTED,1,N,FRONT,contact move
 MOVE_MALIGNANT_CHAIN,Malignant Chain,POISON,Special,100,N,SELECTED,1,N,FRONT,travels out from the user
+MOVE_TRI_BLAST,Tri-Blast,MYSTERY,Special,120,N,SELECTED,1,N,ANY,"the hack's own move (Act 2 finale): aimed at any foe"

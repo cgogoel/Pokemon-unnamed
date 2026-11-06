@@ -1767,6 +1767,7 @@ EventScript_PalletTown_PlayersHouse_2F_TurnOnPC::
 	.include "data/scripts/act1_story.inc"
 	.include "data/scripts/act2_story.inc"
 	.include "data/scripts/act2_finale.inc"
+	.include "data/scripts/act2_legends.inc"
 
 	.include "data/maps/PalletTown_PlayersHouse_1F_Frlg_Farm/scripts.inc"
 	.include "data/maps/PalletTown_PlayersHouse_1F_Frlg_Farm/text.inc"

@@ -480,6 +480,12 @@ extern const struct SpriteTemplate gWaterHitSplatSpriteTemplate;
 extern const struct SpriteTemplate gGrudgeFlameSpriteTemplate;
 
 extern const union AnimCmd *const gAnims_WaterMudOrb[];
+
+// battle_anim_tri_beams.c
+extern const struct SpriteTemplate gTriBeamFireSpriteTemplate;
+extern const struct SpriteTemplate gTriBeamWaterSpriteTemplate;
+extern const struct SpriteTemplate gTriBeamGrassSpriteTemplate;
+void AnimTask_TriBeamWhiteOut(u8 taskId);
 extern const union AnimCmd *const gAnims_BasicFire[];
 extern const union AffineAnimCmd *const gGrowingRingAffineAnimTable[];
 extern const union AffineAnimCmd *const gAffineAnims_Droplet[];

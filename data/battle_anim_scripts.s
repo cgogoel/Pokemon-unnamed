@@ -35058,3 +35058,78 @@ gBattleAnimGeneral_ProtectedItself::
 	waitforvisualfinish
 	clearmonbg ANIM_ATTACKER
 	end
+
+@@@ THE HACK'S OWN: three beams at once (src/battle_anim_tri_beams.c)
+@ Tri-Blast (Act 2's finale move): fire, water and grass beams braided from the user to its target.
+gBattleAnimMove_TriBlast::
+	monbg ANIM_DEF_PARTNER
+	splitbgprio ANIM_TARGET
+	setalpha 12, 8
+	createvisualtask AnimTask_ShakeMon, 5, ANIM_ATTACKER, 0, 2, 46, 1
+	delay 6
+	createvisualtask AnimTask_StartSinAnimTimer, 5, 100
+	panse SE_M_FLAMETHROWER, SOUND_PAN_ATTACKER, SOUND_PAN_TARGET, +2, 0
+	call TriBlastBeams
+	call TriBlastBeams
+	call TriBlastBeams
+	panse SE_M_HYDRO_PUMP, SOUND_PAN_ATTACKER, SOUND_PAN_TARGET, +2, 0
+	createvisualtask AnimTask_ShakeMon, 5, ANIM_TARGET, 3, 0, 43, 1
+	createvisualtask AnimTask_BlendBattleAnimPal, 10, F_PAL_TARGET, 2, 0, 9, RGB_WHITE
+	call TriBlastBeams
+	call TriBlastBeams
+	call TriBlastBeams
+	call TriBlastBeams
+	playsewithpan SE_M_SOLAR_BEAM, SOUND_PAN_TARGET
+	call TriBlastBeams
+	call TriBlastBeams
+	call TriBlastBeams
+	call TriBlastBeams
+	createvisualtask AnimTask_BlendBattleAnimPal, 10, F_PAL_TARGET, 2, 9, 0, RGB_WHITE
+	waitforvisualfinish
+	clearmonbg ANIM_DEF_PARTNER
+	blendoff
+	end
+TriBlastBeams:
+	createsprite gTriBeamFireSpriteTemplate, ANIM_ATTACKER, 3, 10, -4, TRI_BEAM_FROM_ATTACKER, 12, 0
+	createsprite gTriBeamWaterSpriteTemplate, ANIM_ATTACKER, 3, 10, 0, TRI_BEAM_FROM_ATTACKER, -12, 0
+	createsprite gTriBeamGrassSpriteTemplate, ANIM_ATTACKER, 3, 10, 4, TRI_BEAM_FROM_ATTACKER, 6, 0
+	delay 2
+	return
+
+@ Act 2's finale (src/act2_legends.c): ENTEI, SUICUNE and VIRIZION fire at the player's side together, a Flamethrower,
+@ a Hydro Pump and a Solar Beam from each one's own spot, side by side. Ends on a white flash: the battle cuts out there.
+gBattleAnimGeneral_Act2LegendsTrio::
+	setalpha 12, 8
+	createvisualtask AnimTask_StartSinAnimTimer, 5, 130
+	panse SE_M_FLAMETHROWER, SOUND_PAN_TARGET, SOUND_PAN_ATTACKER, -2, 0
+	call Act2LegendsTrioBeams
+	call Act2LegendsTrioBeams
+	call Act2LegendsTrioBeams
+	panse SE_M_HYDRO_PUMP, SOUND_PAN_TARGET, SOUND_PAN_ATTACKER, -2, 0
+	createvisualtask AnimTask_HorizontalShake, 5, (MAX_BATTLERS_COUNT + 1), 3, 50
+	createvisualtask AnimTask_HorizontalShake, 5, MAX_BATTLERS_COUNT, 3, 50
+	call Act2LegendsTrioBeams
+	call Act2LegendsTrioBeams
+	call Act2LegendsTrioBeams
+	call Act2LegendsTrioBeams
+	playsewithpan SE_M_SOLAR_BEAM, SOUND_PAN_ATTACKER
+	call Act2LegendsTrioBeams
+	call Act2LegendsTrioBeams
+	call Act2LegendsTrioBeams
+	call Act2LegendsTrioBeams
+	createvisualtask AnimTask_TriBeamWhiteOut, 2
+	call Act2LegendsTrioBeams
+	call Act2LegendsTrioBeams
+	call Act2LegendsTrioBeams
+	call Act2LegendsTrioBeams
+	playsewithpan SE_M_EXPLOSION, SOUND_PAN_ATTACKER
+	waitforvisualfinish
+	delay 20
+	blendoff
+	end
+Act2LegendsTrioBeams:
+	createsprite gTriBeamFireSpriteTemplate, ANIM_ATTACKER, 3, 10, 0, TRI_BEAM_FROM_TRIO, 10, 0
+	createsprite gTriBeamWaterSpriteTemplate, ANIM_ATTACKER, 3, 10, 0, TRI_BEAM_FROM_TRIO, 10, 0
+	createsprite gTriBeamGrassSpriteTemplate, ANIM_ATTACKER, 3, 10, 0, TRI_BEAM_FROM_TRIO, 10, 0
+	delay 2
+	return

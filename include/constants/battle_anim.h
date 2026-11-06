@@ -609,7 +609,12 @@ enum AnimBattler
 #define B_ANIM_FORM_CHANGE_DISGUISE     62
 #define B_ANIM_HELD_ITEM_BERRY          63
 #define B_ANIM_PROTECTED_ITSELF         64
-#define NUM_B_ANIMS_GENERAL             65
+#define B_ANIM_ACT2_LEGENDS_TRIO        65 // Act 2's finale: ENTEI, SUICUNE and VIRIZION fire at once (src/act2_legends.c)
+#define NUM_B_ANIMS_GENERAL             66
+
+// The three-beam animation's beam source (Tri-Blast and Act 2's legendary trio, src/battle_anim_tri_beams.c)
+#define TRI_BEAM_FROM_ATTACKER  0 // gBattleAnimAttacker to gBattleAnimTarget
+#define TRI_BEAM_FROM_TRIO      1 // The trio member of the beam's type to the player's Pokémon in its formation rank
 
 // special animations table (sBattleAnims_Special)
 #define B_ANIM_LVL_UP                   0

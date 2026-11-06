@@ -3213,9 +3213,13 @@ const struct ObjectEventGraphicsInfo *GetObjectEventGraphicsInfo(u16 graphicsId)
     if (graphicsId >= NUM_OBJ_EVENT_GFX)
         graphicsId = OBJ_EVENT_GFX_NINJA_BOY;
 
-    // From Act 2 the player walks around as a Silph worker (docs/hack/opening.md)
+    // From Act 2 the player walks around as a Silph worker, in a lab coat from Act 3 (docs/hack/opening.md)
     if (graphicsId == PLAYER_AVATAR_GFX_MALE_NORMAL && VarGet(VAR_STORY_ACT) >= STORY_ACT_UNIVERSITY)
+    {
+        if (VarGet(VAR_STORY_ACT) >= STORY_ACT_WORKFORCE)
+            return &gObjectEventGraphicsInfo_PlayerLabCoat;
         return &gObjectEventGraphicsInfo_PlayerWorker;
+    }
 
     return gObjectEventGraphicsInfoPointers[graphicsId];
 }

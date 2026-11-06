@@ -1364,6 +1364,18 @@ const struct Tileset gTileset_PokemonMansion =
     .callback = NULL,
 };
 
+// The ranger station's overgrown basement (B3F), tools/hack/draw_station_grove.py
+const struct Tileset gTileset_RangerStationGrove =
+{
+    .isCompressed = TRUE,
+    .isSecondary = TRUE,
+    .tiles = gTilesetTiles_RangerStationGrove,
+    .palettes = gTilesetPalettes_RangerStationGrove,
+    .metatiles = gMetatiles_RangerStationGrove,
+    .metatileAttributes = gMetatileAttributes_RangerStationGrove,
+    .callback = NULL,
+};
+
 const struct Tileset gTileset_RestaurantHotel =
 {
     .isCompressed = TRUE,

@@ -4,14 +4,16 @@ down at the corridor's left end and (2F only) up at its right end.
 
 Each bedroom is the player's dorm room (LAYOUT_CELADON_UNIVERSITY_DORM_ROOM, Lorelei's house) without its exit; black
 walls part the rooms; the Safari Zone office's partition wall, with a doorway per room, closes them off from the
-corridor. The stairs are the Pallet Town house's (primary tiles). A starting point to refine in Porymap: re-running it
-overwrites both floors.
+corridor. The stairs are the Pallet Town house's, redrawn on the corridor (draw_dorm_stairs.py: run it first). A
+starting point to refine in Porymap: re-running it overwrites both floors.
 
     python3 tools/hack/compose_dorm_floor.py
 """
 import json
 import os
 import struct
+
+import draw_dorm_stairs
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
 SOLID = 1 << 10
@@ -64,15 +66,18 @@ def compose(up_stairs):
         for x in range(W):
             put(x, y, CORRIDOR)
 
-    # Stairs down at the left end (Pallet Town house 2F's), warp at (2,10)
-    for x, y, block in ((0, 9, 0x015 | SOLID), (0, 10, 0x005 | SOLID), (1, 10, 0x006 | SOLID), (2, 10, 0x007 | ELEV),
-                        (0, 11, 0x00D | SOLID), (1, 11, 0x00E | SOLID), (2, 11, 0x00F | ELEV)):
+    # Stairs down at the left end (Pallet Town house 2F's), warp at (2,10); the pieces showing the house's floor or
+    # wall are redrawn on the corridor's carpet and partition (draw_dorm_stairs.py)
+    S = draw_dorm_stairs.DORM_STAIRS
+    for x, y, block in ((0, 9, S[0x015] | SOLID), (0, 10, 0x005 | SOLID), (1, 10, 0x006 | SOLID), (2, 10, S[0x007] | ELEV),
+                        (0, 11, S[0x00D] | SOLID), (1, 11, S[0x00E] | SOLID), (2, 11, S[0x00F] | ELEV)):
         put(x, y, block)
     # Stairs up at the right end (Pallet Town house 1F's), warp at (W-3,10)
     if up_stairs:
         x0 = W - 3
-        for x, y, block in ((1, 9, 0x016 | SOLID), (2, 9, 0x017 | SOLID), (0, 10, 0x01D | ELEV), (1, 10, 0x01E | SOLID),
-                            (2, 10, 0x01F | SOLID), (0, 11, 0x025 | ELEV), (1, 11, 0x026 | ELEV), (2, 11, 0x027 | ELEV)):
+        for x, y, block in ((1, 9, S[0x016] | SOLID), (2, 9, S[0x017] | SOLID), (0, 10, S[0x01D] | ELEV),
+                            (1, 10, 0x01E | SOLID), (2, 10, 0x01F | SOLID), (0, 11, S[0x025] | ELEV),
+                            (1, 11, S[0x026] | ELEV), (2, 11, S[0x027] | ELEV)):
             put(x0 + x, y, block)
     return grid
 

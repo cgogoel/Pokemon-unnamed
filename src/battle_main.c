@@ -1,4 +1,5 @@
 #include "global.h"
+#include "act2_legends.h"
 #include "battle.h"
 #include "befriend.h"
 #include "battle_anim.h"
@@ -3239,6 +3240,13 @@ static void DoBattleIntro(void)
                     gBattleResults.lastOpponentSpecies = GetMonData(GetBattlerMon(battler), MON_DATA_SPECIES);
                 }
                 break;
+            case B_POSITION_OPPONENT_MIDDLE: // wild 3v3 (Act 2's legendary trio): wild mon 3 if alive
+                if (!(gBattleTypeFlags & BATTLE_TYPE_TRAINER) && IsBattlerAlive(battler))
+                {
+                    BtlController_EmitLoadMonSprite(battler, B_COMM_TO_CONTROLLER);
+                    MarkBattlerForControllerExec(battler);
+                }
+                break;
             default:
                 break;
             }
@@ -3649,6 +3657,9 @@ bool32 EndTurnEvents(void) // Called from Battle Script
 
     TurnValuesCleanUp(TRUE);
 
+    if (TryAct2LegendsTrioAttack())
+        return TRUE;
+
     if (DoEndTurnEffects())
         return TRUE;
 
@@ -3712,7 +3723,7 @@ u8 IsRunningFromBattleImpossible(enum BattlerId battler)
     enum HoldEffect holdEffect;
     u32 i;
 
-    if (FlagGet(WE_FLAG_NO_RUNNING))
+    if (FlagGet(WE_FLAG_NO_RUNNING) || IsAct2LegendsBattle())
     {
         gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_CANT_ESCAPE;
         return BATTLE_RUN_FORBIDDEN;
@@ -3924,7 +3935,13 @@ static void HandleTurnActionSelectionState(void)
             gBattleStruct->monToSwitchIntoId[battler] = PARTY_SIZE;
             if (CanBattlerStartChoosingAction(battler))
             {
-                if (IsTripleBattle() && !(gAbsentBattlerFlags & 1u << battler)
+                // Act 2's legendary trio never takes a normal turn (src/act2_legends.c)
+                if (IsAct2LegendsBattle() && !IsOnPlayerSide(battler) && !(gAbsentBattlerFlags & 1u << battler))
+                {
+                    gChosenActionByBattler[battler] = B_ACTION_PASS;
+                    gBattleCommunication[battler] = STATE_WAIT_ACTION_CONFIRMED;
+                }
+                else if (IsTripleBattle() && !(gAbsentBattlerFlags & 1u << battler)
                  && (DoesTripleSideAlreadyHaveActor(battler) || (IsAiBattlerForActionSelection(battler) && IsTripleAiPassing(battler))))
                 {
                     gChosenActionByBattler[battler] = B_ACTION_PASS;

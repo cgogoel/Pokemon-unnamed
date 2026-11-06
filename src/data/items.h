@@ -13065,11 +13065,14 @@ const struct ItemInfo gItemsInfo[] =
         .fieldUseFunc = ItemUseOutOfBattle_TMHM,
     },
 
-    [ITEM_TM52] =
+    [ITEM_TM_TRI_BLAST] = // Act 2's finale: the player's own TM (docs/hack/act2_finale.md)
     {
         .name = ITEM_NAME("TM52"),
         .price = 3000,
-        .description = COMPOUND_STRING("?????"), // Todo
+        .description = COMPOUND_STRING(
+            "Fire, water and\n"
+            "grass at once.\n"
+            "Nothing resists it."),
         .importance = I_REUSABLE_TMS,
         .pocket = POCKET_TM_HM,
         .type = ITEM_USE_PARTY_MENU,

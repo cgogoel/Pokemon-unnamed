@@ -1,6 +1,7 @@
 #include "global.h"
 #include "battle.h"
 #include "befriend.h"
+#include "act2_legends.h"
 #include "battle_ai_util.h"
 #include "battle_anim.h"
 #include "battle_controllers.h"
@@ -262,6 +263,7 @@ static void InvokeTestFunction(const struct BattleTest *test)
         break;
     case BATTLE_TEST_TRIPLES:
     case BATTLE_TEST_AI_TRIPLES:
+    case BATTLE_TEST_ACT2_LEGENDS:
         DATA.battlerTrainers |= B_TRAINER_OPPONENT_A << 6 | B_TRAINER_PLAYER << 8 | B_TRAINER_OPPONENT_A << 10;
         InvokeTripleTestFunctionWithStack(STATE->results, STATE->runParameter, &gBattleMons[B_POSITION_PLAYER_LEFT], &gBattleMons[B_POSITION_OPPONENT_LEFT], &gBattleMons[B_POSITION_PLAYER_RIGHT], &gBattleMons[B_POSITION_OPPONENT_RIGHT], &gBattleMons[B_POSITION_PLAYER_MIDDLE], &gBattleMons[B_POSITION_OPPONENT_MIDDLE], test->function.triples, &DATA.stack[BATTLE_TEST_STACK_SIZE]);
         break;
@@ -301,6 +303,7 @@ static bool32 IsTripleTest(void)
     {
     case BATTLE_TEST_TRIPLES:
     case BATTLE_TEST_AI_TRIPLES:
+    case BATTLE_TEST_ACT2_LEGENDS:
     case BATTLE_TEST_TRIPLES_2V2:
     case BATTLE_TEST_AI_TRIPLES_2V2:
         return TRUE;
@@ -348,6 +351,7 @@ static void InitTestBattlers(const struct BattleTest *test)
         break;
     case BATTLE_TEST_TRIPLES:
     case BATTLE_TEST_AI_TRIPLES:
+    case BATTLE_TEST_ACT2_LEGENDS:
         STATE->battlersCount = MAX_BATTLERS_COUNT;
         break;
     }
@@ -583,6 +587,11 @@ static void BattleTest_Run(void *data)
         for (i = 0; i < STATE->battlersCount; i++)
             DATA.currentMonIndexes[i] = i / 2;
         break;
+    case BATTLE_TEST_ACT2_LEGENDS:
+        DATA.recordedBattle.battleFlags = BATTLE_TYPE_IS_MASTER | BATTLE_TYPE_LEGENDARY | BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE;
+        for (i = 0; i < STATE->battlersCount; i++)
+            DATA.currentMonIndexes[i] = i / 2;
+        break;
     case BATTLE_TEST_AI_TRIPLES:
         DATA.recordedBattle.battleFlags = BATTLE_TYPE_IS_MASTER | BATTLE_TYPE_TRAINER | BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE;
         DATA.recordedBattle.opponentA = TRAINER_LEAF_TEST;
@@ -631,6 +640,7 @@ static void BattleTest_Run(void *data)
 
     gBattleTypeFlags = DATA.recordedBattle.battleFlags;
     gIsBefriendBattle = (test->type == BATTLE_TEST_BEFRIEND);
+    gIsAct2LegendsBattle = (test->type == BATTLE_TEST_ACT2_LEGENDS);
 
     for (i = 0; i < MAX_LINK_PLAYERS; i++)
     {
@@ -2914,6 +2924,7 @@ static const char *BattlerIdentifier(enum BattlerId battlerId)
         return sBattlerIdentifiersDoubles[battlerId];
     case BATTLE_TEST_TRIPLES:
     case BATTLE_TEST_AI_TRIPLES:
+    case BATTLE_TEST_ACT2_LEGENDS:
         return sBattlerIdentifiersTriples[battlerId];
     }
     return "<unknown>";
@@ -3072,6 +3083,8 @@ static void CloseTripleTurn(u32 sourceLine)
         {
             if (IsAITest() && side == B_SIDE_OPPONENT)
                 continue; // The AI picks its actor.
+            if (GetBattleTest()->type == BATTLE_TEST_ACT2_LEGENDS && side == B_SIDE_OPPONENT)
+                continue; // The legendary trio never takes a turn.
             if (DATA.uiPreview && side == B_SIDE_PLAYER)
                 continue; // The player's input is scripted.
             actorIndex = 0;

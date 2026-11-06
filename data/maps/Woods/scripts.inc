@@ -3,9 +3,15 @@
 
 Woods_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, Woods_OnTransition
+	map_script MAP_SCRIPT_ON_FRAME_TABLE, Woods_OnFrame
 	.byte 0
 
+Woods_OnFrame:
+	map_script_2 VAR_TEMP_1, 1, Act2_EventScript_WoodsNoiseFaint
+	.2byte 0
+
 Woods_OnTransition:
+	call_if_ge VAR_STORY_ACT, STORY_ACT_UNIVERSITY, Act2_EventScript_WoodsSetup
 	special Act1_RestockLovedItems
 	call_if_set FLAG_SYS_POKEDEX_GET, Act1_EventScript_EnsureNationalDex
 	end

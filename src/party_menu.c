@@ -1201,6 +1201,7 @@ static void DisplayPartyPokemonDataToTeachMove(u8 slot, enum Move move)
     {
     case CANNOT_LEARN_MOVE:
     case CANNOT_LEARN_MOVE_IS_EGG:
+    case CANNOT_LEARN_MOVE_NOT_CLOSE:
         DisplayPartyPokemonDescriptionData(slot, PARTYBOX_DESC_NOT_ABLE_2);
         break;
     case ALREADY_KNOWS_MOVE:
@@ -2409,6 +2410,8 @@ static enum CanMoveBeLearned CanTeachMove(struct Pokemon *mon, enum Move move)
         return CANNOT_LEARN_MOVE;
     else if (MonKnowsMove(mon, move) == TRUE)
         return ALREADY_KNOWS_MOVE;
+    else if (!CanMonLearnTriBlast(move, GetMonData(mon, MON_DATA_FRIENDSHIP)))
+        return CANNOT_LEARN_MOVE_NOT_CLOSE;
     else
         return CAN_LEARN_MOVE;
 }
@@ -5661,6 +5664,9 @@ void ItemUseCB_TMHM(u8 taskId, TaskFunc task)
     case CANNOT_LEARN_MOVE:
         DisplayLearnMoveMessageAndClose(taskId, gText_PkmnCantLearnMove);
         return;
+    case CANNOT_LEARN_MOVE_NOT_CLOSE:
+        DisplayLearnMoveMessageAndClose(taskId, gText_PkmnNotCloseEnoughToLearn);
+        return;
     case ALREADY_KNOWS_MOVE:
         DisplayLearnMoveMessageAndClose(taskId, gText_PkmnAlreadyKnows);
         return;
@@ -7138,6 +7144,9 @@ static void TryTutorSelectedMon(u8 taskId)
         {
         case CANNOT_LEARN_MOVE:
             DisplayLearnMoveMessageAndClose(taskId, gText_PkmnCantLearnMove);
+            return;
+        case CANNOT_LEARN_MOVE_NOT_CLOSE:
+            DisplayLearnMoveMessageAndClose(taskId, gText_PkmnNotCloseEnoughToLearn);
             return;
         case ALREADY_KNOWS_MOVE:
             DisplayLearnMoveMessageAndClose(taskId, gText_PkmnAlreadyKnows);

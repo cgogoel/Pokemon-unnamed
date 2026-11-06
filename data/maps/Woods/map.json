@@ -91,7 +91,15 @@
       "flag": "FLAG_BEFRIENDED_JANGMO_O"
     }
   ],
-  "warp_events": [],
+  "warp_events": [
+    {
+      "x": 5,
+      "y": 10,
+      "elevation": 3,
+      "dest_map": "MAP_RANGER_STATION_1F",
+      "dest_warp_id": "1"
+    }
+  ],
   "coord_events": [
     {
       "type": "trigger",
@@ -146,6 +154,33 @@
       "var": "VAR_STORY_ACT",
       "var_value": "0",
       "script": "Woods_EventScript_EerieEntrance"
+    },
+    {
+      "type": "trigger",
+      "x": 4,
+      "y": 9,
+      "elevation": 0,
+      "var": "VAR_STORY_ACT",
+      "var_value": "1",
+      "script": "Act2_EventScript_StationDoor"
+    },
+    {
+      "type": "trigger",
+      "x": 5,
+      "y": 9,
+      "elevation": 0,
+      "var": "VAR_STORY_ACT",
+      "var_value": "1",
+      "script": "Act2_EventScript_StationDoor"
+    },
+    {
+      "type": "trigger",
+      "x": 6,
+      "y": 9,
+      "elevation": 0,
+      "var": "VAR_STORY_ACT",
+      "var_value": "1",
+      "script": "Act2_EventScript_StationDoor"
     }
   ],
   "bg_events": [

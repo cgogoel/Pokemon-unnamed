@@ -40,6 +40,7 @@ Farmyard_EventScript_GateEnd:
 @ The Woods are reached by warp, not a map connection: the Woods use another tileset, which the game would draw
 @ with the farmyard's tiles (garbled). Pallet Town's side is a map connection.
 Farmyard_EventScript_ToWoods::
+	goto_if_ge VAR_STORY_ACT, STORY_ACT_UNIVERSITY, Act2_EventScript_FarmyardToWoods
 	goto_if_lt VAR_ACT1_PROGRESS, ACT1_DAD_SENT_TO_WOODS, Farmyard_EventScript_WoodsNotYet
 	goto_if_ge VAR_ACT1_PROGRESS, ACT1_RESTED, Farmyard_EventScript_WoodsShowOak
 	goto_if_ge VAR_ACT1_PROGRESS, ACT1_GOT_HARD_STONE, Farmyard_EventScript_EnterWoods

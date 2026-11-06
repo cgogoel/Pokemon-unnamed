@@ -37,9 +37,11 @@
 #define ACT2_GRASS_TRIP             10 // Field trip to Viridian City (Route 22's grass)
 #define ACT2_GRASS_SEE_ROWAN        11 // Back at night: see ROWAN in their room
 #define ACT2_GRASS_INVITED          12 // One more night: battle for a real Trainer Card
-#define ACT2_GOT_TRAINER_CARD       13 // Trainers battle again. The director at the Science Research Institute waits.
-#define ACT2_FINAL_PROJECT          14 // Catch a Pokémon that's two of Fire, Water and Grass
-#define ACT2_PROJECT_DONE           15 // Act 2 is over
+#define ACT2_GOT_TRAINER_CARD       13 // Trainers battle again. The director's final project brief waits at the institute.
+#define ACT2_FINAL_PROJECT          14 // Briefed: free to explore; levels scaled (docs/hack/act2_finale.md)
+#define ACT2_PARENTS_TALKED         15 // Mom and Dad: meditate in the Woods. The ranger station opens.
+#define ACT2_LEGENDS_CALMED         16 // Dad's Mew stopped the legendary trio; the friends visit the player's room
+#define ACT2_DONE                   17 // Tri-Blast made: Act 2 is over
 
 // The current course's research, in VAR_ACT2_RESEARCH (reset when a course starts)
 #define ACT2_RESEARCH_USED_MOVE     (1 << 0) // The player's Pokémon used a move of the course's type
@@ -76,5 +78,32 @@
 #define ACT2_START_MAP              MAP_CELADON_UNIVERSITY_DORM_ROOM
 #define ACT2_START_X                2
 #define ACT2_START_Y                3
+
+// Where Act 3 starts: the player's lab at Silph Co., the room of research terminals on 7F (the floor where the
+// Lapras saved in Act 2 is kept). The player stands at the terminals.
+#define ACT3_START_MAP              MAP_SILPH_CO_7F
+#define ACT3_START_X                3
+#define ACT3_START_Y                12
+
+// The final project's ranger station (docs/hack/act2_finale.md), bits of VAR_ACT2_FINALE
+#define ACT2_FINALE_BASEMENT_OPEN   (1 << 0) // 1F: the wall switch opened the stair behind the counter
+#define ACT2_FINALE_CLOCK_SOLVED    (1 << 1) // B1F: 4:15 a.m. set; the gate around the stair is open
+#define ACT2_FINALE_MEDKIT_USED     (1 << 2) // B2F: the medkit was opened (it can be used again)
+#define ACT2_FINALE_GRASS_CROSSED   (1 << 3) // B3F: walked the hidden path once
+#define ACT2_FINALE_CLOCK_SET       (1 << 4) // B1F: VAR_ACT2_CLOCK set to ACT2_CLOCK_START (on the first visit)
+
+// VAR_ACT2_CLOCK: bit (n - 1) for the torch at n o'clock, then the moon and sun furnaces
+#define ACT2_CLOCK_MOON             12
+#define ACT2_CLOCK_SUN              13
+#define ACT2_CLOCK_START            ((1 << (10 - 1)) | (1 << (2 - 1))) // Lit at the start: 10 and 2
+#define ACT2_CLOCK_SOLUTION         ((1 << (4 - 1)) | (1 << (3 - 1)) | (1 << ACT2_CLOCK_MOON)) // 4:15 a.m.
+
+// The final project's levels, against the party's average (Act2_GetWildLevel, Act2_ScaleTrainerParty)
+#define ACT2_ROUTE_WILD_OFFSET      (-3) // On the direct route home: wild Pokémon, from this up to the average
+#define ACT2_ROUTE_TRAINER_OFFSET   0    // On the direct route home: trainers' Pokémon
+#define ACT2_OFF_ROUTE_OFFSET       15   // Anywhere else: both
+
+// The legendary trio in the ranger station's chamber
+#define ACT2_LEGENDS_LEVEL          50
 
 #endif // GUARD_CONSTANTS_STORY_H

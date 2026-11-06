@@ -79,11 +79,26 @@ def tileset_folder(symbol):
     return os.path.join(ROOT, path)
 
 
-def load_tileset(folder):
+def graphics_folder(symbol, folder):
+    """Folder of a tileset's tiles.png and palettes: some tilesets share another's (Silph Co. uses Condominiums')."""
+    headers = open(os.path.join(ROOT, 'src/data/tilesets/headers.h')).read()
+    block = headers[headers.index('const struct Tileset %s =' % symbol):]
+    tiles = re.search(r'\.tiles = (\w+)', block).group(1)
+    source = open(os.path.join(ROOT, 'src/data/tilesets/graphics.h')).read()
+    found = re.search(r'%s\[\] = INCGFX_U32\("([^"]+)/tiles.png"' % tiles, source)
+    return os.path.join(ROOT, found.group(1)) if found else folder
+
+
+def load_tileset(folder, symbol=None):
+    gfx = graphics_folder(symbol, folder) if symbol else folder
+
     def pal(i):
-        lines = open(os.path.join(folder, 'palettes/%02d.pal' % i)).read().split('\n')
+        path = os.path.join(gfx, 'palettes/%02d.pal' % i)
+        if not os.path.exists(path):
+            return [(0, 0, 0)] * 16
+        lines = open(path).read().split('\n')
         return [tuple(map(int, line.split())) for line in lines[3:19]]
-    tiles = read_png(os.path.join(folder, 'tiles.png'))
+    tiles = read_png(os.path.join(gfx, 'tiles.png'))
     data = open(os.path.join(folder, 'metatiles.bin'), 'rb').read()
     metatiles = [struct.unpack('<8H', data[i:i + 16]) for i in range(0, len(data), 16)]
     return tiles, [pal(i) for i in range(16)], metatiles
@@ -99,8 +114,8 @@ def load_layout(layout_id):
 
 def render(layout_id, rect=None):
     layout, w, h, blocks = load_layout(layout_id)
-    ptiles, ppals, pmeta = load_tileset(tileset_folder(layout['primary_tileset']))
-    stiles, spals, smeta = load_tileset(tileset_folder(layout['secondary_tileset']))
+    ptiles, ppals, pmeta = load_tileset(tileset_folder(layout['primary_tileset']), layout['primary_tileset'])
+    stiles, spals, smeta = load_tileset(tileset_folder(layout['secondary_tileset']), layout['secondary_tileset'])
     palettes = [ppals[i] if i < 7 else spals[i] for i in range(16)]
     x0, y0, x1, y1 = rect or (0, 0, w, h)
 

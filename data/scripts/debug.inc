@@ -503,6 +503,29 @@ Debug_EventScript_BefriendGiveItems:
 	additem ITEM_HARD_STONE, 3
 	return
 
+@ The end of Act 2 (special Act2_EndAct2): "Several years later", then Act 3's start at Silph Co.
+Debug_EventScript_SkipToAct3::
+	fadescreen FADE_TO_BLACK
+	special Act2_EndAct2
+	waitstate
+	end
+
+@ Act 2's finale (docs/hack/act2_finale.md): the morning of the director's brief, or the Woods with the station open
+Debug_EventScript_SkipToFinalProject::
+	setvar VAR_STORY_ACT, STORY_ACT_UNIVERSITY
+	setvar VAR_ACT2_PROGRESS, ACT2_GOT_TRAINER_CARD
+	warp MAP_CELADON_UNIVERSITY_SCIENCE_INSTITUTE, 4, 9
+	waitstate
+	end
+
+Debug_EventScript_SkipToStation::
+	setvar VAR_STORY_ACT, STORY_ACT_UNIVERSITY
+	setvar VAR_ACT2_PROGRESS, ACT2_PARENTS_TALKED
+	setflag FLAG_ACT2_ROUTE_OPEN
+	warp MAP_WOODS, 5, 10
+	waitstate
+	end
+
 Debug_EventScript_BefriendBlipbug::
 	call Debug_EventScript_BefriendGiveItems
 	befriendbattle SPECIES_BLIPBUG, 5

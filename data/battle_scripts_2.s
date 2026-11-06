@@ -219,6 +219,16 @@ BattleScript_Act2ResearchMessage::
 	waitmessage B_WAIT_TIME_LONG
 	return
 
+@ Act 2's finale (src/act2_legends.c): after the player's one action, the legendary trio attacks together and the
+@ battle ends before any damage is dealt.
+BattleScript_Act2LegendsTrioAttack::
+	printstring STRINGID_ACT2LEGENDSATTACK
+	waitmessage B_WAIT_TIME_LONG
+	playanimation BS_ATTACKER, B_ANIM_ACT2_LEGENDS_TRIO
+	waitanimation
+	setbyte gBattleOutcome, B_OUTCOME_PLAYER_TELEPORTED
+	return
+
 BattleScript_WallyBallThrow::
 	printstring STRINGID_GOTCHAPKMNCAUGHTWALLY
 	setbyte gBattleOutcome, B_OUTCOME_CAUGHT

@@ -7,7 +7,6 @@ bool32 Act2_IsStoryTrainer(u32 trainerId);
 bool32 Act2_UsesAct2WildPokemon(void);
 u32 Act2_GetWildLevel(void);
 bool16 Act2_PartyHasType(void);
-bool16 Act2_PartyHasProjectPokemon(void);
 bool16 Act2_IsClubNight(void);
 
 // The hour it is on a club night (any night hour)

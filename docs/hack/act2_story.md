@@ -4,7 +4,7 @@ Celadon University (the maps: [celadon_university.md](celadon_university.md)). T
 each a field trip with a research sheet to fill (see [The courses](#the-courses)), a TM made from the research, and
 the professor's exam. Between courses,
 the player's friends take them to a secret battle club at night. The third night is the exam for a real Trainer
-Card; then comes the final project.
+Card; then comes the final project ([act2_finale.md](act2_finale.md)).
 
 Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/story.h`. The scripts are in
 `data/scripts/act2_story.inc`, the C side in `src/act2_story.c`.
@@ -24,9 +24,8 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 | `ACT2_GRASS_TRIP` | Warped to Viridian City (4,17) | The research sheet (Route 22, west of the city), the TM (Giga Drain), the exam. |
 | `ACT2_GRASS_SEE_ROWAN` | Passing (ROWAN asks the player over): the dorm lobby, at night | ROWAN's room (3F, the last room): a League examiner is coming; battle for a real Trainer Card. |
 | `ACT2_GRASS_INVITED` | | The friends and DALE, a Pokémon League examiner, wait at the Sports Complex. Beating him: the Trainer Card. |
-| `ACT2_GOT_TRAINER_CARD` | Winning | **Trainers battle the player again.** The director of the Science Research Institute has the final project. |
-| `ACT2_FINAL_PROJECT` | Talking to the director (10 Poké Balls) | Catch a Pokémon that's two of Fire, Water and Grass. |
-| `ACT2_PROJECT_DONE` | Showing the director one | "End of Act 2." Act 3 isn't built yet. |
+| `ACT2_GOT_TRAINER_CARD` | Winning | **Trainers battle the player again.** In the morning, the director's final project brief at the Science Research Institute. |
+| `ACT2_FINAL_PROJECT` … `ACT2_DONE` | The brief | The finale: make a TM with 120 power or more. See [act2_finale.md](act2_finale.md). |
 
 ## The courses
 
@@ -137,7 +136,8 @@ In both builds, the Pokémon the player starts Act 2 with know the moves they'd 
   The story's own battles are the exception (`Act2_IsStoryTrainer`: the professors, KAI, MINA, DALE). Only wild
   Pokémon battle the player.
 - **Wild levels follow the player**: every wild Pokémon in Act 2 is the party's average level, give or take 3
-  (`ACT2_WILD_LEVEL_SPREAD`, `Act2_GetWildLevel`, from `ChooseWildMonLevel`). The tables below still pick the species;
+  (`ACT2_WILD_LEVEL_SPREAD`, `Act2_GetWildLevel`, from `ChooseWildMonLevel`). From the final project, the road home's
+  rules take over ([act2_finale.md](act2_finale.md#the-road-home)). The tables below still pick the species;
   their levels only matter outside Act 2.
 - **Act 2's own wild Pokémon**: some areas have an Act 2 table, used for all of Act 2 (`Act2_UsesAct2WildPokemon`).
   They're the `sAct2_*_FireRed` entries in `src/data/wild_encounters.json` (the name needs `FireRed`: a label

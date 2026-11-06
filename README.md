@@ -78,6 +78,15 @@ Each course (Fire, Water, Grass) is a field trip with a research sheet: catch th
 use and record moves of the type, and solve a puzzle at the site using a Pokémon of the type. Completing the sheet
 lets the player make the course's TM, and the course exam only counts if the TM's move is used.
 
+### Custom dungeons
+
+Not every place in this Kanto is on the map. Some are built from scratch for this hack, with puzzles that put the
+player's Pokémon knowledge to the test.
+
+### A new move
+
+Somewhere along the way, a brand-new move is invented, one no Pokémon game has had before.
+
 ### Key items (Acts 2 and 3)
 
 - **Remote Desktop:** opens the Pokémon Storage System from anywhere.

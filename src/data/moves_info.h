@@ -22116,6 +22116,25 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
         .battleAnimScript = gBattleAnimMove_MalignantChain,
     },
 
+    // Act 2's finale move (docs/hack/act2_finale.md). Its type effectiveness is the best of Fire, Water and Grass
+    // against the target, and never below 1x: see CalcTriBlastTypeMultiplier in src/battle_util.c.
+    [MOVE_TRI_BLAST] =
+    {
+        .name = COMPOUND_STRING("Tri-Blast"),
+        .description = COMPOUND_STRING(
+            "Fire, water and grass at\n"
+            "once. Nothing resists it."),
+        .effect = EFFECT_HIT,
+        .power = 120,
+        .type = TYPE_MYSTERY,
+        .accuracy = 100,
+        .pp = 5,
+        .target = TARGET_SELECTED,
+        .priority = 0,
+        .category = DAMAGE_CATEGORY_SPECIAL,
+        .battleAnimScript = gBattleAnimMove_TriBlast,
+    },
+
     // Z-Moves
     [MOVE_BREAKNECK_BLITZ] =
     {

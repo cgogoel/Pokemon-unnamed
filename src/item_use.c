@@ -1,4 +1,5 @@
 #include "global.h"
+#include "act2_legends.h"
 #include "heal_dash.h"
 #include "constants/heal_locations.h"
 #include "item_use.h"
@@ -1158,7 +1159,7 @@ static u32 GetBallThrowableState(void)
         return BALL_THROW_UNABLE_NO_ROOM;
     else if (GetConfig(B_SEMI_INVULNERABLE_CATCH) >= GEN_4 &&  IsSemiInvulnerable(GetCatchingBattler(), CHECK_ALL))
         return BALL_THROW_UNABLE_SEMI_INVULNERABLE;
-    else if (FlagGet(WE_FLAG_NO_CATCHING) || !IsAllowedToUseBag())
+    else if (FlagGet(WE_FLAG_NO_CATCHING) || !IsAllowedToUseBag() || IsAct2LegendsBattle())
         return BALL_THROW_UNABLE_DISABLED_FLAG;
 
     return BALL_THROW_ABLE;
@@ -1264,7 +1265,7 @@ bool32 CannotUseItemsInBattle(enum Item itemId, struct Pokemon *mon)
             cannotUse = TRUE;
         break;
     case EFFECT_ITEM_ESCAPE:
-        if (gBattleTypeFlags & BATTLE_TYPE_TRAINER)
+        if (gBattleTypeFlags & BATTLE_TYPE_TRAINER || IsAct2LegendsBattle())
             cannotUse = TRUE;
         break;
     case EFFECT_ITEM_THROW_BALL:

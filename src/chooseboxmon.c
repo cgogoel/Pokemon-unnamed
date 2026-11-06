@@ -100,6 +100,8 @@ static u32 ChooseBoxMon_CanMonLearnMove(struct BoxPokemon *boxmon, enum Move mov
         return CANNOT_LEARN_MOVE_IS_EGG;
     if (BoxMonKnowsMove(boxmon, move))
         return ALREADY_KNOWS_MOVE;
+    if (!CanMonLearnTriBlast(move, GetBoxMonData(boxmon, MON_DATA_FRIENDSHIP)))
+        return CANNOT_LEARN_MOVE;
     if (CanLearnTeachableMove(GetBoxMonData(boxmon, MON_DATA_SPECIES), move))
         return VALID_MON;
     return CANNOT_LEARN_MOVE;

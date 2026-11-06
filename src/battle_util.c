@@ -1,4 +1,5 @@
 #include "global.h"
+#include "act2_legends.h"
 #include "battle.h"
 #include "befriend.h"
 #include "debug.h"
@@ -8154,6 +8155,10 @@ s32 GetAdjustedDamage(struct DamageContext *ctx, s32 damage)
     {
         enduredHit = TRUE;
     }
+    else if (IsAct2LegendsBattle() && !IsOnPlayerSide(ctx->battlerDef))
+    {
+        enduredHit = TRUE; // Act 2's legendary trio can't be knocked out (src/act2_legends.c)
+    }
     else if (GetConfig(B_STURDY) >= GEN_5 && ctx->abilities[ctx->battlerDef] == ABILITY_STURDY && IsBattlerAtMaxHp(ctx->battlerDef))
     {
         enduredHit = TRUE;
@@ -8423,11 +8428,75 @@ static inline bool32 MoveIgnoresType(struct DamageContext *ctx)
     }
 }
 
+// Tri-Blast (the hack's Act 2 finale move, docs/hack/act2_finale.md) is ??? type, but it's as effective as the best of
+// Fire, Water and Grass would be against the target's types (the full multiplier: Grass on Water/Ground is 4x), and
+// never less than 1x: nothing resists it and nothing is immune. Abilities that go by effectiveness (Wonder Guard) see
+// that final multiplier. A move whose type was changed (Normalize, Electrify...) is just that type.
+static const enum Type sTriBlastTypes[] = {TYPE_FIRE, TYPE_WATER, TYPE_GRASS};
+
+static inline bool32 IsTriBlast(enum Move move, enum Type moveType)
+{
+    return move == MOVE_TRI_BLAST && moveType == TYPE_MYSTERY;
+}
+
+static uq4_12_t GetBestTriBlastModifier(struct DamageContext *ctx, const enum Type *defTypes, u32 defTypesCount, bool32 tarShot)
+{
+    uq4_12_t best = UQ_4_12(1.0);
+    bool32 updateFlags = ctx->updateFlags;
+
+    ctx->updateFlags = FALSE;
+    for (u32 i = 0; i < ARRAY_COUNT(sTriBlastTypes); i++)
+    {
+        uq4_12_t modifier = UQ_4_12(1.0);
+
+        ctx->moveType = sTriBlastTypes[i];
+        for (u32 j = 0; j < defTypesCount; j++)
+        {
+            if (j > 0 && (defTypes[j] == TYPE_MYSTERY || defTypes[j] == defTypes[0] || defTypes[j] == defTypes[j - 1]))
+                continue;
+            MulByTypeEffectiveness(ctx, &modifier, defTypes[j]);
+        }
+        if (sTriBlastTypes[i] == TYPE_FIRE && tarShot)
+            modifier = uq4_12_multiply(modifier, UQ_4_12(2.0));
+        if (modifier > best)
+            best = modifier;
+    }
+    ctx->moveType = TYPE_MYSTERY;
+    ctx->updateFlags = updateFlags;
+    return best;
+}
+
+static uq4_12_t CalcTriBlastTypeMultiplier(struct DamageContext *ctx)
+{
+    enum Type types[3];
+    uq4_12_t modifier;
+
+    GetBattlerTypes(ctx->battlerDef, FALSE, types);
+    modifier = GetBestTriBlastModifier(ctx, types, 3, gBattleMons[ctx->battlerDef].volatiles.tarShot);
+
+    if (ctx->abilities[ctx->battlerDef] == ABILITY_WONDER_GUARD && modifier <= UQ_4_12(1.0))
+    {
+        modifier = UQ_4_12(0.0);
+        ctx->abilityBlocked = TRUE;
+        if (ctx->updateFlags)
+        {
+            gLastUsedAbility = ctx->abilities[ctx->battlerDef];
+            gBattleStruct->moveResultFlags[ctx->battlerDef] |= MOVE_RESULT_MISSED;
+            RecordAbilityBattle(ctx->battlerDef, gBattleMons[ctx->battlerDef].ability);
+        }
+    }
+    return modifier;
+}
+
 uq4_12_t CalcTypeEffectivenessMultiplier(struct DamageContext *ctx)
 {
     uq4_12_t modifier = UQ_4_12(1.0);
 
-    if (!MoveIgnoresType(ctx))
+    if (IsTriBlast(ctx->move, ctx->moveType))
+    {
+        modifier = CalcTriBlastTypeMultiplier(ctx);
+    }
+    else if (!MoveIgnoresType(ctx))
     {
         modifier = CalcTypeEffectivenessMultiplierInternal(ctx, modifier);
         if (GetMoveEffect(ctx->move) == EFFECT_TWO_TYPED_MOVE && !ctx->isAnticipation)
@@ -8450,7 +8519,19 @@ uq4_12_t CalcPartyMonTypeEffectivenessMultiplier(enum Move move, enum Species sp
     uq4_12_t modifier = UQ_4_12(1.0);
     enum Type moveType = GetBattleMoveType(move);
 
-    if (move != MOVE_STRUGGLE && moveType != TYPE_MYSTERY)
+    if (IsTriBlast(move, moveType))
+    {
+        struct DamageContext ctx = {0};
+        enum Type types[2] = {GetSpeciesType(speciesDef, 0), GetSpeciesType(speciesDef, 1)};
+
+        ctx.move = ctx.chosenMove = ctx.baseMove = move;
+        ctx.updateFlags = FALSE;
+        ctx.abilities[B_BATTLER_0] = abilityDef;
+        modifier = GetBestTriBlastModifier(&ctx, types, 2, FALSE);
+        if (abilityDef == ABILITY_WONDER_GUARD && modifier <= UQ_4_12(1.0))
+            modifier = UQ_4_12(0.0);
+    }
+    else if (move != MOVE_STRUGGLE && moveType != TYPE_MYSTERY)
     {
         struct DamageContext ctx = {0};
         ctx.move = ctx.chosenMove = ctx.baseMove = move;

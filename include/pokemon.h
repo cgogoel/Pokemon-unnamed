@@ -906,6 +906,7 @@ void MonGainEVs(struct Pokemon *mon, enum Species defeatedSpecies);
 u16 GetMonEVCount(struct Pokemon *mon);
 bool8 TryIncrementMonLevel(struct Pokemon *mon);
 bool32 CanLearnTeachableMove(enum Species species, enum Move move);
+bool32 CanMonLearnTriBlast(enum Move move, u32 friendship);
 u16 SpeciesToPokedexNum(enum Species species);
 bool32 IsSpeciesInRegionalDex(enum Species species);
 bool32 IsSpeciesInKantoDex(enum Species species);

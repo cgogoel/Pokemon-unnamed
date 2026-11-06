@@ -105,7 +105,8 @@ enum CanMoveBeLearned
     CAN_LEARN_MOVE,
     CANNOT_LEARN_MOVE,
     ALREADY_KNOWS_MOVE,
-    CANNOT_LEARN_MOVE_IS_EGG
+    CANNOT_LEARN_MOVE_IS_EGG,
+    CANNOT_LEARN_MOVE_NOT_CLOSE, // Tri-Blast: only a Pokémon at max friendship (CanMonLearnTriBlast)
 };
 
 #endif // GUARD_CONSTANTS_PARTY_MENU_H

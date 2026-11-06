@@ -248,9 +248,9 @@
 #define VAR_DAILY_PLANTED_BERRIES  0x40E9
 #define VAR_DAILY_PICKED_BERRIES   0x40EA
 #define VAR_DAILY_ROULETTE         0x40EB
-#define VAR_0x40EC                 0x40EC
-#define VAR_0x40ED                 0x40ED
-#define VAR_0x40EE                 0x40EE
+#define VAR_ACT2_FINALE            0x40EC // Act 2 finale: the ranger station, ACT2_FINALE_* bits
+#define VAR_ACT2_CLOCK             0x40ED // Act 2 finale: B1F torches and furnaces lit (ACT2_CLOCK_*)
+#define VAR_ACT2_WOODS_SOUND       0x40EE // Act 2 finale: distance to the station when the noise was last described
 #define VAR_0x40EF                 0x40EF
 #define VAR_0x40F0                 0x40F0
 #define VAR_DAILY_BP               0x40F1

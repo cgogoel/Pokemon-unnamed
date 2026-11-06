@@ -1347,7 +1347,7 @@ Act2_EventScript_Director::
 	faceplayer
 	goto_if_eq VAR_ACT2_PROGRESS, ACT2_GOT_TRAINER_CARD, Act2_EventScript_AssignProject
 	goto_if_eq VAR_ACT2_PROGRESS, ACT2_FINAL_PROJECT, Act2_EventScript_CheckProject
-	goto_if_eq VAR_ACT2_PROGRESS, ACT2_PROJECT_DONE, Act2_EventScript_DirectorAfter
+	goto_if_eq VAR_ACT2_PROGRESS, ACT2_DONE, Act2_EventScript_DirectorAfter
 	msgbox Act2_Text_DirectorEarly
 	release
 	end
@@ -1364,7 +1364,7 @@ Act2_EventScript_CheckProject:
 	specialvar VAR_RESULT, Act2_PartyHasProjectPokemon
 	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_ProjectNotYet
 	msgbox Act2_Text_ProjectDone
-	setvar VAR_ACT2_PROGRESS, ACT2_PROJECT_DONE
+	setvar VAR_ACT2_PROGRESS, ACT2_DONE
 	msgbox Act2_Text_EndOfAct2
 	release
 	end

@@ -353,6 +353,9 @@ const u16 gMetatileAttributes_SafariZoneBuilding[] = INCBIN_U16("data/tilesets/s
 const u16 gMetatiles_PokemonMansion[] = INCBIN_U16("data/tilesets/secondary/pokemon_mansion_frlg/metatiles.bin");
 const u16 gMetatileAttributes_PokemonMansion[] = INCBIN_U16("data/tilesets/secondary/pokemon_mansion_frlg/metatile_attributes.bin");
 
+const u16 gMetatiles_RangerStationGrove[] = INCBIN_U16("data/tilesets/secondary/ranger_station_grove/metatiles.bin");
+const u16 gMetatileAttributes_RangerStationGrove[] = INCBIN_U16("data/tilesets/secondary/ranger_station_grove/metatile_attributes.bin");
+
 const u16 gMetatiles_Museum[] = INCBIN_U16("data/tilesets/secondary/museum_frlg/metatiles.bin");
 const u16 gMetatileAttributes_Museum[] = INCBIN_U16("data/tilesets/secondary/museum_frlg/metatile_attributes.bin");
 

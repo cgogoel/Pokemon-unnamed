@@ -251,8 +251,8 @@ void Act2Station_SetDeadEndBeaten(void)
 
 // --- B3F: the overgrowth ---------------------------------------------------------------------------------------------
 
-// Hook (TryStartMiscWalkingScripts): on B3F, a step into the tall grass off the floor pattern's path is an ambush.
-// The pattern is read off the map itself: a square of the field is safe if its square of the pattern is path.
+// Hook (TryStartMiscWalkingScripts): on B3F, a step into the tall grass off the hidden path is an ambush. The path
+// (sOvergrowthPath) is generated from the same grid as the tablet that shows it (compose_ranger_station.B3_PATH).
 bool32 Act2Station_TryOvergrowthStep(void)
 {
     s16 x, y;
@@ -268,8 +268,7 @@ bool32 Act2Station_TryOvergrowthStep(void)
     if (x < STATION_FIELD_X || x >= STATION_FIELD_X + STATION_FIELD_SIZE
      || y < STATION_FIELD_Y || y >= STATION_FIELD_Y + STATION_FIELD_SIZE)
         return FALSE;
-    if (MapGridGetMetatileIdAt(STATION_PATTERN_X + x - STATION_FIELD_X + MAP_OFFSET,
-                               STATION_PATTERN_Y + y - STATION_FIELD_Y + MAP_OFFSET) == STATION_PATTERN_PATH)
+    if ((sOvergrowthPath[y - STATION_FIELD_Y] >> (x - STATION_FIELD_X)) & 1)
         return FALSE;
     ScriptContext_SetupScript(RangerStation_B3F_EventScript_Ambush);
     return TRUE;

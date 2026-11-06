@@ -93,7 +93,7 @@ At the station's door: "Am I ready to go in?" Yes: inside.
 Maps `RangerStation_1F` and `_B1F`-`_B4F` (map group `gMapGroup_Dungeons_Frlg`). Layouts:
 `tools/hack/compose_ranger_station.py` (re-running overwrites all five, and writes `src/data/act2_station_layout.h`,
 the positions the C code uses); custom metatiles: `tools/hack/draw_station_tiles.py` (runs
-`draw_mansion_furnace.py` first). Code: `src/act2_station.c`; each floor's events in its `scripts.inc`. No wild
+`draw_mansion_furnace.py` first) and B3F's tileset, `tools/hack/draw_station_grove.py` (run before the composer). Code: `src/act2_station.c`; each floor's events in its `scripts.inc`. No wild
 Pokémon on any floor. Floors are joined by stairs (1F-B1F-B2F) and ladders (B2F-B3F-B4F).
 
 **1F** (`MUS_RG_POKE_MANSION`). Saffron's north/south gate, abandoned: no guards, boxes left behind, the north door
@@ -148,15 +148,19 @@ stone) or when talked to, at the party's average level + 2. Beaten or caught: go
 | 4 | (9, 13) | (9, 14) | Cloyster | `FLAG_ACT2_DEAD_END_4` |
 | 5 | (15, 13) | (15, 14) | Starmie | `FLAG_ACT2_DEAD_END_5` |
 
-**B3F: the overgrowth** (`MUS_RG_VIRIDIAN_FOREST`). A cave overgrown with grass and trees. At the bottom (ladder up,
-warp 0 at (13, 26)), a sign and a 9x9 pattern carved into the floor at (3-11, 16-24): sand squares on stone, the shape
-of the only safe path through the 9x9 field of tall grass at (3-11, 3-11) above, square for square. The path (33
-squares) starts at the field's bottom left, entered from (3, 12), and leaves at the top towards the ladder down
-(warp 1 at (9, 1)). A step onto a field square whose pattern square isn't path (`Act2Station_TryOvergrowthStep`,
-which reads the pattern off the map): "GRASS POKéMON ambushed you! You fled back to the start." and a warp to (3, 12).
-Reaching the row above the field sets `ACT2_FINALE_GRASS_CROSSED`.
+**B3F: the overgrowth** (`MUS_RG_VIRIDIAN_FOREST`). An old basement room (the Mansion's walls) with a wooden plank
+floor that trees and tall grass have grown up through: its own tileset, `gTileset_RangerStationGrove`
+(`tools/hack/draw_station_grove.py`: plank variants, the overworld trees and tall grass and Cerulean Cave's ladders
+redrawn on the planks, the Mansion's walls). Near the entrance (ladder up, warp 0 at (12, 18)) a stone tablet at
+(5-7, 16-18) shows the hidden path at a small scale: a 9x9 grid, the path's squares light and joined, the start red,
+the way out yellow. It maps square for square onto the 9x9 field of tall grass at (3-11, 5-13). The path (33
+squares) starts at the field's bottom left, entered from (3, 14), and leaves at the top towards the ladder down (warp
+1 at (9, 3)). A step onto a field square off the path (`Act2Station_TryOvergrowthStep`, against `sOvergrowthPath`,
+generated with the tablet from `B3_PATH` in the composer): "GRASS POKéMON ambushed you! You fled back to the
+start." and a warp to (3, 14). Reaching the row above the field sets `ACT2_FINALE_GRASS_CROSSED`.
 
-**B4F: the chamber** (`MUS_RG_SEVII_DUNGEON`). Mt. Ember's Ruby Path altar room, stretched. Ladder up: warp 0 at
+**B4F: the chamber** (`MUS_RG_SEVII_DUNGEON`). Mt. Ember's Ruby Path altar room, stretched, in darkness (no
+mountainside around it). Ladder up: warp 0 at
 (11, 13). Objects: HEATRAN (5, 6), SUICUNE (7, 6), VIRIZION (9, 6), facing down (`LOCALID_CHAMBER_HEATRAN` / `_SUICUNE` /
 `_VIRIZION`); hidden for the scene: MEW (7, 9) (`LOCALID_CHAMBER_MEW`, `FLAG_TEMP_2`), DAD (6, 10)
 (`LOCALID_CHAMBER_DAD`, `FLAG_TEMP_1`), MOM (8, 10) (`LOCALID_CHAMBER_MOM`, `FLAG_TEMP_3`), all facing up. Coord

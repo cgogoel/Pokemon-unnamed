@@ -32,13 +32,11 @@ static const s8 sDeadEnds[][2][2] = {
     {{15, 13}, {15, 14}},
 };
 
-// B3F: the field of tall grass and the pattern on the floor (the same grid); the path starts from below the
-// field's bottom row and leaves above its top row
+// B3F: the field of tall grass; the path starts from below the field's bottom row and leaves above its top
+// row. Its squares, a row each (top to bottom), bit x for column x (the tablet shows the same B3_PATH)
 #define STATION_FIELD_X 3
-#define STATION_FIELD_Y 3
-#define STATION_PATTERN_X 3
-#define STATION_PATTERN_Y 16
+#define STATION_FIELD_Y 5
 #define STATION_FIELD_SIZE 9
-#define STATION_PATTERN_PATH 0x0BC // The pattern's path squares
+static const u16 sOvergrowthPath[] = {0x040, 0x05E, 0x052, 0x1D2, 0x112, 0x176, 0x144, 0x1C7, 0x001};
 #define STATION_PATH_START_X 3
-#define STATION_PATH_START_Y 12 // Below the field
+#define STATION_PATH_START_Y 14 // Below the field

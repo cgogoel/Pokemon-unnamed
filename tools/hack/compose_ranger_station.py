@@ -19,6 +19,8 @@ import json
 import os
 import struct
 
+import draw_station_grove
+
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
 SOLID = 1 << 10
 
@@ -283,8 +285,9 @@ def b2f_dead_ends(g):
     return ends
 
 
-# B3F: the floor pattern (bottom) and the field of tall grass (top) are the same 9x9 grid. Rows top to bottom:
-# X the path. It starts at the bottom left (entered from below) and leaves at the top.
+# B3F: a 9x9 field of tall grass where only the path is safe; a stone tablet near the entrance shows the path at a
+# small scale (gTileset_RangerStationGrove, tools/hack/draw_station_grove.py). Rows top to bottom: X the path. It
+# starts at the bottom left (entered from below) and leaves at the top.
 B3_PATH = [
     '......X..',
     '.XXXX.X..',
@@ -296,15 +299,12 @@ B3_PATH = [
     'XXX...XXX',
     'X........',
 ]
-B3_W, B3_H = 15, 28
-B3_FIELD = (3, 3)          # The grass field's top left
-B3_PATTERN = (3, 16)       # The pattern's top left
+B3_W, B3_H = 15, 23
+B3_FIELD = (3, 5)          # The grass field's top left
 B3_SIZE = 9
-B3_LADDER_UP = (13, 26)    # Arrival from B2F
-B3_LADDER_DOWN = (9, 1)    # To B4F (above the path's exit)
-B3_SIGN = (2, 25)
-TALL_GRASS, GRASS = 0x00D, 0x008
-PATTERN_FLOOR, PATTERN_PATH = 0x2D3, 0x0BC
+B3_TABLET = (5, 16)        # The tablet's top left (3x3, solid)
+B3_LADDER_UP = (12, 18)    # Arrival from B2F
+B3_LADDER_DOWN = (9, 3)    # To B4F (above the path's exit)
 
 
 def b3f_path():
@@ -325,38 +325,67 @@ def b3f_path():
 
 
 def compose_b3f():
-    g = cave_room(B3_W, B3_H)
+    """An old basement room (the Mansion's walls) with a plank floor that trees and grass grow through."""
+    G = draw_station_grove.GROVE
+    W, H = B3_W, B3_H
+    g = Grid(W, H, blk(0x008, True, 0))
     fx, fy = B3_FIELD
-    px, py = B3_PATTERN
-    path = b3f_path()
-    # Overgrown: trees down both sides, grass everywhere
-    for y in range(1, B3_H - 1):
-        for x in range(1, B3_W - 1):
-            g[x, y] = blk(GRASS)
-    for y in range(1, fy + B3_SIZE):
-        for x in (1, 2, B3_W - 3, B3_W - 2):
-            left = x in (1, B3_W - 3)
-            g[x, y] = blk((0x01E if left else 0x01F) if y % 2 else (0x016 if left else 0x017), True)
-    # The field of tall grass, the strips above (the exit) and below (the start) it
+
+    def wall(x, y, name):
+        g[x, y] = blk(G[name], True, 0)
+    # The floor: plank variants, mostly whole; shaded along the top wall and the left wall
+    for y in range(3, H - 4):
+        for x in range(1, W - 1):
+            n = (x * 7 + y * 13 + (x * y) % 5) % 23
+            name = 'PLANK_CRACKED' if n == 3 else 'PLANK_BROKEN' if n == 17 and y > fy + B3_SIZE else 'PLANK_%d' % (n % 4)
+            g[x, y] = blk(G[name])
+        g[1, y] = blk(G['PLANK_SHADE_LEFT'])
+    for x in range(2, W - 1):
+        g[x, 3] = blk(G['PLANK_SHADE_TOP'])
+    g[1, 3] = blk(G['PLANK_SHADE_CORNER'])
+    # The walls (laid out like the Pokémon Mansion basement's, as on B1F)
+    for x in range(W):
+        wall(x, 0, 'WALL_CAP')
+        wall(x, 1, 'WALL_FACE')
+        wall(x, 2, 'WALL_BASE')
+        wall(x, H - 3, 'WALL_B_CAP')
+        wall(x, H - 2, 'WALL_B_FACE')
+        wall(x, H - 1, 'WALL_B_BASE')
+        g[x, H - 4] = blk(G['PLANK_EDGE_BOTTOM'])
+    g[1, H - 4] = blk(G['PLANK_EDGE_BOTTOM_LEFT'])
+    for y in range(1, H):
+        wall(0, y, 'WALL_L')
+        wall(W - 1, y, 'WALL_R')
+    for (x, y), name in (((0, 0), 'WALL_TL_CAP'), ((1, 0), 'WALL_TL_CAP2'), ((1, 1), 'WALL_L_FACE2'),
+                         ((1, 2), 'WALL_L_BASE2'), ((W - 2, 0), 'WALL_TR_CAP2'), ((W - 1, 0), 'WALL_TR_CAP'),
+                         ((W - 2, 1), 'WALL_R_FACE2'), ((W - 2, 2), 'WALL_R_BASE2'),
+                         ((0, H - 4), 'WALL_BL_EDGE'), ((0, H - 3), 'WALL_BL_CAP'), ((0, H - 2), 'WALL_BL_FACE'),
+                         ((0, H - 1), 'WALL_BL_BASE'), ((W - 1, H - 4), 'WALL_BR_EDGE'), ((W - 1, H - 3), 'WALL_BR_CAP'),
+                         ((W - 1, H - 2), 'WALL_BR_FACE'), ((W - 1, H - 1), 'WALL_BR_BASE')):
+        wall(x, y, name)
+    # Trees grown up through the floor down both sides of the field (two wide, packed like a forest's edge)
+    for y in range(3, fy + B3_SIZE):
+        top = (y - 3) % 2 == 0
+        for x0 in (1, W - 3):
+            g[x0, y] = blk(G['PINE_TOP_L' if top else 'PINE_BOTTOM_L'], True)
+            g[x0 + 1, y] = blk(G['PINE_TOP_R' if top else 'PINE_BOTTOM_R'], True)
+    # A row of trees in front of the bottom wall's left end, grass sprouting here and there
+    for x in (1, 2):
+        g[x, H - 6] = blk(G['TREE_ROW_TOP_L' if x == 1 else 'TREE_ROW_TOP_R'], True)
+        g[x, H - 5] = blk(G['TREE_ROW_BOTTOM_L' if x == 1 else 'TREE_ROW_BOTTOM_R'], True)
+    for xy in ((9, 16), (10, 16), (2, 15), (13, 15), (11, 19 - 4 + 3), (4, 18)):
+        g[xy] = blk(G['TALL_GRASS'])
+    # The field
     for y in range(B3_SIZE):
         for x in range(B3_SIZE):
-            g[fx + x, fy + y] = blk(TALL_GRASS)
-    # A row of trees between the field's start and the pattern, open at the field's left end
-    for x in range(1, B3_W - 1):
-        g[x, fy + B3_SIZE + 1] = blk(0x01C if x % 2 else 0x01D, True)
-        g[x, fy + B3_SIZE + 2] = blk(0x024 if x % 2 else 0x025, True)
-    for y in (fy + B3_SIZE + 1, fy + B3_SIZE + 2):
-        g[B3_W - 2, y] = blk(GRASS)
-    # The pattern, carved into a stone floor
-    for y in range(-1, B3_SIZE + 1):
-        for x in range(-1, B3_SIZE + 1):
-            g[px + x, py + y] = blk(PATTERN_FLOOR)
-    for x, y in path:
-        g[px + x, py + y] = blk(PATTERN_PATH)
-    g[B3_LADDER_UP[0], B3_LADDER_UP[1] - 1] = blk(LADDER_UP_TOP, True)
-    g[B3_LADDER_UP] = blk(LADDER_UP)
-    g[B3_LADDER_DOWN] = blk(LADDER_DOWN)
-    g[B3_SIGN] = blk(0x2CD, True)
+            g[fx + x, fy + y] = blk(G['TALL_GRASS'])
+    # The tablet, the ladders
+    tx, ty = B3_TABLET
+    for i in range(9):
+        g[tx + i % 3, ty + i // 3] = blk(G['TABLET_%d' % i], True)
+    g[B3_LADDER_UP[0], B3_LADDER_UP[1] - 1] = blk(G['LADDER_UP_TOP'], True)
+    g[B3_LADDER_UP] = blk(G['LADDER_UP'])
+    g[B3_LADDER_DOWN] = blk(G['LADDER_DOWN'])
     return g
 
 
@@ -395,6 +424,10 @@ def compose_b4f():
             g[x, 9 + B4_EXTRA_ROWS + k] = blk(0x281) if (b & 0x3FF) in (0x303, 0x300, 0x2FC, 0x301, 0x305, 0x304) else b
     g[B4_LADDER_UP[0], B4_LADDER_UP[1] - 1] = blk(0x28E, True)
     g[B4_LADDER_UP] = blk(0x297)
+    # Underground: darkness all round the chamber, not Mt. Ember's sunny mountainside
+    for i, b in enumerate(g.cells):
+        if (b & 0x3FF) == 0x291:
+            g.cells[i] = blk(0x000, True, 0)
     return g
 
 
@@ -403,8 +436,8 @@ LAYOUTS = [
     ('LAYOUT_RANGER_STATION_1F', 'RangerStation_1F', 'gTileset_BuildingFrlg', 'gTileset_GenericBuilding2', 0x008, True),
     ('LAYOUT_RANGER_STATION_B1F', 'RangerStation_B1F', 'gTileset_BuildingFrlg', 'gTileset_PokemonMansion', 0x008, True),
     ('LAYOUT_RANGER_STATION_B2F', 'RangerStation_B2F', 'gTileset_General_Frlg', 'gTileset_CeruleanCave', 0x291, True),
-    ('LAYOUT_RANGER_STATION_B3F', 'RangerStation_B3F', 'gTileset_General_Frlg', 'gTileset_CeruleanCave', 0x291, True),
-    ('LAYOUT_RANGER_STATION_B4F', 'RangerStation_B4F', 'gTileset_General_Frlg', 'gTileset_MtEmber', 0x291, True),
+    ('LAYOUT_RANGER_STATION_B3F', 'RangerStation_B3F', 'gTileset_BuildingFrlg', 'gTileset_RangerStationGrove', 0x008, True),
+    ('LAYOUT_RANGER_STATION_B4F', 'RangerStation_B4F', 'gTileset_General_Frlg', 'gTileset_MtEmber', 0x000, True),
 ]
 
 
@@ -451,14 +484,13 @@ def write_header(b2_ends):
     ] + ['    {%s, %s},' % (pt(a), pt(b)) for a, b in b2_ends] + [
         '};',
         '',
-        '// B3F: the field of tall grass and the pattern on the floor (the same grid); the path starts from below the',
-        '// field\'s bottom row and leaves above its top row',
+        '// B3F: the field of tall grass; the path starts from below the field\'s bottom row and leaves above its top',
+        '// row. Its squares, a row each (top to bottom), bit x for column x (the tablet shows the same B3_PATH)',
         '#define STATION_FIELD_X %d' % B3_FIELD[0],
         '#define STATION_FIELD_Y %d' % B3_FIELD[1],
-        '#define STATION_PATTERN_X %d' % B3_PATTERN[0],
-        '#define STATION_PATTERN_Y %d' % B3_PATTERN[1],
         '#define STATION_FIELD_SIZE %d' % B3_SIZE,
-        '#define STATION_PATTERN_PATH 0x%03X // The pattern\'s path squares' % PATTERN_PATH,
+        'static const u16 sOvergrowthPath[] = {%s};' % ', '.join(
+            '0x%03X' % sum(1 << x for x, c in enumerate(row) if c == 'X') for row in B3_PATH),
         '#define STATION_PATH_START_X %d' % (B3_FIELD[0] + path[0][0]),
         '#define STATION_PATH_START_Y %d // Below the field' % (B3_FIELD[1] + B3_SIZE),
         '',

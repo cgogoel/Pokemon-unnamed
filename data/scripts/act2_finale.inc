@@ -489,7 +489,7 @@ Act2_EventScript_TriBlastReveal::
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterDown
 	waitmovement 0
 	msgbox Act2_Text_LabDone
-	playfanfare MUS_RG_OBTAIN_TM_HM
+	playfanfare MUS_OBTAIN_TMHM
 	message Act2_Text_MadeTriBlast
 	waitmessage
 	waitfanfare

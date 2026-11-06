@@ -4,6 +4,7 @@ PalletTown_PlayersHouse_2F_Frlg_Farm_MapScripts::
 
 Farmhouse2F_OnFrame:
 	map_script_2 VAR_ACT1_WOKE_UP, 2, Farmhouse2F_EventScript_WokeUp
+	map_script_2 VAR_ACT2_PROGRESS, ACT2_LEGENDS_CALMED, Act2_EventScript_FriendsVisit
 	.2byte 0
 
 @ The morning after bringing Jangmo-o home (docs/hack/act1_story.md)

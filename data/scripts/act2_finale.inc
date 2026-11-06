@@ -377,3 +377,236 @@ Act2_Text_StationShut:
 Act2_EventScript_EnterStation:
 	releaseall
 	end
+
+@ ---------------------------------------------------------------------------------------------------------------
+@ The ending. After the chamber, the player is home in their room (2F); the friends come up the stairs (10,2) one
+@ by one and line up beside the player at (3,3). Then the lab (the institute's Research Room): Tri-Blast.
+
+Act2_EventScript_HomeFriend::
+	msgbox Act2_Text_HomeFriend, MSGBOX_NPC
+	end
+
+Act2_EventScript_FriendsVisit::
+	lockall
+	msgbox Act2_Text_MomFriendsHere
+	closemessage
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterRight
+	waitmovement 0
+	clearflag FLAG_TEMP_1
+	addobject LOCALID_HOME_KAI
+	applymovement LOCALID_HOME_KAI, Act2_Movement_HomeKai
+	delay 32
+	clearflag FLAG_TEMP_2
+	addobject LOCALID_HOME_MINA
+	applymovement LOCALID_HOME_MINA, Act2_Movement_HomeMina
+	delay 32
+	clearflag FLAG_TEMP_3
+	addobject LOCALID_HOME_ROWAN
+	applymovement LOCALID_HOME_ROWAN, Act2_Movement_HomeRowan
+	waitmovement LOCALID_HOME_KAI
+	waitmovement LOCALID_HOME_MINA
+	waitmovement LOCALID_HOME_ROWAN
+	msgbox Act2_Text_FriendsVisit
+	closemessage
+	playse SE_PIN
+	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
+	waitmovement 0
+	msgbox Act2_Text_Epiphany
+	closemessage
+	fadescreen FADE_TO_BLACK
+	warp MAP_CELADON_UNIVERSITY_SCIENCE_RESEARCH_ROOM, 5, 2
+	waitstate
+	releaseall
+	end
+
+@ From the stairs (10,2): down to (10,4), left to (7,4), up to (7,3), then left to their spot, facing the player
+Act2_Movement_HomeKai:
+	walk_down
+	walk_down
+	walk_left
+	walk_left
+	walk_left
+	walk_up
+	walk_left
+Act2_Movement_HomeMinaEnd:
+	walk_left
+Act2_Movement_HomeRowanEnd:
+	walk_left
+	walk_in_place_faster_left
+	step_end
+
+Act2_Movement_HomeMina:
+	walk_down
+	walk_down
+	walk_left
+	walk_left
+	walk_left
+	walk_up
+	walk_left
+	walk_left
+	walk_in_place_faster_left
+	step_end
+
+Act2_Movement_HomeRowan:
+	walk_down
+	walk_down
+	walk_left
+	walk_left
+	walk_left
+	walk_up
+	walk_left
+	walk_in_place_faster_left
+	step_end
+
+@ The lab: the friends stand behind the player, who's at the machine (5,2) facing the wall
+Act2_EventScript_LabObjects::
+	goto_if_ne VAR_ACT2_PROGRESS, ACT2_LEGENDS_CALMED, Act2_EventScript_LabObjectsEnd
+	clearflag FLAG_TEMP_1
+	setflag FLAG_TEMP_2
+	setflag FLAG_TEMP_3
+	setflag FLAG_TEMP_4
+	setflag FLAG_TEMP_5
+	end
+
+Act2_EventScript_LabObjectsEnd:
+	setflag FLAG_TEMP_1
+	setflag FLAG_TEMP_2
+	setflag FLAG_TEMP_3
+	setflag FLAG_TEMP_4
+	end
+
+Act2_EventScript_TriBlastReveal::
+	lockall
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
+	waitmovement 0
+	msgbox Act2_Text_LabWorking
+	closemessage
+	playse SE_PC_ON
+	waitse
+	delay 30
+	playse SE_PC_LOGIN
+	waitse
+	delay 30
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterDown
+	waitmovement 0
+	msgbox Act2_Text_LabDone
+	playfanfare MUS_RG_OBTAIN_TM_HM
+	message Act2_Text_MadeTriBlast
+	waitmessage
+	waitfanfare
+	additem ITEM_TM_TRI_BLAST
+	msgbox Act2_Text_FriendsReactTriBlast
+	closemessage
+	clearflag FLAG_TEMP_2
+	addobject LOCALID_LAB_ASHFORD
+	applymovement LOCALID_LAB_ASHFORD, Act2_Movement_LabAshford
+	delay 32
+	clearflag FLAG_TEMP_3
+	addobject LOCALID_LAB_MARLOWE
+	applymovement LOCALID_LAB_MARLOWE, Act2_Movement_LabMarlowe
+	delay 32
+	clearflag FLAG_TEMP_4
+	addobject LOCALID_LAB_FERN
+	applymovement LOCALID_LAB_FERN, Act2_Movement_LabFern
+	waitmovement LOCALID_LAB_ASHFORD
+	waitmovement LOCALID_LAB_MARLOWE
+	waitmovement LOCALID_LAB_FERN
+	applymovement LOCALID_LAB_KAI, Common_Movement_WalkInPlaceFasterDown
+	applymovement LOCALID_LAB_MINA, Common_Movement_WalkInPlaceFasterDown
+	applymovement LOCALID_LAB_ROWAN, Common_Movement_WalkInPlaceFasterDown
+	waitmovement 0
+	msgbox Act2_Text_ProfessorsMarvel
+	closemessage
+	fadescreen FADE_TO_BLACK
+	special Act2_EndAct2
+	waitstate
+	releaseall
+	end
+
+@ From the door (7,9): up to (7,7), left to their column, up to row 5, behind the friends
+Act2_Movement_LabAshford:
+	walk_up
+	walk_up
+	walk_left
+	walk_left
+	walk_left
+	walk_up
+	walk_up
+	walk_in_place_faster_up
+	step_end
+
+Act2_Movement_LabMarlowe:
+	walk_up
+	walk_up
+	walk_left
+	walk_left
+	walk_up
+	walk_up
+	walk_in_place_faster_up
+	step_end
+
+Act2_Movement_LabFern:
+	walk_up
+	walk_up
+	walk_left
+	walk_up
+	walk_up
+	walk_in_place_faster_up
+	step_end
+
+@ ---------------------------------------------------------------------------------------------------------------
+
+Act2_Text_HomeFriend:
+	.string "Whoa, {PLAYER}!$"
+
+Act2_Text_MomFriendsHere:
+	.string "MOM: {PLAYER}! Your friends are\n"
+	.string "here! Go on up!$"
+
+Act2_Text_FriendsVisit:
+	.string "KAI: {PLAYER}! We came all\n"
+	.string "the way out here to find you.\p"
+	.string "MINA: Did you finish your exam?\n"
+	.string "My WAVE CRASH is done!\p"
+	.string "ROWAN: You look like you saw\n"
+	.string "a ghost. What happened?\p"
+	.string "{PLAYER}: …\p"
+	.string "FIRE, WATER and GRASS…\n"
+	.string "all at the same time…$"
+
+Act2_Text_Epiphany:
+	.string "{PLAYER}: …!\p"
+	.string "Come back to the lab with me!\p"
+	.string "KAI: Huh? Wait up!$"
+
+Act2_Text_LabWorking:
+	.string "{PLAYER} worked through the night…$"
+
+Act2_Text_LabDone:
+	.string "{PLAYER}: Done!$"
+
+Act2_Text_MadeTriBlast:
+	.string "{PLAYER} made TM TRI-BLAST!$"
+
+Act2_Text_FriendsReactTriBlast:
+	.string "KAI: TRI-BLAST?\p"
+	.string "{PLAYER}: FIRE, WATER and GRASS\n"
+	.string "in one move. 120 power.\p"
+	.string "MINA: All three at once… So\n"
+	.string "anything weak to one of them…\p"
+	.string "ROWAN: …takes super-effective\n"
+	.string "damage. And nothing resists it!\p"
+	.string "KAI: No way. That's amazing!$"
+
+Act2_Text_ProfessorsMarvel:
+	.string "PROF. ASHFORD: What's all the\n"
+	.string "noise in here? Is that…\p"
+	.string "PROF. MARLOWE: FIRE, WATER and\n"
+	.string "GRASS in a single move.\l"
+	.string "In all my years…\p"
+	.string "PROF. FERN: All three courses in\n"
+	.string "one TM. You really listened.\p"
+	.string "PROF. ASHFORD: {PLAYER}, this\n"
+	.string "isn't just a passing grade.\l"
+	.string "It's a discovery.\p"
+	.string "Congratulations, graduate!$"

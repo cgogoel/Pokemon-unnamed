@@ -81,11 +81,18 @@ TEST("Act 2 road: another region's Pokémon matches the type and evolution stage
     EXPECT_EQ(Act2Road_GetEvoStage(SPECIES_CHARIZARD), 2);
 }
 
-TEST("Act 2 road: wild Pokémon are 3 below the party on the route home, 15 above off it")
+TEST("Act 2 road: wild Pokémon are 0-3 below the party on the route home, 15 above off it")
 {
     static const struct WildPokemon sMon = { .minLevel = 2, .maxLevel = 4, .species = SPECIES_RATTATA };
+    u32 i, level, seen = 0;
     SetUpFinalProject(MAP_GROUP(MAP_ROUTE2), MAP_NUM(MAP_ROUTE2), 30);
-    EXPECT_EQ(ChooseWildMonLevel(&sMon, 0, WILD_AREA_LAND), 27);
+    for (i = 0; i < 200; i++)
+    {
+        level = ChooseWildMonLevel(&sMon, 0, WILD_AREA_LAND);
+        EXPECT(level >= 27 && level <= 30);
+        seen |= 1 << (level - 27);
+    }
+    EXPECT_EQ(seen, 0xF); // Every level in the range turns up
     SetUpFinalProject(MAP_GROUP(MAP_ROUTE22), MAP_NUM(MAP_ROUTE22), 30);
     EXPECT_EQ(ChooseWildMonLevel(&sMon, 0, WILD_AREA_LAND), 45);
     SetUpFinalProject(MAP_GROUP(MAP_ROUTE22), MAP_NUM(MAP_ROUTE22), 95);

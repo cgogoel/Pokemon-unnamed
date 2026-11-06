@@ -99,7 +99,7 @@
 #define ACT2_CLOCK_SOLUTION         ((1 << (4 - 1)) | (1 << (3 - 1)) | (1 << ACT2_CLOCK_MOON)) // 4:15 a.m.
 
 // The final project's levels, against the party's average (Act2_GetWildLevel, Act2_ScaleTrainerParty)
-#define ACT2_ROUTE_WILD_OFFSET      (-3) // On the direct route home: wild Pokémon
+#define ACT2_ROUTE_WILD_OFFSET      (-3) // On the direct route home: wild Pokémon, from this up to the average
 #define ACT2_ROUTE_TRAINER_OFFSET   0    // On the direct route home: trainers' Pokémon
 #define ACT2_OFF_ROUTE_OFFSET       15   // Anywhere else: both
 

@@ -47,8 +47,8 @@ The code is `src/act2_road.c`.
   the way needs an HM: the ledges on Routes 6, 7, 1 and 2 face south, toward home.
 - **Levels** (`Act2Road_IsActive`: `ACT2_FINAL_PROJECT` or later while in Act 2), against the party's average level,
   between 1 and 100:
-  - On the route home: trainers' Pokémon are the average (`ACT2_ROUTE_TRAINER_OFFSET`); wild Pokémon are 3 below
-    (`ACT2_ROUTE_WILD_OFFSET`), with no spread.
+  - On the route home: trainers' Pokémon are the average (`ACT2_ROUTE_TRAINER_OFFSET`); wild Pokémon are anywhere from 3
+    below (`ACT2_ROUTE_WILD_OFFSET`) up to the average.
   - Everywhere else: both are 15 above (`ACT2_OFF_ROUTE_OFFSET`).
   - The story's trainers keep their parties (`Act2_IsStoryTrainer`, and every trainer from `TRAINER_ACT2_PROF_FIRE`
     on, so ones the finale adds too).
@@ -156,7 +156,7 @@ squares) starts at the field's bottom left, entered from (3, 12), and leaves at 
 which reads the pattern off the map): "GRASS POKéMON ambushed you! You fled back to the start." and a warp to (3, 12).
 Reaching the row above the field sets `ACT2_FINALE_GRASS_CROSSED`.
 
-**B4F: the chamber** (`MUS_RG_SEVII_DUNGEON`). Mt. Ember's Ruby Path altar room, stretched. Ladder up: warp 0 at
+**B4F: the chamber** (`MUS_RG_SEVII_DUNGEON`). Arriving heals the party. Mt. Ember's Ruby Path altar room, stretched. Ladder up: warp 0 at
 (11, 13). Objects: HEATRAN (5, 6), SUICUNE (7, 6), VIRIZION (9, 6), facing down (`LOCALID_CHAMBER_HEATRAN` / `_SUICUNE` /
 `_VIRIZION`); hidden for the scene: MEW (7, 9) (`LOCALID_CHAMBER_MEW`, `FLAG_TEMP_2`), DAD (6, 10)
 (`LOCALID_CHAMBER_DAD`, `FLAG_TEMP_1`), MOM (8, 10) (`LOCALID_CHAMBER_MOM`, `FLAG_TEMP_3`), all facing up. Coord
@@ -180,7 +180,8 @@ Act 3: the player in a lab coat, in their lab at Silph Co.
 
 **Tri-Blast:** 120 power, shown as the ??? type (no STAB). Against each target it's as effective as the best of
 Fire, Water and Grass would be, and never less than 1x: anything weak to one of the three takes super-effective damage,
-and nothing resists it.
+and nothing resists it. Any species can learn it from the TM, but only a Pokémon at max friendship
+(`CanMonLearnTriBlast`): otherwise "isn't close enough to you yet".
 
 ## State
 

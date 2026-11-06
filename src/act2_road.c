@@ -107,9 +107,13 @@ static u32 GetScaledLevel(s32 offset)
     return min(max(level, 1), MAX_LEVEL);
 }
 
+// On the route, anywhere from ACT2_ROUTE_WILD_OFFSET below the average up to the average; elsewhere, exactly
+// ACT2_OFF_ROUTE_OFFSET above
 u32 Act2Road_GetWildLevel(void)
 {
-    return GetScaledLevel(Act2Road_IsOnRoute() ? ACT2_ROUTE_WILD_OFFSET : ACT2_OFF_ROUTE_OFFSET);
+    if (Act2Road_IsOnRoute())
+        return GetScaledLevel(ACT2_ROUTE_WILD_OFFSET + (s32)(Random() % (1 - ACT2_ROUTE_WILD_OFFSET)));
+    return GetScaledLevel(ACT2_OFF_ROUTE_OFFSET);
 }
 
 u32 Act2Road_GetTrainerLevel(void)

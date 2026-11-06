@@ -5040,13 +5040,20 @@ bool8 TryIncrementMonLevel(struct Pokemon *mon)
     }
 }
 
+// Tri-Blast's TM only works on a Pokémon at max friendship (docs/hack/act2_finale.md). Any other move: TRUE.
+bool32 CanMonLearnTriBlast(enum Move move, u32 friendship)
+{
+    return move != MOVE_TRI_BLAST || friendship >= MAX_FRIENDSHIP;
+}
+
 bool32 CanLearnTeachableMove(enum Species species, enum Move move)
 {
     const u16 *teachableLearnset = GetSpeciesTeachableLearnset(species);
     if (species == SPECIES_EGG)
         return FALSE;
-    // Tri-Blast's TM (Act 2's finale) works on every Pokémon. The generated teachable learnsets only give a TM to
-    // species that learn its move in some official game, and none learns this one, so it's allowed here.
+    // Tri-Blast's TM (Act 2's finale) works on every species, if the Pokémon is at max friendship (CanMonLearnTriBlast).
+    // The generated teachable learnsets only give a TM to species that learn its move in some official game, and none
+    // learns this one, so it's allowed here.
     if (move == MOVE_TRI_BLAST)
         return TRUE;
     for (u32 i = 0; teachableLearnset[i] != MOVE_UNAVAILABLE; i++)

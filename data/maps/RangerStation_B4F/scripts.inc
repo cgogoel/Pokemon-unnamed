@@ -6,7 +6,9 @@ RangerStation_B4F_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, RangerStation_B4F_OnTransition
 	.byte 0
 
+@ The chamber heals the party on arrival, so the trio's battle is a full 3v3 when the party has three Pokémon
 RangerStation_B4F_OnTransition:
+	special HealPlayerParty
 	setflag FLAG_TEMP_1  @ DAD
 	setflag FLAG_TEMP_2  @ MEW
 	setflag FLAG_TEMP_3  @ MOM

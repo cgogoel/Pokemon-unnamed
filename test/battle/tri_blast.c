@@ -143,3 +143,11 @@ TEST("Tri-Blast's TM can be taught to every species")
     EXPECT(CanLearnTeachableMove(SPECIES_MEW, MOVE_TRI_BLAST));
     EXPECT_EQ(GetItemTMHMMoveId(ITEM_TM_TRI_BLAST), MOVE_TRI_BLAST);
 }
+
+TEST("Tri-Blast's TM only works on a Pokémon at max friendship")
+{
+    EXPECT(!CanMonLearnTriBlast(MOVE_TRI_BLAST, 0));
+    EXPECT(!CanMonLearnTriBlast(MOVE_TRI_BLAST, MAX_FRIENDSHIP - 1));
+    EXPECT(CanMonLearnTriBlast(MOVE_TRI_BLAST, MAX_FRIENDSHIP));
+    EXPECT(CanMonLearnTriBlast(MOVE_FLAMETHROWER, 0));
+}

@@ -83,7 +83,7 @@ off the path: "Grass Pokémon ambushed you!" and back to the path's start.
 
 **B4F: the chamber.** Entei, Suicune and Virizion (Lv. 50), a 3v3. The player acts once; then all three attack
 together (Fire, Water and Grass, 120 power each, one animation). The battle cuts out: Mom and Dad are there, and
-Dad's Mew takes the blast. The trio calms. Mom and Dad: that was dangerous. "…" (how did you get Mew?) They befriended
+their Mew takes the blast. The trio calms. Mom and Dad: that was dangerous. "…" (how did you get Mew?) They befriended
 it in these Woods when they were young; it comes to visit them when they need it.
 
 ## The ending

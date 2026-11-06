@@ -159,7 +159,7 @@ squares) starts at the field's bottom left, entered from (3, 14), and leaves at 
 generated with the tablet from `B3_PATH` in the composer): "GRASS POKéMON ambushed you! You fled back to the
 start." and a warp to (3, 14). Reaching the row above the field sets `ACT2_FINALE_GRASS_CROSSED`.
 
-**B4F: the chamber** (`MUS_RG_SEVII_DUNGEON`). Arriving heals the party. Mt. Ember's Ruby Path altar room, stretched, in darkness (no
+**B4F: the chamber** (`MUS_RG_SEVII_DUNGEON`). Arriving heals the party, and a party of fewer than three is filled up from the PC (the farm box last; `Act2_FillChamberParty`), so the battle is always a 3v3. Mt. Ember's Ruby Path altar room, stretched, in darkness (no
 mountainside around it). Ladder up: warp 0 at
 (11, 13). Objects: HEATRAN (5, 6), SUICUNE (7, 6), VIRIZION (9, 6), facing down (`LOCALID_CHAMBER_HEATRAN` / `_SUICUNE` /
 `_VIRIZION`); hidden for the scene: MEW (7, 9) (`LOCALID_CHAMBER_MEW`, `FLAG_TEMP_2`), DAD (6, 10)

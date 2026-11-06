@@ -5,7 +5,10 @@
 #include "field_player_avatar.h"
 #include "fieldmap.h"
 #include "overworld.h"
+#include "pokemon.h"
+#include "pokemon_storage_system.h"
 #include "script.h"
+#include "constants/farmyard.h"
 #include "constants/story.h"
 
 // Act 2's finale, the final project (docs/hack/act2_finale.md)
@@ -68,4 +71,47 @@ bool32 Act2_TryStartWoodsNoise(void)
         return TRUE;
     }
     return FALSE;
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// The chamber's battle is always a 3v3. specialvar VAR_RESULT, Act2_FillChamberParty (on arriving at B4F): with
+// fewer than three Pokémon in the party, the first ones stored in the PC join it (the farm's box last). VAR_RESULT:
+// how many came along.
+#define CHAMBER_PARTY_SIZE 3
+
+static bool32 TakeFromBox(u32 box)
+{
+    u32 slot;
+    for (slot = 0; slot < IN_BOX_COUNT; slot++)
+    {
+        struct BoxPokemon *boxMon = GetBoxedMonPtr(box, slot);
+        if (GetBoxMonData(boxMon, MON_DATA_SPECIES) == SPECIES_NONE || GetBoxMonData(boxMon, MON_DATA_IS_EGG))
+            continue;
+        BoxMonToMon(boxMon, &gParties[B_TRAINER_PLAYER][gPlayerPartyCount]);
+        ZeroBoxMonAt(box, slot);
+        CalculatePlayerPartyCount();
+        return TRUE;
+    }
+    return FALSE;
+}
+
+u16 Act2_FillChamberParty(void)
+{
+    u32 box, moved = 0;
+    CalculatePlayerPartyCount();
+    while (gPlayerPartyCount < CHAMBER_PARTY_SIZE)
+    {
+        bool32 found = FALSE;
+        for (box = 0; box < TOTAL_BOXES_COUNT && !found; box++)
+        {
+            if (box != FARM_BOX)
+                found = TakeFromBox(box);
+        }
+        if (!found)
+            found = TakeFromBox(FARM_BOX);
+        if (!found)
+            break;
+        moved++;
+    }
+    return moved;
 }

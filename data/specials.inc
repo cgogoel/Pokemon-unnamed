@@ -676,3 +676,4 @@ gSpecials::
 	def_special Act2_ClearResearchFlag
 	def_special Act2_ResetWoodsNoise
 	def_special Act2_EndAct2
+	def_special Act2Road_IsRouteOpenSpecial

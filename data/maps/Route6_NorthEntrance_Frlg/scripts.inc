@@ -25,6 +25,8 @@ Route6_NorthEntrance_EventScript_GuardTriggerRight::
 
 Route6_NorthEntrance_EventScript_GuardTrigger::
 	textcolor NPC_TEXT_COLOR_MALE
+	specialvar VAR_RESULT, Act2Road_IsRouteOpenSpecial
+	goto_if_eq VAR_RESULT, TRUE, Route6_NorthEntrance_EventScript_Act2LetThrough
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterRight
 	waitmovement 0
 	goto_if_set FLAG_GOT_TEA, Route6_NorthEntrance_EventScript_GiveTea
@@ -32,6 +34,21 @@ Route6_NorthEntrance_EventScript_GuardTrigger::
 	closemessage
 	applymovement LOCALID_PLAYER, Route6_NorthEntrance_Movement_BlockPlayerEntry
 	waitmovement 0
+	releaseall
+	end
+
+@ Act 2's final project: the road home is open (Act2Road_IsRouteOpen). Said once per visit.
+Route6_NorthEntrance_EventScript_Act2LetThrough::
+	goto_if_eq VAR_TEMP_2, 1, Route6_NorthEntrance_EventScript_Act2AlreadyLetThrough
+	setvar VAR_TEMP_2, 1
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterRight
+	waitmovement 0
+	msgbox Route6_NorthEntrance_Text_Act2TrainerCard
+	closemessage
+	releaseall
+	end
+
+Route6_NorthEntrance_EventScript_Act2AlreadyLetThrough::
 	releaseall
 	end
 
@@ -105,6 +122,10 @@ Route6_NorthEntrance_Text_ThanksIllShareTeaWithGuards::
 	.string "You can go on through.\p"
 	.string "I'll share this TEA with the other\n"
 	.string "guards!$"
+
+Route6_NorthEntrance_Text_Act2TrainerCard::
+	.string "Oh, you've got a TRAINER CARD.\n"
+	.string "Go right on through!$"
 
 Route6_NorthEntrance_Text_HiHowsItGoing::
 	.string "Hi, how's it going?$"

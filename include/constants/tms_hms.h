@@ -52,7 +52,8 @@
     F(SKILL_SWAP) \
     F(SNATCH) \
     F(OVERHEAT) \
-    F(BUBBLE_BEAM)
+    F(BUBBLE_BEAM) \
+    F(TRI_BLAST)
 
 #define FOREACH_HM(F) \
     F(CUT) \

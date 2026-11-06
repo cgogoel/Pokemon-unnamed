@@ -1,4 +1,5 @@
 #include "global.h"
+#include "act2_legends.h"
 #include "data.h"
 #include "main.h"
 #include "battle.h"
@@ -562,6 +563,22 @@ void StartBefriendBattle(void)
     gBattleTypeFlags = BATTLE_TYPE_SAFARI;
     gIsBefriendBattle = TRUE;
     CreateBattleStartTask(GetWildBattleTransition(), 0);
+    IncrementGameStat(GAME_STAT_TOTAL_BATTLES);
+    IncrementGameStat(GAME_STAT_WILD_BATTLES);
+}
+
+// special StartAct2LegendsBattle (Act2_EventScript_LegendsBattle): Act 2's finale, a wild 3v3 against ENTEI, SUICUNE
+// and VIRIZION (src/act2_legends.c). VAR_RESULT is the outcome afterwards; never a blackout.
+void StartAct2LegendsBattle(void)
+{
+    CreateAct2LegendsParty();
+    LockPlayerFieldControls();
+    gMain.savedCallback = CB2_EndAct2LegendsBattle;
+    // 3v3, or 2v2 / 1v1 if the player can't field 3 (then the trio's last ones stay out of it)
+    gBattleTypeFlags = 0;
+    gBattleTypeFlags = BATTLE_TYPE_LEGENDARY | GetTripleBattleTypeFlagsForFoes(3);
+    gIsAct2LegendsBattle = TRUE;
+    CreateBattleStartTask(B_TRANSITION_BLUR, MUS_RG_VS_LEGEND);
     IncrementGameStat(GAME_STAT_TOTAL_BATTLES);
     IncrementGameStat(GAME_STAT_WILD_BATTLES);
 }

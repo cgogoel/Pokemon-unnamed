@@ -906,8 +906,10 @@ enum __attribute__((packed)) Move
     MOVES_COUNT_GEN9,
 
     // Add any custom moves here, not further down!
+    MOVE_TRI_BLAST = MOVES_COUNT_GEN9, // Act 2's finale: Fire, Water and Grass at once (docs/hack/act2_finale.md)
+    MOVES_COUNT_CUSTOM,
 
-    MOVES_COUNT = MOVES_COUNT_GEN9,
+    MOVES_COUNT = MOVES_COUNT_CUSTOM,
 
     // Z Moves
     FIRST_Z_MOVE = MOVES_COUNT,

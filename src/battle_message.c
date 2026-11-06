@@ -1,4 +1,5 @@
 #include "global.h"
+#include "act2_legends.h"
 #include "battle.h"
 #include "battle_anim.h"
 #include "battle_ai_record.h"
@@ -88,6 +89,7 @@ static const u8 sText_TwoWildFled[] = _("{PLAY_SE SE_FLEE}{B_LINK_OPPONENT1_NAME
 static const u8 sText_PlayerDefeatedLinkTrainerTrainer1[] = _("You defeated {B_TRAINER1_NAME_WITH_CLASS}!\p");
 static const u8 sText_OpponentMon1Appeared[] = _("{B_OPPONENT_MON1_NAME} appeared!\p");
 static const u8 sText_WildPkmnAppeared[] = _("You encountered a wild {B_OPPONENT_MON1_NAME}!\p");
+static const u8 sText_Act2LegendsAttacked[] = _("ENTEI, SUICUNE and VIRIZION\nattacked!\p");
 static const u8 sText_LegendaryPkmnAppeared[] = _("You encountered a wild {B_OPPONENT_MON1_NAME}!\p");
 static const u8 sText_WildPkmnAppearedPause[] = _("You encountered a wild {B_OPPONENT_MON1_NAME}!{PAUSE 127}");
 static const u8 sText_TwoWildPkmnAppeared[] = _("Oh! A wild {B_OPPONENT_MON1_NAME} and {B_OPPONENT_MON2_NAME} appeared!\p");
@@ -922,6 +924,7 @@ const u8 *const gBattleStringsTable[STRINGID_COUNT] =
     [STRINGID_BEFRIENDSTONEHURTS] = COMPOUND_STRING("Who throws a stone? Honestly!\pThat really hurts!\pIt's going to have a lump there\nyou idiot."),
     [STRINGID_BEFRIENDBLACKEDOUT] = COMPOUND_STRING("{B_DEF_NAME} slammed into you!\pYou blacked out!"),
     [STRINGID_ACT2RESEARCH] = COMPOUND_STRING("{B_COPY_VAR_1}"),
+    [STRINGID_ACT2LEGENDSATTACK] = COMPOUND_STRING("ENTEI, SUICUNE and VIRIZION\nattacked together!"),
 };
 
 const u16 gTrainerUsedItemStringIds[] =
@@ -2543,6 +2546,8 @@ void BufferStringBattle(enum StringID stringID, enum BattlerId battler)
                 stringPtr = sText_GhostAppearedCantId;
             else if (gBattleTypeFlags & BATTLE_TYPE_GHOST)
                 stringPtr = sText_TheGhostAppeared;
+            else if (IsAct2LegendsBattle())
+                stringPtr = sText_Act2LegendsAttacked;
             else if (gBattleTypeFlags & BATTLE_TYPE_LEGENDARY)
                 stringPtr = sText_LegendaryPkmnAppeared;
             else if (IsDoubleBattle() && IsValidForBattle(GetBattlerMon(GetBattlerAtPosition(B_POSITION_OPPONENT_RIGHT))))

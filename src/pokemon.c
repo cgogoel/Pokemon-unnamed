@@ -5045,6 +5045,10 @@ bool32 CanLearnTeachableMove(enum Species species, enum Move move)
     const u16 *teachableLearnset = GetSpeciesTeachableLearnset(species);
     if (species == SPECIES_EGG)
         return FALSE;
+    // Tri-Blast's TM (Act 2's finale) works on every Pokémon. The generated teachable learnsets only give a TM to
+    // species that learn its move in some official game, and none learns this one, so it's allowed here.
+    if (move == MOVE_TRI_BLAST)
+        return TRUE;
     for (u32 i = 0; teachableLearnset[i] != MOVE_UNAVAILABLE; i++)
     {
         if (teachableLearnset[i] == move)

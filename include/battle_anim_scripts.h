@@ -850,6 +850,7 @@ extern const u8 gBattleAnimMove_SupercellSlam[];
 extern const u8 gBattleAnimMove_PsychicNoise[];
 extern const u8 gBattleAnimMove_UpperHand[];
 extern const u8 gBattleAnimMove_MalignantChain[];
+extern const u8 gBattleAnimMove_TriBlast[];
 extern const u8 gBattleAnimMove_BreakneckBlitz[];
 extern const u8 gBattleAnimMove_AllOutPummeling[];
 extern const u8 gBattleAnimMove_SupersonicSkystrike[];
@@ -1024,5 +1025,6 @@ extern const u8 gBattleAnimSpecial_SubstituteToMon[];
 extern const u8 gBattleAnimSpecial_MonToSubstitute[];
 extern const u8 gBattleAnimSpecial_CriticalCaptureBallThrow[];
 extern const u8 gBattleAnimGeneral_ProtectedItself[];
+extern const u8 gBattleAnimGeneral_Act2LegendsTrio[];
 
 #endif // GUARD_BATTLE_ANIM_SCRIPTS_H

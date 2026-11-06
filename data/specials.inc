@@ -639,6 +639,7 @@ gSpecials::
 	def_special StickerManGetBragFlags
 	def_special CheckAddCoins
 	def_special StartBefriendBattle, waitstate=1
+	def_special StartAct2LegendsBattle, waitstate=1
 	def_special CheckBefriendAllowed
 	def_special Special_DepositFollowerInFarm
 	def_special SetupFarmyardMons

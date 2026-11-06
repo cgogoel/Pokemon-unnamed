@@ -2663,6 +2663,28 @@ const u16 gTilesetPalettes_PokemonMansion[][16] =
     INCGFX_U16("data/tilesets/secondary/pokemon_mansion_frlg/palettes/15.pal", ".gbapal"),
 };
 
+const u32 gTilesetTiles_RangerStationGrove[] = INCGFX_U32("data/tilesets/secondary/ranger_station_grove/tiles.png", ".4bpp.fastSmol");
+
+const u16 gTilesetPalettes_RangerStationGrove[][16] =
+{
+    INCGFX_U16("data/tilesets/secondary/ranger_station_grove/palettes/00.pal", ".gbapal"),
+    INCGFX_U16("data/tilesets/secondary/ranger_station_grove/palettes/01.pal", ".gbapal"),
+    INCGFX_U16("data/tilesets/secondary/ranger_station_grove/palettes/02.pal", ".gbapal"),
+    INCGFX_U16("data/tilesets/secondary/ranger_station_grove/palettes/03.pal", ".gbapal"),
+    INCGFX_U16("data/tilesets/secondary/ranger_station_grove/palettes/04.pal", ".gbapal"),
+    INCGFX_U16("data/tilesets/secondary/ranger_station_grove/palettes/05.pal", ".gbapal"),
+    INCGFX_U16("data/tilesets/secondary/ranger_station_grove/palettes/06.pal", ".gbapal"),
+    INCGFX_U16("data/tilesets/secondary/ranger_station_grove/palettes/07.pal", ".gbapal"),
+    INCGFX_U16("data/tilesets/secondary/ranger_station_grove/palettes/08.pal", ".gbapal"),
+    INCGFX_U16("data/tilesets/secondary/ranger_station_grove/palettes/09.pal", ".gbapal"),
+    INCGFX_U16("data/tilesets/secondary/ranger_station_grove/palettes/10.pal", ".gbapal"),
+    INCGFX_U16("data/tilesets/secondary/ranger_station_grove/palettes/11.pal", ".gbapal"),
+    INCGFX_U16("data/tilesets/secondary/ranger_station_grove/palettes/12.pal", ".gbapal"),
+    INCGFX_U16("data/tilesets/secondary/ranger_station_grove/palettes/13.pal", ".gbapal"),
+    INCGFX_U16("data/tilesets/secondary/ranger_station_grove/palettes/14.pal", ".gbapal"),
+    INCGFX_U16("data/tilesets/secondary/ranger_station_grove/palettes/15.pal", ".gbapal"),
+};
+
 const u32 gTilesetTiles_RestaurantHotel[] = INCGFX_U32("data/tilesets/secondary/restaurant_hotel_frlg/tiles.png", ".4bpp.fastSmol");
 
 const u16 gTilesetPalettes_RestaurantHotel[][16] =

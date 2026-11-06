@@ -337,10 +337,9 @@ Act2_Text_ParentsGoToWoods:
 	.string "MOM: Come home for dinner!$"
 
 Act2_Text_ParentsAfterChamber:
-	.string "MOM: Your father won't tell me\n"
-	.string "what happened in the WOODS…\p"
-	.string "DAD: Nothing to worry about.\n"
-	.string "Right, {PLAYER}?$"
+	.string "MOM: No more sneaking into old\n"
+	.string "ranger stations, OK?\p"
+	.string "DAD: Heh. It runs in the family.$"
 
 Act2_Text_ParentsLater:
 	.string "MOM: {PLAYER}! Working hard at\n"

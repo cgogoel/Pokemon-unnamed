@@ -8,7 +8,7 @@ What happens after the Trainer Card (the story so far: [act2_story.md](act2_stor
 | `ACT2_GOT_TRAINER_CARD` | Winning the Trainer Card | Morning. The friends wait in the Science Research Institute with the director. |
 | `ACT2_FINAL_PROJECT` | The director's brief | Free to explore Kanto. Trainers and wild Pokémon are scaled (below). |
 | `ACT2_PARENTS_TALKED` | Mom and Dad, at home | The Woods open: the eerie noise, the ranger station. |
-| `ACT2_LEGENDS_CALMED` | Dad and Mew stop the legendary trio | The player wakes in their room at home; the friends arrive. |
+| `ACT2_LEGENDS_CALMED` | Mom, Dad and Mew stop the legendary trio | The player wakes in their room at home; the friends arrive. |
 | `ACT2_DONE` | Tri-Blast, in the lab | "Several years later", then Act 3 in Silph Co. |
 
 ## The brief
@@ -82,9 +82,9 @@ each with a powerful Water Pokémon that battles the player. A medkit at the far
 off the path: "Grass Pokémon ambushed you!" and back to the path's start.
 
 **B4F: the chamber.** Entei, Suicune and Virizion (Lv. 50), a 3v3. The player acts once; then all three attack
-together (Fire, Water and Grass, 120 power each, one animation). The battle cuts out: Dad is there, and his Mew takes
-the blast. The trio calms. Dad: that was dangerous. "…" (how did you get Mew?) He befriended it in these Woods as a
-kid; it shows up when he needs it.
+together (Fire, Water and Grass, 120 power each, one animation). The battle cuts out: Mom and Dad are there, and
+Dad's Mew takes the blast. The trio calms. Mom and Dad: that was dangerous. "…" (how did you get Mew?) Dad befriended
+it in these Woods as a kid; it shows up when he needs it.
 
 ## The ending
 

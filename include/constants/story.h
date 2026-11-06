@@ -84,6 +84,7 @@
 #define ACT2_FINALE_CLOCK_SOLVED    (1 << 1) // B1F: 4:15 a.m. set; the gate around the stair is open
 #define ACT2_FINALE_MEDKIT_USED     (1 << 2) // B2F: the medkit was opened (it can be used again)
 #define ACT2_FINALE_GRASS_CROSSED   (1 << 3) // B3F: walked the hidden path once
+#define ACT2_FINALE_CLOCK_SET       (1 << 4) // B1F: VAR_ACT2_CLOCK set to ACT2_CLOCK_START (on the first visit)
 
 // VAR_ACT2_CLOCK: bit (n - 1) for the torch at n o'clock, then the moon and sun furnaces
 #define ACT2_CLOCK_MOON             12

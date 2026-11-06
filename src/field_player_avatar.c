@@ -1,4 +1,5 @@
 #include "global.h"
+#include "act2_station.h"
 #include "main.h"
 #include "bike.h"
 #include "event_data.h"
@@ -849,7 +850,8 @@ static void PlayerNotOnBikeMoving(enum Direction direction, u16 heldKeys)
 
     if (collision)
     {
-        if (collision == COLLISION_LEDGE_JUMP)
+        // The ranger station's flooded floor: jump one square of water to the stone behind it (act2_station.c)
+        if (collision == COLLISION_LEDGE_JUMP || (collision == COLLISION_IMPASSABLE && Act2Station_CanJumpGap(direction)))
         {
             PlayerJumpLedge(direction);
             return;

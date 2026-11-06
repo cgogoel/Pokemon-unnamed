@@ -675,3 +675,17 @@ gSpecials::
 	def_special Act2_SetResearchFlag
 	def_special Act2_HasResearchFlag
 	def_special Act2_ClearResearchFlag
+	def_special Act2Station_DrawFloor
+	def_special Act2Station_HasFinaleBit
+	def_special Act2Station_SetFinaleBit
+	def_special Act2Station_FindFireMoveUser
+	def_special Act2Station_FindWaterMoveUser
+	def_special Act2Station_GetFacedClockPiece
+	def_special Act2Station_IsClockPieceLit
+	def_special Act2Station_ToggleClockPiece
+	def_special Act2Station_OpenClockGate
+	def_special Act2Station_IsDeadEndBeaten
+	def_special Act2Station_PrepareDeadEnd
+	def_special Act2Station_CreateDeadEndMon
+	def_special Act2Station_SetDeadEndBeaten
+	def_special Act2Station_GetPathStart

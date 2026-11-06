@@ -792,7 +792,12 @@
     "SixIsland_DottedHole_B4F_Frlg",
     "SixIsland_DottedHole_SapphireRoom_Frlg",
     "SixIsland_PatternBush_Frlg",
-    "SixIsland_AlteringCave_Frlg"
+    "SixIsland_AlteringCave_Frlg",
+    "RangerStation_1F",
+    "RangerStation_B1F",
+    "RangerStation_B2F",
+    "RangerStation_B3F",
+    "RangerStation_B4F"
   ],
   "gMapGroup_SpecialArea_Frlg": [
     "NavelRock_Exterior_Frlg",

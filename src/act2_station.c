@@ -30,7 +30,7 @@ extern const u8 RangerStation_B3F_EventScript_Ambush[];
 #define METATILE_FURNACE_COLD       0x382
 #define METATILE_FURNACE_LIT        0x383
 
-#define DEAD_END_LEVEL_ABOVE_PARTY  8
+#define DEAD_END_LEVEL_ABOVE_PARTY  2
 
 #define IS_ON_MAP(map) (gSaveBlock1Ptr->location.mapGroup == MAP_GROUP(map) && gSaveBlock1Ptr->location.mapNum == MAP_NUM(map))
 
@@ -228,7 +228,7 @@ void Act2Station_PrepareDeadEnd(void)
 }
 
 // special Act2Station_CreateDeadEndMon with the dead end (1-5) in VAR_TEMP_1, after setwildbattle: the dead end's
-// Pokémon, 8 levels above the party's average
+// Pokémon, 2 levels above the party's average
 void Act2Station_CreateDeadEndMon(void)
 {
     u32 i, total = 0, count = 0, level;

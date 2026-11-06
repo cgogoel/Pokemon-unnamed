@@ -17,9 +17,9 @@
   "connections": null,
   "object_events": [
     {
-      "local_id": "LOCALID_CHAMBER_ENTEI",
+      "local_id": "LOCALID_CHAMBER_HEATRAN",
       "type": "object",
-      "graphics_id": "OBJ_EVENT_GFX_SPECIES(ENTEI)",
+      "graphics_id": "OBJ_EVENT_GFX_SPECIES(HEATRAN)",
       "x": 5,
       "y": 6,
       "elevation": 3,

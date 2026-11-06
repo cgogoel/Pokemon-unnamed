@@ -364,7 +364,7 @@ def compose_b3f():
 # B4F: gTileset_General_Frlg + gTileset_MtEmber
 B4_EXTRA_ROWS = 5
 B4_LADDER_UP = (11, 13)    # Arrival from B3F
-B4_TRIO = {'ENTEI': (5, 6), 'SUICUNE': (7, 6), 'VIRIZION': (9, 6)}
+B4_TRIO = {'HEATRAN': (5, 6), 'SUICUNE': (7, 6), 'VIRIZION': (9, 6)}
 B4_SCENE = {'MEW': (7, 9), 'DAD': (6, 10), 'MOM': (8, 10)}
 B4_TRIGGER_ROW = 12        # x 3-10
 B4_TRIGGER_X = range(3, 11)

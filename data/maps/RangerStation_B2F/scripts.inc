@@ -1,6 +1,6 @@
 @ The abandoned ranger station, B2F: the flood (Act 2 finale, docs/hack/act2_finale.md). Stepping stones in water too
 @ deep to wade; walking at one square of water with a stone behind it jumps it (Act2Station_CanJumpGap). Five dead
-@ ends, each with a powerful Water Pokémon that battles the player there (8 levels above the party's average) until
+@ ends, each with a powerful Water Pokémon that battles the player there (2 levels above the party's average) until
 @ beaten or caught (FLAG_ACT2_DEAD_END_1-5). The dead ends' objects come first: their local ids are 1-5, which
 @ removeobject VAR_TEMP_1 relies on. A medkit before the ladder down heals the party, any number of times.
 

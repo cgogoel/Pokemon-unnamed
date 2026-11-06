@@ -106,7 +106,7 @@ with a stone (or floor) right behind it jumps it, like a ledge (`Act2Station_Can
 onto an object). Ladder up (warp 0 at (1, 15)), ladder down at the far end (warp 1 at (19, 1)), the MEDKIT (an item
 ball at (19, 5); heals the party, any number of times). The stones form a tree with exactly five dead ends (the
 composer checks); at each, a Water Pokémon in the water beyond battles the player on arrival (coord event on the
-stone) or when talked to, at the party's average level + 8. Beaten or caught: gone for good.
+stone) or when talked to, at the party's average level + 2. Beaten or caught: gone for good.
 
 | Dead end | Stone | Pokémon at | Species | Flag |
 |---|---|---|---|---|
@@ -125,13 +125,13 @@ which reads the pattern off the map): "GRASS POKéMON ambushed you! You fled bac
 Reaching the row above the field sets `ACT2_FINALE_GRASS_CROSSED`.
 
 **B4F: the chamber** (`MUS_RG_SEVII_DUNGEON`). Mt. Ember's Ruby Path altar room, stretched. Ladder up: warp 0 at
-(11, 13). Objects: ENTEI (5, 6), SUICUNE (7, 6), VIRIZION (9, 6), facing down (`LOCALID_CHAMBER_ENTEI` / `_SUICUNE` /
+(11, 13). Objects: HEATRAN (5, 6), SUICUNE (7, 6), VIRIZION (9, 6), facing down (`LOCALID_CHAMBER_HEATRAN` / `_SUICUNE` /
 `_VIRIZION`); hidden for the scene: MEW (7, 9) (`LOCALID_CHAMBER_MEW`, `FLAG_TEMP_2`), DAD (6, 10)
 (`LOCALID_CHAMBER_DAD`, `FLAG_TEMP_1`), MOM (8, 10) (`LOCALID_CHAMBER_MOM`, `FLAG_TEMP_3`), all facing up. Coord
 events on row y = 12, x 3-10 (`VAR_ACT2_PROGRESS` == 15, `ACT2_PARENTS_TALKED`) run
 `RangerStation_B4F_EventScript_Encounter` (a stub, for the story to fill in).
 
-Entei, Suicune and Virizion (Lv. 50), a 3v3. The player acts once; then all three attack together (Fire, Water and
+Heatran, Suicune and Virizion (Lv. 50), a 3v3. The player acts once; then all three attack together (Fire, Water and
 Grass, 120 power each, one animation). The battle cuts out: Dad is there, and his Mew takes the blast. The trio calms.
 Dad: that was dangerous. "…" (how did you get Mew?) He befriended it in these Woods as a kid; it shows up when he
 needs it.

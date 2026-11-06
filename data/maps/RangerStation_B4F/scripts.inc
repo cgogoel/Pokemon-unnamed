@@ -1,4 +1,4 @@
-@ The abandoned ranger station, B4F: the chamber (Act 2 finale, docs/hack/act2_finale.md). ENTEI, SUICUNE and
+@ The abandoned ranger station, B4F: the chamber (Act 2 finale, docs/hack/act2_finale.md). HEATRAN, SUICUNE and
 @ VIRIZION stand together at the top; DAD, MOM and MEW are hidden until the story's scene (FLAG_TEMP_1-3). The row
 @ of coord events in front of the trio (VAR_ACT2_PROGRESS == ACT2_PARENTS_TALKED) starts the encounter.
 

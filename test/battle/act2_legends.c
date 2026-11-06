@@ -11,15 +11,15 @@ ACT2_LEGENDS_BATTLE_TEST("Act 2 legends: the player acts once, then the trio att
         PLAYER(SPECIES_WOBBUFFET);
         PLAYER(SPECIES_WYNAUT);
         PLAYER(SPECIES_PIKACHU);
-        OPPONENT(SPECIES_ENTEI) { Level(50); Moves(MOVE_FIRE_BLAST); }
+        OPPONENT(SPECIES_HEATRAN) { Level(50); Moves(MOVE_FIRE_BLAST); }
         OPPONENT(SPECIES_SUICUNE) { Level(50); Moves(MOVE_HYDRO_PUMP); }
         OPPONENT(SPECIES_VIRIZION) { Level(50); Moves(MOVE_LEAF_BLADE); }
     } WHEN {
         TURN { MOVE(playerLeft, MOVE_CELEBRATE); }
     } SCENE {
-        MESSAGE("ENTEI, SUICUNE and VIRIZION\nattacked!\p");
+        MESSAGE("HEATRAN, SUICUNE and VIRIZION\nattacked!\p");
         ANIMATION(ANIM_TYPE_MOVE, MOVE_CELEBRATE, playerLeft);
-        MESSAGE("ENTEI, SUICUNE and VIRIZION\nattacked together!");
+        MESSAGE("HEATRAN, SUICUNE and VIRIZION\nattacked together!");
         ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_ACT2_LEGENDS_TRIO, opponentRight);
         NONE_OF {
             ANIMATION(ANIM_TYPE_MOVE, MOVE_FIRE_BLAST, opponentLeft);
@@ -43,14 +43,14 @@ ACT2_LEGENDS_BATTLE_TEST("Act 2 legends: the trio can't be knocked out")
         PLAYER(SPECIES_WOBBUFFET);
         PLAYER(SPECIES_WYNAUT);
         PLAYER(SPECIES_PIKACHU);
-        OPPONENT(SPECIES_ENTEI) { Level(50); HP(1); }
+        OPPONENT(SPECIES_HEATRAN) { Level(50); HP(1); }
         OPPONENT(SPECIES_SUICUNE) { Level(50); }
         OPPONENT(SPECIES_VIRIZION) { Level(50); }
     } WHEN {
         TURN { MOVE(playerLeft, MOVE_TRI_BLAST, target: opponentLeft); }
     } SCENE {
         ANIMATION(ANIM_TYPE_MOVE, MOVE_TRI_BLAST, playerLeft);
-        MESSAGE("ENTEI, SUICUNE and VIRIZION\nattacked together!");
+        MESSAGE("HEATRAN, SUICUNE and VIRIZION\nattacked together!");
     } THEN {
         EXPECT_EQ(opponentLeft->hp, 1);
         EXPECT_EQ(gBattleOutcome, B_OUTCOME_ACT2_LEGENDS_INTERRUPTED);
@@ -63,7 +63,7 @@ ACT2_LEGENDS_BATTLE_TEST("Act 2 legends: the player can't run")
         PLAYER(SPECIES_WOBBUFFET);
         PLAYER(SPECIES_WYNAUT);
         PLAYER(SPECIES_PIKACHU);
-        OPPONENT(SPECIES_ENTEI) { Level(50); }
+        OPPONENT(SPECIES_HEATRAN) { Level(50); }
         OPPONENT(SPECIES_SUICUNE) { Level(50); }
         OPPONENT(SPECIES_VIRIZION) { Level(50); }
     } WHEN {

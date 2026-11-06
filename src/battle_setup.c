@@ -572,7 +572,7 @@ void StartBefriendBattle(void)
     IncrementGameStat(GAME_STAT_WILD_BATTLES);
 }
 
-// special StartAct2LegendsBattle (Act2_EventScript_LegendsBattle): Act 2's finale, a wild 3v3 against ENTEI, SUICUNE
+// special StartAct2LegendsBattle (Act2_EventScript_LegendsBattle): Act 2's finale, a wild 3v3 against HEATRAN, SUICUNE
 // and VIRIZION (src/act2_legends.c). VAR_RESULT is the outcome afterwards; never a blackout.
 void StartAct2LegendsBattle(void)
 {

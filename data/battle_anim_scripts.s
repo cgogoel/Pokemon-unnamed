@@ -35096,7 +35096,7 @@ TriBlastBeams:
 	delay 2
 	return
 
-@ Act 2's finale (src/act2_legends.c): ENTEI, SUICUNE and VIRIZION fire at the player's side together, a Flamethrower,
+@ Act 2's finale (src/act2_legends.c): HEATRAN, SUICUNE and VIRIZION fire at the player's side together, a Flamethrower,
 @ a Hydro Pump and a Solar Beam from each one's own spot, side by side. Ends on a white flash: the battle cuts out there.
 gBattleAnimGeneral_Act2LegendsTrio::
 	setalpha 12, 8

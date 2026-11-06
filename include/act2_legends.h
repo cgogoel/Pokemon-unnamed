@@ -2,7 +2,7 @@
 #define GUARD_ACT2_LEGENDS_H
 
 // Act 2's finale: the legendary trio's battle in the ranger station's B4F chamber (docs/hack/act2_finale.md).
-// A wild 3v3 against ENTEI, SUICUNE and VIRIZION: the player acts once, the trio can't be knocked out and doesn't
+// A wild 3v3 against HEATRAN, SUICUNE and VIRIZION: the player acts once, the trio can't be knocked out and doesn't
 // take a normal turn, then all three attack together (one animation) and the battle ends with no damage dealt.
 // Started by Act2_EventScript_LegendsBattle (data/scripts/act2_legends.inc).
 

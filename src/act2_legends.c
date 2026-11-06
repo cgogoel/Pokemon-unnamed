@@ -31,11 +31,11 @@ struct Act2Legend
     u16 moves[MAX_MON_MOVES];
 };
 
-// Party order is formation order: ENTEI in front, SUICUNE in the middle, VIRIZION at the back.
+// Party order is formation order: HEATRAN in front, SUICUNE in the middle, VIRIZION at the back.
 // The order matches enum TriBeamKind: each one fires the beam of its type in the joint attack.
 static const struct Act2Legend sAct2Legends[TRI_BEAM_COUNT] =
 {
-    [TRI_BEAM_FIRE]  = {SPECIES_ENTEI,    {MOVE_FIRE_BLAST, MOVE_EXTRASENSORY, MOVE_CRUNCH, MOVE_STOMP}},
+    [TRI_BEAM_FIRE]  = {SPECIES_HEATRAN,  {MOVE_FIRE_BLAST, MOVE_EARTH_POWER, MOVE_FLASH_CANNON, MOVE_LAVA_PLUME}},
     [TRI_BEAM_WATER] = {SPECIES_SUICUNE,  {MOVE_HYDRO_PUMP, MOVE_EXTRASENSORY, MOVE_ICE_BEAM, MOVE_CALM_MIND}},
     [TRI_BEAM_GRASS] = {SPECIES_VIRIZION, {MOVE_LEAF_BLADE, MOVE_SACRED_SWORD, MOVE_GIGA_DRAIN, MOVE_SWORDS_DANCE}},
 };

@@ -113,7 +113,7 @@ each with a powerful Water Pokémon that battles the player. A medkit at the far
 **B3F: the overgrowth.** A pattern on the floor before the overgrown room shows the path. In the tall grass, a step
 off the path: "Grass Pokémon ambushed you!" and back to the path's start.
 
-**B4F: the chamber.** Entei, Suicune and Virizion (Lv. 50), a 3v3. The player acts once; then all three attack
+**B4F: the chamber.** Heatran, Suicune and Virizion (Lv. 50), a 3v3. The player acts once; then all three attack
 together (Fire, Water and Grass, 120 power each, one animation). The battle cuts out: Mom and Dad are there, and
 their Mew takes the blast. The trio calms. Mom and Dad: that was dangerous. "…" (how did you get Mew?) They befriended
 it in these Woods when they were young; it comes to visit them when they need it.

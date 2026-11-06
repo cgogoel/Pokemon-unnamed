@@ -94,7 +94,9 @@ Maps `RangerStation_1F` and `_B1F`-`_B4F` (map group `gMapGroup_Dungeons_Frlg`).
 `tools/hack/compose_ranger_station.py` (re-running overwrites all five, and writes `src/data/act2_station_layout.h`,
 the positions the C code uses); custom metatiles: `tools/hack/draw_station_tiles.py` (runs
 `draw_mansion_furnace.py` first) and B3F's tileset, `tools/hack/draw_station_grove.py` (run before the composer). Code: `src/act2_station.c`; each floor's events in its `scripts.inc`. No wild
-Pokémon on any floor. Floors are joined by stairs (1F-B1F-B2F) and ladders (B2F-B3F-B4F).
+Pokémon on any floor. Floors are joined by stairs (1F-B1F-B2F) and ladders (B2F-B3F-B4F). Every ladder sits on its
+floor's own tiles: B2F's and B4F's ladder tops are redrawn on the chamber floor (`draw_station_tiles.py`), B3F's
+are drawn for the planks.
 
 **1F** (`MUS_RG_POKE_MANSION`). Saffron's north/south gate, abandoned: no guards, boxes left behind, the north door
 walled up, the left aisle widened for a stair down behind the left counter. Entered from the Woods by the story:
@@ -150,8 +152,8 @@ stone) or when talked to, at the party's average level + 2. Beaten or caught: go
 
 **B3F: the overgrowth** (`MUS_RG_VIRIDIAN_FOREST`). An old basement room (the Mansion's walls) with a wooden plank
 floor that trees and tall grass have grown up through: its own tileset, `gTileset_RangerStationGrove`
-(`tools/hack/draw_station_grove.py`: plank variants, the overworld trees and tall grass and Cerulean Cave's ladders
-redrawn on the planks, the Mansion's walls). Near the entrance (ladder up, warp 0 at (12, 18)) a stone tablet at
+(`tools/hack/draw_station_grove.py`: plank variants, whole overworld trees (crown to trunk) and tall grass redrawn
+on the planks, a wooden ladder up and a hatch cut through the boards for the ladder down, the Mansion's walls). Near the entrance (ladder up, warp 0 at (12, 18)) a stone tablet at
 (5-7, 16-18) shows the hidden path at a small scale: a 9x9 grid, the path's squares light and joined, the start red,
 the way out yellow. It maps square for square onto the 9x9 field of tall grass at (3-11, 5-13). The path (33
 squares) starts at the field's bottom left, entered from (3, 14), and leaves at the top towards the ladder down (warp

@@ -12,6 +12,11 @@ the tileset is rebuilt from the same base every time). A new row of 16 tiles at 
 Cerulean Cave tileset (B2F, the flood). A new row of tiles at the end of tiles.png, its palette 08 (cave greys):
     0x306 stepping stone   (a flat rock in the cave's pond water, walkable)
 
+    0x307 the ladder up's top half on the chamber floor (no new tiles)
+
+Mt. Ember tileset (B4F). No new tiles:
+    0x362 the ladder up's top half on the altar room's floor
+
 Generic building 2 tileset (1F). No new tiles:
     0x338 a cardboard box  (the building tileset's, on the gate's floor)
 
@@ -225,7 +230,27 @@ def draw_cave():
     add_metatiles(CAVE, CAVE_METATILES, [
         water + [(first + t) | (CAVE_PAL << 12) for t in range(4)],   # 0x306 stepping stone
     ], MB_NORMAL | LAYER_COVERED)
-    print('Cerulean Cave: stepping stone 0x306')
+    # The ladder up's top half standing on the chamber's floor, not on a scrap of the rock it leans on elsewhere
+    add_metatiles(CAVE, CAVE_METATILES + 1, [layers_of(CAVE, 0x281)[:4] + layers_of(CAVE, 0x28E)[4:]],
+                  attr_of(CAVE, 0x28E))
+    print('Cerulean Cave: stepping stone 0x306, ladder top on the floor 0x307')
+
+
+def attr_of(folder, metatile_id):
+    i = metatile_id - PRIMARY_METATILES
+    return struct.unpack('<I', open(os.path.join(folder, 'metatile_attributes.bin'), 'rb').read()[i * 4:i * 4 + 4])[0]
+
+
+# --- Mt. Ember (B4F) ------------------------------------------------------------------------------------------------
+EMBER = os.path.join(ROOT, 'data/tilesets/secondary/mt_ember_frlg')
+EMBER_METATILES = 226
+
+
+def draw_ember():
+    """No new tiles: the ladder up's top half on the altar room's floor (0x281) instead of a scrap of rock."""
+    add_metatiles(EMBER, EMBER_METATILES, [layers_of(EMBER, 0x281)[:4] + layers_of(EMBER, 0x28E)[4:]],
+                  attr_of(EMBER, 0x28E))
+    print('Mt. Ember: ladder top on the floor 0x362')
 
 
 # --- Generic building 2 (1F) ----------------------------------------------------------------------------------------
@@ -245,3 +270,4 @@ if __name__ == '__main__':
     draw_mansion()
     draw_cave()
     draw_gate()
+    draw_ember()

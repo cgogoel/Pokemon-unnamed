@@ -43,8 +43,7 @@ NAMES = [
     'WALL_L_BASE2', 'WALL_BASE', 'WALL_R_BASE2', 'WALL_L',
     'WALL_BL_EDGE', 'WALL_BR_EDGE', 'WALL_BL_CAP', 'WALL_BR_CAP', 'WALL_BL_FACE', 'WALL_BR_FACE',
     'WALL_BL_BASE', 'WALL_BR_BASE', 'WALL_B_CAP', 'WALL_B_FACE', 'WALL_B_BASE',
-    'PINE_TOP_L', 'PINE_TOP_R', 'PINE_BOTTOM_L', 'PINE_BOTTOM_R',
-    'TREE_ROW_TOP_L', 'TREE_ROW_TOP_R', 'TREE_ROW_BOTTOM_L', 'TREE_ROW_BOTTOM_R',
+    'TREE_CROWN_L', 'TREE_CROWN_R', 'TREE_L', 'TREE_R', 'TREE_BETWEEN_L', 'TREE_BETWEEN_R', 'TREE_FOOT_L', 'TREE_FOOT_R',
     'TALL_GRASS',
     'LADDER_UP_TOP', 'LADDER_UP', 'LADDER_DOWN',
     'TABLET_0', 'TABLET_1', 'TABLET_2', 'TABLET_3', 'TABLET_4', 'TABLET_5', 'TABLET_6', 'TABLET_7', 'TABLET_8',
@@ -179,6 +178,66 @@ def roots(img, trunk_colors):
     return out
 
 
+# --- Ladders ----------------------------------------------------------------------------------------------------------
+RAIL_DARK, RAIL, RAIL_LIGHT = (82, 57, 32), (156, 106, 57), (213, 156, 90)
+
+
+def ladder_up(top_floor, floor):
+    """A wooden ladder (two rails, rungs every 4 px) standing on the planks, its top rising out of sight: the upper
+    half fades into the dark of the opening above. Two metatiles, top and bottom."""
+    img = [r[:] for r in top_floor] + [r[:] for r in floor]
+    for y in range(32):
+        for x0 in (3, 11):
+            img[y][x0], img[y][x0 + 1] = RAIL_DARK, RAIL_LIGHT if y % 6 else RAIL
+            img[y][x0 + 2] = RAIL_DARK if x0 == 11 else RAIL
+        if y % 4 == 2 and y < 30:
+            for x in range(5, 11):
+                img[y][x] = RAIL_LIGHT
+                img[y + 1][x] = RAIL_DARK
+    for x in range(2, 15):  # Its shadow on the boards and its feet
+        img[31][x] = SEAM
+    for x0 in (3, 11):
+        img[30][x0 - 1] = SEAM
+        img[31][x0], img[31][x0 + 1], img[31][x0 + 2] = RAIL_DARK, RAIL_DARK, RAIL_DARK
+    fade = [GAP, GAP, (57, 41, 24), (57, 41, 24), SEAM, SEAM]
+    for y, color in enumerate(fade):  # Into the dark above
+        for x in range(2, 15):
+            if img[y][x] in (RAIL, RAIL_LIGHT, RAIL_DARK) or y < 2:
+                img[y][x] = color if y < 2 or img[y][x] == RAIL_DARK else blend(img[y][x], color)
+    return img[:16], img[16:]
+
+
+def blend(a, b):
+    return tuple((x + y) // 2 for x, y in zip(a, b))
+
+
+def hatch(floor):
+    """A square hole cut through the boards, a ladder going down into the dark: the boards' cut ends around it,
+    the hole's far side (its north wall) catching some light."""
+    img = [r[:] for r in floor]
+    x0, x1, y0, y1 = 2, 13, 2, 13
+    for y in range(y0, y1 + 1):
+        for x in range(x0, x1 + 1):
+            img[y][x] = GAP
+    for x in range(x0, x1 + 1):
+        img[y0][x] = DARK          # The far side's lip
+        img[y0 + 1][x] = SEAM
+        img[y1 + 1][x] = LIGHT     # The near boards' cut ends
+    for y in range(y0, y1 + 2):
+        img[y][x0 - 1] = SEAM
+        img[y][x1 + 1] = LIGHT if y > y0 else SEAM
+    for y in range(y0 + 1, y1 + 1):  # The ladder: rails and rungs, darker the deeper
+        depth = (y - y0) / (y1 - y0)
+        rail = RAIL_LIGHT if depth < 0.3 else RAIL if depth < 0.6 else RAIL_DARK
+        for x in (4, 11):
+            img[y][x] = rail
+            img[y][x + 1] = RAIL_DARK if depth < 0.6 else (57, 41, 24)
+        if (y - y0) % 4 == 1:
+            for x in range(6, 11):
+                img[y][x] = rail
+    return img
+
+
 # --- The tablet ------------------------------------------------------------------------------------------------------
 STONE_DARK, STONE_LIGHT, SLATE, SLATE_CELL, PATH_CELL, START, EXIT, OUTLINE = \
     (82, 82, 90), (164, 164, 172), (32, 40, 49), (57, 66, 82), (230, 230, 213), (230, 57, 41), (246, 205, 57), (16, 16, 24)
@@ -243,16 +302,18 @@ def compose(path_rows):
     # Trees and grass through the floor
     grass_colors |= {GRASS_SPECK}
     trunk_colors = {c for c in colors(general(0x024), general(0x025)) - grass_colors if c[0] >= c[1]}
-    for name, mid in (('PINE_TOP_L', 0x01E), ('PINE_TOP_R', 0x01F), ('PINE_BOTTOM_L', 0x016), ('PINE_BOTTOM_R', 0x017),
-                      ('TREE_ROW_TOP_L', 0x01C), ('TREE_ROW_TOP_R', 0x01D), ('TREE_ROW_BOTTOM_L', 0x024),
-                      ('TREE_ROW_BOTTOM_R', 0x025)):
+    # A column of trees, top to bottom (as the overworld stacks them): the crown's tip, then per tree its body and
+    # either the next tree's tip over its foot (between) or, for the last, its foot with the trunk on the boards
+    for name, mid in (('TREE_CROWN_L', 0x00E), ('TREE_CROWN_R', 0x00F), ('TREE_L', 0x01E), ('TREE_R', 0x01F),
+                      ('TREE_BETWEEN_L', 0x016), ('TREE_BETWEEN_R', 0x017), ('TREE_FOOT_L', 0x024),
+                      ('TREE_FOOT_R', 0x025)):
         pic = swap(swap(general(mid), grass_colors, PLANK), {GRASS_SHADOW}, shaded)
-        if 'BOTTOM' in name:
+        if 'FOOT' in name:
             pic = roots(pic, trunk_colors)
         pics[name] = pic
     pics['TALL_GRASS'] = swap(swap(general(0x00D), grass_colors, planks(8)), {GRASS_SHADOW}, shade(planks(8)))
-    for name, mid in (('LADDER_UP_TOP', 0x28E), ('LADDER_UP', 0x296), ('LADDER_DOWN', 0x285)):
-        pics[name] = swap(cave(mid), cave_floor_colors, PLANK)
+    pics['LADDER_UP_TOP'], pics['LADDER_UP'] = ladder_up(PLANK, planks(2))
+    pics['LADDER_DOWN'] = hatch(shaded)
     for i, pic in enumerate(tablet(path_rows)):
         pics['TABLET_%d' % i] = pic
     return pics

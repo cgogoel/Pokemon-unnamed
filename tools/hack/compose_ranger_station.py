@@ -178,7 +178,7 @@ WATER_EDGES = {  # (wall/floor above, left, right) -> the pond water piece with 
     (False, True, True): 0x12B, (True, True, True): 0x123,
 }
 STONE = 0x306
-LADDER_UP_TOP, LADDER_UP, LADDER_DOWN = 0x28E, 0x296, 0x285
+LADDER_UP_TOP, LADDER_UP, LADDER_DOWN = 0x307, 0x296, 0x285  # 0x307: the ladder top on the floor (draw_station_tiles.py)
 
 
 def cave_room(w, h):
@@ -363,16 +363,17 @@ def compose_b3f():
                          ((0, H - 1), 'WALL_BL_BASE'), ((W - 1, H - 4), 'WALL_BR_EDGE'), ((W - 1, H - 3), 'WALL_BR_CAP'),
                          ((W - 1, H - 2), 'WALL_BR_FACE'), ((W - 1, H - 1), 'WALL_BR_BASE')):
         wall(x, y, name)
-    # Trees grown up through the floor down both sides of the field (two wide, packed like a forest's edge)
-    for y in range(3, fy + B3_SIZE):
-        top = (y - 3) % 2 == 0
-        for x0 in (1, W - 3):
-            g[x0, y] = blk(G['PINE_TOP_L' if top else 'PINE_BOTTOM_L'], True)
-            g[x0 + 1, y] = blk(G['PINE_TOP_R' if top else 'PINE_BOTTOM_R'], True)
-    # A row of trees in front of the bottom wall's left end, grass sprouting here and there
-    for x in (1, 2):
-        g[x, H - 6] = blk(G['TREE_ROW_TOP_L' if x == 1 else 'TREE_ROW_TOP_R'], True)
-        g[x, H - 5] = blk(G['TREE_ROW_BOTTOM_L' if x == 1 else 'TREE_ROW_BOTTOM_R'], True)
+    # Whole trees grown up through the floor, a column down both sides of the field: the top crown just below the
+    # wall, the last tree's trunk on the boards (the column's rows: 1 + 2 a tree)
+    def tree_column(x0, y0, trees):
+        rows = ['TREE_CROWN'] + [p for i in range(trees) for p in ('TREE', 'TREE_BETWEEN' if i < trees - 1 else 'TREE_FOOT')]
+        for k, part in enumerate(rows):
+            g[x0, y0 + k] = blk(G[part + '_L'], True)
+            g[x0 + 1, y0 + k] = blk(G[part + '_R'], True)
+    assert (fy + B3_SIZE - 3) % 2 == 1
+    for x0 in (1, W - 3):
+        tree_column(x0, 3, (fy + B3_SIZE - 3) // 2)
+    tree_column(1, H - 7, 1)  # A lone tree by the entrance
     for xy in ((9, 16), (10, 16), (2, 15), (13, 15), (11, 19 - 4 + 3), (4, 18)):
         g[xy] = blk(G['TALL_GRASS'])
     # The field
@@ -422,7 +423,7 @@ def compose_b4f():
         for x in range(sw):
             b = old(x, oy)
             g[x, 9 + B4_EXTRA_ROWS + k] = blk(0x281) if (b & 0x3FF) in (0x303, 0x300, 0x2FC, 0x301, 0x305, 0x304) else b
-    g[B4_LADDER_UP[0], B4_LADDER_UP[1] - 1] = blk(0x28E, True)
+    g[B4_LADDER_UP[0], B4_LADDER_UP[1] - 1] = blk(0x362, True)  # The ladder top on the floor (draw_station_tiles.py)
     g[B4_LADDER_UP] = blk(0x297)
     # Underground: darkness all round the chamber, not Mt. Ember's sunny mountainside
     for i, b in enumerate(g.cells):

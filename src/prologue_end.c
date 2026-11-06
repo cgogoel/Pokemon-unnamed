@@ -9,6 +9,7 @@
 #include "menu.h"
 #include "overworld.h"
 #include "palette.h"
+#include "prologue_end.h"
 #include "sprite.h"
 #include "text.h"
 #include "window.h"
@@ -16,11 +17,12 @@
 #include "constants/rgb.h"
 #include "constants/story.h"
 
-// The end of Act 1 (docs/hack/act1_story.md): title cards on black, then Act 2 starts at Celadon University.
+// The end of an act: title cards on black (3 seconds each, or until A/B), then the next act starts somewhere new.
+// The end of Act 1 (docs/hack/act1_story.md) is here; the end of Act 2 is in src/act2_end.c.
 
 #define CARD_FRAMES 180
 
-static const u8 *const sCards[] =
+static const u8 *const sPrologueCards[] =
 {
     COMPOUND_STRING("End of Prologue"),
     COMPOUND_STRING("Years Later at Celadon University"),
@@ -59,8 +61,11 @@ static const u8 sTextColors[] = { 0, 1, 2 };
 static EWRAM_DATA void *sTilemap = NULL;
 static EWRAM_DATA u16 sTimer = 0;
 static EWRAM_DATA u8 sCard = 0;
+static EWRAM_DATA const u8 *const *sCards = NULL;
+static EWRAM_DATA u8 sCardCount = 0;
+static EWRAM_DATA void (*sStartNextAct)(void) = NULL;
 
-static void VBlankCB_PrologueEnd(void)
+static void VBlankCB_ActEndCards(void)
 {
     LoadOam();
     ProcessSpriteCopyRequests();
@@ -76,7 +81,7 @@ static void PrintCard(void)
     CopyWindowToVram(0, COPYWIN_FULL);
 }
 
-static void CB2_PrologueEnd(void)
+static void CB2_ActEndCards(void)
 {
     RunTextPrinters();
     AnimateSprites();
@@ -107,7 +112,7 @@ static void CB2_PrologueEnd(void)
         sCard = 0;
         PrintCard();
         BlendPalettes(PALETTES_ALL, 16, RGB_BLACK);
-        SetVBlankCallback(VBlankCB_PrologueEnd);
+        SetVBlankCallback(VBlankCB_ActEndCards);
         SetGpuReg(REG_OFFSET_DISPCNT, DISPCNT_MODE_0);
         ShowBg(0);
         BeginNormalPaletteFade(PALETTES_ALL, 2, 16, 0, RGB_BLACK);
@@ -130,7 +135,7 @@ static void CB2_PrologueEnd(void)
     case 3:
         if (gPaletteFade.active)
             break;
-        if (++sCard < ARRAY_COUNT(sCards))
+        if (++sCard < sCardCount)
         {
             PrintCard();
             BeginNormalPaletteFade(PALETTES_ALL, 2, 16, 0, RGB_BLACK);
@@ -139,12 +144,7 @@ static void CB2_PrologueEnd(void)
         }
         FreeAllWindowBuffers();
         TRY_FREE_AND_SET_NULL(sTilemap);
-        VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
-        VarSet(VAR_ACT2_PROGRESS, ACT2_START);
-        Act2_RaisePartyLevels();
-        Act2_GiveStartingKit();
-        SetLastHealLocationWarp(HEAL_LOCATION_CELADON_CITY);
-        SetWarpDestination(MAP_GROUP(ACT2_START_MAP), MAP_NUM(ACT2_START_MAP), WARP_ID_NONE, ACT2_START_X, ACT2_START_Y);
+        sStartNextAct();
         WarpIntoMap();
         gMain.state = 0;
         SetMainCallback2(CB2_LoadMap);
@@ -152,9 +152,29 @@ static void CB2_PrologueEnd(void)
     }
 }
 
+// Shows the cards, then calls startNextAct (which sets the story vars and the warp destination) and warps.
+// The screen must already be faded to black.
+void ShowActEndCards(const u8 *const *cards, u8 count, void (*startNextAct)(void))
+{
+    sCards = cards;
+    sCardCount = count;
+    sStartNextAct = startNextAct;
+    gMain.state = 0;
+    SetMainCallback2(CB2_ActEndCards);
+}
+
+static void StartAct2(void)
+{
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_START);
+    Act2_RaisePartyLevels();
+    Act2_GiveStartingKit();
+    SetLastHealLocationWarp(HEAL_LOCATION_CELADON_CITY);
+    SetWarpDestination(MAP_GROUP(ACT2_START_MAP), MAP_NUM(ACT2_START_MAP), WARP_ID_NONE, ACT2_START_X, ACT2_START_Y);
+}
+
 // special Act1_StartPrologueEnd, with the screen already faded to black
 void Act1_StartPrologueEnd(void)
 {
-    gMain.state = 0;
-    SetMainCallback2(CB2_PrologueEnd);
+    ShowActEndCards(sPrologueCards, ARRAY_COUNT(sPrologueCards), StartAct2);
 }

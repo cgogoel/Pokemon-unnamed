@@ -1565,6 +1565,29 @@ static const struct SpriteFrameImage sPicTable_PlayerWorker[] = {
     overworld_frame(gObjectEventPic_WorkerM, 2, 4, 0),
     overworld_frame(gObjectEventPic_WorkerM, 2, 4, 0),
 };
+// The player in Act 3: the worker in a lab coat (tools/hack/draw_lab_coat.py), laid out like sPicTable_PlayerWorker
+static const struct SpriteFrameImage sPicTable_PlayerLabCoat[] = {
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 0),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 1),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 2),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 3),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 4),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 5),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 6),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 7),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 8),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 0),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 3),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 4),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 1),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 5),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 6),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 2),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 7),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 8),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 0),
+    overworld_frame(gObjectEventPic_PlayerLabCoat, 2, 4, 0),
+};
 
 static const struct SpriteFrameImage sPicTable_WorkerF[] = {
     overworld_ascending_frames(gObjectEventPic_WorkerF, 2, 4),

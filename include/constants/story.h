@@ -79,6 +79,12 @@
 #define ACT2_START_X                2
 #define ACT2_START_Y                3
 
+// Where Act 3 starts: the player's lab at Silph Co., the room of research terminals on 7F (the floor where the
+// Lapras saved in Act 2 is kept). The player stands at the terminals.
+#define ACT3_START_MAP              MAP_SILPH_CO_7F
+#define ACT3_START_X                3
+#define ACT3_START_Y                12
+
 // The final project's ranger station (docs/hack/act2_finale.md), bits of VAR_ACT2_FINALE
 #define ACT2_FINALE_BASEMENT_OPEN   (1 << 0) // 1F: the wall switch opened the stair behind the counter
 #define ACT2_FINALE_CLOCK_SOLVED    (1 << 1) // B1F: 4:15 a.m. set; the gate around the stair is open

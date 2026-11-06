@@ -10,7 +10,23 @@ SilphCo_7F_OnLoad::
 	end
 
 SilphCo_7F_OnTransition::
+	call_if_ge VAR_STORY_ACT, STORY_ACT_WORKFORCE, SilphCo_7F_EventScript_Act3Calm
 	call_if_ge VAR_MAP_SCENE_SILPH_CO_11F, 1, SilphCo_7F_EventScript_SetObjRocketsGone
+	end
+
+@ Act 3 starts on this floor, in the player's lab, before Team Rocket's invasion: no Rockets (they and the Rocket
+@ scientist Joshua are hidden on every floor), no Blue and no rival scene. The Act 3 story can undo this when the
+@ invasion comes (clearflag FLAG_HIDE_SILPH_ROCKETS, FLAG_HIDE_SILPH_RIVAL; VAR_MAP_SCENE_SILPH_CO_7F back to 0).
+SilphCo_7F_EventScript_Act3Calm::
+	setflag FLAG_HIDE_SILPH_ROCKETS
+	setflag FLAG_HIDE_SILPH_RIVAL
+	setvar VAR_MAP_SCENE_SILPH_CO_7F, 1
+	return
+
+@ Act 3, before the invasion: the floor's staff at work (placeholder lines)
+SilphCo_7F_EventScript_Act3Staff::
+	msgbox SilphCo_7F_Text_Act3Staff
+	release
 	end
 
 SilphCo_7F_EventScript_SetObjRocketsGone::
@@ -115,6 +131,7 @@ SilphCo_7F_Movement_RivalExitBottom::
 SilphCo_7F_EventScript_LaprasGuy::
 	lock
 	faceplayer
+	goto_if_ge VAR_STORY_ACT, STORY_ACT_WORKFORCE, SilphCo_7F_EventScript_Act3Staff
 	goto_if_set FLAG_GOT_LAPRAS_FROM_SILPH, SilphCo_7F_EventScript_AlreadyGotLapras
 	msgbox SilphCo_7F_Text_HaveMonForSavingUs
 	setvar VAR_TEMP_1, SPECIES_LAPRAS
@@ -172,6 +189,7 @@ SilphCo_7F_EventScript_AlreadyGotLapras::
 SilphCo_7F_EventScript_WorkerM1::
 	lock
 	faceplayer
+	goto_if_ge VAR_STORY_ACT, STORY_ACT_WORKFORCE, SilphCo_7F_EventScript_Act3Staff
 	goto_if_ge VAR_MAP_SCENE_SILPH_CO_11F, 1, SilphCo_7F_EventScript_WorkerM1RocketsGone
 	msgbox SilphCo_7F_Text_RocketsAfterMasterBall
 	release
@@ -185,6 +203,7 @@ SilphCo_7F_EventScript_WorkerM1RocketsGone::
 SilphCo_7F_EventScript_WorkerM2::
 	lock
 	faceplayer
+	goto_if_ge VAR_STORY_ACT, STORY_ACT_WORKFORCE, SilphCo_7F_EventScript_Act3Staff
 	goto_if_ge VAR_MAP_SCENE_SILPH_CO_11F, 1, SilphCo_7F_EventScript_WorkerM2RocketsGone
 	msgbox SilphCo_7F_Text_BadIfTeamRocketTookOver
 	release
@@ -198,6 +217,7 @@ SilphCo_7F_EventScript_WorkerM2RocketsGone::
 SilphCo_7F_EventScript_WorkerF::
 	lock
 	faceplayer
+	goto_if_ge VAR_STORY_ACT, STORY_ACT_WORKFORCE, SilphCo_7F_EventScript_Act3Staff
 	goto_if_ge VAR_MAP_SCENE_SILPH_CO_11F, 1, SilphCo_7F_EventScript_WorkerFRocketsGone
 	msgbox SilphCo_7F_Text_ReallyDangerousHere
 	release
@@ -366,3 +386,6 @@ SilphCo_7F_Text_FloorSign::
 	.string "SILPH CO. HEAD OFFICE\n"
 	.string "7F$"
 
+SilphCo_7F_Text_Act3Staff::
+	.string "Morning! Another busy day\n"
+	.string "in the lab.$"

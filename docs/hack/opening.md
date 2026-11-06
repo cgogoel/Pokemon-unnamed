@@ -27,6 +27,9 @@ Pokédex (`FLAG_SYS_POKEDEX_GET`). The two Pokédexes on Oak's desk stay there f
   giver on Silph Co. 7F. `GetObjectEventGraphicsInfo` swaps it in for the player from `STORY_ACT_UNIVERSITY`
   (`gObjectEventGraphicsInfo_PlayerWorker`). He has no run frames, so running reuses walking. Biking, surfing,
   fishing and the item poses keep the Act 1 sprites.
+- **Act 3:** the same, in a long white lab coat, open at the front (`gObjectEventGraphicsInfo_PlayerLabCoat`, from
+  `STORY_ACT_WORKFORCE`). `tools/hack/draw_lab_coat.py` makes it: the worker's head on the FRLG scientist's coat,
+  frame for frame, opened down the middle.
 
 These are placeholders, to be redesigned. The files:
 
@@ -39,7 +42,8 @@ These are placeholders, to be redesigned. The files:
 | Surf | `.../player_boy/surf.png` | same |
 | Fishing | `.../player_boy/fish.png` | same |
 | VS Seeker on the bike | `.../player_boy/vs_seeker_bike.png` | same |
-| Walk and run, Acts 2-3 | `graphics/object_events/pics/people/worker_m.png` (shared with the Silph worker NPCs) | `graphics/object_events/palettes/npc_white.pal` (shared) |
+| Walk and run, Act 2 | `graphics/object_events/pics/people/worker_m.png` (shared with the Silph worker NPCs) | `graphics/object_events/palettes/npc_white.pal` (shared) |
+| Walk and run, Act 3 | `graphics/object_events/pics/people/player_lab_coat.png` (generated) | same |
 | Intro picture (Oak's speech) | `graphics/oak_speech/red/pic.png` | `graphics/oak_speech/player_boy.pal` |
 | Battle back sprite | `graphics/trainers/back_pics/player_boy.png` | in the PNG |
 

@@ -90,33 +90,86 @@ At the station's door: "Am I ready to go in?" Yes: inside.
 
 ## The abandoned ranger station
 
-**1F.** A gate building like those between towns and routes, abandoned. A switch on the wall opens a hidden stair
-behind one of the counters.
+Maps `RangerStation_1F` and `_B1F`-`_B4F` (map group `gMapGroup_Dungeons_Frlg`). Layouts:
+`tools/hack/compose_ranger_station.py` (re-running overwrites all five, and writes `src/data/act2_station_layout.h`,
+the positions the C code uses); custom metatiles: `tools/hack/draw_station_tiles.py` (runs
+`draw_mansion_furnace.py` first). Code: `src/act2_station.c`; each floor's events in its `scripts.inc`. No wild
+Pokémon on any floor. Floors are joined by stairs (1F-B1F-B2F) and ladders (B2F-B3F-B4F).
 
-**B1F: the clock.** 12 torches around a gated stair in the center, at the hours of a clock face. Two furnaces: one
-with a moon on the wall above it, one with a sun. A Fire move lights a torch or furnace, a Water move puts it out.
-Two torches start lit. Five explorers' notes hint at the time:
+**1F** (`MUS_RG_POKE_MANSION`). Saffron's north/south gate, abandoned: no guards, boxes left behind, the north door
+walled up, the left aisle widened for a stair down behind the left counter. Entered from the Woods by the story:
+`warp MAP_RANGER_STATION_1F, 6, 9`; its door mat (warps 0-2 at (5-7, 9)) leads to `MAP_WOODS` warp 0 (at (5, 10),
+below the station's door). The switch panel on the wall at (6, 1): "Pull the switch?" Yes: the bottom of the left
+counter (4, 8-9) slides away (`ACT2_FINALE_BASEMENT_OPEN`, redrawn on load). The stair down is warp 3 at (2, 3).
 
-| Hint | Points to |
-|---|---|
-| "I couldn't see much when I went in, but…" | Night (the moon furnace) |
-| Left before breakfast, the day not begun | Morning, not evening |
-| The town's six o'clock bell hadn't rung | Before 6 |
-| The long hand a quarter of the way round | Quarter past |
-| The Miltank on the farm are milked at four | 4 o'clock |
+**B1F: the clock** (`MUS_RG_POKE_MANSION`). A Pokémon Mansion basement room. 12 standing torches on a clock face of
+radius 6 around a cage of iron bars at (8-12, 8-12) with the stair down inside (warp 1 at (11, 9)); the stair up is
+in the bottom right alcove (warp 0 at (17, 17)).
 
-4:15 a.m.: the torches at 4 (hour) and 3 (minute) lit, the moon furnace lit, everything else out. The gate opens.
+| Piece | Position | Piece | Position | Piece | Position |
+|---|---|---|---|---|---|
+| 12 | (10, 4) | 4 | (15, 13) | 8 | (5, 13) |
+| 1 | (13, 5) | 5 | (13, 15) | 9 | (4, 10) |
+| 2 | (15, 7) | 6 | (10, 16) | 10 | (5, 7) |
+| 3 | (16, 10) | 7 | (7, 15) | 11 | (7, 5) |
+| Moon furnace | (6, 2) | Sun furnace | (14, 2) | | |
 
-**B2F: the flood.** Rocks in water; the player jumps from rock to rock across one square of water. Five dead ends,
-each with a powerful Water Pokémon that battles the player. A medkit at the far end heals the party.
+Every torch and furnace is a bg_event running `RangerStation_B1F_EventScript_ClockPiece`, which finds the piece the
+player faces. Unlit: if a party Pokémon knows any FIRE-type move, "Have X use Y to light it?"; lit: the same with a
+WATER-type move, to put it out; without one, a hint. State: `VAR_ACT2_CLOCK` (bit n-1 for n o'clock, 12 moon, 13
+sun), set to `ACT2_CLOCK_START` (10 and 2 lit) on the first visit (`ACT2_FINALE_CLOCK_SET`). Five explorers' notes
+(clipboards) at (3, 4), (17, 4), (2, 11), (5, 18), (13, 18) give one hint each:
 
-**B3F: the overgrowth.** A pattern on the floor before the overgrown room shows the path. In the tall grass, a step
-off the path: "Grass Pokémon ambushed you!" and back to the path's start.
+| Note | Hint | Points to |
+|---|---|---|
+| 1, TOM | "I couldn't see much when I went in. Only the stars lit the trail" | Night (the moon furnace) |
+| 2, PIP | "I set out before breakfast. The day hadn't even begun." | Morning, not evening |
+| 3, DANA | "the town's six o'clock bell hadn't rung yet" | Before 6 |
+| 4, LEX | "The long hand had gone a quarter of the way round" | Quarter past |
+| 5, OLD BRAM | "the MILTANK get milked at four. I heard them as I left" | 4 o'clock |
 
-**B4F: the chamber.** Heatran, Suicune and Virizion (Lv. 50), a 3v3. The player acts once; then all three attack
+**Solution**: 4:15 a.m. From the start: put out 10 and 2, light 4 (hour), 3 (minute) and the moon furnace
+(`ACT2_CLOCK_SOLUTION`, exactly). The camera shakes and the cage's front bars (9-11, 12) drop for good
+(`ACT2_FINALE_CLOCK_SOLVED`).
+
+**B2F: the flood** (`MUS_RG_SEVII_CAVE`). A Cerulean Cave chamber flooded with water too deep to wade (and blocked
+for Surf: the water squares are impassable). Flat stepping stones two squares apart: walking at one square of water
+with a stone (or floor) right behind it jumps it, like a ledge (`Act2Station_CanJumpGap`, this map only; not over or
+onto an object). Ladder up (warp 0 at (1, 15)), ladder down at the far end (warp 1 at (19, 1)), the MEDKIT (an item
+ball at (19, 5); heals the party, any number of times). The stones form a tree with exactly five dead ends (the
+composer checks); at each, a Water Pokémon in the water beyond battles the player on arrival (coord event on the
+stone) or when talked to, at the party's average level + 2. Beaten or caught: gone for good.
+
+| Dead end | Stone | Pokémon at | Species | Flag |
+|---|---|---|---|---|
+| 1 | (9, 3) | (10, 3) | Kingdra | `FLAG_ACT2_DEAD_END_1` |
+| 2 | (3, 7) | (3, 8) | Tentacruel | `FLAG_ACT2_DEAD_END_2` |
+| 3 | (17, 7) | (17, 6) | Gyarados | `FLAG_ACT2_DEAD_END_3` |
+| 4 | (9, 13) | (9, 14) | Cloyster | `FLAG_ACT2_DEAD_END_4` |
+| 5 | (15, 13) | (15, 14) | Starmie | `FLAG_ACT2_DEAD_END_5` |
+
+**B3F: the overgrowth** (`MUS_RG_VIRIDIAN_FOREST`). A cave overgrown with grass and trees. At the bottom (ladder up,
+warp 0 at (13, 26)), a sign and a 9x9 pattern carved into the floor at (3-11, 16-24): sand squares on stone, the shape
+of the only safe path through the 9x9 field of tall grass at (3-11, 3-11) above, square for square. The path (33
+squares) starts at the field's bottom left, entered from (3, 12), and leaves at the top towards the ladder down
+(warp 1 at (9, 1)). A step onto a field square whose pattern square isn't path (`Act2Station_TryOvergrowthStep`,
+which reads the pattern off the map): "GRASS POKéMON ambushed you! You fled back to the start." and a warp to (3, 12).
+Reaching the row above the field sets `ACT2_FINALE_GRASS_CROSSED`.
+
+**B4F: the chamber** (`MUS_RG_SEVII_DUNGEON`). Mt. Ember's Ruby Path altar room, stretched. Ladder up: warp 0 at
+(11, 13). Objects: HEATRAN (5, 6), SUICUNE (7, 6), VIRIZION (9, 6), facing down (`LOCALID_CHAMBER_HEATRAN` / `_SUICUNE` /
+`_VIRIZION`); hidden for the scene: MEW (7, 9) (`LOCALID_CHAMBER_MEW`, `FLAG_TEMP_2`), DAD (6, 10)
+(`LOCALID_CHAMBER_DAD`, `FLAG_TEMP_1`), MOM (8, 10) (`LOCALID_CHAMBER_MOM`, `FLAG_TEMP_3`), all facing up. Coord
+events on row y = 12, x 3-10 (`VAR_ACT2_PROGRESS` == 15, `ACT2_PARENTS_TALKED`) run
+`RangerStation_B4F_EventScript_Encounter` (a stub, for the story to fill in).
+
+Heatran, Suicune and Virizion (Lv. 50), a 3v3. The player acts once; then all three attack
 together (Fire, Water and Grass, 120 power each, one animation). The battle cuts out: Mom and Dad are there, and
 their Mew takes the blast. The trio calms. Mom and Dad: that was dangerous. "…" (how did you get Mew?) They befriended
 it in these Woods when they were young; it comes to visit them when they need it.
+
+**Resetting the station** (debug): `VAR_ACT2_FINALE` = 0 (switch, clock, cage, grass), `VAR_ACT2_CLOCK` = 0 (set to
+the start again on the next B1F visit), clear `FLAG_ACT2_DEAD_END_1`-`5`.
 
 ## The ending
 

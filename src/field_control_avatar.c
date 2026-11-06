@@ -1,5 +1,6 @@
 #include "global.h"
 #include "act2_finale.h"
+#include "act2_station.h"
 #include "act1_story.h"
 #include "battle_setup.h"
 #include "bike.h"
@@ -735,6 +736,9 @@ static bool8 TryStartMiscWalkingScripts(u16 metatileBehavior)
     s16 x, y;
 
     if (Act2_TryStartWoodsNoise())
+        return TRUE;
+    // The ranger station's overgrown floor: off the hidden path, an ambush (act2_station.c)
+    if (Act2Station_TryOvergrowthStep())
         return TRUE;
     if (MetatileBehavior_IsCrackedFloorHole(metatileBehavior))
     {

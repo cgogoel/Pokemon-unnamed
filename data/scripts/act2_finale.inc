@@ -372,8 +372,10 @@ Act2_Text_StationShut:
 	.string "The old ranger station.\n"
 	.string "The door won't budge.$"
 
-@ Into the ranger station (its 1F door)
+@ Into the ranger station (its 1F door mat)
 Act2_EventScript_EnterStation:
+	warp MAP_RANGER_STATION_1F, 6, 9
+	waitstate
 	releaseall
 	end
 
@@ -609,3 +611,111 @@ Act2_Text_ProfessorsMarvel:
 	.string "isn't just a passing grade.\l"
 	.string "It's a discovery.\p"
 	.string "Congratulations, graduate!$"
+
+@ ---------------------------------------------------------------------------------------------------------------
+@ The chamber (RangerStation_B4F): coord events on row 12 in front of the trio (HEATRAN (5,6), SUICUNE (7,6),
+@ VIRIZION (9,6)). The player lines up at (7,11); the battle; then, in a flash, MEW (7,9) between them with DAD
+@ (6,10) and MOM (8,10).
+
+Act2_EventScript_ChamberScene::
+	lockall
+Act2_EventScript_ChamberLineUp:
+	getplayerxy VAR_0x8004, VAR_0x8005
+	goto_if_lt VAR_0x8004, 7, Act2_EventScript_ChamberStepRight
+	goto_if_gt VAR_0x8004, 7, Act2_EventScript_ChamberStepLeft
+	applymovement LOCALID_PLAYER, Common_Movement_WalkUp
+	waitmovement 0
+	playse SE_PIN
+	applymovement LOCALID_CHAMBER_HEATRAN, Common_Movement_ExclamationMark
+	applymovement LOCALID_CHAMBER_SUICUNE, Common_Movement_ExclamationMark
+	applymovement LOCALID_CHAMBER_VIRIZION, Common_Movement_ExclamationMark
+	waitmovement 0
+	playmoncry SPECIES_HEATRAN, CRY_MODE_ENCOUNTER
+	waitmoncry
+	playmoncry SPECIES_SUICUNE, CRY_MODE_ENCOUNTER
+	waitmoncry
+	playmoncry SPECIES_VIRIZION, CRY_MODE_ENCOUNTER
+	waitmoncry
+	msgbox Act2_Text_ChamberTrio
+	closemessage
+	call Act2_EventScript_LegendsBattle
+	@ The blast: a white flash, and MEW, MOM and DAD are there
+	fadescreen FADE_TO_WHITE
+	clearflag FLAG_TEMP_1
+	clearflag FLAG_TEMP_2
+	clearflag FLAG_TEMP_3
+	addobject LOCALID_CHAMBER_DAD
+	addobject LOCALID_CHAMBER_MEW
+	addobject LOCALID_CHAMBER_MOM
+	fadescreen FADE_FROM_WHITE
+	playmoncry SPECIES_MEW, CRY_MODE_NORMAL
+	waitmoncry
+	msgbox Act2_Text_MewAbsorbed
+	closemessage
+	applymovement LOCALID_CHAMBER_HEATRAN, Common_Movement_WalkInPlaceDown
+	applymovement LOCALID_CHAMBER_SUICUNE, Common_Movement_WalkInPlaceDown
+	applymovement LOCALID_CHAMBER_VIRIZION, Common_Movement_WalkInPlaceDown
+	waitmovement 0
+	msgbox Act2_Text_TrioCalmed
+	closemessage
+	fadescreen FADE_TO_BLACK
+	removeobject LOCALID_CHAMBER_HEATRAN
+	removeobject LOCALID_CHAMBER_SUICUNE
+	removeobject LOCALID_CHAMBER_VIRIZION
+	fadescreen FADE_FROM_BLACK
+	applymovement LOCALID_CHAMBER_DAD, Common_Movement_WalkInPlaceFasterDown
+	applymovement LOCALID_CHAMBER_MOM, Common_Movement_WalkInPlaceFasterDown
+	applymovement LOCALID_CHAMBER_MEW, Common_Movement_WalkInPlaceFasterDown
+	waitmovement 0
+	msgbox Act2_Text_ParentsInChamber
+	closemessage
+	fadescreen FADE_TO_BLACK
+	special HealPlayerParty
+	setvar VAR_ACT2_PROGRESS, ACT2_LEGENDS_CALMED
+	warp MAP_PALLET_TOWN_PLAYERS_HOUSE_2F_FRLG_FARM, 3, 3
+	waitstate
+	releaseall
+	end
+
+Act2_EventScript_ChamberStepRight:
+	applymovement LOCALID_PLAYER, Common_Movement_WalkRight
+	waitmovement 0
+	goto Act2_EventScript_ChamberLineUp
+
+Act2_EventScript_ChamberStepLeft:
+	applymovement LOCALID_PLAYER, Common_Movement_WalkLeft
+	waitmovement 0
+	goto Act2_EventScript_ChamberLineUp
+
+Act2_Text_ChamberTrio:
+	.string "HEATRAN, SUICUNE and VIRIZION…\n"
+	.string "The noise was coming from them!\p"
+	.string "They're not happy to see you!$"
+
+Act2_Text_MewAbsorbed:
+	.string "A pink POKéMON took the blast!\p"
+	.string "MEW absorbed the attack!$"
+
+Act2_Text_TrioCalmed:
+	.string "HEATRAN, SUICUNE and VIRIZION\n"
+	.string "calmed down…$"
+
+Act2_Text_ParentsInChamber:
+	.string "DAD: {PLAYER}! Are you hurt?\p"
+	.string "MOM: What were you thinking?!\n"
+	.string "Those three guard the WOODS.\l"
+	.string "They don't hold back!\p"
+	.string "DAD: That was dangerous. If MEW\n"
+	.string "hadn't come…\p"
+	.string "{PLAYER}: …\p"
+	.string "……\p"
+	.string "MOM: MEW? Heh. You want to know\n"
+	.string "how we know MEW.\p"
+	.string "DAD: We met it in these very\n"
+	.string "WOODS, when we were young.\p"
+	.string "MOM: We befriended it together.\n"
+	.string "We never caught it.\p"
+	.string "DAD: It comes to visit us when\n"
+	.string "we need it. Like today.\p"
+	.string "MEW: Mew!\p"
+	.string "MOM: Come on, you. Let's go home.$"

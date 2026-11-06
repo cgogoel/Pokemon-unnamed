@@ -377,6 +377,7 @@ extern const u8 Debug_EventScript_BefriendTynamo[];
 extern const u8 Debug_EventScript_BefriendHatenna[];
 extern const u8 Debug_EventScript_BefriendTeddiursa[];
 extern const u8 Debug_EventScript_BefriendJangmoO[];
+extern const u8 Debug_EventScript_SkipToAct3[];
 extern const u8 Debug_EventScript_InflictStatus1[];
 extern const u8 Debug_EventScript_KoPokemon[];
 extern const u8 Debug_EventScript_SetHiddenNature[];
@@ -606,6 +607,7 @@ static const struct DebugMenuOption sDebugMenu_Actions_Utilities[] =
     { COMPOUND_STRING("Test Item Randomizer"),      DebugAction_Selection_Init, &sItemGeneratorSelection },
     { COMPOUND_STRING("Wally Tutorial"),            DebugAction_ExecuteScript, Debug_EventScript_WallyTutorial },
     { COMPOUND_STRING("Steven Multi"),              DebugAction_ExecuteScript, Debug_EventScript_Steven_Multi },
+    { COMPOUND_STRING("Skip to Act 3"),             DebugAction_ExecuteScript, Debug_EventScript_SkipToAct3 },
     { NULL }
 };
 

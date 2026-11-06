@@ -503,6 +503,13 @@ Debug_EventScript_BefriendGiveItems:
 	additem ITEM_HARD_STONE, 3
 	return
 
+@ The end of Act 2 (special Act2_EndAct2): "Several years later", then Act 3's start at Silph Co.
+Debug_EventScript_SkipToAct3::
+	fadescreen FADE_TO_BLACK
+	special Act2_EndAct2
+	waitstate
+	end
+
 Debug_EventScript_BefriendBlipbug::
 	call Debug_EventScript_BefriendGiveItems
 	befriendbattle SPECIES_BLIPBUG, 5

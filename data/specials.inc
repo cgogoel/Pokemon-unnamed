@@ -675,3 +675,4 @@ gSpecials::
 	def_special Act2_SetResearchFlag
 	def_special Act2_HasResearchFlag
 	def_special Act2_ClearResearchFlag
+	def_special Act2_EndAct2

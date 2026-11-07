@@ -97,6 +97,7 @@ static mapsec_u16_t GetTerraOrMarineCaveMapSecId(void);
 static void GetMarineCaveCoords(u16 *x, u16 *y);
 static bool32 IsPlayerInAquaHideout(mapsec_u8_t mapSecId);
 static void GetPositionOfCursorWithinMapSec(void);
+static void GetMapSecDimensions(mapsec_u16_t mapSecId, u16 *x, u16 *y, u16 *width, u16 *height);
 static bool8 RegionMap_IsMapSecIdInNextRow(u16 y);
 static void SpriteCB_CursorMapFull(struct Sprite *sprite);
 static void FreeRegionMapCursorSprite(void);
@@ -836,6 +837,99 @@ void FreeRegionMapIconResources(void)
         FreeSpriteTilesByTag(sRegionMap->playerIconTileTag);
         FreeSpritePaletteByTag(sRegionMap->playerIconPaletteTag);
     }
+}
+
+// The quest marker (src/quests.c, the field region map): the fly map's red outline box, blinking on the current
+// quest's map section
+static EWRAM_DATA struct Sprite *sQuestMarkerSprite = NULL;
+static EWRAM_DATA u16 sQuestMarkerTag = 0;
+
+#define sFlickerTimer data[1]
+
+static void SpriteCB_QuestMarker(struct Sprite *sprite)
+{
+    if (++sprite->sFlickerTimer > 16)
+    {
+        sprite->sFlickerTimer = 0;
+        sprite->invisible = !sprite->invisible;
+    }
+}
+
+#undef sFlickerTimer
+
+void CreateRegionMapQuestMarker(u16 tag, mapsec_u16_t mapSecId)
+{
+    struct CompressedSpriteSheet sheet = { sFlyTargetIcons_Gfx, sizeof(sFlyMap->tileBuffer), tag };
+    struct SpritePalette palette = { sFlyTargetIcons_Pal, tag };
+    struct SpriteTemplate template = sFlyDestIconSpriteTemplate;
+    u16 x, y, width, height;
+    u8 spriteId;
+
+    sQuestMarkerSprite = NULL;
+    if (mapSecId == MAPSEC_NONE || GetRegionMapType(mapSecId) != GetRegionMapType(gMapHeader.regionMapSectionId))
+        return;
+    LoadCompressedSpriteSheet(&sheet);
+    LoadSpritePalette(&palette);
+    template.tileTag = tag;
+    template.paletteTag = tag;
+    template.callback = SpriteCB_QuestMarker;
+    GetMapSecDimensions(mapSecId, &x, &y, &width, &height);
+    // As TryCreateRedOutlineFlyDestIcons: a 16x16 box around the section (centred on a wider or taller one)
+    x = (x + MAPCURSOR_X_MIN) * 8 + (width - 1) * 4;
+    y = (y + MAPCURSOR_Y_MIN) * 8 + (height - 1) * 4;
+    spriteId = CreateSprite(&template, x, y, 1);
+    if (spriteId == MAX_SPRITES)
+        return;
+    gSprites[spriteId].oam.size = SPRITE_SIZE(16x16);
+    gSprites[spriteId].oam.priority = 0; // Its outline over the player's icon and the cursor (priority 1)
+    StartSpriteAnim(&gSprites[spriteId], FLYDESTICON_RED_OUTLINE);
+    sQuestMarkerSprite = &gSprites[spriteId];
+    sQuestMarkerTag = tag;
+}
+
+void FreeRegionMapQuestMarker(void)
+{
+    if (sQuestMarkerSprite != NULL)
+    {
+        DestroySprite(sQuestMarkerSprite);
+        FreeSpriteTilesByTag(sQuestMarkerTag);
+        FreeSpritePaletteByTag(sQuestMarkerTag);
+        sQuestMarkerSprite = NULL;
+    }
+}
+
+// Puts the (unzoomed) cursor on a map section, as if it had moved there
+void RegionMap_MoveCursorToMapSec(mapsec_u16_t mapSecId)
+{
+    u16 x, y, width, height;
+    if (mapSecId == MAPSEC_NONE || sRegionMap->zoomed || GetRegionMapType(mapSecId) != GetRegionMapType(gMapHeader.regionMapSectionId))
+        return;
+    GetMapSecDimensions(mapSecId, &x, &y, &width, &height);
+    sRegionMap->cursorPosX = x + MAPCURSOR_X_MIN;
+    sRegionMap->cursorPosY = y + MAPCURSOR_Y_MIN;
+    sRegionMap->mapSecId = GetMapSecIdAt(sRegionMap->cursorPosX, sRegionMap->cursorPosY);
+    sRegionMap->mapSecType = GetMapsecType(sRegionMap->mapSecId);
+    GetMapName(sRegionMap->mapSecName, sRegionMap->mapSecId, MAP_NAME_LENGTH);
+    GetPositionOfCursorWithinMapSec();
+    if (sRegionMap->cursorSprite != NULL)
+    {
+        sRegionMap->cursorSprite->x = 8 * sRegionMap->cursorPosX + 4;
+        sRegionMap->cursorSprite->y = 8 * sRegionMap->cursorPosY + 4;
+    }
+}
+
+// Whether the (unzoomed) cursor is on a map section's squares. Not the same as regionMap->mapSecId: some sections
+// (Diglett's Cave) share their squares with another (Route 11) on the map's layout.
+bool32 RegionMap_IsCursorOnMapSec(mapsec_u16_t mapSecId)
+{
+    u16 x, y, width, height;
+    if (mapSecId == MAPSEC_NONE || sRegionMap->zoomed)
+        return FALSE;
+    GetMapSecDimensions(mapSecId, &x, &y, &width, &height);
+    x += MAPCURSOR_X_MIN;
+    y += MAPCURSOR_Y_MIN;
+    return sRegionMap->cursorPosX >= x && sRegionMap->cursorPosX < x + width
+        && sRegionMap->cursorPosY >= y && sRegionMap->cursorPosY < y + height;
 }
 
 u8 DoRegionMapInputCallback(void)

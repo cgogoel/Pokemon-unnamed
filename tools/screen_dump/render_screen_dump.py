@@ -3,9 +3,9 @@
 
 Usage: python3 tools/screen_dump/render_screen_dump.py <check log> <output dir> [scale]
 
-Development aid for battle layout work. Approximates the GBA's mode 0: four text backgrounds and sprites
-with priorities and flips. Blending, windows, mosaic and affine scaling are ignored (affine sprites are drawn
-unscaled at their centre).
+Development aid for battle layout work. Approximates the GBA's modes 0-2: text backgrounds, affine backgrounds
+(BG2's transform from an optional 'A' line) and sprites with priorities and flips. Blending, windows, mosaic and
+affine sprite scaling are ignored (affine sprites are drawn unscaled at their centre).
 """
 
 import os
@@ -40,6 +40,8 @@ def read_dumps(path):
                 current["regs"] = [int(x, 16) for x in rest.split()]
             elif kind == "S":
                 current["scroll"] = [int(x, 16) for x in rest.split()]
+            elif kind == "A":
+                current["affine"] = [int(x, 16) for x in rest.split()]
             elif kind in "VOP":
                 offset, data = rest.split()
                 offset = int(offset, 16)
@@ -94,6 +96,45 @@ def render_bg(dump, bg, layers):
             layers.append((priority, 1, bg, sx, sy, rgb))
 
 
+def s16(v):
+    return v - 0x10000 if v & 0x8000 else v
+
+
+def render_affine_bg(dump, bg, layers):
+    """BG2 in modes 1 and 2 (and BG3 in mode 2): 8bpp tiles, a byte per tilemap entry. The optional 'A' line has
+    BG2PA, PB, PC, PD, then BG2X and BG2Y as low/high halves; without it the transform is the identity at 0, 0."""
+    cnt = dump["regs"][1 + bg]
+    priority = cnt & 3
+    char_base = ((cnt >> 2) & 3) * 0x4000
+    screen_base = ((cnt >> 8) & 0x1F) * 0x800
+    size = 128 << ((cnt >> 14) & 3)
+    wrap = bool(cnt & 0x2000)
+    affine = dump.get("affine") if bg == 2 else None
+    if affine:
+        pa, pb, pc, pd = (s16(v) for v in affine[:4])
+        ref_x = affine[4] | (affine[5] << 16)
+        ref_y = affine[6] | (affine[7] << 16)
+        ref_x = ref_x - (1 << 28) if ref_x & (1 << 27) else ref_x
+        ref_y = ref_y - (1 << 28) if ref_y & (1 << 27) else ref_y
+    else:
+        pa, pb, pc, pd, ref_x, ref_y = 256, 0, 0, 256, 0, 0
+    vram, pal = dump["V"], dump["P"]
+    tiles = size // 8
+    for sy in range(HEIGHT):
+        for sx in range(WIDTH):
+            x = (ref_x + pa * sx + pb * sy) >> 8
+            y = (ref_y + pc * sx + pd * sy) >> 8
+            if wrap:
+                x, y = x % size, y % size
+            elif not (0 <= x < size and 0 <= y < size):
+                continue
+            tile = vram[screen_base + (y // 8) * tiles + x // 8]
+            index = tile_pixel(vram, char_base, tile, x % 8, y % 8, True)
+            if index == 0:
+                continue
+            layers.append((priority, 1, bg, sx, sy, color(pal, index)))
+
+
 def render_objs(dump, layers):
     oam, vram, pal = dump["O"], dump["V"], dump["P"]
     one_d = bool(dump["regs"][0] & 0x40)
@@ -140,9 +181,13 @@ def render_objs(dump, layers):
 def render(dump, scale):
     dispcnt = dump["regs"][0]
     layers = []
+    mode = dispcnt & 7
     for bg in range(4):
         if dispcnt & (0x100 << bg):
-            render_bg(dump, bg, layers)
+            if (mode == 1 and bg == 2) or (mode == 2 and bg >= 2):
+                render_affine_bg(dump, bg, layers)
+            elif mode == 0 or (mode == 1 and bg < 2):
+                render_bg(dump, bg, layers)
     if dispcnt & 0x1000:
         render_objs(dump, layers)
 

@@ -43,8 +43,8 @@ CeladonUniversity_HomeEconomics_Text_Beauty2::
 	.string "patience. Like befriending.$"
 
 CeladonUniversity_HomeEconomics_Text_Picnicker3::
-	.string "ERIKA from the CELADON GYM\n"
-	.string "guest-lectured last spring!$"
+	.string "ERIKA came in to teach flower\n"
+	.string "arranging last spring!$"
 
 CeladonUniversity_HomeEconomics_Text_Lass4::
 	.string "Smell that? Our ODDISH\n"

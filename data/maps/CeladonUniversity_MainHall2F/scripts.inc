@@ -42,12 +42,12 @@ CeladonUniversity_MainHall2F_Text_Lass2::
 	.string "Alumni work there, you know.$"
 
 CeladonUniversity_MainHall2F_Text_Man3::
-	.string "The trophy case is mostly\n"
-	.string "the battle team's.$"
+	.string "Those rocks don't look like much,\n"
+	.string "but they started a whole field.$"
 
 CeladonUniversity_MainHall2F_Text_Sign0::
-	.string "Trophies won by the university\n"
-	.string "battle team over the years.$"
+	.string "MOON STONES from MT. MOON, studied\n"
+	.string "by the university's first class.$"
 
 CeladonUniversity_MainHall2F_Text_Sign1::
 	.string "A model satellite, donated by\n"

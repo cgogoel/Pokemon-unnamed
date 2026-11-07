@@ -1,6 +1,6 @@
 @ The friends' families (docs/hack/act2_story.md, "The friends' families"). Each friend grew up in the town of the
 @ type they love, and their parents are always home, in every act:
-@ - KAI (Fire), CINNABAR ISLAND: his two dads (CinnabarIsland_KaisHouse, added by tools/hack/add_kais_house.py)
+@ - KAI (Fire), CELADON CITY: his two dads (CeladonCity_Condominiums_2F_Frlg; he fell for FIRE on a school trip)
 @ - MINA (Water), CERULEAN CITY: her mom (CeruleanCity_House4_Frlg)
 @ - ROWAN (Grass), CELADON CITY: their mom and dad (CeladonCity_House1_Frlg)
 @ What the parents say follows the story (FriendHomes_EventScript_GetStage).
@@ -23,7 +23,7 @@ FriendHomes_EventScript_Return::
 	return
 
 @ ---------------------------------------------------------------------------------------------------------------
-@ KAI's dads, CINNABAR ISLAND. On the Fire course's field trip, KAI's class is on the island.
+@ KAI's dads, CELADON CITY: a suite in the CONDOMINIUMS. Neighbors (across town) of ROWAN's parents.
 
 FriendHomes_EventScript_KaiDad::
 	lock
@@ -32,18 +32,12 @@ FriendHomes_EventScript_KaiDad::
 	goto_if_eq VAR_RESULT, FRIEND_HOMES_CHILDHOOD, FriendHomes_EventScript_KaiDadChildhood
 	goto_if_eq VAR_RESULT, FRIEND_HOMES_PROJECT, FriendHomes_EventScript_KaiDadProject
 	goto_if_eq VAR_RESULT, FRIEND_HOMES_LATER, FriendHomes_EventScript_KaiDadLater
-	goto_if_eq VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP, FriendHomes_EventScript_KaiDadTrip
 	msgbox FriendHomes_Text_KaiDadCourses
 	release
 	end
 
 FriendHomes_EventScript_KaiDadChildhood::
 	msgbox FriendHomes_Text_KaiDadChildhood
-	release
-	end
-
-FriendHomes_EventScript_KaiDadTrip::
-	msgbox FriendHomes_Text_KaiDadTrip
 	release
 	end
 
@@ -64,18 +58,12 @@ FriendHomes_EventScript_KaiPapa::
 	goto_if_eq VAR_RESULT, FRIEND_HOMES_CHILDHOOD, FriendHomes_EventScript_KaiPapaChildhood
 	goto_if_eq VAR_RESULT, FRIEND_HOMES_PROJECT, FriendHomes_EventScript_KaiPapaProject
 	goto_if_eq VAR_RESULT, FRIEND_HOMES_LATER, FriendHomes_EventScript_KaiPapaLater
-	goto_if_eq VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP, FriendHomes_EventScript_KaiPapaTrip
 	msgbox FriendHomes_Text_KaiPapaCourses
 	release
 	end
 
 FriendHomes_EventScript_KaiPapaChildhood::
 	msgbox FriendHomes_Text_KaiPapaChildhood
-	release
-	end
-
-FriendHomes_EventScript_KaiPapaTrip::
-	msgbox FriendHomes_Text_KaiPapaTrip
 	release
 	end
 
@@ -91,6 +79,10 @@ FriendHomes_EventScript_KaiPapaLater::
 
 FriendHomes_EventScript_KaiPhoto::
 	msgbox FriendHomes_Text_KaiPhoto, MSGBOX_SIGN
+	end
+
+FriendHomes_EventScript_KaiNameplate::
+	msgbox FriendHomes_Text_KaiNameplate, MSGBOX_SIGN
 	end
 
 @ ---------------------------------------------------------------------------------------------------------------
@@ -193,23 +185,19 @@ FriendHomes_EventScript_RowanPlant::
 @ KAI's dad: big and loud. KAI gets it from him.
 
 FriendHomes_Text_KaiDadChildhood:
-	.string "KAI? Out by the volcano again,\n"
-	.string "chasing PONYTA.\p"
-	.string "That kid's going to get singed one\n"
-	.string "of these days. Just like me! Ha!$"
+	.string "KAI? Up on the roof, trying to\n"
+	.string "light the barbecue again.\p"
+	.string "He's been crazy about FIRE\n"
+	.string "POKéMON since his school trip to\l"
+	.string "CINNABAR's volcano. Ha!$"
 
 FriendHomes_Text_KaiDadCourses:
-	.string "Our boy KAI's off at CELADON\n"
+	.string "Our boy KAI's at CELADON\n"
 	.string "UNIVERSITY. A real student!\p"
-	.string "He calls every week. Mostly about\n"
-	.string "FIRE POKéMON, but still!$"
-
-FriendHomes_Text_KaiDadTrip:
-	.string "KAI's class is HERE? On our island?\n"
-	.string "And he didn't even stop by! Ha!\p"
-	.string "You must be {PLAYER}!\n"
-	.string "He talks about you every call.\p"
-	.string "Tell him his dads say hi. Loudly.$"
+	.string "It's right across town, and he\n"
+	.string "still moved into the dorms. Ha!\p"
+	.string "You must be {PLAYER}! He talks\n"
+	.string "about you every time he's home.$"
 
 FriendHomes_Text_KaiDadProject:
 	.string "KAI called! He's making a move\n"
@@ -224,7 +212,7 @@ FriendHomes_Text_KaiDadLater:
 	.string "grown up. SILPH CO., I hear!\p"
 	.string "KAI's still out training FIRE\n"
 	.string "POKéMON. Says he'll take on the\l"
-	.string "GYM here one day.\p"
+	.string "GYM on CINNABAR one day.\p"
 	.string "I've stopped telling him he's too\n"
 	.string "reckless. Mostly.$"
 
@@ -237,14 +225,11 @@ FriendHomes_Text_KaiPapaChildhood:
 FriendHomes_Text_KaiPapaCourses:
 	.string "KAI's studying at CELADON\n"
 	.string "UNIVERSITY. FIRE, WATER, GRASS…\p"
-	.string "His letters are short. Two lines,\n"
-	.string "usually. Both in capitals.$"
-
-FriendHomes_Text_KaiPapaTrip:
-	.string "I'm KAI's other dad. The quiet one.\p"
-	.string "A field trip to the old MANSION?\n"
-	.string "I hope your professor keeps an\l"
-	.string "eye on him.$"
+	.string "He comes home for dinner on\n"
+	.string "Sundays. Mostly for the dinner.\p"
+	.string "ROWAN's parents live across town.\n"
+	.string "Calm people. We could use some\l"
+	.string "of that around here.$"
 
 FriendHomes_Text_KaiPapaProject:
 	.string "A TM with 120 power, all on his\n"
@@ -263,9 +248,12 @@ FriendHomes_Text_KaiPapaLater:
 	.string "{PLAYER}. It shows.$"
 
 FriendHomes_Text_KaiPhoto:
-	.string "A photo on the beach. A small KAI\n"
-	.string "grins between his two dads, a\l"
-	.string "VULPIX in his arms.$"
+	.string "A photo of a small KAI between\n"
+	.string "his two dads, beaming, a VULPIX\l"
+	.string "plush held up high.$"
+
+FriendHomes_Text_KaiNameplate:
+	.string "KAI's family$"
 
 @ MINA's mom: warm and practical, like MINA. It's been the two of them.
 
@@ -350,7 +338,10 @@ FriendHomes_Text_RowanDadCourses:
 	.string "ROWAN takes the FIRE, WATER and\n"
 	.string "GRASS courses this year.\p"
 	.string "GRASS is the favorite, of course.\n"
-	.string "It always has been.$"
+	.string "It always has been.\p"
+	.string "KAI's dads live across town, in\n"
+	.string "the CONDOMINIUMS. One of them is\l"
+	.string "very… loud.$"
 
 FriendHomes_Text_RowanDadProject:
 	.string "SOLAR BEAM takes a whole turn to\n"

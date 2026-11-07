@@ -224,16 +224,13 @@ kid does now). Each also knows the player as their kid's friend.
 
 | Friend | Home | Parents (sprite) | In Act 3 | Also there |
 |---|---|---|---|---|
-| KAI (Fire) | Cinnabar Island, a house between the Mansion and the Gym, door (15,2) (`CinnabarIsland_KaisHouse`, new) | Two dads: the loud one, by the stove (Fat man), and the quiet one, at the table (Man) | Training Fire Pokémon full time; means to take on the Gym one day | A photo of KAI as a kid with his dads and a Vulpix |
+| KAI (Fire) | Celadon City, a suite on the Condominiums' 2F (`CeladonCity_Condominiums_2F_Frlg`, was the Game Freak meeting room; its door plate is now the family's; the Fame Checker's ERIKA journals on its shelf are gone). He fell for Fire on a school trip to Cinnabar's volcano | Two dads: the loud one, by the table (Fat man), and the quiet one, in the armchair (Man) | Training Fire Pokémon full time; means to take on Cinnabar's Gym one day | A photo of KAI as a kid with his dads |
 | MINA (Water) | Cerulean City, the small house that was the Wonder News man's (`CeruleanCity_House4_Frlg`) | Her mom, by the stove (Woman 3); it's been just the two of them | At a marine research station out at sea; sends postcards | A photo of MINA as a kid with a Staryu |
 | ROWAN (Grass) | Celadon City, the house by the Game Corner (`CeladonCity_House1_Frlg`, was the Game Corner owner's) | Mom, tending a plant (Woman 1), and Dad, at the table (Balding man) | Runs a greenhouse at a botanical lab, naming new plants | A photo of ROWAN as a kid; a plant labeled by ROWAN |
 
-- On the Fire trip, KAI's class is on his island: his dads have their own lines then, and KAI says his dads' house is
-  by the Gym (`Act2_EventScript_TripKaiCinnabar`).
-- MINA and ROWAN mention their homes in their dorm rooms (`Act2_Text_RoomMina`, `Act2_Text_RoomRowan`).
-- Cinnabar had no houses: `python3 tools/hack/add_kais_house.py` stamps the general tileset's route house (as on
-  Route 2) into the island's layout. Its interior is a copy of FireRed's small house (`LAYOUT_CINNABAR_ISLAND_KAIS_HOUSE`,
-  from `LAYOUT_HOUSE1_FRLG`), free to change in Porymap.
+- KAI and ROWAN both grew up in Celadon, across town from each other: KAI's quiet dad and ROWAN's dad mention the
+  other family.
+- The friends mention home in their dorm rooms (`Act2_Text_RoomKai`, `Act2_Text_RoomMina`, `Act2_Text_RoomRowan`).
 
 ## Base-game scenes stripped for Act 2
 

@@ -278,7 +278,11 @@ PewterCity_EventScript_GymGuideTriggerRight::
 	goto PewterCity_EventScript_GymGuideTrigger
 	end
 
+@ Act 2's final project: the road home passes through Pewter both ways, so the guide doesn't lead the player
+@ to the gym (Act2Road_IsRouteOpen)
 PewterCity_EventScript_GymGuideTrigger::
+	specialvar VAR_RESULT, Act2Road_IsRouteOpenSpecial
+	goto_if_eq VAR_RESULT, TRUE, PewterCity_EventScript_GymGuideRouteOpen
 	textcolor NPC_TEXT_COLOR_MALE
 	msgbox PewterCity_Text_BrocksLookingForChallengersFollowMe
 	closemessage
@@ -293,6 +297,10 @@ PewterCity_EventScript_GymGuideTrigger::
 	fadedefaultbgm
 	removeobject LOCALID_PEWTER_GYM_GUIDE
 	clearflag FLAG_HIDE_PEWTER_CITY_GYM_GUIDE
+	releaseall
+	end
+
+PewterCity_EventScript_GymGuideRouteOpen::
 	releaseall
 	end
 

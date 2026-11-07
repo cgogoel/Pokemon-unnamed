@@ -4,70 +4,22 @@ SaffronCity_Frlg_MapScripts::
 
 SaffronCity_OnTransition::
 	setworldmapflag FLAG_WORLD_MAP_SAFFRON_CITY
-	call_if_unset FLAG_RESCUED_MR_FUJI, SaffronCity_EventScript_MoveDoorGuardGrunt
-	end
-
-SaffronCity_EventScript_MoveDoorGuardGrunt::
-	setobjectxyperm LOCALID_SAFFRON_DOOR_GUARD_GRUNT, 33, 31
-	return
-
-SaffronCity_EventScript_RocketGrunt1::
-	msgbox SaffronCity_Text_WhatDoYouWantGetLost, MSGBOX_NPC
-	end
-
-SaffronCity_EventScript_RocketGrunt2::
-	msgbox SaffronCity_Text_BossTakeTownForTeamRocket, MSGBOX_NPC
-	end
-
-SaffronCity_EventScript_RocketGrunt3::
-	msgbox SaffronCity_Text_DontGetDefiantOrIllHurtYou, MSGBOX_NPC
-	end
-
-SaffronCity_EventScript_RocketGrunt4::
-	msgbox SaffronCity_Text_SaffronBelongsToTeamRocket, MSGBOX_NPC
-	end
-
-SaffronCity_EventScript_RocketGrunt5::
-	msgbox SaffronCity_Text_CriminalLifeMakesMeFeelAlive, MSGBOX_NPC
-	end
-
-SaffronCity_EventScript_RocketGrunt6::
-	msgbox SaffronCity_Text_WatchWhereYoureWalking, MSGBOX_NPC
-	end
-
-SaffronCity_EventScript_RocketGrunt7::
-	msgbox SaffronCity_Text_WeCanExploitMonsAroundWorld, MSGBOX_NPC
-	end
-
-SaffronCity_EventScript_DoorGuardGrunt::
-	lock
-	goto_if_set FLAG_RESCUED_MR_FUJI, SaffronCity_EventScript_DoorGuardAsleep
-	applymovement LOCALID_SAFFRON_DOOR_GUARD_GRUNT, Common_Movement_FacePlayer
-	waitmovement 0
-	msgbox SaffronCity_Text_ImASecurityGuard
-	release
-	end
-
-SaffronCity_EventScript_DoorGuardAsleep::
-	textcolor NPC_TEXT_COLOR_NEUTRAL
-	msgbox SaffronCity_Text_HesTakingASnooze
-	release
 	end
 
 SaffronCity_EventScript_WorkerM::
-	msgbox SaffronCity_Text_YouBeatTeamRocket, MSGBOX_NPC
+	msgbox SaffronCity_Text_AlwaysBuildingInSaffron, MSGBOX_NPC
 	end
 
 SaffronCity_EventScript_Youngster::
-	msgbox SaffronCity_Text_SafeToGoOutAgain, MSGBOX_NPC
+	msgbox SaffronCity_Text_DadWorksAtSilph, MSGBOX_NPC
 	end
 
 SaffronCity_EventScript_Lass::
-	msgbox SaffronCity_Text_PeopleComingBackToSaffron, MSGBOX_NPC
+	msgbox SaffronCity_Text_AllowanceNeverLasts, MSGBOX_NPC
 	end
 
 SaffronCity_EventScript_Boy::
-	msgbox SaffronCity_Text_FlewHereOnPidgeot, MSGBOX_NPC
+	msgbox SaffronCity_Text_CommuteOnPidgeot, MSGBOX_NPC
 	end
 
 SaffronCity_EventScript_Pidgeot::
@@ -81,7 +33,7 @@ SaffronCity_EventScript_Pidgeot::
 	end
 
 SaffronCity_EventScript_Man::
-	msgbox SaffronCity_Text_SawRocketBossEscaping, MSGBOX_NPC
+	msgbox SaffronCity_Text_DojoMasterTrainsAtDawn, MSGBOX_NPC
 	end
 
 SaffronCity_EventScript_CitySign::
@@ -123,69 +75,38 @@ SaffronCity_EventScript_TrainerFanClubSign::
 	msgbox SaffronCity_Text_TrainerFanClubSign, MSGBOX_SIGN
 	end
 
-SaffronCity_Text_WhatDoYouWantGetLost::
-	.string "What do you want?\n"
-	.string "Get lost!$"
+SaffronCity_Text_AlwaysBuildingInSaffron::
+	.string "Phew, what a shift!\p"
+	.string "There's always something going up\n"
+	.string "in SAFFRON. Offices, shops, towers…\p"
+	.string "My MACHOP carries the steel beams.\n"
+	.string "I just sign the paperwork!$"
 
-SaffronCity_Text_BossTakeTownForTeamRocket::
-	.string "BOSS said he'll take this town\n"
-	.string "in the name of TEAM ROCKET!$"
+SaffronCity_Text_DadWorksAtSilph::
+	.string "My dad works at SILPH CO.\p"
+	.string "He tests new POKé BALLS all day.\n"
+	.string "He says most of them wobble funny.\p"
+	.string "Someday I'll work there too!$"
 
-SaffronCity_Text_DontGetDefiantOrIllHurtYou::
-	.string "Don't get defiant!\n"
-	.string "Or I'll have to hurt you!$"
+SaffronCity_Text_AllowanceNeverLasts::
+	.string "I take the bus to SAFFRON every\n"
+	.string "weekend just for the shops.\p"
+	.string "My whole allowance goes on cute\n"
+	.string "POKé DOLLS. It never lasts!$"
 
-SaffronCity_Text_SaffronBelongsToTeamRocket::
-	.string "SAFFRON belongs to TEAM ROCKET!$"
-
-SaffronCity_Text_CriminalLifeMakesMeFeelAlive::
-	.string "My life as a criminal makes me feel\n"
-	.string "so alive!$"
-
-SaffronCity_Text_WatchWhereYoureWalking::
-	.string "Ow!\n"
-	.string "Watch where you're walking!$"
-
-SaffronCity_Text_WeCanExploitMonsAroundWorld::
-	.string "With SILPH under control, we can\n"
-	.string "exploit POKéMON around the world!\p"
-	.string "We'll get stinking rich, yeahah!$"
-
-SaffronCity_Text_YouBeatTeamRocket::
-	.string "You beat TEAM ROCKET all alone?\n"
-	.string "That's amazing!$"
-
-SaffronCity_Text_SafeToGoOutAgain::
-	.string "Yeah! TEAM ROCKET is gone!\n"
-	.string "It's safe to go out again!$"
-
-SaffronCity_Text_PeopleComingBackToSaffron::
-	.string "People fled from here in droves\n"
-	.string "when those ROCKETS came.\p"
-	.string "They should be flocking back to\n"
-	.string "SAFFRON now.$"
-
-SaffronCity_Text_FlewHereOnPidgeot::
-	.string "I flew here on my PIDGEOT when\n"
-	.string "I read about SILPH.\p"
-	.string "It's already over?\n"
-	.string "I missed the media action…$"
+SaffronCity_Text_CommuteOnPidgeot::
+	.string "I fly in to work on my PIDGEOT.\p"
+	.string "The streets are packed every\n"
+	.string "morning, but the sky's wide open!$"
 
 SaffronCity_Text_Pidgeot::
 	.string "PIDGEOT: Bi bibii!$"
 
-SaffronCity_Text_SawRocketBossEscaping::
-	.string "I saw the ROCKET BOSS escaping\n"
-	.string "SILPH's building.$"
-
-SaffronCity_Text_ImASecurityGuard::
-	.string "I'm a security guard.\p"
-	.string "Suspicious kids I don't allow in!$"
-
-SaffronCity_Text_HesTakingASnooze::
-	.string "…\n"
-	.string "Snore…\p"
-	.string "Hah! He's taking a snooze!$"
+SaffronCity_Text_DojoMasterTrainsAtDawn::
+	.string "The KARATE MASTER at the DOJO\n"
+	.string "trains before sunrise every day.\p"
+	.string "I hear his shouts on my way to\n"
+	.string "the office. Better than an alarm!$"
 
 SaffronCity_Text_CitySign::
 	.string "SAFFRON CITY\n"

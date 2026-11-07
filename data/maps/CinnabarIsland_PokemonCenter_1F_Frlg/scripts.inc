@@ -145,6 +145,7 @@ CinnabarIsland_PokemonCenter_1F_Text_CinnabarGymLocked::
 	.string "for repairs!\p"
 	.string "Oh well. The volcano view from\n"
 	.string "the dock is worth the trip.$"
+
 CinnabarIsland_PokemonCenter_1F_Text_VisitUnionRoom::
 	.string "Do you have lots of friends?\p"
 	.string "Linking up with the usual friends\n"

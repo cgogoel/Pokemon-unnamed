@@ -9,7 +9,9 @@
 #include "menu.h"
 #include "overworld.h"
 #include "palette.h"
+#include "quests.h"
 #include "region_map.h"
+#include "string_util.h"
 #include "sound.h"
 #include "strings.h"
 #include "text.h"
@@ -36,13 +38,19 @@ enum {
 enum {
     TAG_PLAYER_ICON,
     TAG_CURSOR,
+    TAG_QUEST_MARKER,
 };
+
+// The window frame's tiles (after the windows': WIN_TITLE ends at tile 50)
+#define FRAME_TILES 0x40
 
 static EWRAM_DATA struct {
     MainCallback callback;
     u32 unused;
     struct RegionMap regionMap;
     u16 state;
+    u16 questMapSec; // The current quest's place (src/quests.c): its marker blinks, and its name says QUEST
+    bool8 fromQuests; // Opened from the quest menu: the cursor starts on the quest's place
 } *sFieldRegionMapHandler = NULL;
 
 static void MCB2_InitRegionMapRegisters(void);
@@ -76,9 +84,9 @@ static const struct WindowTemplate sFieldRegionMapWindowTemplates[] =
 {
     [WIN_MAPSEC_NAME] = {
         .bg = 0,
-        .tilemapLeft = 17,
+        .tilemapLeft = 11, // Wide enough for "QUEST: " and a name
         .tilemapTop = 17,
-        .width = 12,
+        .width = 18,
         .height = 2,
         .paletteNum = 15,
         .baseBlock = 1
@@ -90,7 +98,7 @@ static const struct WindowTemplate sFieldRegionMapWindowTemplates[] =
         .width = 7,
         .height = 2,
         .paletteNum = 15,
-        .baseBlock = 25
+        .baseBlock = 37
     },
     DUMMY_WIN_TEMPLATE
 };
@@ -101,7 +109,16 @@ void FieldInitRegionMap(MainCallback callback)
     sFieldRegionMapHandler = Alloc(sizeof(*sFieldRegionMapHandler));
     sFieldRegionMapHandler->state = 0;
     sFieldRegionMapHandler->callback = callback;
+    sFieldRegionMapHandler->questMapSec = Quests_GetTargetMapSec();
+    sFieldRegionMapHandler->fromQuests = FALSE;
     SetMainCallback2(MCB2_InitRegionMapRegisters);
+}
+
+// From the quest menu's A: MAP (src/quest_menu.c)
+void FieldInitRegionMapFromQuests(MainCallback callback)
+{
+    FieldInitRegionMap(callback);
+    sFieldRegionMapHandler->fromQuests = TRUE;
 }
 
 static void MCB2_InitRegionMapRegisters(void)
@@ -121,7 +138,10 @@ static void MCB2_InitRegionMapRegisters(void)
     InitBgsFromTemplates(1, sFieldRegionMapBgTemplates, ARRAY_COUNT(sFieldRegionMapBgTemplates));
     InitWindows(sFieldRegionMapWindowTemplates);
     DeactivateAllTextPrinters();
-    LoadUserWindowBorderGfx(0, 0x27, BG_PLTT_ID(13));
+    LoadUserWindowBorderGfx(0, FRAME_TILES, BG_PLTT_ID(13));
+    // From the field, the text palette is the overworld's; the quest menu left its own there
+    if (sFieldRegionMapHandler->fromQuests)
+        LoadPalette(GetOverworldTextboxPalettePtr(), BG_PLTT_ID(15), PLTT_SIZE_4BPP);
     ClearScheduledBgCopiesToVram();
     SetMainCallback2(MCB2_FieldUpdateRegionMap);
     SetVBlankCallback(VBCB_FieldUpdateRegionMap);
@@ -151,14 +171,17 @@ static void FieldUpdateRegionMap(void)
         InitRegionMap(&sFieldRegionMapHandler->regionMap, FALSE);
         CreateRegionMapPlayerIcon(TAG_PLAYER_ICON, TAG_PLAYER_ICON);
         CreateRegionMapCursor(TAG_CURSOR, TAG_CURSOR);
+        CreateRegionMapQuestMarker(TAG_QUEST_MARKER, sFieldRegionMapHandler->questMapSec);
+        if (sFieldRegionMapHandler->fromQuests)
+            RegionMap_MoveCursorToMapSec(sFieldRegionMapHandler->questMapSec);
         sFieldRegionMapHandler->state++;
         break;
     case 1:
-        DrawStdFrameWithCustomTileAndPalette(WIN_TITLE, FALSE, 0x27, 0xd);
+        DrawStdFrameWithCustomTileAndPalette(WIN_TITLE, FALSE, FRAME_TILES, 0xd);
         FillWindowPixelBuffer(WIN_TITLE, PIXEL_FILL(1));
         PrintTitleWindowText();
         ScheduleBgCopyTilemapToVram(0);
-        DrawStdFrameWithCustomTileAndPalette(WIN_MAPSEC_NAME, FALSE, 0x27, 0xd);
+        DrawStdFrameWithCustomTileAndPalette(WIN_MAPSEC_NAME, FALSE, FRAME_TILES, 0xd);
         PrintRegionMapSecName();
         BeginNormalPaletteFade(PALETTES_ALL, 0, 16, 0, RGB_BLACK);
         sFieldRegionMapHandler->state++;
@@ -205,6 +228,7 @@ static void FieldUpdateRegionMap(void)
         if (!gPaletteFade.active)
         {
             FreeRegionMapIconResources();
+            FreeRegionMapQuestMarker();
             SetMainCallback2(sFieldRegionMapHandler->callback);
             TRY_FREE_AND_SET_NULL(sFieldRegionMapHandler);
             FreeAllWindowBuffers();
@@ -215,7 +239,18 @@ static void FieldUpdateRegionMap(void)
 
 static void PrintRegionMapSecName(void)
 {
-    if (sFieldRegionMapHandler->regionMap.mapSecType != MAPSECTYPE_NONE)
+    static const u8 sText_Quest[] = _("QUEST: ");
+
+    if (RegionMap_IsCursorOnMapSec(sFieldRegionMapHandler->questMapSec))
+    {
+        // The current quest's place: its name, as the quest menu has it (not the section sharing its square)
+        u8 *end = StringCopy(gStringVar4, sText_Quest);
+        GetMapNameGeneric(end, sFieldRegionMapHandler->questMapSec);
+        FillWindowPixelBuffer(WIN_MAPSEC_NAME, PIXEL_FILL(1));
+        AddTextPrinterParameterized(WIN_MAPSEC_NAME, FONT_NORMAL, gStringVar4, 0, 1, 0, NULL);
+        ScheduleBgCopyTilemapToVram(WIN_MAPSEC_NAME);
+    }
+    else if (sFieldRegionMapHandler->regionMap.mapSecType != MAPSECTYPE_NONE)
     {
         FillWindowPixelBuffer(WIN_MAPSEC_NAME, PIXEL_FILL(1));
         AddTextPrinterParameterized(WIN_MAPSEC_NAME, FONT_NORMAL, sFieldRegionMapHandler->regionMap.mapSecName, 0, 1, 0, NULL);

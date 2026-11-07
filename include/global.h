@@ -255,6 +255,19 @@ struct NPCFollower
 #include "constants/items.h"
 #define ITEM_FLAGS_COUNT ((ITEMS_COUNT / 8) + ((ITEMS_COUNT % 8) ? 1 : 0))
 
+// The TM Database (docs/hack/tm_database.md): a TM under research, and the different Pokémon of its type caught and
+// moves of its type recorded since it started
+#define TM_RESEARCH_SLOTS     3
+#define TM_RESEARCH_MAX_COUNT 5
+
+struct TmResearchSlot
+{
+    u8 tm; // Its TM number (1 = TM01), 0 for an empty slot
+    u8 padding;
+    u16 species[TM_RESEARCH_MAX_COUNT];
+    u16 moves[TM_RESEARCH_MAX_COUNT];
+};
+
 struct SaveBlock3
 {
 #if OW_USE_FAKE_RTC
@@ -277,6 +290,8 @@ struct SaveBlock3
     // for the course (or the final project) in act2AreaLevelsPeriod; 0 for an area not visited yet
     u8 act2AreaLevels[KANTO_MAPSEC_COUNT];
     u8 act2AreaLevelsPeriod;
+    // The TM Database's research slots (src/tm_research.c)
+    struct TmResearchSlot tmResearch[TM_RESEARCH_SLOTS];
 }; /* max size 1624 bytes */
 
 extern struct SaveBlock3 *gSaveBlock3Ptr;

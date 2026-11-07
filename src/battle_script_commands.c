@@ -58,6 +58,7 @@
 #include "config_changes.h"
 #include "move.h"
 #include "act2_story.h"
+#include "tm_research.h"
 #include "constants/abilities.h"
 #include "constants/battle_anim.h"
 #include "constants/battle_move_effects.h"
@@ -1038,6 +1039,7 @@ static void Cmd_printattackstring(void)
 
     PrepareStringBattle(STRINGID_USEDMOVE, gBattlerAttacker);
     Act2_RecordMoveUse(gBattlerAttacker, gCurrentMove);
+    TmResearch_RecordMoveUse(gCurrentMove);
     gBattleCommunication[MSG_DISPLAY] = MSG_DISPLAY_CONTINUE;
     if (gBattleMoveEffects[GetMoveEffect(gCurrentMove)].twoTurnEffect
      && !gBattleMons[gBattlerAttacker].volatiles.multipleTurns)
@@ -9209,7 +9211,9 @@ void BS_Act2ResearchCatch(void)
     NATIVE_ARGS();
     gBattlescriptCurrInstr = cmd->nextInstr;
     Act2_OnCaughtMon(gBattleResults.caughtMonSpecies);
-    if (Act2_BufferResearchCatchMessage(gBattleResults.caughtMonSpecies))
+    // The course's counter, or else the TM Database's (they never run at once: the database opens after the courses)
+    if (Act2_BufferResearchCatchMessage(gBattleResults.caughtMonSpecies)
+     || TmResearch_BufferCatchMessage(gBattleResults.caughtMonSpecies))
         BattleScriptCall(BattleScript_Act2ResearchMessage);
 }
 

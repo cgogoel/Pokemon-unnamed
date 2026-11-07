@@ -11,8 +11,8 @@
 #define T_SAVEBLOCK1_SIZE 15568
 #endif
 #define T_SAVEBLOCK2_SIZE 3884
-// The hack adds Act 2's area levels to SaveBlock3 (include/global.h)
-#define T_SAVEBLOCK3_SIZE 108
+// The hack adds Act 2's area levels and the TM Database's research slots to SaveBlock3 (include/global.h)
+#define T_SAVEBLOCK3_SIZE 180
 #define T_POKEMONSTORAGE_SIZE 34144
 
 TEST("SaveBlock1 is backwards compatible")

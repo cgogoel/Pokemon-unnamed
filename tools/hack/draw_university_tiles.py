@@ -318,26 +318,28 @@ def has_window(c, w_tiles, spacing):
     return d2 % (2 * spacing) == spacing
 
 
-def facade(P, x0, y0, w_tiles, storeys, kind='arch', skip=(), spacing=2):
-    """Storeys of windows (2 rows each) every `spacing` columns within columns 1..w-2, except (col, storey) in skip
-    (storey 0 = the top one)."""
+def facade(P, x0, y0, w_tiles, storeys, kind='arch', skip=(), spacing=2, columns=None):
+    """Storeys of windows (2 rows each) every `spacing` columns within columns 1..w-2 (or exactly `columns`), except
+    (col, storey) in skip (storey 0 = the top one)."""
     for s in range(storeys):
         for c in range(1, w_tiles - 1):
-            if not has_window(c, w_tiles, spacing):
+            if (c not in columns) if columns is not None else not has_window(c, w_tiles, spacing):
                 continue
             if (c, s) in skip or c in skip:
                 continue
             (window if kind == 'arch' else sqwindow)(P, x0 + c * T, y0 + s * 2 * T)
 
 
-def academic(w, roof_rows, storeys, doors, dormers=(), kind='arch', pediment_over=None, skip=(), spacing=2):
+def academic(w, roof_rows, storeys, doors, dormers=(), kind='arch', pediment_over=None, skip=(), spacing=2,
+             columns=None):
     """The academic building: mansard roof, storeys of windows, doors (columns) on the ground storey, plinth.
     Symmetric when the doors and dormers are."""
     h = roof_rows + storeys * 2
     P = Pic(w * T, h * T)
     roof(P, 0, 0, P.w, roof_rows * T, dormers, roof_rows - 2)
     wall(P, 0, roof_rows * T, P.w, storeys * 2 * T)
-    facade(P, 0, roof_rows * T, w, storeys, kind, skip=[(d, storeys - 1) for d in doors] + list(skip), spacing=spacing)
+    facade(P, 0, roof_rows * T, w, storeys, kind, skip=[(d, storeys - 1) for d in doors] + list(skip), spacing=spacing,
+           columns=columns)
     for d in doors:
         door(P, d * T, (h - 2) * T, glass=kind != 'arch')
     plinth(P, 0, h * T - 4, P.w)
@@ -438,7 +440,8 @@ def pavilion():
 
 def humanities():
     """Literature & Library, 22x9: one building, two doors (columns 5 and 16)."""
-    P = academic(22, 5, 2, doors=(5, 16), dormers=(3, 8, 13, 18), spacing=5)  # Windows at 3, 8, 13, 18, under the dormers
+    # Windows two columns either side of each door (3, 7 and 14, 18), and a pair between them (9, 12)
+    P = academic(22, 5, 2, doors=(5, 16), dormers=(3, 8, 13, 18), columns=(3, 7, 9, 12, 14, 18))
     P.mirror()
     return P
 

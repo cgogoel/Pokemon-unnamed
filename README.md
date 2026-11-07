@@ -18,8 +18,15 @@ The game follows an ordinary person's life with Pokémon in three acts, each lon
 
 - **Act 1:** a farm just west of Pallet Town, with the player's farmhouse, a barn and a farmyard, and the Woods
   beyond it.
-- **Act 2:** Celadon University, reached from Celadon City through a gate building. The campus has a main hall,
-  lecture halls, a library, a cafeteria, a faculty office, a hospital, a science institute and student dorms.
+- **Act 2:** Celadon University, north of Celadon City through a gate building. It's drawn with its own tiles after
+  the Tamamushi University lore art: white stone halls around a clock tower and a Gyarados fountain, a glass
+  greenhouse, a stadium, a hospital and pool, a glass Science Institute tower, and student dorms, all in a forest.
+  Every building has its own interior.
+
+  ![Celadon University](docs/readme/campus.png)
+
+- **The friends' families:** each of the player's university friends has a family home in Kanto, with parents who
+  talk about their kid as the story goes on.
 - **Act 3:** none yet.
 
 ### Befriending (Act 1)
@@ -39,7 +46,7 @@ One befriended Pokémon follows the player at a time. The others live in a farmy
 ![A 3v3 battle](docs/readme/battle_3v3.png) ![The move menu in a 3v3 battle](docs/readme/battle_3v3_moves.png)
 
 Each side has three Pokémon on the field, but only one Pokémon per side acts each turn. The player picks which one
-with L and R, then its move and target.
+with L and R, then its move and target. Each turn starts on the Pokémon that acted last.
 
 Each side's three Pokémon stand in a formation: front, middle and back (from right to left on screen). Pressing
 SELECT moves the chosen Pokémon forward in the formation, which does not use up the turn. At the start of a battle
@@ -77,6 +84,23 @@ When each side has only two Pokémon, the same rules apply with two Pokémon per
 Each course (Fire, Water, Grass) is a field trip with a research sheet: catch three different Pokémon of the type,
 use and record moves of the type, and solve a puzzle at the site using a Pokémon of the type. Completing the sheet
 lets the player make the course's TM (reusable, as are all TMs) and take the course exam.
+
+### Quests (Acts 2 and 3)
+
+![The quest screen](docs/readme/quests.png) ![The quest marker on the Town Map](docs/readme/quest_map.png)
+
+QUESTS in the pause menu lists the act's quests: the current one first, then the finished ones. The selected
+quest shows its tasks with checkboxes and counters, a completion percentage, where to go, and the next step.
+A opens the map, where the current quest's place blinks. It blinks on the Town Map item too.
+
+### A Kanto of its own
+
+The base game's story is gone from Kanto: no rival encounters, no Team Rocket blocking roads, and nobody calls the
+player "champ". The people of Kanto talk about their own lives instead.
+
+Where the story sends the player across the region, trainers and wild Pokémon are leveled to match: each area's
+levels are set the first time the player arrives and stay put after that, so coming back stronger pays off.
+Pokémon from other regions turn up in the wild and on trainers' teams.
 
 ### Custom dungeons
 

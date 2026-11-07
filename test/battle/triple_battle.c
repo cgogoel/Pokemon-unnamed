@@ -642,3 +642,33 @@ AI_TRIPLE_BATTLE_TEST("Triple battles: a mixed trainer (DALE) attacks with eithe
         TURN { EXPECT_MOVE(opponentLeft, move); }
     }
 }
+
+// Animations that darken or tint the arena (F_PAL_BG: Absorb, Mega Drain...) blend the whole background: palettes 1-3,
+// and in 3v3 the floor ovals' palette. Singles once only got palette 2, leaving the platforms light.
+SINGLE_BATTLE_TEST("Battle anims: the arena's palettes all blend in single battles")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN {}
+    } THEN {
+        EXPECT_EQ(GetBattlePalettesMask(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE), 0xE);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Battle anims: the arena's palettes and the floor ovals' blend in triple battles")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN {}
+    } THEN {
+        EXPECT_EQ(GetBattlePalettesMask(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE), 0xE | (1 << TRIPLE_FLOOR_BG_PALETTE));
+    }
+}

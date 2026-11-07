@@ -308,9 +308,12 @@ def pediment(P, c, base_y, half, height, emblem=True):
 
 
 def facade(P, x0, y0, w_tiles, storeys, kind='arch', skip=()):
-    """Storeys of windows (2 rows each) in columns 1..w-2, except (col, storey) in skip (storey 0 = the top one)."""
+    """Storeys of windows (2 rows each) in every other column, centered (so a mirrored building stays symmetric),
+    within columns 1..w-2, except (col, storey) in skip (storey 0 = the top one)."""
     for s in range(storeys):
         for c in range(1, w_tiles - 1):
+            if abs(2 * c - (w_tiles - 1)) % 4 not in (0, 1):  # Every other column from the middle
+                continue
             if (c, s) in skip or c in skip:
                 continue
             (window if kind == 'arch' else sqwindow)(P, x0 + c * T, y0 + s * 2 * T)

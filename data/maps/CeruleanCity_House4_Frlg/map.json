@@ -17,18 +17,17 @@
   "connections": null,
   "object_events": [
     {
-      "local_id": "LOCALID_WONDER_NEWS_BERRY_MAN",
       "type": "object",
-      "graphics_id": "OBJ_EVENT_GFX_OLD_MAN_1",
-      "x": 5,
-      "y": 3,
+      "graphics_id": "OBJ_EVENT_GFX_WOMAN_3_FRLG",
+      "x": 1,
+      "y": 2,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_FACE_UP",
       "movement_range_x": 1,
       "movement_range_y": 1,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
-      "script": "CeruleanCity_House4_EventScript_WonderNewsBerryMan",
+      "script": "FriendHomes_EventScript_MinaMom",
       "flag": "0"
     }
   ],
@@ -42,5 +41,22 @@
     }
   ],
   "coord_events": [],
-  "bg_events": []
+  "bg_events": [
+    {
+      "type": "sign",
+      "x": 9,
+      "y": 1,
+      "elevation": 0,
+      "player_facing_dir": "BG_EVENT_PLAYER_FACING_NORTH",
+      "script": "FriendHomes_EventScript_MinaPhoto"
+    },
+    {
+      "type": "sign",
+      "x": 10,
+      "y": 1,
+      "elevation": 0,
+      "player_facing_dir": "BG_EVENT_PLAYER_FACING_NORTH",
+      "script": "FriendHomes_EventScript_MinaPhoto"
+    }
+  ]
 }

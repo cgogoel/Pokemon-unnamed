@@ -113,10 +113,10 @@
 // In Act 2, wild Pokémon are the party's average level, give or take this many (Act2_GetWildLevel)
 #define ACT2_WILD_LEVEL_SPREAD      3
 
-// Where Act 2 starts: the player's room in the Celadon University dorms
-#define ACT2_START_MAP              MAP_CELADON_UNIVERSITY_DORM_ROOM
-#define ACT2_START_X                2
-#define ACT2_START_Y                3
+// Where Act 2 starts: the player's room in the Celadon University dorms (2F, the third room), beside the bed
+#define ACT2_START_MAP              MAP_CELADON_UNIVERSITY_DORM_2F
+#define ACT2_START_X                15
+#define ACT2_START_Y                6
 
 // Where Act 3 starts: the player's lab at Silph Co., the room of research terminals on 7F (the floor where the
 // Lapras saved in Act 2 is kept). The player stands at the terminals.

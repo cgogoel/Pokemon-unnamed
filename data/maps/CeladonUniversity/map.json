@@ -228,51 +228,6 @@
       "flag": "0"
     },
     {
-      "local_id": "LOCALID_CAMPUS_KAI",
-      "type": "object",
-      "graphics_id": "OBJ_EVENT_GFX_CAMPER_FRLG",
-      "x": 53,
-      "y": 58,
-      "elevation": 3,
-      "movement_type": "MOVEMENT_TYPE_FACE_RIGHT",
-      "movement_range_x": 1,
-      "movement_range_y": 1,
-      "trainer_type": "TRAINER_TYPE_NONE",
-      "trainer_sight_or_berry_tree_id": "0",
-      "script": "Act2_EventScript_CampusKai",
-      "flag": "FLAG_TEMP_1"
-    },
-    {
-      "local_id": "LOCALID_CAMPUS_MINA",
-      "type": "object",
-      "graphics_id": "OBJ_EVENT_GFX_PICNICKER_FRLG",
-      "x": 54,
-      "y": 58,
-      "elevation": 3,
-      "movement_type": "MOVEMENT_TYPE_FACE_UP",
-      "movement_range_x": 1,
-      "movement_range_y": 1,
-      "trainer_type": "TRAINER_TYPE_NONE",
-      "trainer_sight_or_berry_tree_id": "0",
-      "script": "Act2_EventScript_CampusMina",
-      "flag": "FLAG_TEMP_1"
-    },
-    {
-      "local_id": "LOCALID_CAMPUS_ROWAN",
-      "type": "object",
-      "graphics_id": "OBJ_EVENT_GFX_BOY",
-      "x": 59,
-      "y": 58,
-      "elevation": 3,
-      "movement_type": "MOVEMENT_TYPE_FACE_LEFT",
-      "movement_range_x": 1,
-      "movement_range_y": 1,
-      "trainer_type": "TRAINER_TYPE_NONE",
-      "trainer_sight_or_berry_tree_id": "0",
-      "script": "Act2_EventScript_CampusRowan",
-      "flag": "FLAG_TEMP_1"
-    },
-    {
       "local_id": "LOCALID_CAMPUS_NIGHT_KAI",
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_CAMPER_FRLG",
@@ -422,7 +377,7 @@
       "x": 56,
       "y": 57,
       "elevation": 0,
-      "dest_map": "MAP_CELADON_UNIVERSITY_DORM_ROOM",
+      "dest_map": "MAP_CELADON_UNIVERSITY_STUDY_HALL",
       "dest_warp_id": "0"
     },
     {
@@ -735,6 +690,14 @@
       "elevation": 0,
       "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
       "script": "CeladonUniversity_EventScript_Sign14"
+    },
+    {
+      "type": "sign",
+      "x": 54,
+      "y": 58,
+      "elevation": 0,
+      "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
+      "script": "CeladonUniversity_EventScript_Sign15"
     }
   ],
   "region": "REGION_KANTO"

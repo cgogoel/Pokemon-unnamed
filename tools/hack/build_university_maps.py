@@ -24,11 +24,11 @@ U = 'MAP_CELADON_UNIVERSITY_'
 # --- Warps -------------------------------------------------------------------------------------------------------------
 # Campus doors: room -> campus warp id. 0-1 are the gate's passage.
 CAMPUS_DOORS = ['MAIN_HALL', 'LECTURE_HALL_A', 'LECTURE_HALL_B', 'FACULTY_OFFICE', 'CAFETERIA', 'LITERATURE',
-                'LIBRARY', 'SCIENCE_INSTITUTE', 'HOSPITAL', 'DORM_LOBBY', 'DORM_ROOM', 'HOME_ECONOMICS']
+                'LIBRARY', 'SCIENCE_INSTITUTE', 'HOSPITAL', 'DORM_LOBBY', 'STUDY_HALL', 'HOME_ECONOMICS']
 # Which stamp door leads where: (stamp index in D.CAMPUS, door index in the stamp)
 DOOR_OF = {'MAIN_HALL': (7, 0), 'LECTURE_HALL_A': (6, 0), 'LECTURE_HALL_B': (8, 0), 'FACULTY_OFFICE': (5, 0),
            'CAFETERIA': (9, 0), 'LITERATURE': (1, 0), 'LIBRARY': (1, 1), 'SCIENCE_INSTITUTE': (4, 0),
-           'HOSPITAL': (12, 0), 'DORM_LOBBY': (15, 0), 'DORM_ROOM': (16, 0), 'HOME_ECONOMICS': (2, 0)}
+           'HOSPITAL': (12, 0), 'DORM_LOBBY': (15, 0), 'STUDY_HALL': (16, 0), 'HOME_ECONOMICS': (2, 0)}
 # Stairs between floors: (room, its warp cells) <-> (room, its warp cells), in order
 STAIRS = [
     ('MAIN_HALL', [(1, 3), (2, 3), (16, 3), (17, 3)], 'MAIN_HALL_2F', [(1, 3), (2, 3), (16, 3), (17, 3)]),
@@ -52,8 +52,6 @@ OBJECTS = {
         'CeladonUniversity_EventScript_Beauty10': (44, 18), 'CeladonUniversity_EventScript_Gentleman11': (30, 18),
         'CeladonUniversity_EventScript_Boy12': (44, 46), 'CeladonUniversity_EventScript_Woman213': (23, 51),
         'CeladonUniversity_EventScript_BaldingMan14': (39, 44),
-        # Waiting outside the player's room (the annex door is (56,57); the player steps out to (56,58))
-        'LOCALID_CAMPUS_KAI': (53, 58), 'LOCALID_CAMPUS_MINA': (54, 58), 'LOCALID_CAMPUS_ROWAN': (59, 58),
         # The club, on the stadium's infield
         'LOCALID_CAMPUS_NIGHT_KAI': (15, 10), 'LOCALID_CAMPUS_NIGHT_MINA': (13, 11),
         'LOCALID_CAMPUS_NIGHT_ROWAN': (17, 11), 'LOCALID_CAMPUS_DALE': (15, 9),
@@ -103,9 +101,15 @@ OBJECTS = {
         'CeladonUniversity_DormLobby_EventScript_OldWoman0': (5, 4),
         'CeladonUniversity_DormLobby_EventScript_Meowth1': ((16, 9), 'MOVEMENT_TYPE_FACE_LEFT'),
         'CeladonUniversity_DormLobby_EventScript_Clefairy2': (8, 7),
+        # Act 2's start: the friends wait at the foot of the stairs (the player comes down to (1,3) or (2,3))
+        'LOCALID_LOBBY_ROWAN': ((3, 3), 'MOVEMENT_TYPE_FACE_LEFT'),
+        'LOCALID_LOBBY_KAI': ((3, 4), 'MOVEMENT_TYPE_FACE_LEFT'),
+        'LOCALID_LOBBY_MINA': ((4, 3), 'MOVEMENT_TYPE_FACE_LEFT'),
     },
     'CeladonUniversity_Dorm2F': {
-        'CeladonUniversity_Dorm2F_EventScript_CooltrainerM0': (16, 7),
+        'CeladonUniversity_Dorm2F_EventScript_CooltrainerM0': (12, 3),
+        # The player's room (the third): the LAPRAS doll on the rug
+        'CeladonUniversity_Dorm2F_EventScript_LaprasDoll': (16, 9),
         'CeladonUniversity_Dorm2F_EventScript_Lass1': (10, 3),
         'LOCALID_DORM_KAI': (3, 7), 'LOCALID_DORM_MINA': (10, 7),
     },
@@ -115,8 +119,11 @@ OBJECTS = {
         'CeladonUniversity_Dorm3F_EventScript_FatMan2': (10, 3),
         'LOCALID_DORM_ROWAN': (16, 7),
     },
-    'CeladonUniversity_DormRoom': {
-        'CeladonUniversity_DormRoom_EventScript_LaprasDoll0': (9, 4),
+    'CeladonUniversity_StudyHall': {
+        'CeladonUniversity_StudyHall_EventScript_Youngster': (5, 4),
+        'CeladonUniversity_StudyHall_EventScript_Lass': (3, 5),
+        'CeladonUniversity_StudyHall_EventScript_CooltrainerF': (11, 5),
+        'CeladonUniversity_StudyHall_EventScript_FatMan': (12, 3),
     },
     'CeladonUniversity_HomeEconomics': {
         'Act2_EventScript_ProfFern': (10, 2),
@@ -183,18 +190,21 @@ SIGNS = {
     'CeladonUniversity_Library': {'CeladonUniversity_Library_EventScript_Sign0': [(2, 1), (3, 1), (11, 1), (12, 1)]},
     'CeladonUniversity_DormLobby': {'CeladonUniversity_DormLobby_EventScript_Sign0': [(11, 1), (12, 1)]},
     'CeladonUniversity_Dorm2F': {
-        'CeladonUniversity_Dorm2F_EventScript_Bed': [(1, 6), (8, 6), (14, 6)],
+        'CeladonUniversity_Dorm2F_EventScript_Bed': [(1, 6), (8, 6)],
+        'CeladonUniversity_Dorm2F_EventScript_YourBed': [(14, 5), (14, 6)],
+        'CeladonUniversity_Dorm2F_EventScript_Schedule': [(17, 5), (17, 6)],
+        'CeladonUniversity_Dorm2F_EventScript_Desk': [(18, 5)],
+        'CeladonUniversity_Dorm2F_EventScript_Photo': [(19, 5)],
+        'CeladonUniversity_Dorm2F_EventScript_Textbooks': [(19, 7), (19, 8)],
+        'CeladonUniversity_Dorm2F_EventScript_YourRoomPlate': [(17, 4)],
         'CeladonUniversity_Dorm2F_EventScript_Sign0': [(9, 1), (10, 1)],
         'Act2_EventScript_RoomPlateKai': [(4, 4)], 'Act2_EventScript_RoomPlateMina': [(11, 4)]},
     'CeladonUniversity_Dorm3F': {
         'CeladonUniversity_Dorm3F_EventScript_Bed': [(1, 6), (8, 6), (14, 6)],
         'Act2_EventScript_RoomPlateRowan': [(17, 4)]},
-    'CeladonUniversity_DormRoom': {
-        'CeladonUniversity_DormRoom_EventScript_Sign0': [(1, 2), (1, 3)],
-        'CeladonUniversity_DormRoom_EventScript_Sign1': [(3, 1)],
-        'CeladonUniversity_DormRoom_EventScript_Sign2': [(8, 1), (9, 1)],
-        'CeladonUniversity_DormRoom_EventScript_Sign3': [(6, 2)],
-        'CeladonUniversity_DormRoom_EventScript_Sign4': [(5, 1)]},
+    'CeladonUniversity_StudyHall': {
+        'CeladonUniversity_StudyHall_EventScript_NoticeBoard': [(6, 1), (7, 1), (8, 1)],
+        'CeladonUniversity_StudyHall_EventScript_Shelves': [(1, 1), (2, 1), (12, 1)]},
     'CeladonUniversity_HomeEconomics': {'CeladonUniversity_HomeEconomics_EventScript_Sign0': [(4, 1), (16, 1)]},
     'CeladonUniversity_ScienceInstitute': {
         'CeladonUniversity_ScienceInstitute_EventScript_Sign0': [(4, 1)],

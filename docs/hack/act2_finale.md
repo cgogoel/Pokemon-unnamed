@@ -19,6 +19,8 @@ that got them into university. It's an unguided exam: each gets a TOWN MAP and �
 items, towns are far apart). Then the DOOM SCROLL: as PROF. FERN taught, some Pokémon only appear at night or by day;
 the director once saw a freshman stand mesmerized at the fountain for 12 hours. "Learn the art of the DOOM SCROLL"
 (a key item: wait until night or morning, [time_of_day.md](time_of_day.md)). KAI: "So… open social media."
+Last, the director sends the player to the researcher on 3F about the TM MACHINE: the TM Database
+([tm_database.md](tm_database.md)).
 
 Then the friends come over, each with a TM in their favorite type, matching the night the player battled them:
 

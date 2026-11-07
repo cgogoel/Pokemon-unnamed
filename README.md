@@ -96,6 +96,13 @@ QUESTS in the pause menu lists the act's quests: the current one first, then the
 quest shows its tasks with checkboxes and counters, a completion percentage, where to go, and the next step.
 A opens the map, where the current quest's place blinks. It blinks on the Town Map item too.
 
+![TM research in the quest screen](docs/readme/tm_research.png)
+
+**TM Research.** Later on, new TMs are made, not found: pick up to three TMs to research (one per type), then catch
+different Pokémon of the TM's type and record different moves of it in battle. Stronger moves need more. The
+TM RESEARCH tab (L/R in QUESTS) tracks each one and crafts it when it's done. Catch every Pokémon of a type and all of
+its TMs are yours.
+
 ### A Kanto of its own
 
 The base game's story is gone from Kanto: no rival encounters, no Team Rocket blocking roads, and nobody calls the

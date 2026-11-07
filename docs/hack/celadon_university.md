@@ -47,5 +47,7 @@ door at the same place (column + 2); the player's room stays 11x9.
   DALE stand on the infield.
 - The brief (`act2_finale.inc`): coord events across the institute's row 12; the player walks to (8,10) between KAI
   and MINA, facing the director (8,9).
+- The TM Database ([tm_database.md](tm_database.md)): the TM MACHINE is 3F's right-hand terminal (11,1), the
+  researcher beside it at (12,2).
 - Tri-Blast: the lab is 3F; the player at the center terminal (8,2), the friends behind (7-9,3), the professors
   come up the stairs (2,2).

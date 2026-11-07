@@ -15,6 +15,13 @@ screen). Tests: `test/quests.c`.
 - **A: MAP** opens the Town Map with the cursor on the current quest's place (`FieldInitRegionMapFromQuests`).
   B goes back to the start menu.
 
+## TM RESEARCH
+
+Once the TM Database is unlocked (the final project's researcher, `FLAG_TM_DATABASE_UNLOCKED`), the header shows two
+tabs, QUESTS and TM RESEARCH, with L/R glyphs before them; L/R switch. TM RESEARCH shows the 3 research slots and ALL
+TMs in the same layout, crafts and clears from there, and opens the database's browse list. The quests tab is
+unchanged. Details: [tm_database.md](tm_database.md).
+
 ## The map marker
 
 The Town Map (`src/field_region_map.c`) is used by the TOWN MAP item, wall maps and the quest screen. On it, the

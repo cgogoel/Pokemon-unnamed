@@ -1,5 +1,6 @@
 #include "global.h"
 #include "act2_story.h"
+#include "act2_road.h"
 #include "battle.h"
 #include "battle_setup.h"
 #include "event_data.h"
@@ -47,21 +48,12 @@ bool32 Act2_UsesAct2WildPokemon(void)
     return VarGet(VAR_STORY_ACT) == STORY_ACT_UNIVERSITY;
 }
 
-// In Act 2, every wild Pokémon is within ACT2_WILD_LEVEL_SPREAD levels of the party's average level (from
-// ChooseWildMonLevel). The areas' tables still pick the species.
+// In Act 2, every wild Pokémon is within ACT2_WILD_LEVEL_SPREAD levels of the area's level (from ChooseWildMonLevel):
+// the party's average level when the player first came to the area in this course (Act2Road_GetAreaLevel). The
+// areas' tables still pick the species.
 u32 Act2_GetWildLevel(void)
 {
-    u32 i, total = 0, count = 0;
-    s32 level;
-    for (i = 0; i < PARTY_SIZE; i++)
-    {
-        struct Pokemon *mon = &gPlayerParty[i];
-        if (GetMonData(mon, MON_DATA_SPECIES) == SPECIES_NONE || GetMonData(mon, MON_DATA_IS_EGG))
-            continue;
-        total += GetMonData(mon, MON_DATA_LEVEL);
-        count++;
-    }
-    level = (count == 0) ? ACT2_START_LEVEL : (total + count / 2) / count;
+    s32 level = Act2Road_GetAreaLevel();
     level += (s32)(Random() % (ACT2_WILD_LEVEL_SPREAD * 2 + 1)) - ACT2_WILD_LEVEL_SPREAD;
     return min(max(level, 1), MAX_LEVEL);
 }

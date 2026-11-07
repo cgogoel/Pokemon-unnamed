@@ -225,11 +225,14 @@ kid does now). Each also knows the player as their kid's friend.
 | Friend | Home | Parents (sprite) | In Act 3 | Also there |
 |---|---|---|---|---|
 | KAI (Fire) | Celadon City, a suite on the Condominiums' 2F (`CeladonCity_Condominiums_2F_Frlg`, was the Game Freak meeting room; its door plate is now the family's; the Fame Checker's ERIKA journals on its shelf are gone). He fell for Fire on a school trip to Cinnabar's volcano | Two dads: the loud one, by the table (Fat man), and the quiet one, in the armchair (Man) | Training Fire Pokémon full time; means to take on Cinnabar's Gym one day | A photo of KAI as a kid with his dads |
-| MINA (Water) | Cerulean City, the small house that was the Wonder News man's (`CeruleanCity_House4_Frlg`) | Her mom, by the stove (Woman 3); it's been just the two of them | At a marine research station out at sea; sends postcards | A photo of MINA as a kid with a Staryu |
+| MINA (Water) | Vermilion City, the Water course's harbor: the house that was the Pidgey-mail family's (`VermilionCity_House3_Frlg`). She grew up on the docks | Her mom, by the stove (Woman 3); it's been just the two of them | At a marine research station out at sea; sends postcards | A photo of MINA as a kid on the pier with a Staryu |
 | ROWAN (Grass) | Celadon City, the house by the Game Corner (`CeladonCity_House1_Frlg`, was the Game Corner owner's) | Mom, tending a plant (Woman 1), and Dad, at the table (Balding man) | Runs a greenhouse at a botanical lab, naming new plants | A photo of ROWAN as a kid; a plant labeled by ROWAN |
 
 - KAI and ROWAN both grew up in Celadon, across town from each other: KAI's quiet dad and ROWAN's dad mention the
   other family.
+- On the Water trip, MINA's mom follows the docks: MINA's class is in town, then the fire (help them!), then the
+  fire out and the young Lapras saved (`Act2_GetDockFireState`). In Vermilion, MINA says her mom's house is up the
+  street (`Act2_EventScript_TripMinaVermilion`; elsewhere her trip line is the shared one).
 - The friends mention home in their dorm rooms (`Act2_Text_RoomKai`, `Act2_Text_RoomMina`, `Act2_Text_RoomRowan`).
 
 ## Base-game scenes stripped for Act 2

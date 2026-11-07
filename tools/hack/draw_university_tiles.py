@@ -319,9 +319,12 @@ def has_window(c, w_tiles, spacing):
 
 
 def facade(P, x0, y0, w_tiles, storeys, kind='arch', skip=(), spacing=2, columns=None):
-    """Storeys of windows (2 rows each) every `spacing` columns within columns 1..w-2 (or exactly `columns`), except
-    (col, storey) in skip (storey 0 = the top one)."""
+    """Storeys of windows (2 rows each) every `spacing` columns within columns 1..w-2 (or exactly `columns`, which may
+    include half columns such as 10.5 for the middle of an even-width building), except (col, storey) in skip
+    (storey 0 = the top one)."""
     for s in range(storeys):
+        for c in [c for c in (columns or ()) if c != int(c)]:  # Half-column windows, between two tiles
+            (window if kind == 'arch' else sqwindow)(P, x0 + int(c * T), y0 + s * 2 * T)
         for c in range(1, w_tiles - 1):
             if (c not in columns) if columns is not None else not has_window(c, w_tiles, spacing):
                 continue
@@ -440,8 +443,9 @@ def pavilion():
 
 def humanities():
     """Literature & Library, 22x9: one building, two doors (columns 5 and 16)."""
-    # Windows two columns either side of each door (3, 7 and 14, 18), and a pair between them (9, 12)
-    P = academic(22, 5, 2, doors=(5, 16), dormers=(3, 8, 13, 18), columns=(3, 7, 9, 12, 14, 18))
+    # Windows three columns either side of each door (2, 8 and 13, 19: just outside the end dormers, and under the
+    # middle ones), and one in the dead center (between columns 10 and 11)
+    P = academic(22, 5, 2, doors=(5, 16), dormers=(3, 8, 13, 18), columns=(2, 8, 10.5, 13, 19))
     P.mirror()
     return P
 

@@ -391,6 +391,43 @@ u32 CountTripleSpreadTargets(enum BattlerId battlerAtk)
     return count;
 }
 
+// Once every action is chosen: which of the player's Pokémon acts this turn, to start with it next turn
+void RecordTriplePlayerActor(void)
+{
+    for (enum BattlerId battler = 0; battler < gBattlersCount; battler++)
+    {
+        if (!IsOnPlayerSide(battler) || gAbsentBattlerFlags & (1u << battler))
+            continue;
+        switch (gChosenActionByBattler[battler])
+        {
+        case B_ACTION_PASS:
+        case B_ACTION_CANCEL_PARTNER:
+        case B_ACTION_NOTHING_FAINTED:
+        case B_ACTION_NONE:
+            break;
+        default:
+            gBattleStruct->tripleLastPlayerActor = battler + 1;
+            return;
+        }
+    }
+}
+
+// The first time the player is asked to act in a turn: the Pokémon that acted last turn starts selected, if it still
+// can. MAX_BATTLERS_COUNT keeps the engine's order (the first one asked).
+enum BattlerId GetTriplePlayerStartingActor(enum BattlerId battler)
+{
+    enum BattlerId last = gBattleStruct->tripleLastPlayerActor - 1;
+
+    if (gBattleStruct->tripleLastActorPickedTurn == gBattleTurnCounter + 1)
+        return MAX_BATTLERS_COUNT;
+    gBattleStruct->tripleLastActorPickedTurn = gBattleTurnCounter + 1;
+    if (gBattleStruct->tripleLastPlayerActor == 0 || last == battler || last >= gBattlersCount
+     || !IsBattlerAlly(last, battler) || gAbsentBattlerFlags & (1u << last) || !IsBattlerAlive(last)
+     || !DoesTripleBattlerChooseLater(battler, last))
+        return MAX_BATTLERS_COUNT;
+    return last;
+}
+
 // AI: scores every AI battler on the side once per turn and picks the one with the best move to act.
 // If the best move is weak and a battler wants to switch out, that battler acts (by switching) instead.
 void ChooseTripleAiActor(enum BattlerId battler, bool32 (*isAiBattler)(enum BattlerId))

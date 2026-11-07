@@ -545,3 +545,38 @@ AI_TRIPLE_BATTLE_TEST("Triple battles: the AI never switches to a Pokémon alrea
         EXPECT_EQ(opponentMiddle->species, SPECIES_TYRANITAR);
     }
 }
+
+TRIPLE_BATTLE_TEST("Triple battles: the player's Pokémon that acted last turn starts selected the next turn")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WYNAUT);
+        PLAYER(SPECIES_PIKACHU);
+        OPPONENT(SPECIES_BULBASAUR);
+        OPPONENT(SPECIES_CHARMANDER);
+        OPPONENT(SPECIES_SQUIRTLE);
+    } WHEN {
+        TURN { MOVE(playerMiddle, MOVE_CELEBRATE); }
+    } THEN {
+        EXPECT_EQ(gBattleStruct->tripleLastPlayerActor, B_POSITION_PLAYER_MIDDLE + 1);
+        EXPECT_EQ(GetTriplePlayerStartingActor((enum BattlerId)B_POSITION_PLAYER_LEFT), (enum BattlerId)B_POSITION_PLAYER_MIDDLE);
+        // Only the first time the player is asked in a turn
+        EXPECT_EQ(GetTriplePlayerStartingActor((enum BattlerId)B_POSITION_PLAYER_LEFT), (enum BattlerId)MAX_BATTLERS_COUNT);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: if the Pokémon that acted last turn fainted, the turn starts with the first one")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WYNAUT);
+        PLAYER(SPECIES_PIKACHU) { HP(1); }
+        OPPONENT(SPECIES_BULBASAUR);
+        OPPONENT(SPECIES_CHARMANDER);
+        OPPONENT(SPECIES_SQUIRTLE);
+    } WHEN {
+        TURN { MOVE(playerMiddle, MOVE_CELEBRATE); MOVE(opponentLeft, MOVE_PSYCHIC, target: playerMiddle); }
+    } THEN {
+        EXPECT_EQ(GetTriplePlayerStartingActor((enum BattlerId)B_POSITION_PLAYER_LEFT), (enum BattlerId)MAX_BATTLERS_COUNT);
+    }
+}

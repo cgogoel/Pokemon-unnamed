@@ -4460,6 +4460,8 @@ static void HandleTurnActionSelectionState(void)
     if (gBattleCommunication[ACTIONS_CONFIRMED_COUNT] == gBattlersCount)
     {
         RecordedBattle_CheckMovesetChanges(B_RECORD_MODE_RECORDING);
+        if (IsTripleBattle())
+            RecordTriplePlayerActor();
 
         if (WILD_DOUBLE_BATTLE
             && gBattleStruct->throwingPokeBall

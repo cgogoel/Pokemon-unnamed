@@ -92,6 +92,8 @@ The prompt reads "What will Pikachu do?" with a hint line: `L R Pick`, `SELECT O
 - **L / R**: pick the Pokémon to the left / right on screen (toward the rear / the front) to act instead; wraps around.
   The engine still asks the side's Pokémon in battler order; the ones not picked pass or hand the choice back
   automatically (`StepTowardTriplePickedActor`).
+- Each turn starts with the Pokémon that acted last turn selected, if it can still act; otherwise the first one
+  (`GetTriplePlayerStartingActor`, recorded by `RecordTriplePlayerActor`).
 - **SELECT**: move the selected Pokémon one spot forward in the formation (front wraps to back). Free.
 - **B** (middle/right): go back to the previous Pokémon in the engine's order.
 - The move menu's MOVE INFO (L) prompt sits on the left edge between the two teams.

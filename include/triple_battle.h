@@ -68,6 +68,8 @@ void MarkTripleExcludedTargets(enum BattlerId battlerAtk, enum Move move);
 u32 CountTripleSpreadTargets(enum BattlerId battlerAtk);
 void ChooseTripleAiActor(enum BattlerId battler, bool32 (*isAiBattler)(enum BattlerId));
 bool32 IsTripleAiPassing(enum BattlerId battler);
+void RecordTriplePlayerActor(void);
+enum BattlerId GetTriplePlayerStartingActor(enum BattlerId battler);
 u32 GetTripleTrainerBattleTypeFlags(u16 trainerId);
 u32 GetTripleBattleTypeFlagsForFoes(u32 foePartySize);
 u32 GetTripleAiSecondTargetByte(enum BattlerId battlerAtk, enum BattlerId mainTarget, u32 moveIndex);

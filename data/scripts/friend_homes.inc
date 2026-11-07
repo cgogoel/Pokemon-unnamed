@@ -1,7 +1,7 @@
 @ The friends' families (docs/hack/act2_story.md, "The friends' families"). Each friend grew up in the town of the
 @ type they love, and their parents are always home, in every act:
 @ - KAI (Fire), CELADON CITY: his two dads (CeladonCity_Condominiums_2F_Frlg; he fell for FIRE on a school trip)
-@ - MINA (Water), CERULEAN CITY: her mom (CeruleanCity_House4_Frlg)
+@ - MINA (Water), VERMILION CITY, the Water course's harbor: her mom (VermilionCity_House3_Frlg)
 @ - ROWAN (Grass), CELADON CITY: their mom and dad (CeladonCity_House1_Frlg)
 @ What the parents say follows the story (FriendHomes_EventScript_GetStage).
 
@@ -86,7 +86,7 @@ FriendHomes_EventScript_KaiNameplate::
 	end
 
 @ ---------------------------------------------------------------------------------------------------------------
-@ MINA's mom, CERULEAN CITY
+@ MINA's mom, VERMILION CITY. On the Water trip she follows the docks' fire (Act2_GetDockFireState).
 
 FriendHomes_EventScript_MinaMom::
 	lock
@@ -95,7 +95,26 @@ FriendHomes_EventScript_MinaMom::
 	goto_if_eq VAR_RESULT, FRIEND_HOMES_CHILDHOOD, FriendHomes_EventScript_MinaMomChildhood
 	goto_if_eq VAR_RESULT, FRIEND_HOMES_PROJECT, FriendHomes_EventScript_MinaMomProject
 	goto_if_eq VAR_RESULT, FRIEND_HOMES_LATER, FriendHomes_EventScript_MinaMomLater
+	goto_if_eq VAR_ACT2_PROGRESS, ACT2_WATER_TRIP, FriendHomes_EventScript_MinaMomTrip
 	msgbox FriendHomes_Text_MinaMomCourses
+	release
+	end
+
+FriendHomes_EventScript_MinaMomTrip::
+	specialvar VAR_RESULT, Act2_GetDockFireState
+	goto_if_eq VAR_RESULT, DOCK_FIRE_BURNING, FriendHomes_EventScript_MinaMomTripFire
+	goto_if_eq VAR_RESULT, DOCK_FIRE_OUT, FriendHomes_EventScript_MinaMomTripSaved
+	msgbox FriendHomes_Text_MinaMomTrip
+	release
+	end
+
+FriendHomes_EventScript_MinaMomTripFire::
+	msgbox FriendHomes_Text_MinaMomTripFire
+	release
+	end
+
+FriendHomes_EventScript_MinaMomTripSaved::
+	msgbox FriendHomes_Text_MinaMomTripSaved
 	release
 	end
 
@@ -258,23 +277,46 @@ FriendHomes_Text_KaiNameplate:
 @ MINA's mom: warm and practical, like MINA. It's been the two of them.
 
 FriendHomes_Text_MinaMomChildhood:
-	.string "MINA's down at the water again.\n"
-	.string "She'd live in the bay if she could!\p"
-	.string "She knows every STARYU out there\n"
-	.string "by name. Don't ask me how.$"
+	.string "MINA's down on the docks again,\n"
+	.string "feeding the TENTACOOL. Again!\p"
+	.string "The sailors all know her by name.\n"
+	.string "She'd live on a boat if she could.$"
 
 FriendHomes_Text_MinaMomCourses:
 	.string "MINA's at CELADON UNIVERSITY,\n"
 	.string "and she loves it.\p"
 	.string "It's been just the two of us since\n"
 	.string "she was little. The house is so\l"
-	.string "quiet now.\p"
+	.string "quiet now. No more sea spray on\l"
+	.string "the floor.\p"
 	.string "She calls every Sunday. Never\n"
 	.string "misses one. That's my MINA.$"
 
-FriendHomes_Text_MinaMomProject:
+FriendHomes_Text_MinaMomTrip:
+	.string "MINA's class is here, at the\n"
+	.string "harbor? She didn't tell me!\p"
 	.string "Oh! You must be {PLAYER}!\n"
 	.string "MINA's told me all about you.\p"
+	.string "She knows every fishing spot\n"
+	.string "in VERMILION. Ask her!$"
+
+FriendHomes_Text_MinaMomTripFire:
+	.string "The docks are on fire! I can see\n"
+	.string "the smoke from the window!\p"
+	.string "MINA ran straight down there,\n"
+	.string "didn't she? Of course she did.\p"
+	.string "Please, {PLAYER}. Help them!$"
+
+FriendHomes_Text_MinaMomTripSaved:
+	.string "Word travels fast on the docks.\p"
+	.string "Your class put out the fire, and\n"
+	.string "saved a young LAPRAS, I hear!\p"
+	.string "My MINA's class… Oh, I'm so proud\n"
+	.string "I could burst!$"
+
+FriendHomes_Text_MinaMomProject:
+	.string "{PLAYER}! Come in, come in!\n"
+	.string "MINA called about you.\p"
 	.string "She's making WAVE CRASH for her\n"
 	.string "final project. A whole wave!\p"
 	.string "I worry, of course. But she's\n"
@@ -292,8 +334,8 @@ FriendHomes_Text_MinaMomLater:
 	.string "that way, visit her for me?$"
 
 FriendHomes_Text_MinaPhoto:
-	.string "A photo of a little girl at the\n"
-	.string "water's edge, a STARYU in her arms.\p"
+	.string "A photo of a little girl on the\n"
+	.string "pier, a STARYU in her arms.\p"
 	.string "It's MINA!$"
 
 @ ROWAN's mom: a gardener, cheerful

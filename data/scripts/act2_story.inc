@@ -738,6 +738,11 @@ Act2_EventScript_TripMina::
 	msgbox Act2_Text_TripMina, MSGBOX_NPC
 	end
 
+@ In VERMILION, MINA's hometown (data/scripts/friend_homes.inc)
+Act2_EventScript_TripMinaVermilion::
+	msgbox Act2_Text_TripMinaVermilion, MSGBOX_NPC
+	end
+
 Act2_EventScript_TripRowan::
 	msgbox Act2_Text_TripRowan, MSGBOX_NPC
 	end
@@ -1425,8 +1430,8 @@ Act2_Text_RoomKai:
 Act2_Text_RoomMina:
 	.string "MINA: My room! That poster is a\n"
 	.string "STARYU. My favorite.\p"
-	.string "Back home in CERULEAN, Mom and I\n"
-	.string "used to count them in the river.$"
+	.string "Back home in VERMILION, Mom and I\n"
+	.string "counted them off the pier.$"
 
 Act2_Text_RoomRowan:
 	.string "ROWAN: Shh, I'm reading.\n"
@@ -2057,6 +2062,12 @@ Act2_Text_TripKai:
 
 Act2_Text_TripMina:
 	.string "MINA: Good luck! Remember to weaken\n"
+	.string "them before you throw a BALL.$"
+
+Act2_Text_TripMinaVermilion:
+	.string "MINA: Welcome to my hometown!\n"
+	.string "Mom's house is just up the street.\p"
+	.string "Good luck! Remember to weaken\n"
 	.string "them before you throw a BALL.$"
 
 Act2_Text_TripRowan:

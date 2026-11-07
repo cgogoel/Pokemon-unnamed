@@ -32,7 +32,7 @@ CeladonCity_Restaurant_EventScript_AlreadyGotCoinCase::
 	end
 
 CeladonCity_Restaurant_EventScript_WorkerM::
-	msgbox CeladonCity_Restaurant_Text_PsstBasementUnderGameCorner, MSGBOX_NPC
+	msgbox CeladonCity_Restaurant_Text_ChefsSecret, MSGBOX_NPC
 	end
 
 CeladonCity_Restaurant_EventScript_FatMan::
@@ -48,9 +48,10 @@ CeladonCity_Restaurant_Text_OftenGoToDrugstore::
 	.string "My POKéMON are weak, so I often\n"
 	.string "have to go to the DRUGSTORE.$"
 
-CeladonCity_Restaurant_Text_PsstBasementUnderGameCorner::
-	.string "Psst! There's a basement under the\n"
-	.string "GAME CORNER, I hear.$"
+CeladonCity_Restaurant_Text_ChefsSecret::
+	.string "Psst! The chef puts a pinch of\n"
+	.string "MOOMOO MILK in the curry.\p"
+	.string "Don't tell him I told you.$"
 
 CeladonCity_Restaurant_Text_ManLostItAllAtSlots::
 	.string "Munch…\p"

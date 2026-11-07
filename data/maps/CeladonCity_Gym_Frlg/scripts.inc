@@ -107,10 +107,12 @@ CeladonCity_Gym_Text_ErikaDefeat::
 	.string "RAINBOWBADGE.$"
 
 CeladonCity_Gym_Text_ErikaPostBattle::
-	.string "You are cataloging POKéMON?\n"
-	.string "I must say I'm impressed.\p"
-	.string "I would never collect POKéMON if\n"
-	.string "they were unattractive.$"
+	.string "You battle with such care for\n"
+	.string "your POKéMON.\p"
+	.string "The GRASS here grows best when it's\n"
+	.string "tended gently, too.\p"
+	.string "Do come back and see the garden\n"
+	.string "in bloom.$"
 
 CeladonCity_Gym_Text_ExplainRainbowBadgeTakeThis::
 	.string "The RAINBOWBADGE will make\n"
@@ -225,13 +227,11 @@ CeladonCity_Gym_Text_MaryPostBattle::
 
 CeladonCity_Gym_Text_GymStatue::
 	.string "CELADON POKéMON GYM\n"
-	.string "LEADER: ERIKA\p"
-	.string "WINNING TRAINERS:\n"
-	.string "{RIVAL}$"
+	.string "LEADER: ERIKA$"
 
 CeladonCity_Gym_Text_GymStatuePlayerWon::
 	.string "CELADON POKéMON GYM\n"
 	.string "LEADER: ERIKA\p"
 	.string "WINNING TRAINERS:\n"
-	.string "{RIVAL}, {PLAYER}$"
+	.string "{PLAYER}$"
 

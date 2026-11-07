@@ -185,8 +185,8 @@ CeladonUniversity_Text_Psyduck9::
 CeladonUniversity_Text_Beauty10::
 	.string "Home Economics studies the\n"
 	.string "beauty of flowers and tea.\p"
-	.string "I heard ERIKA of the CELADON\n"
-	.string "GYM drops by sometimes!$"
+	.string "I heard ERIKA, the flower master\n"
+	.string "from town, drops by sometimes!$"
 
 CeladonUniversity_Text_Gentleman11::
 	.string "The Literature department\n"

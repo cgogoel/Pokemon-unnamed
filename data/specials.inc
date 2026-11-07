@@ -665,9 +665,9 @@ gSpecials::
 	def_special Act2_IsDockFireBurningSpecial
 	def_special Act2_IsDockFireAlarmDue
 	def_special Act2_FindSpotBesidePlayer
+	def_special Act2_WalkFriendToPlayer
 	def_special Act2_GetDockFireState
 	def_special Act2_FindTmMoveUser
-	def_special Act2_PartyCanUseCourseTM
 	def_special Act2_FindCourseMoveUser
 	def_special Act2_SolvePuzzlePart
 	def_special Act2_IsPuzzlePartSolved
@@ -678,6 +678,7 @@ gSpecials::
 	def_special Act2_ResetWoodsNoise
 	def_special Act2_FillChamberParty
 	def_special Act2_EndAct2
+	def_special Act2_ShowNextDayCard
 	def_special Act2Road_IsRouteOpenSpecial
 	def_special Act2Station_DrawFloor
 	def_special Act2Station_HasFinaleBit

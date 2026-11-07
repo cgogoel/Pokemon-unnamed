@@ -67,29 +67,11 @@ ViridianCity_EventScript_Boy::
 
 @ Other old man, not the tutorial old man
 ViridianCity_EventScript_OldMan::
-	lock
-	faceplayer
-	goto_if_eq VAR_MAP_SCENE_VIRIDIAN_CITY_GYM_DOOR, 1, ViridianCity_EventScript_OldManGymLeaderReturned
-	msgbox ViridianCity_Text_GymClosedWonderWhoLeaderIs
-	closemessage
-	applymovement LOCALID_VIRIDIAN_OLD_MAN, Common_Movement_FaceOriginalDirection
-	waitmovement 0
-	release
-	end
-
-ViridianCity_EventScript_OldManGymLeaderReturned::
-	msgbox ViridianCity_Text_ViridiansGymLeaderReturned
-	release
+	msgbox ViridianCity_Text_GymClosedWonderWhoLeaderIs, MSGBOX_NPC
 	end
 
 ViridianCity_EventScript_TutorialOldMan::
-	lock
-	faceplayer
-	goto ViridianCity_EventScript_TutorialCompleted
-
-ViridianCity_EventScript_TutorialCompleted::
-	msgbox ViridianCity_Text_WeakenMonsFirstToCatch
-	release
+	msgbox ViridianCity_Text_WeakenMonsFirstToCatch, MSGBOX_NPC
 	end
 
 ViridianCity_EventScript_Youngster::
@@ -111,10 +93,7 @@ ViridianCity_EventScript_YoungsterDeclineExplanation::
 	end
 
 ViridianCity_EventScript_Woman::
-	lock
-	faceplayer
-	msgbox ViridianCity_Text_GoShoppingInPewterOccasionally
-	release
+	msgbox ViridianCity_Text_GoShoppingInPewterOccasionally, MSGBOX_NPC
 	end
 
 ViridianCity_EventScript_DreamEaterTutor::
@@ -122,45 +101,42 @@ ViridianCity_EventScript_DreamEaterTutor::
 	end
 
 ViridianCity_Text_CanCarryMonsAnywhere::
-	.string "Those POKé BALLS at your waist!\n"
-	.string "You have POKéMON, don't you?\p"
-	.string "It's great that you can carry and\n"
-	.string "use POKéMON anytime, anywhere.$"
+	.string "My mom runs the flower shop.\n"
+	.string "I deliver the bouquets!\p"
+	.string "My PIDGEY carries the small\n"
+	.string "ones. It works for seeds.$"
 
 ViridianCity_Text_GymClosedWonderWhoLeaderIs::
-	.string "This POKéMON GYM is always closed.\p"
-	.string "I wonder who the LEADER is?$"
-
-ViridianCity_Text_ViridiansGymLeaderReturned::
-	.string "VIRIDIAN GYM's LEADER returned!$"
+	.string "Ah, a fine morning for sitting\n"
+	.string "in the sun.\p"
+	.string "At my age, that's a full day's\n"
+	.string "work. Hohoho!$"
 
 ViridianCity_Text_WantToKnowAboutCaterpillarMons::
-	.string "You want to know about the two\n"
-	.string "kinds of caterpillar POKéMON?$"
+	.string "Want to hear about the bugs in\n"
+	.string "the forest up north?$"
 
 ViridianCity_Text_OhOkayThen::
-	.string "Oh, okay then!$"
+	.string "Aw. You'd have liked it.$"
 
 ViridianCity_Text_ExplainCaterpieWeedle::
-	.string "CATERPIE has no poison,\n"
-	.string "but WEEDLE does.\p"
-	.string "Watch that your POKéMON aren't\n"
-	.string "stabbed by WEEDLE's POISON STING.$"
+	.string "CATERPIE are harmless, but\n"
+	.string "WEEDLE sting! I've got the\l"
+	.string "scar to prove it.\p"
+	.string "I'm going to be a bug professor\n"
+	.string "when I grow up!$"
 
 ViridianCity_Text_GoShoppingInPewterOccasionally::
-	.string "I go shopping in PEWTER CITY\n"
-	.string "occasionally.\p"
-	.string "I have to take the winding trail in\n"
-	.string "VIRIDIAN FOREST when I go.$"
+	.string "The fields west of town used to\n"
+	.string "be so green.\p"
+	.string "This dry spell's been hard on\n"
+	.string "them. I hope the rain comes soon.$"
 
 ViridianCity_Text_WeakenMonsFirstToCatch::
-	.string "Ah, the morning walk and a cup of\n"
-	.string "coffee. Nothing better!\p"
-	.string "I've caught POKéMON round here\n"
-	.string "for sixty years, you know.\p"
-	.string "Here's my secret: weaken the\n"
-	.string "POKéMON first, then throw the\l"
-	.string "POKé BALL. Patience does the rest.$"
+	.string "I've had my coffee, and now I'm\n"
+	.string "ready for my walk!\p"
+	.string "Every morning, out to ROUTE 22\n"
+	.string "and back. Doctor's orders.$"
 
 ViridianCity_Text_CitySign::
 	.string "VIRIDIAN CITY \n"

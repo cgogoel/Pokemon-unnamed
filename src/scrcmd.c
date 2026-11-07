@@ -47,6 +47,8 @@
 #include "overworld.h"
 #include "rotating_tile_puzzle.h"
 #include "rtc.h"
+#include "game_time.h"
+#include "constants/story.h"
 #include "script.h"
 #include "script_menu.h"
 #include "script_movement.h"
@@ -892,10 +894,11 @@ bool8 ScrCmd_gettime(struct ScriptContext *ctx)
 {
     Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
 
+    // The hack: the hour is the game's (src/game_time.c), not the clock's
     RtcCalcLocalTime();
-    gSpecialVar_0x8000 = gLocalTime.hours;
-    gSpecialVar_0x8001 = gLocalTime.minutes;
-    gSpecialVar_0x8002 = gLocalTime.seconds;
+    gSpecialVar_0x8000 = GameTime_GetHour();
+    gSpecialVar_0x8001 = 0;
+    gSpecialVar_0x8002 = 0;
     return FALSE;
 }
 

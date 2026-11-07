@@ -8,9 +8,8 @@ bool32 Act2_UsesAct2WildPokemon(void);
 u32 Act2_GetWildLevel(void);
 bool16 Act2_PartyHasType(void);
 bool16 Act2_IsClubNight(void);
-
-// The hour it is on a club night (any night hour)
-#define ACT2_CLUB_NIGHT_HOUR 2
+bool32 Act2_IsGrassTrip(void);
+bool32 Act2_IsGrassTripNight(void);
 void Act2_RaisePartyLevels(void);
 void Act2_GiveStartingMoves(struct Pokemon *mon);
 void Act2_GiveStartingKit(void);

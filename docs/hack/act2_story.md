@@ -183,8 +183,10 @@ In both builds, the Pokémon the player starts Act 2 with know the moves they'd 
 - **The time skip**: at the end of the prologue, the two Pokémon the player brought go up to level 10
   (`ACT2_START_LEVEL`) with the moves they'd know there (`Act2_RaisePartyLevels`). Blacking out returns the player
   to Celadon's Pokémon Center; on a field trip, to that city's.
-- **Night**: from coming back to the dorms after a course until that night's club battle, it's night everywhere
-  (`Act2_IsClubNight`, `UpdateTimeOfDay`). The Sports Complex's daytime students are gone then.
+- **Night**: day and night are the game's, not the clock's ([time_of_day.md](time_of_day.md)). From coming back to
+  the dorms after a course until that night's club battle, it's night everywhere (`Act2_IsClubNight`); the Grass
+  trip is night until dawn at the night bloom (`Act2_IsGrassTripNight`). Otherwise it's day until the DOOM SCROLL
+  (from the final project). The Sports Complex's daytime students are gone then.
 - **The friends' rooms**: KAI and MINA on Dorms 2F, ROWAN on 3F, with name plates by their doorways. Each is in their
   room on the night they asked the player over, and from the Trainer Card on.
 

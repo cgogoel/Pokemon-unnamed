@@ -14214,6 +14214,22 @@ const struct ItemInfo gItemsInfo[] =
         .iconPalette = gItemIconPalette_HeavyDutyBoots,
     },
 
+    [ITEM_DOOM_SCROLL] =
+    {
+        .name = ITEM_NAME("Doom Scroll"),
+        .price = 0,
+        .description = COMPOUND_STRING(
+            "Scroll away the\n"
+            "hours. Wait until\n"
+            "night or day."),
+        .importance = 1,
+        .pocket = POCKET_KEY_ITEMS,
+        .type = ITEM_USE_FIELD,
+        .fieldUseFunc = ItemUseOutOfBattle_DoomScroll,
+        .iconPic = gItemIcon_ScrollOfDarkness,
+        .iconPalette = gItemIconPalette_ScrollOfDarkness,
+    },
+
     [ITEM_COIN_CASE] =
     {
         .name = ITEM_NAME("Coin Case"),

@@ -28,7 +28,8 @@ Then the friends come over, each with a TM in their favorite type, matching the 
 
 They ask the player's plan; "…" — the player doesn't love one type, they want to discover something new. The friends
 echo the director: maybe go back to the Woods where it all started? Last, a warning: with a Trainer Card, trainers
-on the road will challenge them.
+on the road will challenge them. Then KAI hands the player a DOOM SCROLL (no more curfew), and MINA explains it: some
+Pokémon only come out at night, and it waits until night or day ([time_of_day.md](time_of_day.md)).
 
 ## The road home
 

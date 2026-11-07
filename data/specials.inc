@@ -654,6 +654,10 @@ gSpecials::
 	def_special Act2_PartyHasType
 	def_special Act2_IsClubNight
 	def_special Act2_GiveStartingKit
+	def_special GameTime_GetDoomScrollState
+	def_special GameTime_IsNight
+	def_special GameTime_ScrollToOtherTime
+	def_special GameTime_ShowHour
 	def_special Act2_IsResearchDone
 	def_special Act2_IsReadyForTM
 	def_special Act2_BufferResearchSheet

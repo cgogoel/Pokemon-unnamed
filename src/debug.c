@@ -45,6 +45,8 @@
 #include "random_mon_generation.h"
 #include "region_map.h"
 #include "rtc.h"
+#include "game_time.h"
+#include "constants/story.h"
 #include "script.h"
 #include "script_pokemon_util.h"
 #include "sound.h"
@@ -3606,18 +3608,15 @@ static void DebugAction_TimeMenu_ChangeTimeOfDay(u8 taskId)
     DebugAction_DestroyExtraWindow(taskId);
     switch (input)
     {
+    // The hack: day and night are the game's (src/game_time.c)
     case TIME_MORNING:
-        FakeRtc_ForwardTimeTo(MORNING_HOUR_BEGIN, 0, 0);
-        break;
     case TIME_DAY:
-        FakeRtc_ForwardTimeTo(DAY_HOUR_BEGIN, 0, 0);
+        GameTime_Set(GAME_TIME_DAY);
         break;
     case TIME_EVENING:
-        FakeRtc_ForwardTimeTo(EVENING_HOUR_BEGIN, 0, 0);
-        break;
     case TIME_NIGHT:
-            FakeRtc_ForwardTimeTo(NIGHT_HOUR_BEGIN, 0, 0);
-            break;
+        GameTime_Set(GAME_TIME_NIGHT);
+        break;
     }
     Debug_DestroyMenu_Full(taskId);
     SetMainCallback2(CB2_LoadMap);

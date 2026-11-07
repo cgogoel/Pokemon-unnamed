@@ -34,7 +34,7 @@
 #define ACT2_WATER_SEE_MINA         7  // Back at night: see MINA in her room
 #define ACT2_WATER_INVITED          8
 #define ACT2_CLUB_2_DONE            9  // Grass course: its professor in Home Economics
-#define ACT2_GRASS_TRIP             10 // Field trip to Viridian City (Route 22's grass)
+#define ACT2_GRASS_TRIP             10 // Field trip to Viridian City at night (Viridian Forest's night bloom)
 #define ACT2_GRASS_SEE_ROWAN        11 // Back at night: see ROWAN in their room
 #define ACT2_GRASS_INVITED          12 // One more night: battle for a real Trainer Card
 #define ACT2_GOT_TRAINER_CARD       13 // Trainers battle again. The director's final project brief waits at the institute.
@@ -62,6 +62,38 @@
 #define ACT2_RESEARCH_DOCK_FIRE_ARRIVING (1 << 12) // Water: on the way there (the dock scene plays on arrival)
 #define ACT2_RESEARCH_CLUB_ARRIVED  (1 << 9) // A club night: the friends explained tonight's battle (cleared by the next course)
 #define ACT2_RESEARCH_MOVES_DONE    (1 << 8) // A third different move of the type was seen (after VAR_ACT2_MOVE_SEEN_1/2)
+
+// The Grass course's night bloom (docs/hack/act2_story.md), bits of VAR_ACT2_NIGHT_BLOOM (reset when the course
+// starts). Puzzle part 1 is all three glowcaps, part 2 all three ODDISH, part 3 all three waves.
+#define NIGHT_BLOOM_GLOWCAP_1       (1 << 0)  // Viridian Forest: a glowcap woken (each widens the light)
+#define NIGHT_BLOOM_GLOWCAP_2       (1 << 1)
+#define NIGHT_BLOOM_GLOWCAP_3       (1 << 2)
+#define NIGHT_BLOOM_ODDISH_1        (1 << 3)  // An ODDISH held still: it showed the next leg of the way
+#define NIGHT_BLOOM_ODDISH_2        (1 << 4)
+#define NIGHT_BLOOM_ODDISH_3        (1 << 5)  // The last one leads to the glade's opening
+#define NIGHT_BLOOM_WAVE_1          (1 << 6)  // The glade: a wave of BUG POKéMON beaten or kept out
+#define NIGHT_BLOOM_WAVE_2          (1 << 7)
+#define NIGHT_BLOOM_WAVE_3          (1 << 8)
+#define NIGHT_BLOOM_HEDGE_1         (1 << 9)  // A hedge planted in that wave's gap
+#define NIGHT_BLOOM_HEDGE_2         (1 << 10)
+#define NIGHT_BLOOM_HEDGE_3         (1 << 11)
+#define NIGHT_BLOOM_ARRIVED         (1 << 12) // The glade: the bud and the MORELULL were found
+#define NIGHT_BLOOM_DAWN            (1 << 13) // The night is over: day for the rest of the trip
+#define NIGHT_BLOOM_GLOWCAPS        (NIGHT_BLOOM_GLOWCAP_1 | NIGHT_BLOOM_GLOWCAP_2 | NIGHT_BLOOM_GLOWCAP_3)
+#define NIGHT_BLOOM_ODDISH          (NIGHT_BLOOM_ODDISH_1 | NIGHT_BLOOM_ODDISH_2 | NIGHT_BLOOM_ODDISH_3)
+#define NIGHT_BLOOM_WAVES           (NIGHT_BLOOM_WAVE_1 | NIGHT_BLOOM_WAVE_2 | NIGHT_BLOOM_WAVE_3)
+
+// The MORELULL that lit the glade all night, which asks to come along (FLAG_ACT2_GOT_MORELULL)
+#define ACT2_MORELULL_LEVEL         18
+
+// Day and night are the game's (VAR_GAME_TIME, src/game_time.c): the clock doesn't decide them
+#define GAME_TIME_DAY               0
+#define GAME_TIME_NIGHT             1
+
+// specialvar VAR_RESULT, GameTime_GetDoomScrollState
+#define DOOM_SCROLL_USABLE          0
+#define DOOM_SCROLL_TOO_EARLY       1 // Before the final project (Act 2) or in Act 1
+#define DOOM_SCROLL_STORY_TIME      2 // The story holds the time (a club night, the Grass trip's night)
 
 // The young Lapras saved on Vermilion's docks (the Water course), which asks to come along. In Act 3 it's the
 // Lapras in Silph Co.'s lab that masters the ultimate move and goes to Red (FLAG_ACT2_GOT_LAPRAS).

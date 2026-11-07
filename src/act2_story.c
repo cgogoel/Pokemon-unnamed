@@ -79,8 +79,7 @@ bool16 Act2_PartyHasType(void)
     return FALSE;
 }
 
-// From coming back to the dorms after a course until the club's battle that night, it's night (UpdateTimeOfDay),
-// whatever the clock says
+// From coming back to the dorms after a course until the club's battle that night, it's night (GameTime_IsNight)
 bool16 Act2_IsClubNight(void)
 {
     if (VarGet(VAR_STORY_ACT) != STORY_ACT_UNIVERSITY)
@@ -98,6 +97,18 @@ bool16 Act2_IsClubNight(void)
     return FALSE;
 }
 
+// The Grass course's field trip, to Viridian at dusk (docs/hack/act2_story.md)
+bool32 Act2_IsGrassTrip(void)
+{
+    return VarGet(VAR_STORY_ACT) == STORY_ACT_UNIVERSITY && VarGet(VAR_ACT2_PROGRESS) == ACT2_GRASS_TRIP;
+}
+
+// The Grass trip runs at night, until dawn breaks at the night bloom (NIGHT_BLOOM_DAWN)
+bool32 Act2_IsGrassTripNight(void)
+{
+    return Act2_IsGrassTrip() && !(VarGet(VAR_ACT2_NIGHT_BLOOM) & NIGHT_BLOOM_DAWN);
+}
+
 // What Act 2 starts with: the POKéMON start menu entry (Act 1 never sets it: no Poké Balls, the Pokémon follow), and
 // the Remote Desktop, the Pokémon Storage System from anywhere in Acts 2 and 3 (the expansion's Pokémon Box Link,
 // renamed). Given when Act 2 starts; special Act2_GiveStartingKit on campus covers saves already in Act 2.
@@ -110,6 +121,9 @@ void Act2_GiveStartingKit(void)
         AddBagItem(ITEM_REMOTE_DESKTOP, 1);
     if (!CheckBagHasItem(ITEM_HEAL_DASH, 1))
         AddBagItem(ITEM_HEAL_DASH, 1);
+    // The DOOM SCROLL comes with the final project's brief: saves already past it get it here
+    if (!CheckBagHasItem(ITEM_DOOM_SCROLL, 1) && (VarGet(VAR_STORY_ACT) > STORY_ACT_UNIVERSITY || VarGet(VAR_ACT2_PROGRESS) >= ACT2_FINAL_PROJECT))
+        AddBagItem(ITEM_DOOM_SCROLL, 1);
 }
 
 // Whether the player has a real Trainer Card yet: from the third club night in Act 2 on (the start menu's player entry

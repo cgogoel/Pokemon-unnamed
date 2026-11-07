@@ -1772,6 +1772,7 @@ EventScript_PalletTown_PlayersHouse_2F_TurnOnPC::
 	.include "data/scripts/act1_story.inc"
 	.include "data/scripts/act2_story.inc"
 	.include "data/scripts/act2_finale.inc"
+	.include "data/scripts/doom_scroll.inc"
 	.include "data/scripts/act2_legends.inc"
 	.include "data/scripts/friend_homes.inc"
 

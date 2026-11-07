@@ -37,6 +37,13 @@ Act2_EventScript_FinalBrief::
 	msgbox Act2_Text_FriendsTMs
 	msgbox Act2_Text_FriendsAskPlayer
 	msgbox Act2_Text_FriendsWarn
+	msgbox Act2_Text_DoomScrollGift
+	playfanfare MUS_RG_OBTAIN_KEY_ITEM
+	message Act2_Text_GotDoomScroll
+	waitmessage
+	waitfanfare
+	additem ITEM_DOOM_SCROLL
+	msgbox Act2_Text_DoomScrollHow
 	closemessage
 	fadescreen FADE_TO_BLACK
 	removeobject LOCALID_INSTITUTE_KAI
@@ -177,6 +184,22 @@ Act2_Text_FriendsWarn:
 	.string "want a shot at you!\p"
 	.string "MINA: See you back here with\n"
 	.string "your TM!$"
+
+Act2_Text_DoomScrollGift:
+	.string "KAI: Oh, and no more curfew!\n"
+	.string "Here, take this. A DOOM SCROLL.\p"
+	.string "One look, and the whole day's\n"
+	.string "gone. Or the whole night!$"
+
+Act2_Text_GotDoomScroll:
+	.string "{PLAYER} got a DOOM SCROLL!$"
+
+Act2_Text_DoomScrollHow:
+	.string "MINA: KAI! …Well, it does help.\n"
+	.string "Some POKéMON only come out at\l"
+	.string "night.\p"
+	.string "Use it from your BAG to wait\n"
+	.string "until night, or until day.$"
 
 Act2_Text_InstituteKai:
 	.string "KAI: The DIRECTOR's waiting!$"

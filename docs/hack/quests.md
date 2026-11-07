@@ -66,7 +66,10 @@ The exam doesn't need the TM's move. The next step is the first unfinished one, 
 
 The Water course follows `Act2_IsReadyForTM`: the small fires, then the TM, then the big fire with BubbleBeam, then
 the young Lapras (`FLAG_ACT2_GOT_LAPRAS`), then the exam. The place that blinks is the site (Cinnabar, Vermilion,
-Route 22) or the professor's town (Viridian for Grass).
+Viridian Forest) or the professor's town (for the briefing).
+
+The Grass course follows the night bloom: the glowcaps, the ODDISH, guarding the MOONVEIL until dawn, then the TM and
+the exam, all at Viridian Forest (PROF. FERN is in its glade from dawn).
 
 **The road home** takes either way: south (Vermilion, Route 11, Diglett's Cave) or north (Route 5, Cerulean, Mt. Moon,
 Pewter). It has six stops by distance:

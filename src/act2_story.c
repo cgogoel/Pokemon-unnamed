@@ -2,6 +2,7 @@
 #include "script_movement.h"
 #include "act2_story.h"
 #include "act2_road.h"
+#include "act2_night_bloom.h"
 #include "battle.h"
 #include "battle_setup.h"
 #include "event_data.h"
@@ -203,7 +204,7 @@ static const u8 sText_Water[] = _("WATER");
 static const u8 sText_Grass[] = _("GRASS");
 static const u8 sText_PuzzleFire[] = _("Relight the old furnaces.");
 static const u8 sText_PuzzleWater[] = _("Put out the fires on the docks.");
-static const u8 sText_PuzzleGrass[] = _("Regrow the withered patches.");
+static const u8 sText_PuzzleGrass[] = _("Find the MOONVEIL and guard it.");
 
 static const struct Act2Course sCourses[] =
 {
@@ -406,11 +407,11 @@ bool32 Act2_TakeResearchMoveMessage(void)
 
 #define RESEARCH_SPECIES_TO_CATCH 3
 
-static bool32 CountsAsCaught(u32 species, bool32 isEgg, enum Type type, u16 *seen, u32 *count)
+static bool32 CountsAsCaught(u32 species, bool32 isEgg, bool32 fateful, enum Type type, u16 *seen, u32 *count)
 {
     u32 i;
-    // The Lapras from Vermilion's docks was a gift
-    if (species == SPECIES_NONE || species == SPECIES_LAPRAS || isEgg)
+    // The Lapras from Vermilion's docks and the glade's MORELULL were gifts
+    if (species == SPECIES_NONE || species == SPECIES_LAPRAS || isEgg || Act2_IsGladeMorelull(species, fateful))
         return FALSE;
     if (GetSpeciesType(species, 0) != type && GetSpeciesType(species, 1) != type)
         return FALSE;
@@ -428,11 +429,13 @@ static u32 CountCaughtSpecies(enum Type type, u32 limit)
     u16 seen[RESEARCH_SPECIES_TO_CATCH + 1];
     u32 count = 0, i, box, pos;
     for (i = 0; i < PARTY_SIZE && count < limit; i++)
-        CountsAsCaught(GetMonData(&gPlayerParty[i], MON_DATA_SPECIES), GetMonData(&gPlayerParty[i], MON_DATA_IS_EGG), type, seen, &count);
+        CountsAsCaught(GetMonData(&gPlayerParty[i], MON_DATA_SPECIES), GetMonData(&gPlayerParty[i], MON_DATA_IS_EGG),
+                       GetMonData(&gPlayerParty[i], MON_DATA_MODERN_FATEFUL_ENCOUNTER), type, seen, &count);
     for (box = 0; box < TOTAL_BOXES_COUNT && count < limit; box++)
     {
         for (pos = 0; pos < IN_BOX_COUNT && count < limit; pos++)
-            CountsAsCaught(GetBoxMonDataAt(box, pos, MON_DATA_SPECIES), GetBoxMonDataAt(box, pos, MON_DATA_IS_EGG), type, seen, &count);
+            CountsAsCaught(GetBoxMonDataAt(box, pos, MON_DATA_SPECIES), GetBoxMonDataAt(box, pos, MON_DATA_IS_EGG),
+                           GetBoxMonDataAt(box, pos, MON_DATA_MODERN_FATEFUL_ENCOUNTER), type, seen, &count);
     }
     return count;
 }
@@ -810,8 +813,8 @@ void Act2_RestoreClubBench(void)
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-// The site puzzles: three parts, each done by a Pokémon of the course's type using a move of that type (the
-// Mansion's furnaces, Vermilion's dock fires, Route 22's withered patches). Their end is the last research task.
+// The site puzzles: three parts, done with moves of the course's type (the Mansion's furnaces, Vermilion's dock
+// fires, Viridian Forest's night bloom: src/act2_night_bloom.c). Their end is the last research task.
 
 // specialvar VAR_RESULT, Act2_FindCourseMoveUser: a Pokémon of the course's type that knows a move of that type.
 // Its nickname goes in STR_VAR_1 and the move in STR_VAR_2.
@@ -898,10 +901,17 @@ void Act2_SetupSiteObjects(void)
         if (!(research & ACT2_RESEARCH_PUZZLE_DONE))
             FlagClear(FLAG_TEMP_8);
     }
-    else if ((research & ACT2_RESEARCH_PUZZLE_ALL) == ACT2_RESEARCH_PUZZLE_ALL && !(research & ACT2_RESEARCH_PUZZLE_DONE))
-    {
-        FlagClear(FLAG_TEMP_8);
-    }
+}
+
+// special Act2_SetupViridianObjects, on Viridian City's transition: the Grass trip's class (Act2_SetupSiteObjects);
+// PROF. FERN (FLAG_TEMP_9) waits by the west exit until dawn, then she's in the glade
+void Act2_SetupViridianObjects(void)
+{
+    gSpecialVar_0x8004 = ACT2_GRASS_TRIP;
+    Act2_SetupSiteObjects();
+    FlagSet(FLAG_TEMP_9);
+    if (Act2_IsGrassTrip() && !(VarGet(VAR_ACT2_NIGHT_BLOOM) & NIGHT_BLOOM_DAWN))
+        FlagClear(FLAG_TEMP_9);
 }
 
 // ---------------------------------------------------------------------------------------------------------------

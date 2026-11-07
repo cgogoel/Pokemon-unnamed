@@ -1,9 +1,11 @@
 ViridianForest_Frlg_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, ViridianForest_OnTransition
+	map_script MAP_SCRIPT_ON_LOAD, ViridianForest_OnLoad
 	.byte 0
 
 ViridianForest_OnTransition::
 	setworldmapflag FLAG_WORLD_MAP_VIRIDIAN_FOREST
+	call ViridianForest_EventScript_Act2Objects
 	end
 
 ViridianForest_EventScript_Youngster::

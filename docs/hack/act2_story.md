@@ -20,8 +20,8 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 | `ACT2_WATER_TRIP` | Warped to Vermilion City (32,19) | The research sheet (fishing at the harbor, or Route 6's grass; the docks), the TM (BubbleBeam), the exam. |
 | `ACT2_WATER_SEE_MINA` | Only saves already at it (MINA used to ask the player over) | MINA's room (2F, the second room): club night at the Sports Complex. |
 | `ACT2_WATER_INVITED` | Passing (MINA: see you at the meeting spot tonight, you know where it is): the player's room, at night | Night: MINA battles the player at the Sports Complex. |
-| `ACT2_CLUB_2_DONE` | | PROF. FERN (Home Economics) introduces the Grass course; on arrival she explains the assignment and gives 5 Poké Balls. |
-| `ACT2_GRASS_TRIP` | Warped to Viridian City (4,17) | The research sheet (Route 22, west of the city), the TM (Giga Drain), the exam. |
+| `ACT2_CLUB_2_DONE` | | PROF. FERN (Home Economics) introduces the Grass course; the class leaves at dusk. On arrival she explains the assignment (the MOONVEIL) and gives 5 Poké Balls. |
+| `ACT2_GRASS_TRIP` | Warped to Viridian City (4,17), at dusk: night until dawn at the bloom | The research sheet (Viridian Forest's night bloom), the TM (Giga Drain) and the exam in the glade at sunrise. |
 | `ACT2_GRASS_SEE_ROWAN` | Only saves already at it (ROWAN used to ask the player over) | ROWAN's room (3F, the last room): a League examiner is coming; battle for a real Trainer Card. |
 | `ACT2_GRASS_INVITED` | Passing (ROWAN: see you at the meeting spot tonight; someone special is coming): the player's room, at night | The friends and DALE, a Pokémon League examiner, wait at the Sports Complex. Beating him: the Trainer Card. |
 | `ACT2_GOT_TRAINER_CARD` | Winning | **Trainers battle the player again.** In the morning, the director's final project brief at the Science Research Institute. |
@@ -34,7 +34,7 @@ professor explains the assignment and gives 5 Poké Balls (a frame script, once 
 Poké Balls gets 5 more each time they talk to the professor (`Act2_EventScript_RefillBalls`).
 After that, talking to the professor shows the **research sheet** (`Act2_BufferResearchSheet`):
 
-1. Catch 3 different Pokémon (species) of the course's type: counted in the party and the PC, not the gifted Lapras
+1. Catch 3 different Pokémon (species) of the course's type: counted in the party and the PC, not the gifted Lapras or Morelull
    (`Act2_CountCaughtSpeciesOfType`).
 2. Use a move of that type in battle.
 3. Record 3 different moves of that type in battle: the player's Pokémon's or wild ones'
@@ -60,7 +60,7 @@ Then the **exam**, a battle with the professor; any win passes. Progress is `VAR
 |---|---|---|---|---|
 | Fire | TM35 Flamethrower | Pokémon Mansion | Relight 3 cold furnaces on 1F (on the walls at (6,2), (31,2), (4,12); `METATILE_PokemonMansion_Furnace_Cold`, swapped for `_Lit` once relit, drawn by `tools/hack/draw_mansion_furnace.py`; the lit flames flicker, `InitTilesetAnim_PokemonMansion`). Until then, the statue switch is cold. | The switch opens the sealed room; the old research journal there (23,13), in it for the whole trip until read (readable once the furnaces are lit) |
 | Water | TM51 BubbleBeam (new: `FOREACH_TM` in `include/constants/tms_hms.h`) | Vermilion City | Put out the 2 small dock fires (2x2 at (30,28) and (35,25)) with any WATER move | The big fire (2x3 at (24,28), across the pier) needs BubbleBeam; behind it a young Lapras surfaces (21,29) and asks to come along (see below) |
-| Grass | TM19 Giga Drain | Route 22 | Regrow 3 withered plants ((24,13), (38,6), (44,10); `OBJ_EVENT_GFX_WITHERED_PLANT`, a dried-out shrub); they grow into young trees | The field blooms |
+| Grass | TM19 Giga Drain | Viridian Forest, at night | The night bloom (below): wake 3 glowcaps, follow 3 ODDISH to the glade, guard the MOONVEIL through 3 waves of BUG POKéMON | Dawn: the MOONVEIL opens and its dew is collected; a MORELULL comes along |
 
 **The dock fires.** The docks catch fire when the player catches a WATER Pokémon on the trip (`Act2_OnCaughtMon`,
 from the catch script; `ACT2_RESEARCH_DOCK_FIRE`). Back on Route 6 or in Vermilion after that battle, MINA runs up
@@ -88,6 +88,54 @@ ultimate move and goes to Red (in FireRed, the Silph worker on 7F gives the play
 
 The site objects follow `Act2_SetupSiteObjects` (each site map's transition): `FLAG_TEMP_1` the professor and
 friends, `FLAG_TEMP_2-4` the unsolved parts, `FLAG_TEMP_5-7` what replaces them, `FLAG_TEMP_8` the reward.
+
+## The night bloom (Grass)
+
+Once a year the MOONVEIL blooms for a single night somewhere in Viridian Forest, and nobody has recorded where. The
+Grass trip leaves at dusk and runs at **night** (`Act2_IsGrassTripNight`, [time_of_day.md](time_of_day.md)) until
+dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_night_bloom.inc`, state:
+`VAR_ACT2_NIGHT_BLOOM` (`NIGHT_BLOOM_*`, reset with the course's research). Tests: `test/act2_night_bloom.c`.
+
+- **Viridian Forest at night**: the forest's people stay home (`FLAG_TEMP_1`, `Act2_SetupForestObjects`), and it has
+  its own wild Pokémon for the trip only (`sAct2_ViridianForest_FireRed`: Oddish, Hoothoot, Bellsprout, Venonat,
+  Paras, Morelull, Phantump (rare); `onlyStage` in `sAct2WildTables`, `src/wild_encounter.c`), plus the usual 35%
+  Grass Pokémon from other regions. Wild Grass Pokémon know their Grass moves from up to 8 levels ahead (Absorb,
+  Stun Spore, Sleep Powder, Leech Seed, Mega Drain…).
+- **1. Light the way.** The forest is pitch-dark: the flash darkness of a cave without FLASH. `SetDefaultFlashLevel`
+  asks `Act2_GetNightForestFlashLevel`: on the trip's night, Viridian Forest's flash level follows the glowcaps
+  awake (none 7, one 5, two 3, all three 1: each widens the circle of light). Three dim GLOWCAPS stand along the trail
+  ((38,55), (39,40), (39,29); `OBJ_EVENT_GFX_GLOWCAP_DIM`); a Grass move from a Grass Pokémon
+  (`Act2_FindCourseMoveUser`) wakes one: it's swapped for its lit self (`OBJ_EVENT_GFX_GLOWCAP_LIT`, in the
+  blend-immune `night_bloom.pal`, so it isn't dimmed by the night's tint), and the light widens on the spot
+  (`Act2_BrightenForest`: `AnimateFlash` to the new level, then `SetFlashLevel`). All three: `ACT2_RESEARCH_PUZZLE_1`,
+  and an ODDISH comes out into the light.
+- **2. Follow the ODDISH.** Too skittish to follow (it darts off and back), until a party Pokémon holds it still with
+  SLEEP POWDER or STUN SPORE, or else any Grass status move (`Act2_FindHoldStillMoveUser`). Then it shakes off the
+  powder and toddles along the next leg ((44,28) → (30,17) → (40,6)), where the next ODDISH waits. The third walks
+  into the trees at the north edge: a hidden opening, a tree column (x 39-41, rows 0-4) turned into a path
+  (`Act2_DrawForestOpening`, from `sForestOpening`), drawn on every load from then on. Its coord events lead into the
+  glade. All three: `ACT2_RESEARCH_PUZZLE_2`.
+- **3. Guard the bloom.** The glade (`MAP_VIRIDIAN_FOREST_GLADE`, Viridian Forest's map section, so the forest's area
+  level; laid out by `tools/hack/compose_glade.py`) is a moonlit clearing with the MOONVEIL's bud in the middle and a
+  MORELULL glowing beside it. Arriving, the bud's scent draws hungry BUG POKéMON in three waves, through the west,
+  north and east gaps. Before each, the player can plant a hedge in its gap with LEECH SEED or INGRAIN, or else any
+  Grass move (`Act2_FindHedgeMoveUser`, `Act2_PlantHedge`: round bushes, redrawn on load) and skip it; otherwise it's
+  a battle (`StartAct2BloomWaveBattle`): Venonat; Paras and Venonat; Venomoth, Beedrill and Venonat, at the area's
+  level (+1, +2 for the last two), as many a side as both can field with the 3v3 rules. Winning (or catching) ends
+  the wave; running or losing leaves them circling (talk to the bud to go on). All three:
+  `ACT2_RESEARCH_PUZZLE_3`.
+- **Dawn.** The sky pales: the tint steps through 6 to 9 o'clock (`GameTime_ShowHour`), then `NIGHT_BLOOM_DAWN`
+  makes it day for the rest of the trip (the forest's darkness is gone too). The MOONVEIL opens
+  (`OBJ_EVENT_GFX_MOONVEIL_BUD` → `_BLOOM`, `tools/hack/draw_night_bloom.py`) and the player collects its dew:
+  `ACT2_RESEARCH_PUZZLE_DONE`.
+- **The MORELULL** that lit the glade all night asks to come along (no won't do, like the Lapras). It joins at
+  level 18 (`ACT2_MORELULL_LEVEL`, `Act2_GiveGladeMorelull`), to the party or the PC; `FLAG_ACT2_GOT_MORELULL`. It's a
+  gift (marked as a fateful encounter), so it doesn't count toward the sheet's catches; a wild Morelull does.
+- **PROF. FERN** runs up (she followed the glowcaps' light; `NIGHT_BLOOM_FERN`). She waits in Viridian until dawn
+  (`FLAG_TEMP_9`, `Act2_SetupViridianObjects`), then in the glade. With the sheet done, the dew makes TM GIGA DRAIN
+  ("it drinks the night"), and the exam is her battle in the glade at sunrise. Passing goes back to the dorms as
+  usual (`ACT2_GRASS_INVITED`).
+- The glade off the trip: the bud, closed, and nothing else.
 
 ## The club's teams
 
@@ -167,6 +215,7 @@ In both builds, the Pokémon the player starts Act 2 with know the moves they'd 
   | Vermilion City (fishing) | Magikarp, Goldeen, Poliwag, Horsea, Krabby, Staryu, Shellder, Psyduck | 13-17 |
   | Route 6 | Psyduck, Poliwag, Seel, Marill, Squirtle and Totodile (rare); Pidgey, Oddish, Abra | 13-16 |
   | Route 22 | Oddish, Bellsprout, Hoppip, Paras, Exeggcute, Bulbasaur and Chikorita (rare); Rattata, Spearow, Mankey | 16-19 |
+  | Viridian Forest (Grass trip only) | Oddish (common), Bellsprout, Paras, Morelull, Phantump (rare); Hoothoot, Venonat | 16-19 |
   | Celadon City (fishing) | Lotad, Lombre (Water/Grass), Goldeen, Magikarp | 20-24 |
   | Route 7 | Capsakid (Grass; a Fire Stone from the Department Store makes Scovillain, Grass/Fire), Growlithe, Vulpix, Ponyta, Oddish, Meowth, Pidgey | 20-24 |
 
@@ -198,7 +247,7 @@ In both builds, the Pokémon the player starts Act 2 with know the moves they'd 
 | KAI (night 1) | Stadium | See the club's teams |
 | PROF. MARLOWE (Water) | Vermilion City | Sandshrew 15, Geodude 15, Vulpix 16: weak to Water |
 | MINA (night 2) | Stadium | See the club's teams |
-| PROF. FERN (Grass) | Viridian City | Psyduck 19, Diglett 19, Poliwhirl 20: weak to Grass |
+| PROF. FERN (Grass) | Viridian Forest's glade, at sunrise | Psyduck 19, Diglett 19, Poliwhirl 20: weak to Grass |
 | DALE, League examiner (night 3) | Stadium | Pidgeotto 23, Raticate 23, Kadabra 24 |
 
 From Act 2 on, the whole party gains experience from every battle, as with the Exp. Share on
@@ -212,7 +261,7 @@ From Act 2 on, the whole party gains experience from every battle, as with the E
 | KAI, MINA, ROWAN | Classmates: outside the dorm room at the start, on each field trip, KAI's room after the Fire course, the stadium at night | Camper, Picnicker, Boy |
 | PROF. ASHFORD | Lecture Hall A; Cinnabar | Scientist |
 | PROF. MARLOWE | Audiovisual classroom; Vermilion, by the harbor | Old man |
-| PROF. FERN | Home Economics; Viridian, at the west exit | Beauty |
+| PROF. FERN | Home Economics; Viridian, at the west exit (until dawn), then the glade | Beauty |
 | DALE | The stadium, night 3 | Cooltrainer |
 | The director | Science Research Institute (7,7) | Gentleman |
 

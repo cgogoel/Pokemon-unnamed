@@ -65,6 +65,7 @@ EWRAM_DATA u8 gChainFishingDexNavStreak = 0;
 #include "data/wild_encounters.h"
 #include "act2_road.h"
 #include "act2_story.h"
+#include "constants/story.h"
 
 const struct WildPokemon gWildFeebas = {20, 25, SPECIES_FEEBAS};
 
@@ -429,43 +430,68 @@ u8 ChooseWildMonLevel(const struct WildPokemon *wildPokemon, u8 wildMonIndex, en
 
 // Act 2's own tables (sAct2_*_FireRed in wild_encounters.json: a label without FireRed or LeafGreen would be
 // Emerald-only), told apart by their contents: Porymap reorders the file,
-// so they can sit before or after the area's own table. Add new Act 2 tables here.
-static const struct WildPokemonInfo *const sAct2WildMonsInfos[] =
+// so they can sit before or after the area's own table. Add new Act 2 tables here. Most are for all of Act 2; some
+// only for one stage (onlyStage), such as Viridian Forest's night table for the Grass trip.
+#define ALL_OF_ACT2 0xFFFF
+
+struct Act2WildTable
 {
-    &sAct2_PokemonMansion1F_FireRed_LandMonsInfo,
-    &sAct2_PokemonMansion2F_FireRed_LandMonsInfo,
-    &sAct2_PokemonMansion3F_FireRed_LandMonsInfo,
-    &sAct2_PokemonMansionB1F_FireRed_LandMonsInfo,
-    &sAct2_VermilionCity_FireRed_FishingMonsInfo,
-    &sAct2_Route6_FireRed_LandMonsInfo,
-    &sAct2_Route6_FireRed_FishingMonsInfo,
-    &sAct2_Route22_FireRed_LandMonsInfo,
-    &sAct2_CeladonCity_FireRed_FishingMonsInfo,
-    &sAct2_Route7_FireRed_LandMonsInfo,
+    const struct WildPokemonInfo *info;
+    u16 onlyStage;
+};
+
+static const struct Act2WildTable sAct2WildTables[] =
+{
+    { &sAct2_PokemonMansion1F_FireRed_LandMonsInfo,  ALL_OF_ACT2 },
+    { &sAct2_PokemonMansion2F_FireRed_LandMonsInfo,  ALL_OF_ACT2 },
+    { &sAct2_PokemonMansion3F_FireRed_LandMonsInfo,  ALL_OF_ACT2 },
+    { &sAct2_PokemonMansionB1F_FireRed_LandMonsInfo, ALL_OF_ACT2 },
+    { &sAct2_VermilionCity_FireRed_FishingMonsInfo,  ALL_OF_ACT2 },
+    { &sAct2_Route6_FireRed_LandMonsInfo,            ALL_OF_ACT2 },
+    { &sAct2_Route6_FireRed_FishingMonsInfo,         ALL_OF_ACT2 },
+    { &sAct2_Route22_FireRed_LandMonsInfo,           ALL_OF_ACT2 },
+    { &sAct2_ViridianForest_FireRed_LandMonsInfo,    ACT2_GRASS_TRIP }, // The night bloom (docs/hack/act2_story.md)
+    { &sAct2_CeladonCity_FireRed_FishingMonsInfo,    ALL_OF_ACT2 },
+    { &sAct2_Route7_FireRed_LandMonsInfo,            ALL_OF_ACT2 },
 };
 
 // Whether the table is one of Act 2's own (its field trips' areas)
 static bool32 IsAct2WildMonsInfo(const struct WildPokemonInfo *info)
 {
     u32 i;
-    for (i = 0; i < ARRAY_COUNT(sAct2WildMonsInfos); i++)
+    for (i = 0; i < ARRAY_COUNT(sAct2WildTables); i++)
     {
-        if (info == sAct2WildMonsInfos[i])
+        if (info == sAct2WildTables[i].info)
             return TRUE;
     }
     return FALSE;
 }
 
-static bool32 IsAct2WildMonHeader(u32 headerId)
+// The Act 2 table the header holds, or NULL
+static const struct Act2WildTable *GetAct2WildTable(u32 headerId)
 {
     const struct WildEncounterTypes *types = &gWildMonHeaders[headerId].encounterTypes[TIME_OF_DAY_DEFAULT];
     u32 i;
-    for (i = 0; i < ARRAY_COUNT(sAct2WildMonsInfos); i++)
+    for (i = 0; i < ARRAY_COUNT(sAct2WildTables); i++)
     {
-        if (types->landMonsInfo == sAct2WildMonsInfos[i] || types->fishingMonsInfo == sAct2WildMonsInfos[i])
-            return TRUE;
+        if (types->landMonsInfo == sAct2WildTables[i].info || types->fishingMonsInfo == sAct2WildTables[i].info)
+            return &sAct2WildTables[i];
     }
-    return FALSE;
+    return NULL;
+}
+
+static bool32 IsAct2WildMonHeader(u32 headerId)
+{
+    return GetAct2WildTable(headerId) != NULL;
+}
+
+// Whether the Act 2 table in the header is used now: in Act 2, at its stage if it has one
+static bool32 IsAct2WildMonHeaderInUse(u32 headerId)
+{
+    const struct Act2WildTable *table = GetAct2WildTable(headerId);
+    if (table == NULL || !Act2_UsesAct2WildPokemon())
+        return FALSE;
+    return table->onlyStage == ALL_OF_ACT2 || VarGet(VAR_ACT2_PROGRESS) == table->onlyStage;
 }
 
 u16 GetCurrentMapWildMonHeaderId(void)
@@ -485,7 +511,7 @@ u16 GetCurrentMapWildMonHeaderId(void)
             // Act 2's own table for this area, if it has one (Act2_UsesAct2WildPokemon); otherwise the area's own
             if (IsAct2WildMonHeader(i))
             {
-                if (Act2_UsesAct2WildPokemon())
+                if (IsAct2WildMonHeaderInUse(i))
                     return i;
                 continue;
             }

@@ -801,6 +801,7 @@ gStdScripts_End::
 	.include "data/maps/RangerStation_B2F/scripts.inc"
 	.include "data/maps/RangerStation_B3F/scripts.inc"
 	.include "data/maps/RangerStation_B4F/scripts.inc"
+	.include "data/maps/ViridianForest_Glade/scripts.inc"
 	.include "data/maps/CeladonUniversity/scripts.inc"
 	.include "data/maps/CeladonCity_UniversityGate/scripts.inc"
 	.include "data/maps/CeladonUniversity_MainHall/scripts.inc"
@@ -1773,6 +1774,7 @@ EventScript_PalletTown_PlayersHouse_2F_TurnOnPC::
 	.include "data/scripts/act2_story.inc"
 	.include "data/scripts/act2_finale.inc"
 	.include "data/scripts/doom_scroll.inc"
+	.include "data/scripts/act2_night_bloom.inc"
 	.include "data/scripts/act2_legends.inc"
 	.include "data/scripts/friend_homes.inc"
 

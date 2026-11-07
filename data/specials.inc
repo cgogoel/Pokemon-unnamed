@@ -658,6 +658,26 @@ gSpecials::
 	def_special GameTime_IsNight
 	def_special GameTime_ScrollToOtherTime
 	def_special GameTime_ShowHour
+	def_special Act2_SetupForestObjects
+	def_special Act2_DrawForestOpening
+	def_special Act2_WakeGlowcap
+	def_special Act2_IsGlowcapLit
+	def_special Act2_BrightenForest
+	def_special Act2_FollowOddish
+	def_special Act2_FindHoldStillMoveUser
+	def_special Act2_FindHedgeMoveUser
+	def_special Act2_SetNightBloomBit
+	def_special Act2_HasNightBloomBit
+	def_special Act2_SetupGladeObjects
+	def_special Act2_DrawGladeHedges
+	def_special Act2_GetGladeScene
+	def_special Act2_GetNextWave
+	def_special Act2_EndWave
+	def_special Act2_PlantHedge
+	def_special Act2_BreakDawn
+	def_special Act2_GiveGladeMorelull
+	def_special StartAct2BloomWaveBattle
+	def_special Act2_SetupViridianObjects
 	def_special Act2_IsResearchDone
 	def_special Act2_IsReadyForTM
 	def_special Act2_BufferResearchSheet

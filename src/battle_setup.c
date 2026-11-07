@@ -1,4 +1,5 @@
 #include "global.h"
+#include "act2_night_bloom.h"
 #include "act2_legends.h"
 #include "data.h"
 #include "main.h"
@@ -575,6 +576,21 @@ void StartAct2LegendsBattle(void)
     gBattleTypeFlags = BATTLE_TYPE_LEGENDARY | GetTripleBattleTypeFlagsForFoes(3);
     gIsAct2LegendsBattle = TRUE;
     CreateBattleStartTask(B_TRANSITION_BLUR, MUS_RG_VS_LEGEND);
+    IncrementGameStat(GAME_STAT_TOTAL_BATTLES);
+    IncrementGameStat(GAME_STAT_WILD_BATTLES);
+}
+
+// special StartAct2BloomWaveBattle with the wave (1-3) in VAR_0x8004: the Grass trip's glade, a wave of BUG POKéMON
+// after the MOONVEIL (src/act2_night_bloom.c). As many a side as both can field, with the 3v3 rules (as the legends).
+// The script waits (waitstate) and reads GetBattleOutcome; losing whites out as usual.
+void StartAct2BloomWaveBattle(void)
+{
+    u32 count = Act2_CreateBloomWaveParty();
+    LockPlayerFieldControls();
+    gMain.savedCallback = CB2_EndScriptedWildBattle;
+    gBattleTypeFlags = 0;
+    gBattleTypeFlags = GetTripleBattleTypeFlagsForFoes(count);
+    CreateBattleStartTask(GetWildBattleTransition(), 0);
     IncrementGameStat(GAME_STAT_TOTAL_BATTLES);
     IncrementGameStat(GAME_STAT_WILD_BATTLES);
 }

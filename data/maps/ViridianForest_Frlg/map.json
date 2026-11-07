@@ -28,7 +28,7 @@
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
       "script": "ViridianForest_EventScript_Youngster",
-      "flag": "0"
+      "flag": "FLAG_TEMP_1"
     },
     {
       "type": "object",
@@ -42,7 +42,7 @@
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
       "script": "ViridianForest_EventScript_Boy",
-      "flag": "0"
+      "flag": "FLAG_TEMP_1"
     },
     {
       "type": "object",
@@ -56,7 +56,7 @@
       "trainer_type": "TRAINER_TYPE_NORMAL",
       "trainer_sight_or_berry_tree_id": "5",
       "script": "ViridianForest_EventScript_Rick",
-      "flag": "0"
+      "flag": "FLAG_TEMP_1"
     },
     {
       "type": "object",
@@ -70,7 +70,7 @@
       "trainer_type": "TRAINER_TYPE_NORMAL",
       "trainer_sight_or_berry_tree_id": "4",
       "script": "ViridianForest_EventScript_Doug",
-      "flag": "0"
+      "flag": "FLAG_TEMP_1"
     },
     {
       "type": "object",
@@ -84,7 +84,7 @@
       "trainer_type": "TRAINER_TYPE_NORMAL",
       "trainer_sight_or_berry_tree_id": "4",
       "script": "ViridianForest_EventScript_Sammy",
-      "flag": "0"
+      "flag": "FLAG_TEMP_1"
     },
     {
       "type": "object",
@@ -140,7 +140,7 @@
       "trainer_type": "TRAINER_TYPE_NORMAL",
       "trainer_sight_or_berry_tree_id": "1",
       "script": "ViridianForest_EventScript_Anthony",
-      "flag": "0"
+      "flag": "FLAG_TEMP_1"
     },
     {
       "type": "object",
@@ -154,7 +154,7 @@
       "trainer_type": "TRAINER_TYPE_NORMAL",
       "trainer_sight_or_berry_tree_id": "1",
       "script": "ViridianForest_EventScript_Charlie",
-      "flag": "0"
+      "flag": "FLAG_TEMP_1"
     },
     {
       "type": "object",
@@ -169,6 +169,141 @@
       "trainer_sight_or_berry_tree_id": "0",
       "script": "ViridianForest_EventScript_ItemPotion2",
       "flag": "FLAG_HIDE_VIRIDIAN_FOREST_POTION_2"
+    },
+    {
+      "local_id": "LOCALID_FOREST_GLOWCAP_1",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_GLOWCAP_DIM",
+      "x": 38,
+      "y": 55,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Act2_EventScript_Glowcap1",
+      "flag": "FLAG_TEMP_2"
+    },
+    {
+      "local_id": "LOCALID_FOREST_GLOWCAP_2",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_GLOWCAP_DIM",
+      "x": 39,
+      "y": 40,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Act2_EventScript_Glowcap2",
+      "flag": "FLAG_TEMP_3"
+    },
+    {
+      "local_id": "LOCALID_FOREST_GLOWCAP_3",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_GLOWCAP_DIM",
+      "x": 39,
+      "y": 29,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Act2_EventScript_Glowcap3",
+      "flag": "FLAG_TEMP_4"
+    },
+    {
+      "local_id": "LOCALID_FOREST_GLOWCAP_LIT_1",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_GLOWCAP_LIT",
+      "x": 38,
+      "y": 55,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Act2_EventScript_GlowcapLitSign",
+      "flag": "FLAG_TEMP_5"
+    },
+    {
+      "local_id": "LOCALID_FOREST_GLOWCAP_LIT_2",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_GLOWCAP_LIT",
+      "x": 39,
+      "y": 40,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Act2_EventScript_GlowcapLitSign",
+      "flag": "FLAG_TEMP_6"
+    },
+    {
+      "local_id": "LOCALID_FOREST_GLOWCAP_LIT_3",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_GLOWCAP_LIT",
+      "x": 39,
+      "y": 29,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Act2_EventScript_GlowcapLitSign",
+      "flag": "FLAG_TEMP_7"
+    },
+    {
+      "local_id": "LOCALID_FOREST_ODDISH_1",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_SPECIES(ODDISH)",
+      "x": 44,
+      "y": 28,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Act2_EventScript_Oddish1",
+      "flag": "FLAG_TEMP_8"
+    },
+    {
+      "local_id": "LOCALID_FOREST_ODDISH_2",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_SPECIES(ODDISH)",
+      "x": 30,
+      "y": 17,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Act2_EventScript_Oddish2",
+      "flag": "FLAG_TEMP_9"
+    },
+    {
+      "local_id": "LOCALID_FOREST_ODDISH_3",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_SPECIES(ODDISH)",
+      "x": 40,
+      "y": 6,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 1,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "Act2_EventScript_Oddish3",
+      "flag": "FLAG_TEMP_A"
     }
   ],
   "warp_events": [
@@ -216,7 +351,33 @@
     }
   ],
   "coord_events": [
-
+    {
+      "type": "trigger",
+      "x": 39,
+      "y": 1,
+      "elevation": 3,
+      "var": "VAR_TEMP_0",
+      "var_value": "0",
+      "script": "ViridianForest_EventScript_EnterGlade"
+    },
+    {
+      "type": "trigger",
+      "x": 40,
+      "y": 1,
+      "elevation": 3,
+      "var": "VAR_TEMP_0",
+      "var_value": "0",
+      "script": "ViridianForest_EventScript_EnterGlade"
+    },
+    {
+      "type": "trigger",
+      "x": 41,
+      "y": 1,
+      "elevation": 3,
+      "var": "VAR_TEMP_0",
+      "var_value": "0",
+      "script": "ViridianForest_EventScript_EnterGlade"
+    }
   ],
   "bg_events": [
     {

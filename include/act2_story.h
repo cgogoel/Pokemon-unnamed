@@ -32,6 +32,7 @@ bool16 Act2_FindCourseMoveUser(void);
 bool16 Act2_SolvePuzzlePart(void);
 bool16 Act2_IsPuzzlePartSolved(void);
 void Act2_SetupSiteObjects(void);
+void Act2_SetupViridianObjects(void);
 void Act2_DrawDockFires(void);
 void Act2_PutOutDockFire(void);
 bool16 Act2_IsDockFireBurningSpecial(void);

@@ -79,9 +79,17 @@
 #define NIGHT_BLOOM_HEDGE_3         (1 << 11)
 #define NIGHT_BLOOM_ARRIVED         (1 << 12) // The glade: the bud and the MORELULL were found
 #define NIGHT_BLOOM_DAWN            (1 << 13) // The night is over: day for the rest of the trip
+#define NIGHT_BLOOM_FERN            (1 << 14) // PROF. FERN came to the glade (the TM and the exam are there)
 #define NIGHT_BLOOM_GLOWCAPS        (NIGHT_BLOOM_GLOWCAP_1 | NIGHT_BLOOM_GLOWCAP_2 | NIGHT_BLOOM_GLOWCAP_3)
 #define NIGHT_BLOOM_ODDISH          (NIGHT_BLOOM_ODDISH_1 | NIGHT_BLOOM_ODDISH_2 | NIGHT_BLOOM_ODDISH_3)
 #define NIGHT_BLOOM_WAVES           (NIGHT_BLOOM_WAVE_1 | NIGHT_BLOOM_WAVE_2 | NIGHT_BLOOM_WAVE_3)
+
+// specialvar VAR_RESULT, Act2_GetGladeScene: what's due in the glade
+#define GLADE_SCENE_NONE            0
+#define GLADE_SCENE_ARRIVAL         1 // First time in: the bud and the MORELULL, then the vigil
+#define GLADE_SCENE_VIGIL           2 // The waves of BUG POKéMON (one left off: they're still circling)
+#define GLADE_SCENE_DAWN            3 // The waves are over: dawn, the bloom, the dew
+#define GLADE_SCENE_MORNING         4 // The MORELULL comes along, PROF. FERN arrives
 
 // The MORELULL that lit the glade all night, which asks to come along (FLAG_ACT2_GOT_MORELULL)
 #define ACT2_MORELULL_LEVEL         18

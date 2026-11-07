@@ -115,13 +115,15 @@ static const u8 sText_NextExamWater[] = _("Battle PROF. MARLOWE for the exam.");
 static const u8 sText_CatchGrass[] = _("Catch 3 GRASS POKéMON");
 static const u8 sText_UseGrass[] = _("Use a GRASS move");
 static const u8 sText_RecordGrass[] = _("Record 3 GRASS moves");
-static const u8 sText_PuzzleGrass[] = _("Regrow 3 plants");
+static const u8 sText_PuzzleGrass[] = _("Guard the MOONVEIL");
 static const u8 sText_NextIntroGrass[] = _("Go to HOME ECONOMICS on campus.");
 static const u8 sText_NextBriefGrass[] = _("Talk to PROF. FERN.");
-static const u8 sText_NextCatchGrass[] = _("Catch GRASS POKéMON on ROUTE 22.");
+static const u8 sText_NextCatchGrass[] = _("Catch GRASS POKéMON in VIRIDIAN FOREST.");
 static const u8 sText_NextUseGrass[] = _("Use a GRASS move in battle.");
 static const u8 sText_NextRecordGrass[] = _("Record GRASS moves in battle.");
-static const u8 sText_NextPuzzleGrass[] = _("Regrow the withered plants.");
+static const u8 sText_NextPuzzleGrass[] = _("Wake the GLOWCAPS in VIRIDIAN FOREST.");
+static const u8 sText_NextOddishGrass[] = _("Follow the ODDISH to the MOONVEIL.");
+static const u8 sText_NextGuardGrass[] = _("Guard the MOONVEIL until dawn.");
 static const u8 sText_NextTMGrass[] = _("Show PROF. FERN your research.");
 static const u8 sText_NextExamGrass[] = _("Battle PROF. FERN for the exam.");
 
@@ -151,7 +153,7 @@ static const struct QuestCourse sCourses[] =
     },
     {
         .tripStage = ACT2_GRASS_TRIP, .type = TYPE_GRASS,
-        .siteMapSec = MAPSEC_ROUTE_22, .profMapSec = MAPSEC_VIRIDIAN_CITY,
+        .siteMapSec = MAPSEC_VIRIDIAN_FOREST, .profMapSec = MAPSEC_VIRIDIAN_CITY,
         .catchTask = sText_CatchGrass, .useTask = sText_UseGrass, .recordTask = sText_RecordGrass, .puzzleTask = sText_PuzzleGrass,
         .nextIntro = sText_NextIntroGrass, .nextBriefing = sText_NextBriefGrass, .nextCatch = sText_NextCatchGrass,
         .nextUse = sText_NextUseGrass, .nextRecord = sText_NextRecordGrass, .nextPuzzle = sText_NextPuzzleGrass,
@@ -213,6 +215,21 @@ static void FillCourse(struct QuestInfo *info, u32 param, bool32 done)
             SetNext(info, sText_NextBigFire, course->siteMapSec);
         if (!FlagGet(FLAG_ACT2_GOT_LAPRAS))
             SetNext(info, sText_NextLapras, course->siteMapSec);
+    }
+    else if (course->type == TYPE_GRASS)
+    {
+        // The night bloom: the glowcaps, the ODDISH, the vigil; from dawn PROF. FERN is in the glade (the forest's
+        // section) with the TM and the exam
+        if (!(research & ACT2_RESEARCH_PUZZLE_1))
+            SetNext(info, course->nextPuzzle, course->siteMapSec);
+        if (!(research & ACT2_RESEARCH_PUZZLE_2))
+            SetNext(info, sText_NextOddishGrass, course->siteMapSec);
+        if (!puzzleDone)
+            SetNext(info, sText_NextGuardGrass, course->siteMapSec);
+        if (!gotTM)
+            SetNext(info, course->nextTM, course->siteMapSec);
+        SetNext(info, course->nextExam, course->siteMapSec);
+        return;
     }
     else
     {

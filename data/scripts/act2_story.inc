@@ -677,9 +677,12 @@ Act2_EventScript_StartGrass:
 	release
 	end
 
+@ In VIRIDIAN until dawn, then in the glade (data/scripts/act2_night_bloom.inc), where she makes the TM and gives
+@ the exam
 Act2_EventScript_ProfFernTrip::
 	lock
 	faceplayer
+Act2_EventScript_ProfFernTalk::
 	setvar VAR_0x8004, ACT2_RESEARCH_GOT_TM
 	specialvar VAR_RESULT, Act2_HasResearchFlag
 	goto_if_eq VAR_RESULT, TRUE, Act2_EventScript_GrassExam
@@ -688,19 +691,45 @@ Act2_EventScript_ProfFernTrip::
 	msgbox Act2_Text_GrassSheetIntro
 	special Act2_BufferResearchSheet
 	msgbox gStringVar4
-	msgbox Act2_Text_GrassHint
+	call Act2_EventScript_GrassHint
 	call Act2_EventScript_RefillBalls
 	release
 	end
 
+@ The hint follows the night bloom: the glowcaps, the ODDISH, the MOONVEIL, then (in the glade) the sheet
+Act2_EventScript_GrassHint:
+	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_1
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_GrassHintGlowcaps
+	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_2
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_GrassHintOddish
+	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_DONE
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_GrassHintGuard
+	msgbox Act2_Text_GrassHintSheet
+	return
+
+Act2_EventScript_GrassHintGlowcaps:
+	msgbox Act2_Text_GrassHint
+	return
+
+Act2_EventScript_GrassHintOddish:
+	msgbox Act2_Text_GrassHintOddish
+	return
+
+Act2_EventScript_GrassHintGuard:
+	msgbox Act2_Text_GrassHintGuard
+	return
+
+@ The MOONVEIL's dew makes the TM; then straight to the exam, at sunrise in the glade
 Act2_EventScript_GrassMakeTM:
 	msgbox Act2_Text_GrassResearchDone
 	giveitem ITEM_TM_GIGA_DRAIN
 	setvar VAR_0x8004, ACT2_RESEARCH_GOT_TM
 	special Act2_SetResearchFlag
 	msgbox Act2_Text_GrassTeachTM
-	release
-	end
+	goto Act2_EventScript_GrassExam
 
 Act2_EventScript_GrassExam:
 	msgbox Act2_Text_ReadyForGrassExam, MSGBOX_YESNO
@@ -858,15 +887,9 @@ VermilionCity_EventScript_Act2Objects::
 	goto Act2_EventScript_CheckBriefing
 
 ViridianCity_EventScript_Act2Objects::
-	setvar VAR_0x8004, ACT2_GRASS_TRIP
-	special Act2_SetupSiteObjects
+	special Act2_SetupViridianObjects
 	setvar VAR_0x8004, ACT2_GRASS_TRIP
 	goto Act2_EventScript_CheckBriefing
-
-Route22_OnTransition::
-	setvar VAR_0x8004, ACT2_GRASS_TRIP
-	special Act2_SetupSiteObjects
-	end
 
 @ ---------------------------------------------------------------------------------------------------------------
 @ The site puzzles: each part needs a Pokémon of the course's type that knows a move of it (Act2_FindCourseMoveUser)
@@ -1284,76 +1307,6 @@ Act2_EventScript_LaprasDone:
 Act2_EventScript_LaprasReportToProf:
 	msgbox Act2_Text_LaprasReportToProf
 	return
-
-@ Grass: three withered patches on Route 22. Regrown, the field blooms.
-Act2_EventScript_Withered1::
-	setvar VAR_0x8004, 1
-	lockall
-	specialvar VAR_RESULT, Act2_FindCourseMoveUser
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_WitheredNeedsGrass
-	msgbox Act2_Text_WitheredAsk, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, NO, Act2_EventScript_PuzzleRelease
-	playse SE_M_GIGA_DRAIN
-	msgbox Act2_Text_WitheredRegrown
-	waitse
-	removeobject LOCALID_ROUTE22_WITHERED_1
-	clearflag FLAG_TEMP_5
-	addobject LOCALID_ROUTE22_GROWN_1
-	goto Act2_EventScript_WitheredSolved
-
-Act2_EventScript_Withered2::
-	setvar VAR_0x8004, 2
-	lockall
-	specialvar VAR_RESULT, Act2_FindCourseMoveUser
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_WitheredNeedsGrass
-	msgbox Act2_Text_WitheredAsk, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, NO, Act2_EventScript_PuzzleRelease
-	playse SE_M_GIGA_DRAIN
-	msgbox Act2_Text_WitheredRegrown
-	waitse
-	removeobject LOCALID_ROUTE22_WITHERED_2
-	clearflag FLAG_TEMP_6
-	addobject LOCALID_ROUTE22_GROWN_2
-	goto Act2_EventScript_WitheredSolved
-
-Act2_EventScript_Withered3::
-	setvar VAR_0x8004, 3
-	lockall
-	specialvar VAR_RESULT, Act2_FindCourseMoveUser
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_WitheredNeedsGrass
-	msgbox Act2_Text_WitheredAsk, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, NO, Act2_EventScript_PuzzleRelease
-	playse SE_M_GIGA_DRAIN
-	msgbox Act2_Text_WitheredRegrown
-	waitse
-	removeobject LOCALID_ROUTE22_WITHERED_3
-	clearflag FLAG_TEMP_7
-	addobject LOCALID_ROUTE22_GROWN_3
-	goto Act2_EventScript_WitheredSolved
-
-Act2_EventScript_WitheredSolved:
-	specialvar VAR_RESULT, Act2_SolvePuzzlePart
-	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_FieldBlooms
-	releaseall
-	end
-
-Act2_EventScript_FieldBlooms:
-	playse SE_M_SWEET_SCENT
-	msgbox Act2_Text_FieldBlooms
-	waitse
-	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_DONE
-	special Act2_SetResearchFlag
-	call Act2_EventScript_TaskDone
-	return
-
-Act2_EventScript_WitheredNeedsGrass:
-	msgbox Act2_Text_WitheredNeedsGrass
-	releaseall
-	end
-
-Act2_EventScript_Regrown::
-	msgbox Act2_Text_Regrown, MSGBOX_SIGN
-	end
 
 @ ---------------------------------------------------------------------------------------------------------------
 
@@ -1826,47 +1779,67 @@ Act2_Text_StartGrass:
 	.string "course, your last one.\p"
 	.string "GRASS POKéMON teach patience.\n"
 	.string "Nothing here can be rushed.\p"
-	.string "For the GRASS course, we're headed\n"
-	.string "to VIRIDIAN CITY.\p"
-	.string "I'll explain the assignment when we\n"
-	.string "arrive. Let's go!$"
+	.string "We leave for VIRIDIAN CITY at\n"
+	.string "dusk. Yes, at night!\p"
+	.string "I'll explain when we arrive.\n"
+	.string "Let's go!$"
 
 Act2_Text_GrassBriefing:
 	.string "PROF. FERN: Welcome to VIRIDIAN\n"
 	.string "CITY, the gateway to the forests.\p"
-	.string "West of here, ROUTE 22's fields are\n"
-	.string "home to wild GRASS POKéMON.\p"
-	.string "Catch three different GRASS\n"
-	.string "POKéMON. Battle with them, and\l"
-	.string "watch how GRASS moves work.\p"
-	.string "Parts of the field have withered.\n"
-	.string "See what your POKéMON can do.\p"
-	.string "Finish the sheet, and you may just\n"
-	.string "be able to make a TM based on your\l"
-	.string "newfound knowledge.\p"
-	.string "Now, you'll need these.$"
+	.string "Once a year, a flower called the\n"
+	.string "MOONVEIL blooms for a single\l"
+	.string "night in VIRIDIAN FOREST.\p"
+	.string "Tonight is that night. And nobody\n"
+	.string "has ever recorded where it grows.\p"
+	.string "Find the bloom, protect it until\n"
+	.string "dawn, and collect its dew.\p"
+	.string "Along the way, catch three\n"
+	.string "different GRASS POKéMON. Battle\l"
+	.string "with them, and record how GRASS\l"
+	.string "moves work.\p"
+	.string "The forest is north, past\n"
+	.string "ROUTE 2. It will be very dark.\p"
+	.string "Finish the sheet, and the dew may\n"
+	.string "just make a TM. You'll need these.$"
 
 Act2_Text_GrassSheetIntro:
 	.string "PROF. FERN: Let's see your research\n"
 	.string "sheet.$"
 
 Act2_Text_GrassHint:
-	.string "GRASS POKéMON grow on ROUTE 22,\n"
-	.string "west of here. Some of its field\l"
-	.string "has withered, though…$"
+	.string "VIRIDIAN FOREST is pitch-dark\n"
+	.string "tonight. GLOWCAPS grow along its\l"
+	.string "trail. A GRASS move wakes them.$"
+
+Act2_Text_GrassHintOddish:
+	.string "The ODDISH know the forest's\n"
+	.string "hidden paths. If only one would\l"
+	.string "hold still… SLEEP POWDER, maybe?$"
+
+Act2_Text_GrassHintGuard:
+	.string "The MOONVEIL must be close.\n"
+	.string "Whatever comes, guard it until\l"
+	.string "dawn!$"
+
+Act2_Text_GrassHintSheet:
+	.string "Finish your sheet, {PLAYER}.\n"
+	.string "I'll wait right here in the glade.$"
 
 Act2_Text_GrassResearchDone:
 	.string "PROF. FERN: Beautiful research.\p"
-	.string "From your notes, we can make a TM:\n"
-	.string "GIGA DRAIN.$"
+	.string "And this dew… It holds a whole\n"
+	.string "night's energy in a single drop.\p"
+	.string "Let's make a TM from it together:\n"
+	.string "GIGA DRAIN. It drinks the night.$"
 
 Act2_Text_GrassTeachTM:
-	.string "The TM is yours to keep. Come\n"
-	.string "back when you're ready to test.$"
+	.string "The TM is yours to keep. Teach\n"
+	.string "GIGA DRAIN to a GRASS POKéMON.$"
 
 Act2_Text_ReadyForGrassExam:
-	.string "PROF. FERN: Are you ready?\n"
-	.string "Shall we begin the exam?$"
+	.string "PROF. FERN: The sun's up. Shall\n"
+	.string "we begin the exam, right here?$"
 
 Act2_Text_GrassExamBegins:
 	.string "Let it grow!$"
@@ -2018,28 +1991,6 @@ Act2_Text_LaprasReportToProf:
 
 Act2_Text_LaprasJoined:
 	.string "The LAPRAS joined {PLAYER}!$"
-
-Act2_Text_WitheredNeedsGrass:
-	.string "A patch of withered plants.\p"
-	.string "A GRASS POKéMON's move could\n"
-	.string "bring it back.$"
-
-Act2_Text_WitheredAsk:
-	.string "A withered patch. Have {STR_VAR_1}\n"
-	.string "use {STR_VAR_2} on it?$"
-
-Act2_Text_WitheredRegrown:
-	.string "{STR_VAR_1} used {STR_VAR_2}!\n"
-	.string "New shoots sprang up!$"
-
-Act2_Text_FieldBlooms:
-	.string "The whole field burst into bloom!\n"
-	.string "GRASS POKéMON gather all around.\p"
-	.string "{PLAYER} recorded the bloom on the\n"
-	.string "research sheet!$"
-
-Act2_Text_Regrown:
-	.string "A young tree, growing strong.$"
 
 Act2_Text_ComeBackWhenReady:
 	.string "Come back when you're ready.$"

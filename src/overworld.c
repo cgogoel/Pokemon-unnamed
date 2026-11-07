@@ -2,6 +2,7 @@
 #include "heal_dash.h"
 #include "act2_story.h"
 #include "game_time.h"
+#include "act2_night_bloom.h"
 #include "act2_road.h"
 #include "overworld.h"
 #include "battle_pyramid.h"
@@ -1115,7 +1116,11 @@ bool32 Overworld_IsBikingAllowed(void)
 // Flash level of 8 is fully black
 void SetDefaultFlashLevel(void)
 {
-    if (!gMapHeader.cave)
+    // The hack: Viridian Forest on the Grass trip's night (src/act2_night_bloom.c)
+    u32 nightLevel = Act2_GetNightForestFlashLevel();
+    if (nightLevel != 0)
+        gSaveBlock1Ptr->flashLevel = nightLevel;
+    else if (!gMapHeader.cave)
         gSaveBlock1Ptr->flashLevel = 0;
     else if (FlagGet(FLAG_SYS_USE_FLASH))
         gSaveBlock1Ptr->flashLevel = 1;

@@ -10595,6 +10595,19 @@
       "border_filepath": "data/layouts/RangerStation_B4F/border.bin",
       "blockdata_filepath": "data/layouts/RangerStation_B4F/map.bin",
       "layout_version": "frlg"
+    },
+    {
+      "id": "LAYOUT_VIRIDIAN_FOREST_GLADE",
+      "name": "ViridianForest_Glade_Layout",
+      "width": 21,
+      "height": 16,
+      "border_width": 3,
+      "border_height": 2,
+      "primary_tileset": "gTileset_General_Frlg",
+      "secondary_tileset": "gTileset_ViridianForest",
+      "border_filepath": "data/layouts/ViridianForest_Glade/border.bin",
+      "blockdata_filepath": "data/layouts/ViridianForest_Glade/map.bin",
+      "layout_version": "frlg"
     }
   ]
 }

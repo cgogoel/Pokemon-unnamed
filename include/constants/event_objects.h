@@ -414,7 +414,10 @@ enum
     OBJ_EVENT_GFX_CUTTABLE_TREE_FRLG,
     OBJ_EVENT_GFX_BREAKABLE_ROCK_FRLG,
     OBJ_EVENT_GFX_DOCK_FIRE, // Act 2: the Water course's puzzle (docs/hack/act2_story.md)
-    OBJ_EVENT_GFX_WITHERED_PLANT, // Act 2: the Grass course's puzzle
+    OBJ_EVENT_GFX_GLOWCAP_DIM,    // Act 2: the Grass course's night bloom (tools/hack/draw_night_bloom.py)
+    OBJ_EVENT_GFX_GLOWCAP_LIT,
+    OBJ_EVENT_GFX_MOONVEIL_BUD,
+    OBJ_EVENT_GFX_MOONVEIL_BLOOM,
     NUM_OBJ_EVENT_GFX,
 };
 
@@ -612,6 +615,7 @@ enum
 #define OBJ_EVENT_PAL_TAG_LIGHT_2                 0x8002
 #define OBJ_EVENT_PAL_TAG_EMOTES                  0x8003
 #define OBJ_EVENT_PAL_TAG_NEON_LIGHT              0x8004
+#define OBJ_EVENT_PAL_TAG_NIGHT_BLOOM             0x8005 // Act 2: the glowcaps and the MOONVEIL (blend-immune: they glow at night)
 // Not a real OW palette tag; used for the white flash applied to followers
 #define OBJ_EVENT_PAL_TAG_WHITE                   (OBJ_EVENT_PAL_TAG_NONE - 1)
 #define OBJ_EVENT_PAL_TAG_NONE                    0x11FF

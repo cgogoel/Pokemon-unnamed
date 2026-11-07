@@ -174,7 +174,10 @@ extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_BallCushion
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_GrassCushion;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_FireCushion;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_DockFire;
-extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_WitheredPlant;
+extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_GlowcapDim;
+extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_GlowcapLit;
+extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_MoonveilBud;
+extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_MoonveilBloom;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_WaterCushion;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_BigSnorlaxDoll;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_BigRhydonDoll;
@@ -743,7 +746,10 @@ const struct ObjectEventGraphicsInfo *const gObjectEventGraphicsInfoPointers[NUM
     [OBJ_EVENT_GFX_CUTTABLE_TREE_FRLG]       = &gObjectEventGraphicsInfo_CuttableTreeFrlg,
     [OBJ_EVENT_GFX_BREAKABLE_ROCK_FRLG]      = &gObjectEventGraphicsInfo_BreakableRockFrlg,
     [OBJ_EVENT_GFX_DOCK_FIRE]                = &gObjectEventGraphicsInfo_DockFire,
-    [OBJ_EVENT_GFX_WITHERED_PLANT]           = &gObjectEventGraphicsInfo_WitheredPlant,
+    [OBJ_EVENT_GFX_GLOWCAP_DIM]                  = &gObjectEventGraphicsInfo_GlowcapDim,
+    [OBJ_EVENT_GFX_GLOWCAP_LIT]                  = &gObjectEventGraphicsInfo_GlowcapLit,
+    [OBJ_EVENT_GFX_MOONVEIL_BUD]                 = &gObjectEventGraphicsInfo_MoonveilBud,
+    [OBJ_EVENT_GFX_MOONVEIL_BLOOM]               = &gObjectEventGraphicsInfo_MoonveilBloom,
     [OBJ_EVENT_GFX_PUSHABLE_BOULDER_FRLG]    = &gObjectEventGraphicsInfo_PushableBoulderFrlg,
     [OBJ_EVENT_GFX_FOSSIL_FRLG]              = &gObjectEventGraphicsInfo_FossilFrlg,
     [OBJ_EVENT_GFX_RUBY]                     = &gObjectEventGraphicsInfo_Ruby,

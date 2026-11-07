@@ -375,40 +375,245 @@ static void InitFloorTeam(struct FloorTeam *team, enum BattleSide side)
     }
 }
 
-// Whether a pixel's centre is in an oval (shrunk by shrinkX/shrinkY, in eighths of a pixel). Exact: no rounding before
-// the comparison, so the edges step evenly.
-static bool32 IsInFloorOval(const struct FloorTeam *team, const struct FloorOval *oval, s32 shrinkX, s32 shrinkY, s32 px, s32 py)
+// Whether a pixel's centre is in an oval (shrunk by shrinkX/shrinkY, in eighths of a pixel) is exact: no rounding
+// before the comparison, so the edges step evenly. Along a row it's a quadratic in the pixel's x, so each row is
+// worked out once per oval as the span of pixels inside it (testing each pixel took the floor ~8 seconds to draw):
+//   (u / 512)^2 / (rx / 8)^2 + (v / 512)^2 / (ry / 8)^2 <= 1, with X, Y in half pixels from the centre and
+//   u = X cos + Y sin, v = -X sin + Y cos (Q8), is u^2 ry^2 + v^2 rx^2 - rx^2 ry^2 4096 <= 0,
+//   that is a X^2 + (b Y) X + (c Y^2 - k) <= 0, exact in 64 bits.
+struct FloorOvalTest
+{
+    s64 a, b, c, k;
+    s64 centerQ16; // Where the row's chord is centred, per Y: -b / 2a, Q16
+    s64 cOverAQ16; // c / a, Q16
+    s64 kOverA;
+    s32 cx, cy;
+    s32 yMin, yMax; // The rows it can reach, give or take
+    bool32 empty;
+};
+
+static void InitFloorOvalTest(struct FloorOvalTest *test, const struct FloorTeam *team, const struct FloorOval *oval, s32 shrinkX, s32 shrinkY)
 {
     s64 rx = oval->rx * 8 - shrinkX, ry = oval->ry * 8 - shrinkY; // Eighths of a pixel
-    s64 dx = (px * 2 + 1) - oval->cx * 2, dy = (py * 2 + 1) - oval->cy * 2; // Half pixels, from the centre
-    s64 u = dx * team->cos + dy * team->sin;  // Half pixels, Q8
-    s64 v = -dx * team->sin + dy * team->cos;
-    if (rx <= 0 || ry <= 0)
-        return FALSE;
-    // (u / 512)^2 / (rx / 8)^2 + (v / 512)^2 / (ry / 8)^2 <= 1
-    return u * u * ry * ry + v * v * rx * rx <= rx * rx * ry * ry * 4096;
+    s64 cos = team->cos, sin = team->sin;
+
+    test->cx = oval->cx;
+    test->cy = oval->cy;
+    test->empty = (rx <= 0 || ry <= 0);
+    if (test->empty)
+        return;
+    rx *= rx;
+    ry *= ry;
+    test->a = cos * cos * ry + sin * sin * rx;
+    test->b = 2 * cos * sin * (ry - rx);
+    test->c = sin * sin * ry + cos * cos * rx;
+    test->k = rx * ry * 4096;
+    test->empty = (test->a <= 0);
+    if (test->empty)
+        return;
+    test->centerQ16 = -(test->b * 65536) / (2 * test->a);
+    test->cOverAQ16 = (test->c * 65536) / test->a;
+    test->kOverA = test->k / test->a;
+    // Half its height in pixels: sqrt((rx sin)^2 + (ry cos)^2), with room for the Q8 direction's rounding
+    s32 height = FloorSqrt((u32)min((cos * cos * ry + sin * sin * rx) >> 22, (s64)UINT32_MAX));
+    height += height / 16 + 2;
+    test->yMin = oval->cy - height;
+    test->yMax = oval->cy + height;
 }
 
-static u32 GetFloorShade(const struct FloorTeam *teams, s32 px, s32 py)
+struct FloorQuadratic
 {
-    u32 shade = FLOOR_NONE;
+    s64 a, b, c;
+    s32 cx;
+};
 
+static inline bool32 IsInFloorQuadratic(const struct FloorQuadratic *q, s32 px)
+{
+    s64 x = px * 2 + 1 - q->cx * 2;
+    return (q->a * x + q->b) * x + q->c <= 0;
+}
+
+// The pixels of a floor row inside an oval: [x0, x1)
+struct FloorSpan
+{
+    s16 x0, x1;
+};
+
+static void GetFloorOvalSpan(const struct FloorOvalTest *test, s32 py, struct FloorSpan *span)
+{
+    s64 y = (py * 2 + 1) - test->cy * 2, center, d;
+    struct FloorQuadratic q;
+    s32 half, inside = -1, left, right;
+
+    span->x0 = span->x1 = 0;
+    if (test->empty || py < test->yMin || py > test->yMax)
+        return;
+    q.a = test->a;
+    q.b = test->b * y;
+    q.c = test->c * y * y - test->k;
+    q.cx = test->cx;
+
+    // The roots, roughly (X = center +- half), then made exact pixel by pixel
+    center = (test->centerQ16 * y) >> 16;
+    d = center * center - ((test->cOverAQ16 * y * y) >> 16) + test->kOverA;
+    half = (d <= 0) ? 0 : FloorSqrt((d > (s64)UINT32_MAX) ? UINT32_MAX : (u32)d);
+    // The lowest pixel of the (convex) quadratic is within a pixel of the rough centre's: outside, the row misses
+    for (s32 i = -1; i <= 1 && inside < 0; i++)
+    {
+        s32 px = (s32)((center - 1 + test->cx * 2) >> 1) + i;
+        px = (px < 0) ? 0 : (px >= DISPLAY_WIDTH) ? DISPLAY_WIDTH - 1 : px;
+        if (IsInFloorQuadratic(&q, px))
+            inside = px;
+    }
+    if (inside < 0)
+        return;
+    left = (s32)((center - half - 1 + test->cx * 2) >> 1);
+    right = (s32)((center + half - 1 + test->cx * 2) >> 1);
+    left = (left < 0) ? 0 : (left > inside) ? inside : left;
+    right = (right >= DISPLAY_WIDTH) ? DISPLAY_WIDTH - 1 : (right < inside) ? inside : right;
+    if (IsInFloorQuadratic(&q, left))
+    {
+        while (left > 0 && IsInFloorQuadratic(&q, left - 1))
+            left--;
+    }
+    else
+    {
+        while (!IsInFloorQuadratic(&q, left))
+            left++;
+    }
+    if (IsInFloorQuadratic(&q, right))
+    {
+        while (right < DISPLAY_WIDTH - 1 && IsInFloorQuadratic(&q, right + 1))
+            right++;
+    }
+    else
+    {
+        while (!IsInFloorQuadratic(&q, right))
+            right--;
+    }
+    span->x0 = left;
+    span->x1 = right + 1;
+}
+
+// A team's ovals, ready to be cut into rows
+struct FloorTeamTests
+{
+    struct FloorOvalTest ovals[TRIPLE_RANK_COUNT]; // Each oval
+    struct FloorOvalTest inner[TRIPLE_RANK_COUNT]; // Each oval less its edge line (16x8 for the shading, 8x8 for the platform look)
+    struct FloorOvalTest rim, edge;                // The outer oval less its rim, and less the line inside it too
+};
+
+#define FLOOR_RIM_Y 13 // Eighths of a pixel
+
+static void InitFloorTeamTests(struct FloorTeamTests *tests, const struct FloorTeam *team, bool32 platformLook)
+{
+    const struct FloorOval *outer = &team->ovals[team->count - 1];
+    s32 rimX = max(24, outer->rx * 16 / 25); // Eighths of a pixel
+
+    for (u32 i = 0; i < team->count; i++)
+    {
+        InitFloorOvalTest(&tests->ovals[i], team, &team->ovals[i], 0, 0);
+        if (platformLook)
+            InitFloorOvalTest(&tests->inner[i], team, &team->ovals[i], 8, 8);
+        else
+            InitFloorOvalTest(&tests->inner[i], team, &team->ovals[i], 16, 8);
+    }
+    InitFloorOvalTest(&tests->rim, team, outer, rimX, FLOOR_RIM_Y);
+    InitFloorOvalTest(&tests->edge, team, outer, rimX + 8, FLOOR_RIM_Y + 6);
+}
+
+static void FillFloorRow(u8 *values, s32 x0, s32 x1, u8 value)
+{
+    x0 = max(x0, 0);
+    x1 = min(x1, DISPLAY_WIDTH);
+    for (s32 x = x0; x < x1; x++)
+        values[x] = value;
+}
+
+static void IntersectFloorSpan(struct FloorSpan *span, const struct FloorSpan *other)
+{
+    span->x0 = max(span->x0, other->x0);
+    span->x1 = min(span->x1, other->x1);
+    if (span->x1 < span->x0)
+        span->x1 = span->x0;
+}
+
+enum
+{
+    FLOOR_ROLE_NONE,
+    FLOOR_ROLE_FILL,
+    FLOOR_ROLE_EDGE,
+    FLOOR_ROLE_RIM,
+};
+
+// What each pixel of a row is: a FLOOR_ROLE_* in the platform look, else a FLOOR_* shade
+static void GetFloorRowValues(const struct FloorTeam *teams, const struct FloorTeamTests *teamTests, s32 py, bool32 platformLook, u8 *values)
+{
+    const struct FloorTeam *team = NULL;
+    const struct FloorTeamTests *tests = NULL;
+    struct FloorSpan span, other;
+
+    FillFloorRow(values, 0, DISPLAY_WIDTH, platformLook ? FLOOR_ROLE_NONE : FLOOR_NONE);
     for (u32 t = 0; t < NUM_BATTLE_SIDES; t++)
     {
-        const struct FloorTeam *team = &teams[t];
-        if (py < team->yMin || py >= team->yMax)
-            continue;
-        for (s32 i = team->count - 1; i >= 0; i--)
+        if (py >= teams[t].yMin && py < teams[t].yMax)
         {
-            if (!IsInFloorOval(team, &team->ovals[i], 0, 0, px, py))
-                break; // Ovals are nested: outside this one means outside the smaller ones
-            if (!IsInFloorOval(team, &team->ovals[i], 16, 8, px, py))
-                return FLOOR_OUTLINE;
-            // Base under the rear Pokémon, the outer section pale; 3v3 has a half shade between them
-            shade = (i == 0) ? FLOOR_BASE : (i == (s32)team->count - 1) ? FLOOR_LIGHT : FLOOR_HALF;
+            team = &teams[t];
+            tests = &teamTests[t];
+            break;
         }
     }
-    return shade;
+    if (team == NULL)
+        return;
+
+    if (platformLook)
+    {
+        // Outside the outer oval: nothing; then its rim, the line inside it, and the fill crossed by the inner ovals' lines
+        GetFloorOvalSpan(&tests->ovals[team->count - 1], py, &span);
+        FillFloorRow(values, span.x0, span.x1, FLOOR_ROLE_RIM);
+        GetFloorOvalSpan(&tests->rim, py, &other);
+        IntersectFloorSpan(&span, &other);
+        FillFloorRow(values, span.x0, span.x1, FLOOR_ROLE_EDGE);
+        GetFloorOvalSpan(&tests->edge, py, &other);
+        IntersectFloorSpan(&span, &other);
+        FillFloorRow(values, span.x0, span.x1, FLOOR_ROLE_FILL);
+        for (s32 i = team->count - 2; i >= 0; i--)
+        {
+            struct FloorSpan oval = span, inner;
+            GetFloorOvalSpan(&tests->ovals[i], py, &other);
+            IntersectFloorSpan(&oval, &other);
+            GetFloorOvalSpan(&tests->inner[i], py, &inner);
+            if (oval.x0 == oval.x1)
+                continue;
+            if (inner.x0 == inner.x1)
+            {
+                FillFloorRow(values, oval.x0, oval.x1, FLOOR_ROLE_EDGE);
+                continue;
+            }
+            FillFloorRow(values, oval.x0, min(inner.x0, oval.x1), FLOOR_ROLE_EDGE);
+            FillFloorRow(values, max(inner.x1, oval.x0), oval.x1, FLOOR_ROLE_EDGE);
+        }
+    }
+    else
+    {
+        // Ovals are nested: going in, each one's edge is its outline, and inside it the next one starts
+        span.x0 = 0;
+        span.x1 = DISPLAY_WIDTH;
+        for (s32 i = team->count - 1; i >= 0 && span.x0 < span.x1; i--)
+        {
+            // Base under the rear Pokémon, the outer section pale; 3v3 has a half shade between them
+            u32 shade = (i == 0) ? FLOOR_BASE : (i == (s32)team->count - 1) ? FLOOR_LIGHT : FLOOR_HALF;
+            struct FloorSpan inner;
+            GetFloorOvalSpan(&tests->ovals[i], py, &other);
+            IntersectFloorSpan(&span, &other);
+            if (span.x0 == span.x1)
+                break;
+            FillFloorRow(values, span.x0, span.x1, FLOOR_OUTLINE);
+            GetFloorOvalSpan(&tests->inner[i], py, &inner);
+            IntersectFloorSpan(&span, &inner);
+            FillFloorRow(values, span.x0, span.x1, shade);
+        }
+    }
 }
 
 // The ovals are drawn with sFloorColors written into palette slots the environment background doesn't use. If a palette
@@ -549,14 +754,6 @@ static void BuildFloorShades(struct FloorShades *shades, const u16 *tilemap, con
 #define PLATFORM_ROWS    6
 #define PLATFORM_FLOOR_X 100 // The floor left of the platform
 
-enum
-{
-    FLOOR_ROLE_NONE,
-    FLOOR_ROLE_FILL,
-    FLOOR_ROLE_EDGE,
-    FLOOR_ROLE_RIM,
-};
-
 struct FloorStyle
 {
     bool8 valid;
@@ -673,50 +870,118 @@ static void BuildFloorStyle(struct FloorStyle *style, const u16 *tilemap, const 
     style->valid = TRUE;
 }
 
-// What a pixel is in the platform look (FLOOR_ROLE_*)
-static u32 GetFloorRole(const struct FloorTeam *teams, s32 px, s32 py)
-{
-    for (u32 t = 0; t < NUM_BATTLE_SIDES; t++)
-    {
-        const struct FloorTeam *team = &teams[t];
-        const struct FloorOval *outer = &team->ovals[team->count - 1];
-        s32 rimX = max(24, outer->rx * 16 / 25), rimY = 13; // Eighths of a pixel
+#define FLOOR_TILE_BUCKETS 64
+#define FLOOR_NO_TILE 0xFFFF
 
-        if (py < team->yMin || py >= team->yMax || !IsInFloorOval(team, outer, 0, 0, px, py))
-            continue;
-        if (!IsInFloorOval(team, outer, rimX, rimY, px, py))
-            return FLOOR_ROLE_RIM;
-        if (!IsInFloorOval(team, outer, rimX + 8, rimY + 6, px, py))
-            return FLOOR_ROLE_EDGE;
-        for (s32 i = team->count - 2; i >= 0; i--)
-        {
-            if (IsInFloorOval(team, &team->ovals[i], 0, 0, px, py) && !IsInFloorOval(team, &team->ovals[i], 8, 8, px, py))
-                return FLOOR_ROLE_EDGE;
-        }
-        return FLOOR_ROLE_FILL;
-    }
-    return FLOOR_ROLE_NONE;
+// The floor's working memory, off the stack
+struct FloorWork
+{
+    struct FloorShades shades;
+    struct FloorStyle style;
+    struct FloorTeamTests tests[NUM_BATTLE_SIDES];
+    u32 hashes[FLOOR_MAX_TILES];          // Of the tiles made so far, to find identical ones quickly:
+    u16 nextTile[FLOOR_MAX_TILES];        // chained by hash bucket
+    u16 firstTile[FLOOR_TILE_BUCKETS];
+    u8 values[8][DISPLAY_WIDTH] ALIGNED(4); // One row of tiles: GetFloorRowValues
+};
+
+// The floor is drawn again whenever the background is reloaded: after every move animation that changes it
+// (restorebg), on the evolution scene, coming back from the bag or the party menu. When the background is the same and
+// the floor's tiles are still in VRAM, the tilemap is all that has to be put back.
+struct FloorCache
+{
+    u32 key;       // GetFloorCacheKey: the background the floor was drawn on
+    u32 tilesHash; // The floor's own tiles
+    u16 tileCount;
+    bool16 hasPalette;
+    u16 palette[16]; // FLOOR_PALETTE, when the floor uses it
+    u16 hazeColor;
+    u16 tilemap[FLOOR_ROWS][FLOOR_COLS];
+};
+
+static EWRAM_DATA struct FloorCache sFloorCache = {0};
+
+static u32 HashFloorWords(u32 hash, const u32 *words, u32 count)
+{
+    for (u32 i = 0; i < count; i++)
+        hash = (hash ^ words[i]) * 16777619;
+    return hash;
+}
+
+static u32 GetFloorCacheKey(const u16 *tilemap, const u8 *tiles)
+{
+    u32 hash = 2166136261u ^ (HasTripleMiddleBattlers() ? 3 : 2);
+    hash = HashFloorWords(hash, (const u32 *)tilemap, FLOOR_ROWS * 32 / 2);
+    // The tiles it reads: those of the rows it's drawn on (other tiles may hold an animation's leftovers)
+    for (u32 i = 0; i < FLOOR_ROWS * 32; i++)
+        hash = HashFloorWords(hash, (const u32 *)(tiles + (tilemap[i] & 0x3FF) * TILE_SIZE_4BPP), TILE_SIZE_4BPP / 4);
+    hash = HashFloorWords(hash, (const u32 *)&gPlttBufferUnfaded[BG_PLTT_ID(2)], 3 * 16 / 2);
+    return hash;
+}
+
+static u32 GetFloorTilesHash(const u8 *tiles, u32 count)
+{
+    return HashFloorWords(2166136261u, (const u32 *)(tiles + FLOOR_FIRST_TILE * TILE_SIZE_4BPP), count * TILE_SIZE_4BPP / 4);
+}
+
+static bool32 TryRestoreFloorFromCache(u16 *tilemap, const u8 *tiles, u32 key)
+{
+    struct FloorCache *cache = &sFloorCache;
+    if (cache->key != key || cache->tileCount == 0 || cache->tilesHash != GetFloorTilesHash(tiles, cache->tileCount))
+        return FALSE;
+    for (u32 row = 0; row < FLOOR_ROWS; row++)
+        CpuCopy16(cache->tilemap[row], &tilemap[row * 32], sizeof(cache->tilemap[row]));
+    if (cache->hasPalette)
+        LoadPalette(cache->palette, BG_PLTT_ID(FLOOR_PALETTE), PLTT_SIZE_4BPP);
+    sTripleHazeColor = cache->hazeColor;
+    return TRUE;
+}
+
+static void SaveFloorCache(const u16 *tilemap, const u8 *tiles, u32 key, u32 tileCount, bool32 hasPalette)
+{
+    struct FloorCache *cache = &sFloorCache;
+    cache->key = key;
+    cache->tileCount = tileCount;
+    cache->tilesHash = GetFloorTilesHash(tiles, tileCount);
+    cache->hasPalette = hasPalette;
+    if (hasPalette)
+        CpuCopy16(&gPlttBufferUnfaded[BG_PLTT_ID(FLOOR_PALETTE)], cache->palette, sizeof(cache->palette));
+    cache->hazeColor = sTripleHazeColor;
+    for (u32 row = 0; row < FLOOR_ROWS; row++)
+        CpuCopy16(&tilemap[row * 32], cache->tilemap[row], sizeof(cache->tilemap[row]));
+}
+
+void InvalidateTripleBattleFloorCache(void)
+{
+    sFloorCache.key = 0;
+    sFloorCache.tileCount = 0;
 }
 
 void DrawTripleBattleFloor(void)
 {
     struct FloorTeam teams[NUM_BATTLE_SIDES];
-    struct FloorShades *shades = Alloc(sizeof(struct FloorShades));
-    struct FloorStyle *style = Alloc(sizeof(struct FloorStyle));
     u16 *tilemap = (u16 *)BG_SCREEN_ADDR(26);
     const u8 *tiles = (const u8 *)BG_CHAR_ADDR(2);
-    u32 newTiles = 0;
+    u32 newTiles = 0, key = GetFloorCacheKey(tilemap, tiles);
+    bool32 hasPalette = FALSE;
 
-    if (shades == NULL || style == NULL)
-    {
-        TRY_FREE_AND_SET_NULL(shades);
-        TRY_FREE_AND_SET_NULL(style);
+    if (TryRestoreFloorFromCache(tilemap, tiles, key))
         return;
-    }
+
+    struct FloorWork *work = Alloc(sizeof(struct FloorWork));
+    if (work == NULL)
+        return;
+    struct FloorShades *shades = &work->shades;
+    struct FloorStyle *style = &work->style;
     InitFloorTeam(&teams[B_SIDE_PLAYER], B_SIDE_PLAYER);
     InitFloorTeam(&teams[B_SIDE_OPPONENT], B_SIDE_OPPONENT);
     BuildFloorShades(shades, tilemap, tiles);
+    hasPalette = shades->reserved[0] || shades->reserved[1] || shades->reserved[2]; // It loaded FLOOR_PALETTE
     BuildFloorStyle(style, tilemap, tiles); // Before the tilemap is painted over: it reads the 1v1 platform
+    InitFloorTeamTests(&work->tests[B_SIDE_PLAYER], &teams[B_SIDE_PLAYER], style->valid);
+    InitFloorTeamTests(&work->tests[B_SIDE_OPPONENT], &teams[B_SIDE_OPPONENT], style->valid);
+    for (u32 i = 0; i < FLOOR_TILE_BUCKETS; i++)
+        work->firstTile[i] = FLOOR_NO_TILE;
 
     for (u32 row = 0; row < FLOOR_ROWS; row++)
     {
@@ -724,63 +989,95 @@ void DrawTripleBattleFloor(void)
         u16 source = GetFloorSourceEntry(tilemap, row);
         u32 sourceTile = source & 0x3FF, palette = source >> 12;
         bool32 hFlip = (source & 0x400) != 0, vFlip = (source & 0x800) != 0;
+        const u8 *texRows[8];
+        u8 sourcePixels[8][8];
+
+        // Nothing to paint on other palettes
+        if (palette < 2 || palette > 4)
+        {
+            for (u32 col = 0; col < FLOOR_COLS; col++)
+                tilemap[row * 32 + col] = source;
+            continue;
+        }
+        for (u32 y = 0; y < 8; y++)
+        {
+            GetFloorRowValues(teams, work->tests, row * 8 + y, style->valid, work->values[y]);
+            texRows[y] = style->tex[(row * 8 + y) % PLATFORM_TEX_H];
+            for (u32 x = 0; x < 8; x++)
+            {
+                u32 sx = hFlip ? 7 - x : x, sy = vFlip ? 7 - y : y;
+                u8 byte = tiles[sourceTile * TILE_SIZE_4BPP + sy * 4 + sx / 2];
+                sourcePixels[y][x] = (sx & 1) ? (byte >> 4) : (byte & 0xF);
+            }
+        }
 
         for (u32 col = 0; col < FLOOR_COLS; col++)
         {
             u32 words[TILE_SIZE_4BPP / 4];
             u8 *pixels = (u8 *)words;
-            bool32 painted = FALSE;
+            u32 texCol = (col * 8) % PLATFORM_TEX_W, any = 0, y;
 
-            for (u32 y = 0; y < 8; y++)
+            // A tile with nothing on it (FLOOR_NONE, FLOOR_ROLE_NONE: 0) keeps the background's
+            for (y = 0; y < 8; y++)
             {
-                for (u32 x = 0; x < 8; x++)
-                {
-                    u32 sx = hFlip ? 7 - x : x, sy = vFlip ? 7 - y : y;
-                    u8 byte = tiles[sourceTile * TILE_SIZE_4BPP + sy * 4 + sx / 2];
-                    u32 color = (sx & 1) ? (byte >> 4) : (byte & 0xF);
-                    u32 px = col * 8 + x, py = row * 8 + y;
-                    u32 shade = style->valid ? FLOOR_NONE : GetFloorShade(teams, px, py);
-
-                    if (style->valid && palette >= 2 && palette <= 4)
-                    {
-                        u32 role = GetFloorRole(teams, px, py), index = color;
-                        if (role == FLOOR_ROLE_FILL)
-                            index = style->tex[py % PLATFORM_TEX_H][px % PLATFORM_TEX_W];
-                        else if (role == FLOOR_ROLE_EDGE)
-                            index = style->edge;
-                        else if (role == FLOOR_ROLE_RIM)
-                            index = style->rim;
-                        if (role != FLOOR_ROLE_NONE)
-                        {
-                            color = style->map[palette - 2][index];
-                            painted = TRUE;
-                        }
-                    }
-                    else if (shade != FLOOR_NONE && palette >= 2 && palette <= 4)
-                    {
-                        if (shades->reserved[palette - 2])
-                            color = shades->index[shade];
-                        else
-                            color = shades->nearest[palette - 2][shade][color];
-                        painted = TRUE;
-                    }
-                    if (x & 1)
-                        pixels[y * 4 + x / 2] = (pixels[y * 4 + x / 2] & 0x0F) | (color << 4);
-                    else
-                        pixels[y * 4 + x / 2] = color;
-                }
+                const u32 *values = (const u32 *)&work->values[y][col * 8];
+                any |= values[0] | values[1];
             }
-
-            if (!painted || newTiles == FLOOR_MAX_TILES)
+            if (any == 0 || newTiles == FLOOR_MAX_TILES)
             {
                 tilemap[row * 32 + col] = source;
                 continue;
             }
 
-            // Reuse an identical tile made earlier
-            u32 tile;
-            for (tile = 0; tile < newTiles; tile++)
+            for (y = 0; y < 8; y++)
             {
+                const u8 *values = &work->values[y][col * 8];
+                for (u32 x = 0; x < 8; x += 2)
+                {
+                    u32 color[2];
+                    for (u32 i = 0; i < 2; i++)
+                    {
+                        u32 value = values[x + i];
+                        color[i] = sourcePixels[y][x + i];
+                        if (value == FLOOR_NONE) // FLOOR_ROLE_NONE too
+                            continue;
+                        if (style->valid)
+                        {
+                            u32 index;
+                            if (value == FLOOR_ROLE_FILL)
+                            {
+                                u32 tx = texCol + x + i;
+                                index = texRows[y][(tx >= PLATFORM_TEX_W) ? tx - PLATFORM_TEX_W : tx];
+                            }
+                            else if (value == FLOOR_ROLE_EDGE)
+                            {
+                                index = style->edge;
+                            }
+                            else
+                            {
+                                index = style->rim;
+                            }
+                            color[i] = style->map[palette - 2][index];
+                        }
+                        else if (shades->reserved[palette - 2])
+                        {
+                            color[i] = shades->index[value];
+                        }
+                        else
+                        {
+                            color[i] = shades->nearest[palette - 2][value][color[i]];
+                        }
+                    }
+                    pixels[y * 4 + x / 2] = color[0] | (color[1] << 4);
+                }
+            }
+
+            // Reuse an identical tile made earlier
+            u32 tile, hash = HashFloorWords(2166136261u, words, ARRAY_COUNT(words)), bucket = hash % FLOOR_TILE_BUCKETS;
+            for (tile = work->firstTile[bucket]; tile != FLOOR_NO_TILE; tile = work->nextTile[tile])
+            {
+                if (work->hashes[tile] != hash)
+                    continue;
                 const u32 *existing = (const u32 *)(tiles + (FLOOR_FIRST_TILE + tile) * TILE_SIZE_4BPP);
                 u32 w;
                 for (w = 0; w < ARRAY_COUNT(words) && existing[w] == words[w]; w++)
@@ -788,17 +1085,20 @@ void DrawTripleBattleFloor(void)
                 if (w == ARRAY_COUNT(words))
                     break;
             }
-            if (tile == newTiles)
+            if (tile == FLOOR_NO_TILE)
             {
+                tile = newTiles++;
                 CpuCopy32(words, (void *)(tiles + (FLOOR_FIRST_TILE + tile) * TILE_SIZE_4BPP), sizeof(words));
-                newTiles++;
+                work->hashes[tile] = hash;
+                work->nextTile[tile] = work->firstTile[bucket];
+                work->firstTile[bucket] = tile;
             }
-            if (!style->valid && palette >= 2 && palette <= 4 && shades->reserved[palette - 2])
+            if (!style->valid && shades->reserved[palette - 2])
                 tilemap[row * 32 + col] = (FLOOR_FIRST_TILE + tile) | (FLOOR_PALETTE << 12);
             else
                 tilemap[row * 32 + col] = (FLOOR_FIRST_TILE + tile) | (palette << 12);
         }
     }
-    Free(shades);
-    Free(style);
+    Free(work);
+    SaveFloorCache(tilemap, tiles, key, newTiles, hasPalette);
 }

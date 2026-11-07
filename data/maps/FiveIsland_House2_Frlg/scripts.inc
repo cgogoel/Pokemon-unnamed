@@ -8,8 +8,8 @@ FiveIsland_House2_EventScript_OldMan::
 FiveIsland_House2_Text_MeadowBelongedToFamily::
 	.string "That MEADOW has belonged to our\n"
 	.string "family for generations.\p"
-	.string "I should have had a giant mansion\n"
-	.string "built on it.\p"
-	.string "It would be preferable to having\n"
-	.string "those thugs run wild on it!$"
+	.string "My grandfather leased a corner of\n"
+	.string "it for a storage WAREHOUSE.\p"
+	.string "Nobody's opened it in years.\n"
+	.string "I should've built a mansion there!$"
 

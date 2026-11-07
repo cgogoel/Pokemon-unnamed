@@ -31,36 +31,6 @@
       "flag": "0"
     },
     {
-      "local_id": "LOCALID_MT_EMBER_GRUNT1",
-      "type": "object",
-      "graphics_id": "OBJ_EVENT_GFX_ROCKET_M",
-      "x": 41,
-      "y": 40,
-      "elevation": 3,
-      "movement_type": "MOVEMENT_TYPE_FACE_RIGHT",
-      "movement_range_x": 1,
-      "movement_range_y": 1,
-      "trainer_type": "TRAINER_TYPE_NONE",
-      "trainer_sight_or_berry_tree_id": "0",
-      "script": "MtEmber_Exterior_EventScript_Grunt1",
-      "flag": "FLAG_HIDE_MT_EMBER_EXTERIOR_ROCKETS"
-    },
-    {
-      "local_id": "LOCALID_MT_EMBER_GRUNT2",
-      "type": "object",
-      "graphics_id": "OBJ_EVENT_GFX_ROCKET_M",
-      "x": 42,
-      "y": 40,
-      "elevation": 3,
-      "movement_type": "MOVEMENT_TYPE_FACE_LEFT",
-      "movement_range_x": 1,
-      "movement_range_y": 1,
-      "trainer_type": "TRAINER_TYPE_NONE",
-      "trainer_sight_or_berry_tree_id": "0",
-      "script": "MtEmber_Exterior_EventScript_Grunt2",
-      "flag": "FLAG_HIDE_MT_EMBER_EXTERIOR_ROCKETS"
-    },
-    {
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_CRUSH_GIRL",
       "x": 22,
@@ -344,33 +314,7 @@
     }
   ],
   "coord_events": [
-    {
-      "type": "trigger",
-      "x": 37,
-      "y": 43,
-      "elevation": 0,
-      "var": "VAR_MAP_SCENE_MT_EMBER_EXTERIOR",
-      "var_value": "1",
-      "script": "MtEmber_Exterior_EventScript_RocketPasswordScene"
-    },
-    {
-      "type": "trigger",
-      "x": 38,
-      "y": 43,
-      "elevation": 0,
-      "var": "VAR_MAP_SCENE_MT_EMBER_EXTERIOR",
-      "var_value": "1",
-      "script": "MtEmber_Exterior_EventScript_RocketPasswordScene"
-    },
-    {
-      "type": "trigger",
-      "x": 39,
-      "y": 43,
-      "elevation": 0,
-      "var": "VAR_MAP_SCENE_MT_EMBER_EXTERIOR",
-      "var_value": "1",
-      "script": "MtEmber_Exterior_EventScript_RocketPasswordScene"
-    }
+
   ],
   "bg_events": [
     {

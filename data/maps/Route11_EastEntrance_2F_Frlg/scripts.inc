@@ -58,7 +58,7 @@ Route11_EastEntrance_2F_EventScript_Aide::
 	faceplayer
 	call Route11_EastEntrance_2F_EventScript_GetAideRequestInfo
 	goto_if_set FLAG_GOT_ITEMFINDER, Route11_EastEntrance_2F_EventScript_AlreadyGotItemfinder
-	msgbox Route11_EastEntrance_2F_Text_GiveItemfinderIfCaught30, MSGBOX_YESNO
+	msgbox Route11_EastEntrance_2F_Text_SurveyItemfinderIfCaught30, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, Aide_EventScript_DeclineCheckMons
 	setvar VAR_0x8004, 0
 	specialvar VAR_RESULT, GetFrlgPokedexCount
@@ -84,16 +84,15 @@ Route11_EastEntrance_2F_EventScript_GetAideRequestInfo::
 	bufferitemname STR_VAR_2, ITEM_ITEMFINDER
 	return
 
-Route11_EastEntrance_2F_Text_GiveItemfinderIfCaught30::
-	.string "Hi! Remember me?\n"
-	.string "I'm one of PROF. OAK's AIDES.\p"
-	.string "If your POKéDEX has complete data\n"
-	.string "on {STR_VAR_1} species, I'm supposed to\l"
-	.string "give you a reward.\p"
-	.string "PROF. OAK entrusted me with the\n"
-	.string "{STR_VAR_2} for you.\p"
-	.string "So, {PLAYER}, let me ask you.\p"
-	.string "Have you gathered data on at least\n"
+Route11_EastEntrance_2F_Text_SurveyItemfinderIfCaught30::
+	.string "Hi! I'm one of PROF. OAK's AIDES.\n"
+	.string "We're running a POKéMON survey.\p"
+	.string "TRAINERS who have caught {STR_VAR_1}\n"
+	.string "kinds of POKéMON get a thank-you.\p"
+	.string "This time it's the {STR_VAR_2}.\n"
+	.string "It's great for treasure hunting.\p"
+	.string "So, let me ask you.\p"
+	.string "Have you caught at least\n"
 	.string "{STR_VAR_1} kinds of POKéMON?$"
 
 Route11_EastEntrance_2F_Text_GreatHereYouGo::

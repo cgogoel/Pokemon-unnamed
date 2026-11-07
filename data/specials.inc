@@ -651,6 +651,8 @@ gSpecials::
 	def_special Act1_TakeFarmMonWithYou
 	def_special Act1_FinishChoosing
 	def_special Act1_StartPrologueEnd
+	def_special TmDatabase_OpenFromMachine, waitstate=1
+	def_special TmResearch_Unlock
 	def_special Act2_PartyHasType
 	def_special Act2_IsClubNight
 	def_special Act2_GiveStartingKit

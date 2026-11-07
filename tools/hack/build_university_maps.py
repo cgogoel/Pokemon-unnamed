@@ -146,6 +146,8 @@ OBJECTS = {
         'LOCALID_LAB_ASHFORD': ((2, 2), 'MOVEMENT_TYPE_FACE_DOWN'),
         'LOCALID_LAB_MARLOWE': ((2, 2), 'MOVEMENT_TYPE_FACE_DOWN'),
         'LOCALID_LAB_FERN': ((2, 2), 'MOVEMENT_TYPE_FACE_DOWN'),
+        # The TM Database (docs/hack/tm_database.md): the researcher beside the TM MACHINE (11,1)
+        'LOCALID_LAB_TM_RESEARCHER': ((12, 2), 'MOVEMENT_TYPE_FACE_DOWN'),
     },
     'CeladonUniversity_ScienceExperimentRoom': {
         'CeladonUniversity_ScienceExperimentRoom_EventScript_Boy0': (8, 8),
@@ -201,7 +203,8 @@ SIGNS = {
         'CeladonUniversity_ScienceInstitute_EventScript_Sign2': [],
         'CeladonUniversity_ScienceInstitute_EventScript_Sign3': []},
     'CeladonUniversity_ScienceResearchRoom': {
-        'CeladonUniversity_ScienceResearchRoom_EventScript_Sign0': [(4, 1), (8, 1), (11, 1)]},
+        'CeladonUniversity_ScienceResearchRoom_EventScript_Sign0': [(4, 1), (8, 1)],
+        'CeladonUniversity_ScienceResearchRoom_EventScript_TmMachine': [(11, 1)]},
 }
 
 # Triggers: map -> list of (cells, var, value, script)

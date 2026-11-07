@@ -33,6 +33,7 @@ Act2_EventScript_FinalBrief::
 	waitfanfare
 	additem ITEM_DOOM_SCROLL
 	msgbox Act2_Text_BriefEnd
+	msgbox Act2_Text_BriefTmMachine
 	closemessage
 	@ The friends come over
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterDown
@@ -178,6 +179,12 @@ Act2_Text_BriefEnd:
 	.string "on and explore.\p"
 	.string "Come back when your TM is ready.\n"
 	.string "Good luck.$"
+
+@ The TM Database (docs/hack/tm_database.md): the researcher on 3F explains it
+Act2_Text_BriefTmMachine:
+	.string "DIRECTOR: Oh, and before you head\n"
+	.string "out, see our researcher on 3F\l"
+	.string "about the TM MACHINE.$"
 
 Act2_Text_FriendsTMs:
 	.string "KAI: FIRE, obviously. I'm making\n"

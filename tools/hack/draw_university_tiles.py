@@ -307,26 +307,37 @@ def pediment(P, c, base_y, half, height, emblem=True):
         P.ellipse(c, cy, 4.5, 4.5, AU, AU2)
 
 
-def facade(P, x0, y0, w_tiles, storeys, kind='arch', skip=()):
-    """Storeys of windows (2 rows each) in every other column, centered (so a mirrored building stays symmetric),
-    within columns 1..w-2, except (col, storey) in skip (storey 0 = the top one)."""
+def has_window(c, w_tiles, spacing):
+    """Windows every `spacing` columns, centered so a mirrored building stays symmetric (on an even width with
+    spacing 2, the middle pair are both windows)."""
+    d2 = abs(2 * c - (w_tiles - 1))  # Twice the distance from the middle
+    if spacing == 2:
+        return d2 % 4 in (0, 1)
+    if w_tiles % 2:
+        return (d2 // 2) % spacing == 0
+    return d2 % (2 * spacing) == spacing
+
+
+def facade(P, x0, y0, w_tiles, storeys, kind='arch', skip=(), spacing=2):
+    """Storeys of windows (2 rows each) every `spacing` columns within columns 1..w-2, except (col, storey) in skip
+    (storey 0 = the top one)."""
     for s in range(storeys):
         for c in range(1, w_tiles - 1):
-            if abs(2 * c - (w_tiles - 1)) % 4 not in (0, 1):  # Every other column from the middle
+            if not has_window(c, w_tiles, spacing):
                 continue
             if (c, s) in skip or c in skip:
                 continue
             (window if kind == 'arch' else sqwindow)(P, x0 + c * T, y0 + s * 2 * T)
 
 
-def academic(w, roof_rows, storeys, doors, dormers=(), kind='arch', pediment_over=None, skip=()):
+def academic(w, roof_rows, storeys, doors, dormers=(), kind='arch', pediment_over=None, skip=(), spacing=2):
     """The academic building: mansard roof, storeys of windows, doors (columns) on the ground storey, plinth.
     Symmetric when the doors and dormers are."""
     h = roof_rows + storeys * 2
     P = Pic(w * T, h * T)
     roof(P, 0, 0, P.w, roof_rows * T, dormers, roof_rows - 2)
     wall(P, 0, roof_rows * T, P.w, storeys * 2 * T)
-    facade(P, 0, roof_rows * T, w, storeys, kind, skip=[(d, storeys - 1) for d in doors] + list(skip))
+    facade(P, 0, roof_rows * T, w, storeys, kind, skip=[(d, storeys - 1) for d in doors] + list(skip), spacing=spacing)
     for d in doors:
         door(P, d * T, (h - 2) * T, glass=kind != 'arch')
     plinth(P, 0, h * T - 4, P.w)
@@ -427,14 +438,14 @@ def pavilion():
 
 def humanities():
     """Literature & Library, 22x9: one building, two doors (columns 5 and 16)."""
-    P = academic(22, 5, 2, doors=(5, 16), dormers=(3, 8, 13, 18))
+    P = academic(22, 5, 2, doors=(5, 16), dormers=(3, 8, 13, 18), spacing=3)
     P.mirror()
     return P
 
 
 def dorm():
     """The dorm, 17x10: the same stone and slate, square windows, a glass door under a slate canopy (column 8)."""
-    P = academic(17, 4, 3, doors=(8,), dormers=(2, 5, 11, 14), kind='square')
+    P = academic(17, 4, 3, doors=(8,), dormers=(2, 5, 11, 14), kind='square', spacing=3)
     canopy(P, 8, 8)
     P.mirror()
     return P
@@ -485,7 +496,7 @@ def hospital():
     P.vl(cx - 5, cy - 12, cy + 10, AC['rd2'])
     # Facade
     wall(P, 0, 4 * T, P.w, 6 * T)
-    facade(P, 0, 4 * T, w, 3, 'square', skip=[(6, 2), (6, 1)])
+    facade(P, 0, 4 * T, w, 3, 'square', skip=[(6, 2), (6, 1)], spacing=3)
     door(P, 6 * T, 8 * T, glass=True)
     canopy(P, 6, 8)
     # The cross sign over the door

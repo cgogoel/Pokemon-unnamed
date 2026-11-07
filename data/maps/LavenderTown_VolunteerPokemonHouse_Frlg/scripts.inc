@@ -39,13 +39,7 @@ LavenderTown_VolunteerPokemonHouse_EventScript_LittleBoy::
 LavenderTown_VolunteerPokemonHouse_EventScript_Youngster::
 	lock
 	faceplayer
-	goto_if_set FLAG_RESCUED_MR_FUJI, LavenderTown_VolunteerPokemonHouse_EventScript_YoungsterFujiBack
-	msgbox LavenderTown_VolunteerPokemonHouse_Text_WhereDidMrFujiGo
-	release
-	end
-
-LavenderTown_VolunteerPokemonHouse_EventScript_YoungsterFujiBack::
-	msgbox LavenderTown_VolunteerPokemonHouse_Text_MrFujiWasPrayingForCubonesMother
+	msgbox LavenderTown_VolunteerPokemonHouse_Text_VolunteerAfterSchool
 	release
 	end
 
@@ -85,13 +79,10 @@ LavenderTown_PokemonCenter_1F_Text_HearMrFujiNotFromAroundHere::
 	.string "I hear that MR. FUJI's not from\n"
 	.string "these parts originally, either.$"
 
-LavenderTown_VolunteerPokemonHouse_Text_WhereDidMrFujiGo::
-	.string "That's odd, MR. FUJI isn't here.\n"
-	.string "Where'd he go?$"
-
-LavenderTown_VolunteerPokemonHouse_Text_MrFujiWasPrayingForCubonesMother::
-	.string "MR. FUJI had been praying alone\n"
-	.string "for CUBONE's mother.$"
+LavenderTown_VolunteerPokemonHouse_Text_VolunteerAfterSchool::
+	.string "I volunteer here after school.\p"
+	.string "Today I brushed PSYDUCK. It just\n"
+	.string "held its head the whole time.$"
 
 LavenderTown_VolunteerPokemonHouse_Text_MrFujiLooksAfterOrphanedMons::
 	.string "This is really MR. FUJI's house.\p"
@@ -110,13 +101,15 @@ LavenderTown_VolunteerPokemonHouse_Text_Psyduck::
 	.string "PSYDUCK: Gwappa!$"
 
 LavenderTown_VolunteerPokemonHouse_Text_IdLikeYouToHaveThis::
-	.string "MR. FUJI: {PLAYER}…\p"
-	.string "Your POKéDEX quest is one that\n"
-	.string "requires strong dedication.\p"
-	.string "Without deep love for POKéMON,\n"
-	.string "your quest may fail.\p"
-	.string "I'm not sure if this will help you,\n"
-	.string "but I'd like you to have it.$"
+	.string "MR. FUJI: Welcome, welcome.\n"
+	.string "You're a TRAINER, I see.\p"
+	.string "Some POKéMON on the roads east and\n"
+	.string "south of here sleep very deeply.\p"
+	.string "A SNORLAX can nap across a road\n"
+	.string "for weeks if no one wakes it.\p"
+	.string "I play this to wake them, but my\n"
+	.string "legs aren't what they were.\p"
+	.string "Will you carry it for me?$"
 
 LavenderTown_VolunteerPokemonHouse_Text_ReceivedPokeFluteFromMrFuji::
 	.string "{PLAYER} received a POKé FLUTE\n"
@@ -125,15 +118,15 @@ LavenderTown_VolunteerPokemonHouse_Text_ReceivedPokeFluteFromMrFuji::
 LavenderTown_VolunteerPokemonHouse_Text_ExplainPokeFlute::
 	.string "Upon hearing the POKé FLUTE,\n"
 	.string "sleeping POKéMON will spring awake.\p"
-	.string "Try using it on POKéMON that are\n"
-	.string "sleeping obstacles.$"
+	.string "Play it gently, and the SNORLAX\n"
+	.string "will wake in a fine mood.$"
 
 LavenderTown_VolunteerPokemonHouse_Text_MustMakeRoomForThis::
 	.string "You must make room for this!$"
 
 LavenderTown_VolunteerPokemonHouse_Text_HasPokeFluteHelpedYou::
 	.string "MR. FUJI: Has my POKé FLUTE\n"
-	.string "helped you?$"
+	.string "woken any sleepyheads?$"
 
 LavenderTown_VolunteerPokemonHouse_Text_GrandPrizeDrawingClipped::
 	.string "POKéMON FAN MAGAZINE\n"

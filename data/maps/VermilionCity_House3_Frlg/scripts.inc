@@ -33,9 +33,10 @@ VermilionCity_House3_Text_Pidgey::
 VermilionCity_House3_Text_DearPippiLetter::
 	.string "Dear PIPPI,\n"
 	.string "I hope to see you soon.\p"
-	.string "I heard SAFFRON has problems with\n"
-	.string "TEAM ROCKET.\p"
-	.string "VERMILION appears to be safe.$"
+	.string "The harbor is busy this season.\n"
+	.string "Ships come in every morning.\p"
+	.string "Bring your CLEFAIRY when you visit.\n"
+	.string "The kids would love to meet it!$"
 
 VermilionCity_House3_Text_SendMyPidgeyToUnionRoom::
 	.string "I want to exchange MAIL with all\n"

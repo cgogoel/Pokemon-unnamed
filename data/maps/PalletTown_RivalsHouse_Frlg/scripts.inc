@@ -68,7 +68,7 @@ PalletTown_RivalsHouse_EventScript_Daisy::
 	famechecker FAMECHECKER_DAISY, FCPICKSTATE_COLORED, UpdatePickStateFromSpecialVar8005
 	goto_if_eq VAR_STORY_ACT, STORY_ACT_CHILDHOOD, PalletTown_RivalsHouse_EventScript_DaisyAct1
 	goto_if_set FLAG_SYS_GAME_CLEAR, PalletTown_RivalsHouse_EventScript_GroomMon
-	msgbox PalletTown_RivalsHouse_Text_HiBrothersAtLab
+	msgbox PalletTown_RivalsHouse_Text_HiBrotherOutAllDay
 	closemessage
 	applymovement LOCALID_DAISY, Common_Movement_FaceOriginalDirection
 	waitmovement 0
@@ -168,10 +168,13 @@ PalletTown_RivalsHouse_EventScript_Picture::
 	msgbox PalletTown_RivalsHouse_Text_LovelyAndSweetClefairy, MSGBOX_SIGN
 	end
 
-PalletTown_RivalsHouse_Text_HiBrothersAtLab::
-	.string "DAISY: Hi, {PLAYER}!\p"
-	.string "My brother, {RIVAL}, is out at\n"
-	.string "Grandpa's LAB.$"
+PalletTown_RivalsHouse_Text_HiBrotherOutAllDay::
+	.string "DAISY: Hi, {PLAYER}! It's been\n"
+	.string "a while, hasn't it?\p"
+	.string "My brother's out all day now,\n"
+	.string "chasing POKéMON in the tall grass.\p"
+	.string "He only comes home when he's\n"
+	.string "hungry!$"
 
 PalletTown_RivalsHouse_Text_ItsBigMapOfKanto::
 	.string "It's a big map of the KANTO region.\n"
@@ -231,8 +234,8 @@ PalletTown_RivalsHouse_Text_CouldntLoveYouMore::
 
 PalletTown_RivalsHouse_Text_ItLooksVeryHappy::
 	.string "It looks very happy.\p"
-	.string "I wish {RIVAL} could see this and\n"
-	.string "learn something from it.$"
+	.string "You must spend a lot of time\n"
+	.string "together. It shows!$"
 
 PalletTown_RivalsHouse_Text_ItsQuiteFriendly::
 	.string "It's quite friendly with you.\n"

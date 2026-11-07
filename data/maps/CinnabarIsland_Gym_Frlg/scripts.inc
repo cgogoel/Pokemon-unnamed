@@ -837,7 +837,7 @@ CinnabarIsland_Gym_Text_ZacPostBattle::
 
 CinnabarIsland_Gym_Text_GymGuyAdvice::
 	.string "Yo!\n"
-	.string "Champ in the making!\p"
+	.string "Feeling the heat already?\p"
 	.string "The hotheaded BLAINE is a FIRE\n"
 	.string "POKéMON pro.\p"
 	.string "Douse his spirits with water!\p"
@@ -850,15 +850,13 @@ CinnabarIsland_Gym_Text_GymGuyPostVictory::
 
 CinnabarIsland_Gym_Text_GymStatue::
 	.string "CINNABAR POKéMON GYM\n"
-	.string "LEADER: BLAINE\p"
-	.string "WINNING TRAINERS:\n"
-	.string "{RIVAL}$"
+	.string "LEADER: BLAINE$"
 
 CinnabarIsland_Gym_Text_GymStatuePlayerWon::
 	.string "CINNABAR POKéMON GYM\n"
 	.string "LEADER: BLAINE\p"
 	.string "WINNING TRAINERS:\n"
-	.string "{RIVAL}, {PLAYER}$"
+	.string "{PLAYER}$"
 
 CinnabarIsland_Gym_Text_PokemonQuizRules::
 	.string "POKéMON Quiz!\p"

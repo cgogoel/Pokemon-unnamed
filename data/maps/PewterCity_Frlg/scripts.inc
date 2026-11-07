@@ -7,431 +7,6 @@ PewterCity_OnTransition::
 	setvar VAR_MAP_SCENE_PEWTER_CITY_MUSEUM_1F, 0
 	end
 
-@ Impossible to speak to this NPC from a facing dir != DIR_EAST normally, so they arent checked
-@ Additionally, no movement script exists for facing DIR_SOUTH, which would necessitate walking out of bounds
-PewterCity_EventScript_GymGuide::
-	lock
-	faceplayer
-	msgbox PewterCity_Text_BrocksLookingForChallengersFollowMe
-	closemessage
-	playbgm MUS_FOLLOW_ME, 0
-	call_if_eq VAR_FACING, DIR_EAST, PewterCity_EventScript_WalkToGymEast
-	msgbox PewterCity_Text_GoTakeOnBrock
-	closemessage
-	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GymGuideExit
-	waitmovement 0
-	fadedefaultbgm
-	removeobject LOCALID_PEWTER_GYM_GUIDE
-	clearflag FLAG_HIDE_PEWTER_CITY_GYM_GUIDE
-	release
-	end
-
-PewterCity_EventScript_WalkToGymEast::
-	applymovement LOCALID_PLAYER, PewterCity_Movement_PlayerWaitForGuideEast
-	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GuideMoveToLeadEast
-	waitmovement 0
-	applymovement LOCALID_PLAYER, PewterCity_Movement_PlayerWalkToGymEast
-	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GuideWalkToGymEast
-	waitmovement 0
-	return
-
-@ Unused
-PewterCity_EventScript_WalkToGymWest::
-	applymovement LOCALID_PLAYER, PewterCity_Movement_PlayerWaitForGuideWest
-	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GuideMoveToLeadWest
-	waitmovement 0
-	applymovement LOCALID_PLAYER, PewterCity_Movement_PlayerWalkToGymWest
-	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GuideWalkToGymWest
-	waitmovement 0
-	return
-
-@ Unused
-PewterCity_EventScript_WalkToGymNorth::
-	applymovement LOCALID_PLAYER, PewterCity_Movement_PlayerWaitForGuideNorth
-	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GuideMoveToLeadNorth
-	waitmovement 0
-	applymovement LOCALID_PLAYER, PewterCity_Movement_PlayerWalkToGymNorth
-	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GuideWalkToGymNorth
-	waitmovement 0
-	return
-
-.macro walk_to_gym
-	walk_left
-	walk_left
-	walk_left
-	walk_up
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_right
-	walk_right
-	walk_right
-	walk_right
-	walk_right
-	walk_right
-	walk_right
-	walk_right
-.endm
-
-.macro walk_to_gym_alt
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_right
-.endm
-
-PewterCity_Movement_PlayerWaitForGuideEast::
-	delay_16
-	delay_16
-	delay_4
-	walk_in_place_faster_down
-	step_end
-
-PewterCity_Movement_PlayerWalkToGymEast::
-	walk_down
-	walk_to_gym
-	step_end
-
-PewterCity_Movement_PlayerWaitForGuideWest::
-	delay_16
-	step_end
-
-PewterCity_Movement_PlayerWalkToGymWest::
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_to_gym_alt
-	step_end
-
-PewterCity_Movement_PlayerWaitForGuideNorth::
-	delay_16
-	step_end
-
-PewterCity_Movement_PlayerWalkToGymNorth::
-	walk_up
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_to_gym_alt
-	step_end
-
-PewterCity_Movement_GuideMoveToLeadEast::
-	walk_down
-	walk_left
-	walk_in_place_faster_up
-	walk_in_place_up
-	step_end
-
-PewterCity_Movement_GuideWalkToGymEast::
-	walk_to_gym
-	walk_right
-	walk_in_place_faster_left
-	step_end
-
-PewterCity_Movement_GuideMoveToLeadWest::
-	walk_in_place_right
-	step_end
-
-PewterCity_Movement_GuideWalkToGymWest::
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_to_gym_alt
-	walk_right
-	walk_in_place_faster_left
-	step_end
-
-PewterCity_Movement_GuideMoveToLeadNorth::
-	walk_in_place_down
-	step_end
-
-PewterCity_Movement_GuideWalkToGymNorth::
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_to_gym_alt
-	walk_right
-	walk_in_place_faster_left
-	step_end
-
-PewterCity_Movement_GymGuideExit::
-	walk_down
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	step_end
-
-PewterCity_EventScript_GymGuideTriggerTop::
-	lockall
-	setvar VAR_TEMP_1, 0
-	goto PewterCity_EventScript_GymGuideTrigger
-	end
-
-PewterCity_EventScript_GymGuideTriggerMid::
-	lockall
-	setvar VAR_TEMP_1, 1
-	goto PewterCity_EventScript_GymGuideTrigger
-	end
-
-PewterCity_EventScript_GymGuideTriggerBottom::
-	lockall
-	setvar VAR_TEMP_1, 2
-	goto PewterCity_EventScript_GymGuideTrigger
-	end
-
-@ This trigger is inaccessible and its corresponding movement script isnt linked
-PewterCity_EventScript_GymGuideTriggerRight::
-	lockall
-	setvar VAR_TEMP_1, 3
-	goto PewterCity_EventScript_GymGuideTrigger
-	end
-
-@ Act 2's final project: the road home passes through Pewter both ways, so the guide doesn't lead the player
-@ to the gym (Act2Road_IsRouteOpen)
-PewterCity_EventScript_GymGuideTrigger::
-	specialvar VAR_RESULT, Act2Road_IsRouteOpenSpecial
-	goto_if_eq VAR_RESULT, TRUE, PewterCity_EventScript_GymGuideRouteOpen
-	textcolor NPC_TEXT_COLOR_MALE
-	msgbox PewterCity_Text_BrocksLookingForChallengersFollowMe
-	closemessage
-	playbgm MUS_FOLLOW_ME, 0
-	call_if_eq VAR_TEMP_1, 0, PewterCity_EventScript_WalkToGymTop
-	call_if_eq VAR_TEMP_1, 1, PewterCity_EventScript_WalkToGymMid
-	call_if_eq VAR_TEMP_1, 2, PewterCity_EventScript_WalkToGymBottom
-	msgbox PewterCity_Text_GoTakeOnBrock
-	closemessage
-	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GymGuideExit
-	waitmovement 0
-	fadedefaultbgm
-	removeobject LOCALID_PEWTER_GYM_GUIDE
-	clearflag FLAG_HIDE_PEWTER_CITY_GYM_GUIDE
-	releaseall
-	end
-
-PewterCity_EventScript_GymGuideRouteOpen::
-	releaseall
-	end
-
-PewterCity_EventScript_WalkToGymTop::
-	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GuideMoveToLeadTop
-	waitmovement 0
-	applymovement LOCALID_PLAYER, PewterCity_Movement_PlayerWalkToGymTop
-	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GuideWalkToGymTop
-	waitmovement 0
-	return
-
-PewterCity_EventScript_WalkToGymMid::
-	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GuideMoveToLeadMid
-	waitmovement 0
-	applymovement LOCALID_PLAYER, PewterCity_Movement_PlayerWalkToGymMid
-	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GuideWalkToGymMid
-	waitmovement 0
-	return
-
-PewterCity_EventScript_WalkToGymBottom::
-	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GuideMoveToLeadBottom
-	waitmovement 0
-	applymovement LOCALID_PLAYER, PewterCity_Movement_PlayerWalkToGymBottom
-	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GuideWalkToGymBottom
-	waitmovement 0
-	return
-
-@ Unused
-PewterCity_EventScript_WalkToGymRight::
-	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GuideApproachPlayerRight
-	waitmovement 0
-	applymovement LOCALID_PLAYER, PewterCity_Movement_PlayerWalkToGymRight
-	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GuideWalkToGymRight
-	waitmovement 0
-	return
-
-PewterCity_Movement_PlayerWalkToGymTop::
-	walk_left
-	walk_to_gym
-	step_end
-
-PewterCity_Movement_PlayerWalkToGymMid::
-	walk_up
-	walk_left
-	walk_to_gym
-	step_end
-
-PewterCity_Movement_PlayerWalkToGymBottom::
-	walk_up
-	walk_up
-	walk_left
-	walk_to_gym
-	step_end
-
-PewterCity_Movement_PlayerWalkToGymRight::
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_up
-	walk_left
-	walk_left
-	walk_left
-	walk_up
-	walk_up
-	walk_to_gym_alt
-	step_end
-
-PewterCity_Movement_GuideMoveToLeadTop::
-	walk_left
-	walk_down
-	walk_in_place_faster_right
-	walk_in_place_right
-	step_end
-
-PewterCity_Movement_GuideMoveToLeadMid::
-	walk_down
-	walk_in_place_down
-	step_end
-
-PewterCity_Movement_GuideMoveToLeadBottom::
-	walk_down
-	walk_down
-	walk_in_place_down
-	step_end
-
-PewterCity_Movement_GuideApproachPlayerRight::
-	walk_down
-	walk_down
-	walk_right
-	walk_down
-	walk_right
-	walk_in_place_right
-	step_end
-
-PewterCity_Movement_GuideWalkToGymTop::
-	walk_to_gym
-	walk_right
-	walk_in_place_faster_left
-	step_end
-
-PewterCity_Movement_GuideWalkToGymMid::
-	walk_left
-	walk_to_gym
-	walk_right
-	walk_in_place_faster_left
-	step_end
-
-PewterCity_Movement_GuideWalkToGymBottom::
-	walk_up
-	walk_left
-	walk_to_gym
-	walk_right
-	walk_in_place_faster_left
-	step_end
-
-PewterCity_Movement_GuideWalkToGymRight::
-	walk_left
-	walk_left
-	walk_left
-	walk_up
-	walk_left
-	walk_left
-	walk_left
-	walk_up
-	walk_up
-	walk_to_gym_alt
-	walk_right
-	walk_in_place_faster_left
-	step_end
-
 PewterCity_EventScript_Lass::
 	msgbox PewterCity_Text_ClefairyCameFromMoon, MSGBOX_NPC
 	end
@@ -641,7 +216,7 @@ PewterCity_EventScript_TrainerTips::
 	end
 
 PewterCity_EventScript_PoliceNotice::
-	msgbox PewterCity_Text_CallPoliceIfInfoOnThieves, MSGBOX_SIGN
+	msgbox PewterCity_Text_FossilDiggingPermitNotice, MSGBOX_SIGN
 	end
 
 PewterCity_EventScript_MuseumSign::
@@ -699,12 +274,12 @@ PewterCity_EventScript_AideGiveRunningShoes::
 	waitmovement 0
 	applymovement LOCALID_PEWTER_AIDE, Common_Movement_Delay48
 	waitmovement 0
-	msgbox PewterCity_Text_OhPlayer
+	msgbox PewterCity_Text_OhHello
 	call_if_eq VAR_TEMP_1, 0, PewterCity_EventScript_AideApproachPlayer0
 	call_if_eq VAR_TEMP_1, 1, PewterCity_EventScript_AideApproachPlayer1
 	call_if_eq VAR_TEMP_1, 2, PewterCity_EventScript_AideApproachPlayer2
 	call_if_eq VAR_TEMP_1, 3, PewterCity_EventScript_AideApproachPlayer3
-	msgbox PewterCity_Text_AskedToDeliverThis
+	msgbox PewterCity_Text_TryTheseRunningShoes
 	textcolor NPC_TEXT_COLOR_NEUTRAL
 	playfanfare MUS_RG_OBTAIN_KEY_ITEM
 	message PewterCity_Text_ReceivedRunningShoesFromAide
@@ -722,10 +297,6 @@ PewterCity_EventScript_AideGiveRunningShoes::
 	call_if_eq VAR_TEMP_1, 1, PewterCity_EventScript_AideExit1
 	call_if_eq VAR_TEMP_1, 2, PewterCity_EventScript_AideExit2
 	call_if_eq VAR_TEMP_1, 3, PewterCity_EventScript_AideExit3
-	delay 30
-	textcolor NPC_TEXT_COLOR_NEUTRAL
-	msgbox PewterCity_Text_RunningShoesLetterFromMom
-	closemessage
 	removeobject LOCALID_PEWTER_AIDE
 	setflag FLAG_SYS_B_DASH
 	setvar VAR_MAP_SCENE_PEWTER_CITY, 2
@@ -845,11 +416,6 @@ PewterCity_Movement_AideExit3::
 	walk_left
 	step_end
 
-@ Unused
-PewterCity_Movement_WalkInPlaceLeft::
-	walk_in_place_left
-	step_end
-
 Text_DreamEaterTeach::
 	.string "Yawn!\n"
 	.string "I must have dozed off in the sun.\p"
@@ -914,26 +480,17 @@ PewterCity_Text_SprayingRepelToKeepWildMonsOut::
 	.string "I'm spraying REPEL to keep wild\n"
 	.string "POKéMON out of my garden!$"
 
-PewterCity_Text_BrocksLookingForChallengersFollowMe::
-	.string "You're a TRAINER, right?\p"
-	.string "BROCK's looking for new\n"
-	.string "challengers. Follow me!$"
-
-PewterCity_Text_GoTakeOnBrock::
-	.string "If you have the right stuff,\n"
-	.string "go take on BROCK!$"
-
 PewterCity_Text_TrainerTipsEarningEXP::
 	.string "TRAINER TIPS\p"
 	.string "All POKéMON that appear in battle,\n"
 	.string "however briefly, earn EXP Points.$"
 
-PewterCity_Text_CallPoliceIfInfoOnThieves::
+PewterCity_Text_FossilDiggingPermitNotice::
 	.string "NOTICE!\p"
-	.string "Thieves have been stealing POKéMON\n"
-	.string "fossils from MT. MOON.\p"
-	.string "Please call the PEWTER POLICE if\n"
-	.string "you have any information.$"
+	.string "MT. MOON's fossils belong to\n"
+	.string "everyone. Dig only with a permit\l"
+	.string "from the MUSEUM.\p"
+	.string "PEWTER POLICE$"
 
 PewterCity_Text_MuseumOfScience::
 	.string "PEWTER MUSEUM OF SCIENCE$"
@@ -947,14 +504,16 @@ PewterCity_Text_CitySign::
 	.string "PEWTER CITY\n"
 	.string "A Stone Gray City$"
 
-PewterCity_Text_OhPlayer::
-	.string "Oh, {PLAYER}{KUN}!$"
+PewterCity_Text_OhHello::
+	.string "Oh! Hello there!$"
 
-PewterCity_Text_AskedToDeliverThis::
-	.string "I'm glad I caught up to you.\n"
-	.string "I'm PROF. OAK's AIDE.\p"
-	.string "I've been asked to deliver this,\n"
-	.string "so here you go.$"
+PewterCity_Text_TryTheseRunningShoes::
+	.string "I'm an AIDE from PROF. OAK's LAB.\n"
+	.string "We're testing a new kind of shoe.\p"
+	.string "They're made for TRAINERS who\n"
+	.string "walk the long routes all day.\p"
+	.string "Would you try a pair for us?\n"
+	.string "Here you go.$"
 
 PewterCity_Text_ReceivedRunningShoesFromAide::
 	.string "{PLAYER} received the\n"
@@ -969,16 +528,7 @@ PewterCity_Text_ExplainRunningShoes::
 	.string "But only where there's room to run!$"
 
 PewterCity_Text_MustBeGoingBackToLab::
-	.string "Well, I must be going back to\n"
-	.string "the LAB.\p"
-	.string "Bye-bye!$"
-
-PewterCity_Text_RunningShoesLetterFromMom::
-	.string "There's a letter attached…\p"
-	.string "Dear {PLAYER},\p"
-	.string "Here is a pair of RUNNING SHOES\n"
-	.string "for my beloved challenger.\p"
-	.string "Remember, I'll always cheer for\n"
-	.string "you! Don't ever give up!\p"
-	.string "From Mom$"
-
+	.string "Tell me how they hold up if\n"
+	.string "you're ever in PALLET TOWN.\p"
+	.string "Well, I must be getting back to\n"
+	.string "the LAB. Bye-bye!$"

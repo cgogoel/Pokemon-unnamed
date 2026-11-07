@@ -107,7 +107,8 @@ VictoryRoad_2F_Text_NelsonDefeat::
 	.string "You got me!$"
 
 VictoryRoad_2F_Text_NelsonPostBattle::
-	.string "{RIVAL} also came through here.$"
+	.string "I juggle in the caves to keep my\n"
+	.string "hands sharp. The echo's nice, too.$"
 
 VictoryRoad_2F_Text_VincentIntro::
 	.string "Come on!\n"

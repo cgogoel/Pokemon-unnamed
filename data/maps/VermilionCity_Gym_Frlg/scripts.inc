@@ -211,17 +211,12 @@ VermilionCity_Gym_EventScript_LtSurge::
 
 VermilionCity_Gym_EventScript_DefeatedLtSurge::
 	famechecker FAMECHECKER_LTSURGE, 1
-	call_if_unset FLAG_GOT_HM05, VermilionCity_Gym_EventScript_ShowOaksAide
 	clearflag FLAG_HIDE_FAME_CHECKER_LT_SURGE_JOURNAL
 	setflag FLAG_DEFEATED_LT_SURGE
 	setflag FLAG_BADGE03_GET
 	set_gym_trainers_frlg 3
 	goto VermilionCity_Gym_EventScript_GiveTM34
 	end
-
-VermilionCity_Gym_EventScript_ShowOaksAide::
-	clearflag FLAG_HIDE_VERMILION_CITY_OAKS_AIDE
-	return
 
 VermilionCity_Gym_EventScript_GiveTM34::
 	msgbox VermilionCity_Gym_Text_ExplainThunderBadgeTakeThis
@@ -371,7 +366,7 @@ VermilionCity_Gym_Text_DwaynePostBattle::
 
 VermilionCity_Gym_Text_GymGuyAdvice::
 	.string "Yo!\n"
-	.string "Champ in the making!\p"
+	.string "Here to take on the GYM?\p"
 	.string "LT. SURGE has a nickname.\p"
 	.string "People refer to him as the\n"
 	.string "Lightning American!\p"
@@ -390,15 +385,13 @@ VermilionCity_Gym_Text_GymGuyPostVictory::
 
 VermilionCity_Gym_Text_GymStatue::
 	.string "VERMILION POKéMON GYM\n"
-	.string "LEADER: LT. SURGE\p"
-	.string "WINNING TRAINERS:\n"
-	.string "{RIVAL}$"
+	.string "LEADER: LT. SURGE$"
 
 VermilionCity_Gym_Text_GymStatuePlayerWon::
 	.string "VERMILION POKéMON GYM\n"
 	.string "LEADER: LT. SURGE\p"
 	.string "WINNING TRAINERS:\n"
-	.string "{RIVAL}, {PLAYER}$"
+	.string "{PLAYER}$"
 
 VermilionCity_Gym_Text_NopeOnlyTrashHere::
 	.string "Nope!\n"

@@ -7,16 +7,7 @@ SilphCo_10F_OnLoad::
 	end
 
 SilphCo_10F_EventScript_WorkerF::
-	lock
-	faceplayer
-	goto_if_ge VAR_MAP_SCENE_SILPH_CO_11F, 1, SilphCo_10F_EventScript_WorkerFRocketsGone
-	msgbox SilphCo_10F_Text_WaaaImScared
-	release
-	end
-
-SilphCo_10F_EventScript_WorkerFRocketsGone::
-	msgbox SilphCo_10F_Text_KeepMeCryingASecret
-	release
+	msgbox SilphCo_10F_Text_ScaredOfThePresentation, MSGBOX_NPC
 	end
 
 SilphCo_10F_EventScript_FloorSign::
@@ -54,11 +45,11 @@ SilphCo_10F_Text_TravisPostBattle::
 	.string "Are you satisfied with beating me?\n"
 	.string "Then go on home!$"
 
-SilphCo_10F_Text_WaaaImScared::
+SilphCo_10F_Text_ScaredOfThePresentation::
 	.string "Waaaaa!\n"
-	.string "I'm scared!$"
-
-SilphCo_10F_Text_KeepMeCryingASecret::
+	.string "I'm scared!\p"
+	.string "I present my project to the\n"
+	.string "PRESIDENT upstairs in an hour!\p"
 	.string "About me crying…\n"
 	.string "Please keep it a secret.$"
 

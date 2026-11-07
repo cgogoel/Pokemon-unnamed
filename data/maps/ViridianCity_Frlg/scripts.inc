@@ -85,20 +85,7 @@ ViridianCity_EventScript_OldManGymLeaderReturned::
 ViridianCity_EventScript_TutorialOldMan::
 	lock
 	faceplayer
-	goto_if_set FLAG_BADGE01_GET, ViridianCity_EventScript_AskIfTeachyTVHelpful
 	goto ViridianCity_EventScript_TutorialCompleted
-
-ViridianCity_EventScript_AskIfTeachyTVHelpful::
-	msgbox ViridianCity_Text_HowsTeachyTVHelping, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, NO, ViridianCity_EventScript_TeachyTVNotHelpful
-	msgbox ViridianCity_Text_MyGrandsonOnTheShow
-	release
-	end
-
-ViridianCity_EventScript_TeachyTVNotHelpful::
-	msgbox ViridianCity_Text_TooBusyForTeachyTV
-	release
-	end
 
 ViridianCity_EventScript_TutorialCompleted::
 	msgbox ViridianCity_Text_WeakenMonsFirstToCatch
@@ -126,16 +113,7 @@ ViridianCity_EventScript_YoungsterDeclineExplanation::
 ViridianCity_EventScript_Woman::
 	lock
 	faceplayer
-	goto_if_eq VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN, 0, ViridianCity_EventScript_WomanRoadBlocked
 	msgbox ViridianCity_Text_GoShoppingInPewterOccasionally
-	release
-	end
-
-ViridianCity_EventScript_WomanRoadBlocked::
-	msgbox ViridianCity_Text_GrandpaHasntHadCoffeeYet
-	closemessage
-	applymovement LOCALID_VIRIDIAN_WOMAN, Common_Movement_FaceOriginalDirection
-	waitmovement 0
 	release
 	end
 
@@ -169,12 +147,6 @@ ViridianCity_Text_ExplainCaterpieWeedle::
 	.string "Watch that your POKéMON aren't\n"
 	.string "stabbed by WEEDLE's POISON STING.$"
 
-ViridianCity_Text_GrandpaHasntHadCoffeeYet::
-	.string "Oh, Grandpa!\n"
-	.string "Don't be so mean!\p"
-	.string "I'm so sorry.\n"
-	.string "He hasn't had his coffee yet.$"
-
 ViridianCity_Text_GoShoppingInPewterOccasionally::
 	.string "I go shopping in PEWTER CITY\n"
 	.string "occasionally.\p"
@@ -182,34 +154,13 @@ ViridianCity_Text_GoShoppingInPewterOccasionally::
 	.string "VIRIDIAN FOREST when I go.$"
 
 ViridianCity_Text_WeakenMonsFirstToCatch::
-	.string "Well, now, I've had my coffee, and\n"
-	.string "that's what I need to get going!\p"
-	.string "But I made it too strong.\n"
-	.string "It gave me a headache…\p"
-	.string "Incidentally, are you filling your\n"
-	.string "POKéDEX?\p"
-	.string "At first, focus on weakening the\n"
-	.string "POKéMON before trying to catch it.$"
-
-ViridianCity_Text_HowsTeachyTVHelping::
-	.string "Well, now, I've had my coffee, and\n"
-	.string "that's what I need to get going!\p"
-	.string "But I made it too strong.\n"
-	.string "It gave me a headache…\p"
-	.string "Incidentally, is my old TEACHY TV\n"
-	.string "helping you?$"
-
-ViridianCity_Text_MyGrandsonOnTheShow::
-	.string "Wahaha!\n"
-	.string "It's my grandson on the show!\p"
-	.string "Since he's the one doing the\n"
-	.string "teaching, you're bound to learn.$"
-
-ViridianCity_Text_TooBusyForTeachyTV::
-	.string "Hm… You're too busy to not even\n"
-	.string "have the time for TEACHY TV…\p"
-	.string "Time is money, and neither should\n"
-	.string "be ill spent…$"
+	.string "Ah, the morning walk and a cup of\n"
+	.string "coffee. Nothing better!\p"
+	.string "I've caught POKéMON round here\n"
+	.string "for sixty years, you know.\p"
+	.string "Here's my secret: weaken the\n"
+	.string "POKéMON first, then throw the\l"
+	.string "POKé BALL. Patience does the rest.$"
 
 ViridianCity_Text_CitySign::
 	.string "VIRIDIAN CITY \n"

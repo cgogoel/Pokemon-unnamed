@@ -16,7 +16,6 @@ IndigoPlateau_Exterior_OnFrame::
 	map_script_2 VAR_MAP_SCENE_INDIGO_PLATEAU_EXTERIOR, 1, IndigoPlateau_Exterior_EventScript_Credits
 	.2byte 0
 
-
 @ After beating the champion, you are warped to the main
 @ entrance of Indigo Plateau. This script starts running
 @ immediately after your walking animation.
@@ -25,38 +24,11 @@ IndigoPlateau_Exterior_EventScript_Credits::
 	lockall
 	delay 105
 
-	@ Rival exits building. Spawn a dummy object to lock the camera.
-	opendoor 11, 6
-	waitdooranim
+	@ Spawn a dummy object to lock the camera. The player looks back at the LEAGUE a while.
 	special SpawnCameraObject
-	addobject LOCALID_CREDITS_RIVAL
-	applymovement LOCALID_CREDITS_RIVAL, IndigoPlateau_Exterior_Movement_RivalExitBuilding
-	applymovement LOCALID_PLAYER, IndigoPlateau_Exterior_Movement_PushPlayerOutOfWay
-	waitmovement 0
-	closedoor 11, 6
-	waitdooranim
-
-	@ Rival runs off
-	applymovement LOCALID_PLAYER, IndigoPlateau_Exterior_Movement_PlayerWatchRivalLeave
-	applymovement LOCALID_CREDITS_RIVAL, IndigoPlateau_Exterior_Movement_RivalLeave
-	waitmovement 0
-	delay 100
-
-	@ Oak exits building
-	opendoor 11, 6
-	waitdooranim
-	addobject LOCALID_CREDITS_PROF_OAK
-	applymovement LOCALID_CREDITS_PROF_OAK, IndigoPlateau_Exterior_Movement_OakExitBuilding
-	waitmovement 0
-	closedoor 11, 6
-	waitdooranim
-	delay 160
-
-	@ Oak looks at player, then walks off
-	applymovement LOCALID_PLAYER, IndigoPlateau_Exterior_Movement_PlayerWatchOakLeave
-	applymovement LOCALID_CREDITS_PROF_OAK, IndigoPlateau_Exterior_Movement_OakLeave
-	waitmovement 0
-	delay 100
+	delay 255
+	delay 255
+	delay 120
 
 	@ Player begin to leave
 	applymovement LOCALID_PLAYER, IndigoPlateau_Exterior_Movement_PlayerBeginLeave
@@ -75,8 +47,6 @@ IndigoPlateau_Exterior_EventScript_Credits::
 	@ Reset the map state and roll the credits
 	special RemoveCameraObject
 	setvar VAR_MAP_SCENE_INDIGO_PLATEAU_EXTERIOR, 0
-	removeobject LOCALID_CREDITS_RIVAL
-	removeobject LOCALID_CREDITS_PROF_OAK
 	special CB2_StartCreditsSequence
 	waitstate
 	releaseall
@@ -92,34 +62,6 @@ IndigoPlateau_Exterior_Movement_PlayerLeave::
 	step_end
 
 @ Unused
-IndigoPlateau_Exterior_Movement_PlayerExitBuilding::
-	walk_down
-	walk_down
-	step_end
-
-IndigoPlateau_Exterior_Movement_PlayerWatchRivalLeave::
-	delay_16
-	delay_4
-	walk_in_place_faster_down
-	step_end
-
-IndigoPlateau_Exterior_Movement_PlayerWatchOakLeave::
-	delay_8
-	walk_in_place_faster_right
-	delay_16
-	delay_16
-	delay_16
-	delay_16
-	delay_16
-	delay_16
-	delay_16
-	delay_16
-	delay_16
-	delay_16
-	delay_16
-	walk_in_place_faster_down
-	step_end
-
 IndigoPlateau_Exterior_Movement_PlayerBeginLeave::
 	walk_right
 	delay_16
@@ -133,54 +75,6 @@ IndigoPlateau_Exterior_Movement_PlayerTurnAround::
 	walk_in_place_faster_down
 	step_end
 
-IndigoPlateau_Exterior_Movement_PushPlayerOutOfWay::
-	face_right
-	lock_facing_direction
-	walk_left
-	unlock_facing_direction
-	step_end
-
 IndigoPlateau_Exterior_Movement_PlayerFaceLeague::
 	walk_in_place_faster_up
-	step_end
-
-IndigoPlateau_Exterior_Movement_RivalLeave::
-	walk_fast_down
-	walk_fast_down
-	walk_fast_down
-	walk_fast_down
-	walk_fast_down
-	walk_fast_down
-	walk_fast_down
-	step_end
-
-IndigoPlateau_Exterior_Movement_RivalExitBuilding::
-	walk_fast_down
-	step_end
-
-IndigoPlateau_Exterior_Movement_OakLeave::
-	walk_in_place_faster_left
-	delay_16
-	delay_16
-	delay_16
-	delay_16
-	delay_16
-	delay_16
-	delay_16
-	delay_16
-	delay_16
-	delay_16
-	walk_in_place_faster_down
-	delay_16
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	step_end
-
-IndigoPlateau_Exterior_Movement_OakExitBuilding::
-	walk_down
 	step_end

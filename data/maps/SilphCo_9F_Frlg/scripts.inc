@@ -12,16 +12,10 @@ SilphCo_9F_OnLoad::
 SilphCo_9F_EventScript_HealWoman::
 	lock
 	faceplayer
-	goto_if_ge VAR_MAP_SCENE_SILPH_CO_11F, 1, SilphCo_9F_EventScript_HealWomanRocketsGone
 	msgbox SilphCo_9F_Text_YouShouldTakeQuickNap
 	closemessage
 	call Common_EventScript_OutOfCenterPartyHeal
-	msgbox SilphCo_9F_Text_DontGiveUp
-	release
-	end
-
-SilphCo_9F_EventScript_HealWomanRocketsGone::
-	msgbox SilphCo_9F_Text_ThankYouSoMuch
+	msgbox SilphCo_9F_Text_ComeBackAnytime
 	release
 	end
 
@@ -45,14 +39,13 @@ SilphCo_9F_EventScript_Grunt2::
 	end
 
 SilphCo_9F_Text_YouShouldTakeQuickNap::
+	.string "This is the staff rest room.\p"
 	.string "You look tired.\n"
 	.string "You should take a quick nap.$"
 
-SilphCo_9F_Text_DontGiveUp::
-	.string "Don't give up!$"
-
-SilphCo_9F_Text_ThankYouSoMuch::
-	.string "Thank you so much.$"
+SilphCo_9F_Text_ComeBackAnytime::
+	.string "All better? Come back anytime.\n"
+	.string "Just don't tell my supervisor!$"
 
 SilphCo_9F_Text_Grunt1Intro::
 	.string "Your POKéMON seem to adore you,\n"

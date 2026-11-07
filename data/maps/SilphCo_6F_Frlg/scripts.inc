@@ -7,68 +7,23 @@ SilphCo_6F_OnLoad::
 	end
 
 SilphCo_6F_EventScript_WorkerM2::
-	lock
-	faceplayer
-	goto_if_ge VAR_MAP_SCENE_SILPH_CO_11F, 1, SilphCo_6F_EventScript_WorkerM2RocketsGone
-	msgbox SilphCo_6F_Text_TargetedSilphForOurMonProducts
-	release
-	end
-
-SilphCo_6F_EventScript_WorkerM2RocketsGone::
-	msgbox SilphCo_6F_Text_ComeWorkForSilphWhenYoureOlder
-	release
+	msgbox SilphCo_6F_Text_ComeWorkForSilphWhenYoureOlder, MSGBOX_NPC
 	end
 
 SilphCo_6F_EventScript_WorkerM3::
-	lock
-	faceplayer
-	goto_if_ge VAR_MAP_SCENE_SILPH_CO_11F, 1, SilphCo_6F_EventScript_WorkerM3RocketsGone
-	msgbox SilphCo_6F_Text_RocketsTookOverBuilding
-	release
-	end
-
-SilphCo_6F_EventScript_WorkerM3RocketsGone::
-	msgbox SilphCo_6F_Text_BetterGetBackToWork
-	release
+	msgbox SilphCo_6F_Text_BetterGetBackToWork, MSGBOX_NPC
 	end
 
 SilphCo_6F_EventScript_WorkerM1::
-	lock
-	faceplayer
-	goto_if_ge VAR_MAP_SCENE_SILPH_CO_11F, 1, SilphCo_6F_EventScript_WorkerM1RocketsGone
-	msgbox SilphCo_6F_Text_HelpMePlease
-	release
-	end
-
-SilphCo_6F_EventScript_WorkerM1RocketsGone::
-	msgbox SilphCo_6F_Text_WeGotEngaged
-	release
+	msgbox SilphCo_6F_Text_WeGotEngaged, MSGBOX_NPC
 	end
 
 SilphCo_6F_EventScript_WorkerF1::
-	lock
-	faceplayer
-	goto_if_ge VAR_MAP_SCENE_SILPH_CO_11F, 1, SilphCo_6F_EventScript_WorkerF1RocketsGone
-	msgbox SilphCo_6F_Text_ThatManIsSuchACoward
-	release
-	end
-
-SilphCo_6F_EventScript_WorkerF1RocketsGone::
-	msgbox SilphCo_6F_Text_NeedsMeToLookAfterHim
-	release
+	msgbox SilphCo_6F_Text_NeedsMeToLookAfterHim, MSGBOX_NPC
 	end
 
 SilphCo_6F_EventScript_WorkerF2::
-	lock
-	faceplayer
-	goto_if_ge VAR_MAP_SCENE_SILPH_CO_11F, 1, SilphCo_6F_EventScript_WorkerF2RocketsGone
-	msgbox SilphCo_6F_Text_RocketsTryingToConquerWorld
-	release
-	end
-
-SilphCo_6F_EventScript_WorkerF2RocketsGone::
-	msgbox SilphCo_6F_Text_RocketsRanAwayBecauseOfYou
-	release
+	msgbox SilphCo_6F_Text_ShippingToEveryMart, MSGBOX_NPC
 	end
 
 SilphCo_6F_EventScript_FloorSign::
@@ -90,44 +45,32 @@ SilphCo_6F_EventScript_Grunt2::
 	msgbox SilphCo_6F_Text_Grunt2PostBattle, MSGBOX_AUTOCLOSE
 	end
 
-SilphCo_6F_Text_RocketsTookOverBuilding::
-	.string "The ROCKETS came and took over\n"
-	.string "the building!$"
-
 SilphCo_6F_Text_BetterGetBackToWork::
-	.string "Well, better get back to work.$"
-
-SilphCo_6F_Text_HelpMePlease::
-	.string "Oh dear, oh dear.\n"
-	.string "Help me, please!$"
+	.string "Lunch break's over already?\p"
+	.string "Well, better get back to work.\n"
+	.string "These forms won't file themselves.$"
 
 SilphCo_6F_Text_WeGotEngaged::
-	.string "We got engaged.\n"
-	.string "Heheh!$"
-
-SilphCo_6F_Text_ThatManIsSuchACoward::
-	.string "That man next to me…\n"
-	.string "He's such a coward!$"
+	.string "We got engaged last week.\n"
+	.string "Heheh!\p"
+	.string "We met at the company picnic\n"
+	.string "on ROUTE 8!$"
 
 SilphCo_6F_Text_NeedsMeToLookAfterHim::
-	.string "He's so helpless, he needed\n"
+	.string "He forgot his lunch again today.\p"
+	.string "He's so helpless, he needs\n"
 	.string "someone like me to look after him.$"
 
-SilphCo_6F_Text_RocketsTryingToConquerWorld::
-	.string "TEAM ROCKET is trying to conquer\n"
-	.string "the world with POKéMON.$"
-
-SilphCo_6F_Text_RocketsRanAwayBecauseOfYou::
-	.string "TEAM ROCKET ran away, and it's all\n"
-	.string "because of you!$"
-
-SilphCo_6F_Text_TargetedSilphForOurMonProducts::
-	.string "They must have targeted SILPH for\n"
-	.string "our POKéMON products.$"
+SilphCo_6F_Text_ShippingToEveryMart::
+	.string "Our department ships SILPH goods\n"
+	.string "to every POKéMON MART in KANTO.\p"
+	.string "If a POTION's late, the phone\n"
+	.string "on my desk never stops ringing!$"
 
 SilphCo_6F_Text_ComeWorkForSilphWhenYoureOlder::
-	.string "Come work for SILPH when you\n"
-	.string "get older.$"
+	.string "Visiting SILPH, are you?\p"
+	.string "Study hard, and come work for us\n"
+	.string "when you're older.$"
 
 SilphCo_6F_Text_Grunt1Intro::
 	.string "I am one of the four ROCKET\n"

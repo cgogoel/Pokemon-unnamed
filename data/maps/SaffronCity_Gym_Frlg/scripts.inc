@@ -229,8 +229,8 @@ SaffronCity_Gym_Text_PrestonPostBattle::
 	.string "read your mind!$"
 
 SaffronCity_Gym_Text_GymGuyAdvice::
-	.string "Yo!\n"
-	.string "Champ in the making!\p"
+	.string "Yo! Here to take on SABRINA?\n"
+	.string "Let me give you some advice.\p"
 	.string "SABRINA's POKéMON use psychic\n"
 	.string "power instead of force.\p"
 	.string "FIGHTING POKéMON are especially\n"
@@ -245,13 +245,11 @@ SaffronCity_Gym_Text_GymGuyPostVictory::
 
 SaffronCity_Gym_Text_GymStatue::
 	.string "SAFFRON POKéMON GYM\n"
-	.string "LEADER: SABRINA\p"
-	.string "WINNING TRAINERS:\n"
-	.string "{RIVAL}$"
+	.string "LEADER: SABRINA$"
 
 SaffronCity_Gym_Text_GymStatuePlayerWon::
 	.string "SAFFRON POKéMON GYM\n"
 	.string "LEADER: SABRINA\p"
 	.string "WINNING TRAINERS:\n"
-	.string "{RIVAL}, {PLAYER}$"
+	.string "{PLAYER}$"
 

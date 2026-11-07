@@ -9,16 +9,7 @@ SilphCo_5F_OnLoad::
 	end
 
 SilphCo_5F_EventScript_WorkerM::
-	lock
-	faceplayer
-	goto_if_ge VAR_MAP_SCENE_SILPH_CO_11F, 1, SilphCo_5F_EventScript_WorkerMRocketsGone
-	msgbox SilphCo_5F_Text_RocketsInUproarAboutIntruder
-	release
-	end
-
-SilphCo_5F_EventScript_WorkerMRocketsGone::
-	msgbox SilphCo_5F_Text_YoureOurHeroThankYou
-	release
+	msgbox SilphCo_5F_Text_LostMyCardKeyAgain, MSGBOX_NPC
 	end
 
 SilphCo_5F_EventScript_PokemonReport1::
@@ -57,14 +48,11 @@ SilphCo_5F_EventScript_Dalton::
 	msgbox SilphCo_5F_Text_DaltonPostBattle, MSGBOX_AUTOCLOSE
 	end
 
-SilphCo_5F_Text_RocketsInUproarAboutIntruder::
-	.string "TEAM ROCKET is in an uproar over\n"
-	.string "some intruder.\p"
-	.string "That's you, right?$"
-
-SilphCo_5F_Text_YoureOurHeroThankYou::
-	.string "TEAM ROCKET took off!\n"
-	.string "You're our hero! Thank you!$"
+SilphCo_5F_Text_LostMyCardKeyAgain::
+	.string "I dropped my CARD KEY somewhere\n"
+	.string "on this floor again.\p"
+	.string "Security will make me fill in\n"
+	.string "another form. Ugh!$"
 
 SilphCo_5F_Text_Grunt1Intro::
 	.string "I heard a kid was wandering\n"
@@ -131,10 +119,8 @@ SilphCo_5F_Text_FloorSign::
 	.string "SILPH CO. HEAD OFFICE\n"
 	.string "5F$"
 
-SilphCo_5F_Text_RocketBossLookingForStrongMons::
-	.string "Those thugs that took over our\n"
-	.string "building…\p"
-	.string "Their BOSS said he was looking for\n"
-	.string "strong POKéMON.\p"
-	.string "I hope our PRESIDENT managed to\n"
-	.string "avoid trouble…$"
+SilphCo_5F_Text_BallShellsFromFactory::
+	.string "We test every new POKé BALL shell\n"
+	.string "on this floor.\p"
+	.string "Drop it, squeeze it, bake it…\n"
+	.string "If it still snaps shut, it ships!$"

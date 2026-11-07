@@ -135,8 +135,10 @@ In both builds, the Pokémon the player starts Act 2 with know the moves they'd 
   TRAINER CARD… Sorry, I only battle TRAINERS" (`ConfigureTrainerBattle`, `src/battle_setup.c`). Gym Leaders too.
   The story's own battles are the exception (`Act2_IsStoryTrainer`: the professors, KAI, MINA, DALE). Only wild
   Pokémon battle the player.
-- **Wild levels follow the player**: every wild Pokémon in Act 2 is the party's average level, give or take 3
-  (`ACT2_WILD_LEVEL_SPREAD`, `Act2_GetWildLevel`, from `ChooseWildMonLevel`). From the final project, the road home's
+- **Wild levels follow the player**: every wild Pokémon in Act 2 is the area's level, give or take 3
+  (`ACT2_WILD_LEVEL_SPREAD`, `Act2_GetWildLevel`, from `ChooseWildMonLevel`). An area's level is the party's average
+  level when the player first came to it in this course (`Act2Road_GetAreaLevel`; see
+  [act2_finale.md](act2_finale.md#the-road-home), "Area levels"). From the final project, the road home's
   rules take over ([act2_finale.md](act2_finale.md#the-road-home)). The tables below still pick the species;
   their levels only matter outside Act 2.
 - **Act 2's own wild Pokémon**: some areas have an Act 2 table, used for all of Act 2 (`Act2_UsesAct2WildPokemon`).

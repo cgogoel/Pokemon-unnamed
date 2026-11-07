@@ -438,7 +438,7 @@ def pavilion():
 
 def humanities():
     """Literature & Library, 22x9: one building, two doors (columns 5 and 16)."""
-    P = academic(22, 5, 2, doors=(5, 16), dormers=(3, 8, 13, 18), spacing=3)
+    P = academic(22, 5, 2, doors=(5, 16), dormers=(3, 8, 13, 18), spacing=3, skip=[(6, 1), (15, 1)])  # None beside the doors
     P.mirror()
     return P
 
@@ -496,7 +496,7 @@ def hospital():
     P.vl(cx - 5, cy - 12, cy + 10, AC['rd2'])
     # Facade
     wall(P, 0, 4 * T, P.w, 6 * T)
-    facade(P, 0, 4 * T, w, 3, 'square', skip=[(6, 2), (6, 1)], spacing=3)
+    facade(P, 0, 4 * T, w, 3, 'square', skip=[(6, 2), (6, 1)], spacing=4)
     door(P, 6 * T, 8 * T, glass=True)
     canopy(P, 6, 8)
     # The cross sign over the door

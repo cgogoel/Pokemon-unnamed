@@ -157,13 +157,13 @@ TEST("TM research: clearing a slot stops the research and loses its counts")
     EXPECT_EQ(TmResearch_GetCaughtCount(2), 0);
 }
 
-TEST("TM research: catching every POKéMON of a type unlocks all its TMs")
+TEST("TM research: catching 25 POKéMON of a type unlocks all its TMs")
 {
     u32 total, caught;
     SetUp();
     caught = TmResearch_CountTypeCaught(TYPE_FIRE, &total);
     EXPECT_EQ(caught, 0);
-    EXPECT_GT(total, 40);
+    EXPECT_EQ(total, 25);
     GetSetPokedexFlag(SpeciesToNationalPokedexNum(SPECIES_CHARMANDER), FLAG_SET_CAUGHT);
     EXPECT_EQ(TmResearch_CountTypeCaught(TYPE_FIRE, &total), 1);
     EXPECT(!TmResearch_IsTypeComplete(TYPE_FIRE));

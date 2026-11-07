@@ -45,9 +45,10 @@ Tests: `test/tm_research.c`, `test/battle/tm_research.c`.
 - **Crafting**: when both counts are met, the slot is ready. A on it in TM RESEARCH (or on its TM in the browse list)
   asks "Craft …?"; yes gives the TM (`TmResearch_CraftSlot`) and frees the slot.
 - **Clearing**: SELECT on a tracked slot asks to clear it; its counts are lost.
-- **Catching them all**: once every Pokémon of a type that can be found in the game is caught (Pokédex caught flags),
+- **Catching 25 of a type**: once 25 different Pokémon of a type are caught (Pokédex caught flags; species from the
+  type's list below; a type with fewer than 25 in the game needs all of them, `TM_RESEARCH_TYPE_CATCH_GOAL`),
   every TM of that type is ready, tracked or not: the browse list shows "All FIRE TMs unlocked!" and A crafts any of
-  them (`TmResearch_CraftReadyTm`). The browse list and slots show the way there: "All FIRE POKéMON: 12/64".
+  them (`TmResearch_CraftReadyTm`). The browse list and slots show the way there: "All FIRE POKéMON: 12/25".
 
 ### Every Pokémon of a type
 

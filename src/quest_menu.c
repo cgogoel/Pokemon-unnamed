@@ -555,7 +555,7 @@ static const u8 sText_EmptyHelp4[] = _("One TM per type at a time.");
 static const u8 sText_SlotsUsed[] = _("Slots in use: ");
 static const u8 sText_OwnedOf[] = _("TMs owned: ");
 static const u8 sText_DatabaseHelp[] = _("Stronger moves need more.");
-static const u8 sText_CatchAllHelp1[] = _("Catch every POKéMON of a type:");
+static const u8 sText_CatchAllHelp1[] = _("Catch 25 POKéMON of a type:");
 static const u8 sText_CatchAllHelp2[] = _("all its TMs unlock!");
 
 static const u8 sText_KeysEmpty[] = _("{A_BUTTON} Browse TMs");

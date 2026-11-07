@@ -103,9 +103,10 @@ CeladonUniversity_ScienceResearchRoom_Text_TmResearcherExplain::
 	.string "That frees its slot again.\p"
 	.string "Changed your mind? Clear a slot\n"
 	.string "any time, but its count is lost.\p"
-	.string "Oh, and if you ever catch every\n"
-	.string "POKéMON of a type, all its TMs\l"
-	.string "are yours to craft. No research!$"
+	.string "Oh, and once you've caught 25\n"
+	.string "different POKéMON of a type, all\l"
+	.string "its TMs are yours to craft.\l"
+	.string "No research needed!$"
 
 CeladonUniversity_ScienceResearchRoom_Text_TmDatabaseUnlocked::
 	.string "{PLAYER} can now use the\n"

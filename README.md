@@ -98,10 +98,10 @@ A opens the map, where the current quest's place blinks. It blinks on the Town M
 
 ![TM research in the quest screen](docs/readme/tm_research.png)
 
-**TM Research.** Later on, new TMs are made, not found: pick up to three TMs to research (one per type), then catch
-different Pokémon of the TM's type and record different moves of it in battle. Stronger moves need more. The
-TM RESEARCH tab (L/R in QUESTS) tracks each one and crafts it when it's done. Catch every Pokémon of a type and all of
-its TMs are yours.
+**TM Research.** Later on, research becomes the main way to get new TMs: pick up to three TMs to research (one per
+type), then catch different Pokémon of the TM's type and record different moves of it in battle. Stronger moves need
+more. The TM RESEARCH tab (L/R in QUESTS) tracks each one and crafts it when it's done. Catch 25 different Pokémon of
+a type and all of its TMs are yours.
 
 ### A Kanto of its own
 

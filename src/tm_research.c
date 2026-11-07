@@ -118,34 +118,31 @@ static const struct TmResearchSpeciesList *GetTypeList(enum Type type)
     return &sTmResearchSpecies[type];
 }
 
-// How many of the type's Pokémon (the generated list) are caught in the Pokédex; the list's size in total
+// Catching this many different Pokémon of a type (from the generated list of the type's Pokémon found in the game)
+// unlocks all its TMs; a type with fewer in the game needs all of them
+#define TM_RESEARCH_TYPE_CATCH_GOAL 25
+
+// How many of the type's Pokémon (the generated list) are caught in the Pokédex, up to the goal; the goal in total
 u32 TmResearch_CountTypeCaught(enum Type type, u32 *total)
 {
     const struct TmResearchSpeciesList *list = GetTypeList(type);
-    u32 i, count = 0;
+    u32 i, count = 0, goal;
     if (list == NULL)
     {
         *total = 0;
         return 0;
     }
-    for (i = 0; i < list->count; i++)
+    goal = min(list->count, TM_RESEARCH_TYPE_CATCH_GOAL);
+    for (i = 0; i < list->count && count < goal; i++)
         count += GetSetPokedexFlag(SpeciesToNationalPokedexNum(list->species[i]), FLAG_GET_CAUGHT) != 0;
-    *total = list->count;
+    *total = goal;
     return count;
 }
 
 bool32 TmResearch_IsTypeComplete(enum Type type)
 {
-    const struct TmResearchSpeciesList *list = GetTypeList(type);
-    u32 i;
-    if (list == NULL)
-        return FALSE;
-    for (i = 0; i < list->count; i++)
-    {
-        if (!GetSetPokedexFlag(SpeciesToNationalPokedexNum(list->species[i]), FLAG_GET_CAUGHT))
-            return FALSE;
-    }
-    return TRUE;
+    u32 total, caught = TmResearch_CountTypeCaught(type, &total);
+    return total != 0 && caught >= total;
 }
 
 // ---------------------------------------------------------------------------------------------------------------

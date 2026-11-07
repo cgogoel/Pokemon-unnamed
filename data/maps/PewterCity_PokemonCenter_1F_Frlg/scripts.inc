@@ -15,7 +15,7 @@ PewterCity_PokemonCenter_1F_EventScript_Nurse::
 	end
 
 PewterCity_PokemonCenter_1F_EventScript_Gentleman::
-	msgbox PewterCity_PokemonCenter_1F_Text_TeamRocketMtMoonImOnPhone, MSGBOX_NPC
+	msgbox PewterCity_PokemonCenter_1F_Text_OnThePhoneWithQuarry, MSGBOX_NPC
 	end
 
 PewterCity_PokemonCenter_1F_EventScript_Jigglypuff::
@@ -44,11 +44,10 @@ PewterCity_PokemonCenter_1F_EventScript_GBAKid2::
 	msgbox PewterCity_PokemonCenter_1F_Text_TradingPikachuWithKid, MSGBOX_NPC
 	end
 
-PewterCity_PokemonCenter_1F_Text_TeamRocketMtMoonImOnPhone::
-	.string "What!?\p"
-	.string "TEAM ROCKET is at MT. MOON?\n"
-	.string "Huh?\p"
-	.string "I'm on the phone!\n"
+PewterCity_PokemonCenter_1F_Text_OnThePhoneWithQuarry::
+	.string "What!? The quarry's shipment of\n"
+	.string "MOON STONES is late again?\p"
+	.string "Huh? I'm on the phone!\n"
 	.string "Scram!$"
 
 PewterCity_PokemonCenter_1F_Text_Jigglypuff::

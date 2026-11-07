@@ -38,14 +38,14 @@ Route13_Text_SusiePostBattle::
 
 Route13_Text_ValerieIntro::
 	.string "Wow!\n"
-	.string "Your BADGES are too cool!$"
+	.string "Your TRAINER CARD looks brand-new!$"
 
 Route13_Text_ValerieDefeat::
 	.string "Not enough!$"
 
 Route13_Text_ValeriePostBattle::
-	.string "You got those BADGES from GYM\n"
-	.string "LEADERS. I know!$"
+	.string "Someday my TRAINER CARD will be\n"
+	.string "full of GYM BADGES. You'll see!$"
 
 Route13_Text_GwenIntro::
 	.string "My cute POKéMON wish to make your\n"

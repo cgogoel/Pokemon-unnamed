@@ -4,8 +4,6 @@ LavenderTown_Frlg_MapScripts::
 
 LavenderTown_OnTransition::
 	setworldmapflag FLAG_WORLD_MAP_LAVENDER_TOWN
-	setvar VAR_MAP_SCENE_S_S_ANNE_2F_CORRIDOR, 1
-	setflag FLAG_HIDE_SS_ANNE_RIVAL
 	end
 
 LavenderTown_EventScript_LittleGirl::
@@ -27,7 +25,7 @@ LavenderTown_EventScript_WorkerM::
 	end
 
 LavenderTown_EventScript_Boy::
-	msgbox LavenderTown_Text_GhostsAppearedInTower, MSGBOX_NPC
+	msgbox LavenderTown_Text_VisitGrandmasGrowlithe, MSGBOX_NPC
 	end
 
 LavenderTown_EventScript_TownSign::
@@ -64,10 +62,11 @@ LavenderTown_Text_TownKnownAsMonGraveSite::
 	.string "Memorial services are held in\n"
 	.string "POKéMON TOWER.$"
 
-LavenderTown_Text_GhostsAppearedInTower::
-	.string "Ghosts appeared in POKéMON TOWER.\p"
-	.string "I think they're the spirits of\n"
-	.string "POKéMON that the ROCKETS killed.$"
+LavenderTown_Text_VisitGrandmasGrowlithe::
+	.string "I come every Sunday to visit my\n"
+	.string "grandma's GROWLITHE in the TOWER.\p"
+	.string "I bring it a fresh flower and tell\n"
+	.string "it what I did all week.$"
 
 LavenderTown_Text_TownSign::
 	.string "LAVENDER TOWN\n"

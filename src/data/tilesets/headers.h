@@ -1376,6 +1376,30 @@ const struct Tileset gTileset_RangerStationGrove =
     .callback = NULL,
 };
 
+// Celadon University's campus (over gTileset_General_Frlg), tools/hack/draw_university_tiles.py
+const struct Tileset gTileset_CeladonUniversity =
+{
+    .isCompressed = TRUE,
+    .isSecondary = TRUE,
+    .tiles = gTilesetTiles_CeladonUniversity,
+    .palettes = gTilesetPalettes_CeladonUniversity,
+    .metatiles = gMetatiles_CeladonUniversity,
+    .metatileAttributes = gMetatileAttributes_CeladonUniversity,
+    .callback = NULL,
+};
+
+// Celadon University's rooms (over gTileset_BuildingFrlg), tools/hack/draw_university_tiles.py
+const struct Tileset gTileset_UniversityInterior =
+{
+    .isCompressed = TRUE,
+    .isSecondary = TRUE,
+    .tiles = gTilesetTiles_UniversityInterior,
+    .palettes = gTilesetPalettes_UniversityInterior,
+    .metatiles = gMetatiles_UniversityInterior,
+    .metatileAttributes = gMetatileAttributes_UniversityInterior,
+    .callback = NULL,
+};
+
 const struct Tileset gTileset_RestaurantHotel =
 {
     .isCompressed = TRUE,

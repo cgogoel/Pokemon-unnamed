@@ -356,6 +356,12 @@ const u16 gMetatileAttributes_PokemonMansion[] = INCBIN_U16("data/tilesets/secon
 const u16 gMetatiles_RangerStationGrove[] = INCBIN_U16("data/tilesets/secondary/ranger_station_grove/metatiles.bin");
 const u16 gMetatileAttributes_RangerStationGrove[] = INCBIN_U16("data/tilesets/secondary/ranger_station_grove/metatile_attributes.bin");
 
+const u16 gMetatiles_CeladonUniversity[] = INCBIN_U16("data/tilesets/secondary/celadon_university/metatiles.bin");
+const u16 gMetatileAttributes_CeladonUniversity[] = INCBIN_U16("data/tilesets/secondary/celadon_university/metatile_attributes.bin");
+
+const u16 gMetatiles_UniversityInterior[] = INCBIN_U16("data/tilesets/secondary/university_interior/metatiles.bin");
+const u16 gMetatileAttributes_UniversityInterior[] = INCBIN_U16("data/tilesets/secondary/university_interior/metatile_attributes.bin");
+
 const u16 gMetatiles_Museum[] = INCBIN_U16("data/tilesets/secondary/museum_frlg/metatiles.bin");
 const u16 gMetatileAttributes_Museum[] = INCBIN_U16("data/tilesets/secondary/museum_frlg/metatile_attributes.bin");
 

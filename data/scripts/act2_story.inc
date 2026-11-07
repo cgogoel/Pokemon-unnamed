@@ -29,15 +29,13 @@ Act2_EventScript_ShowObjectsTemp1::
 @ ---------------------------------------------------------------------------------------------------------------
 @ The campus: meeting the friends, and the club nights at the stadium
 
-@ FLAG_TEMP_1: the friends at Act 2's start. FLAG_TEMP_2: the friends waiting at the Sports Complex on a club night,
+@ FLAG_TEMP_2: the friends waiting at the Sports Complex on a club night,
 @ FLAG_TEMP_3: DALE on the third. FLAG_TEMP_4: the students there by day (gone at night).
 CeladonUniversity_OnTransition::
 	special Act2_GiveStartingKit
-	setflag FLAG_TEMP_1
 	setflag FLAG_TEMP_2
 	setflag FLAG_TEMP_3
 	clearflag FLAG_TEMP_4
-	call_if_eq VAR_ACT2_PROGRESS, ACT2_START, Act2_EventScript_ShowObjectsTemp1
 	call_if_eq VAR_ACT2_PROGRESS, ACT2_FIRE_INVITED, Act2_EventScript_ShowClubFriends
 	call_if_eq VAR_ACT2_PROGRESS, ACT2_WATER_INVITED, Act2_EventScript_ShowClubFriends
 	call_if_eq VAR_ACT2_PROGRESS, ACT2_GRASS_INVITED, Act2_EventScript_ShowClubFriends
@@ -59,109 +57,95 @@ Act2_EventScript_HideDayStudents:
 	return
 
 CeladonUniversity_OnFrame::
+	.2byte 0
+
+@ Act 2's start: the friends wait in the dorm lobby (FLAG_TEMP_1), at the foot of the stairs from the player's room
+CeladonUniversity_DormLobby_OnTransition::
+	setflag FLAG_TEMP_1
+	call_if_eq VAR_ACT2_PROGRESS, ACT2_START, Act2_EventScript_ShowObjectsTemp1
+	end
+
+CeladonUniversity_DormLobby_OnFrame::
 	map_script_2 VAR_ACT2_PROGRESS, ACT2_START, Act2_EventScript_MeetFriends
 	.2byte 0
 
-@ Stepping out of the dorm room for the first time
+@ Coming down from the room for the first time (the stairs leave the player at (1,3) or (2,3)): ROWAN and MINA at
+@ (3,3) and (4,3), KAI at (3,4). Then they head out the lobby door (10,10) for class, behind the warden's counter.
 Act2_EventScript_MeetFriends::
 	lockall
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterDown
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterRight
 	waitmovement 0
 	msgbox Act2_Text_MeetFriends
 	closemessage
-	applymovement LOCALID_CAMPUS_KAI, Act2_Movement_KaiToClass
-	applymovement LOCALID_CAMPUS_MINA, Act2_Movement_MinaToClass
-	applymovement LOCALID_CAMPUS_ROWAN, Act2_Movement_RowanToClass
-	@ Until ROWAN, the last, is out of sight (11 steps after its 2-step wait), not the whole walk
-	delay 212
-	removeobject LOCALID_CAMPUS_KAI
-	removeobject LOCALID_CAMPUS_MINA
-	removeobject LOCALID_CAMPUS_ROWAN
+	applymovement LOCALID_LOBBY_MINA, Act2_Movement_MinaToClass
+	applymovement LOCALID_LOBBY_ROWAN, Act2_Movement_RowanToClass
+	applymovement LOCALID_LOBBY_KAI, Act2_Movement_KaiToClass
+	waitmovement LOCALID_LOBBY_MINA
+	playse SE_EXIT
+	removeobject LOCALID_LOBBY_MINA
+	waitmovement LOCALID_LOBBY_ROWAN
+	playse SE_EXIT
+	removeobject LOCALID_LOBBY_ROWAN
+	waitmovement LOCALID_LOBBY_KAI
+	playse SE_EXIT
+	removeobject LOCALID_LOBBY_KAI
 	setvar VAR_ACT2_PROGRESS, ACT2_MET_FRIENDS
 	releaseall
 	end
 
-@ Off toward the MAIN HALL: from outside the annex (the player at (56,58)) west along the dorms' path to x 45,
-@ then up it toward the avenue, until well out of sight. ROWAN, east of the player, goes round below.
-Act2_Movement_KaiToClass:
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	step_end
-
+@ Off to class: along row 3 to x 10, then down to the door mat (10,10)
 Act2_Movement_MinaToClass:
-	delay_8
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
 	step_end
 
 Act2_Movement_RowanToClass:
-	delay_16
-	delay_16
+	delay_8
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
 	walk_down
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	step_end
+
+Act2_Movement_KaiToClass:
+	delay_16
+	delay_16
 	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
 	step_end
 
 @ The friends wait in the classroom for each course to start
@@ -197,15 +181,15 @@ Act2_EventScript_ClassRowan::
 	msgbox Act2_Text_ClassRowan, MSGBOX_NPC
 	end
 
-Act2_EventScript_CampusKai::
+Act2_EventScript_LobbyKai::
 	msgbox Act2_Text_MeetFriends, MSGBOX_NPC
 	end
 
-Act2_EventScript_CampusMina::
+Act2_EventScript_LobbyMina::
 	msgbox Act2_Text_MeetFriends, MSGBOX_NPC
 	end
 
-Act2_EventScript_CampusRowan::
+Act2_EventScript_LobbyRowan::
 	msgbox Act2_Text_MeetFriends, MSGBOX_NPC
 	end
 
@@ -753,7 +737,7 @@ Act2_EventScript_BackToDorms:
 	closemessage
 	setrespawn HEAL_LOCATION_CELADON_CITY
 	special HealPlayerParty
-	warp MAP_CELADON_UNIVERSITY_DORM_ROOM, 2, 3
+	warp ACT2_START_MAP, ACT2_START_X, ACT2_START_Y
 	waitstate
 	release
 	end

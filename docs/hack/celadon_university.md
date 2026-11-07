@@ -20,7 +20,7 @@ University lore art: white stone buildings with slate roofs in a forest (the rem
   editing them in Porymap, don't; move events in Porymap or in its tables.
 
 Rooms are bigger than their buildings in proportion: building `w x h` -> room `w + 4` by `h + 2` (11x9 to 21x15), the
-door at the same place (column + 2); the player's room stays 11x9.
+door at the same place (column + 2).
 
 ## Buildings
 
@@ -35,14 +35,15 @@ door at the same place (column + 2); the player's room stays 11x9.
 | Home Economics, the greenhouse (37,16) | `HOME_ECONOMICS` 21x11 | Grass course (Prof. Fern) |
 | Science Research Institute, the glass tower (64,20) | 1F `SCIENCE_INSTITUTE`, 2F `SCIENCE_LOUNGE`, 3F `SCIENCE_RESEARCH_ROOM`, 4F `SCIENCE_EXPERIMENT_ROOM`, 17x15 each | Stairs alternate sides: up on the right from 1F and 3F, on the left from 2F |
 | University Hospital (20,49) | `HOSPITAL`, `HOSPITAL_2F` 17x12 | The nurse heals; the ward upstairs |
-| Dorm (56,47) | `DORM_LOBBY`, `DORM_2F`, `DORM_3F` 21x12 | Floors: a corridor with three bedrooms (KAI and MINA on 2F, ROWAN on 3F) |
-| Dorm annex (56,57) | `DORM_ROOM` 11x9 | The player's room. **Act 2 starts here**, at (2,3) beside the bed |
+| Dorm (56,47) | `DORM_LOBBY`, `DORM_2F`, `DORM_3F` 21x12 | Floors: a corridor with three bedrooms (KAI, MINA and the player on 2F; ROWAN on 3F). **Act 2 starts in the player's room**, at (15,6) beside the bed (`ACT2_START_*`); after a course or a club night the player wakes up there |
+| Study Hall, by the dorms (56,57) | `STUDY_HALL` 15x10 | Study tables, old exam papers, a lounge corner |
 | Stadium (the Sports Complex) | outdoor | The club meets on the infield; triggers across its entrance (row 15) |
 | Ranch, pool, fountain, reflecting pools | outdoor | |
 
 ## Story spots
 
-- Act 2's start: the friends wait outside the annex ((53,58), (54,58), (59,58)) and walk off toward the Main Hall.
+- Act 2's start: the friends wait in the dorm lobby at the foot of the stairs ((3,3), (4,3), (3,4)), then head out the
+  lobby door for class.
 - Club nights: `Act2_EventScript_ClubGate` (coord events at (5-24,15)) starts the night's arrival; the friends and
   DALE stand on the infield.
 - The brief (`act2_finale.inc`): coord events across the institute's row 12; the player walks to (8,10) between KAI

@@ -503,7 +503,8 @@ def hospital():
     P.vl(cx - 5, cy - 12, cy + 10, AC['rd2'])
     # Facade
     wall(P, 0, 4 * T, P.w, 6 * T)
-    facade(P, 0, 4 * T, w, 3, 'square', skip=[(6, 2), (6, 1)], spacing=4)
+    # Two windows either side of the door (and one over the cross sign on the top storey)
+    facade(P, 0, 4 * T, w, 3, 'square', skip=[(6, 2), (6, 1)], columns=(2, 4, 6, 8, 10))
     door(P, 6 * T, 8 * T, glass=True)
     canopy(P, 6, 8)
     # The cross sign over the door
@@ -1143,6 +1144,9 @@ class Ground:
         self.set(x1 - 1, y0, 0x0ED)
         self.set(x0, y1 - 1, 0x0F4)       # (Celadon's own bottom corners are in its secondary tileset)
         self.set(x1 - 1, y1 - 1, 0x0F5)
+        if gap != (0, 0):  # A post on each side of the gap, so the rails don't stop mid-air
+            self.set(gap[0] - 1, y1 - 1, 0x0ED)
+            self.set(gap[1], y1 - 1, 0x0EC)
         self.block(x0, y0, x1 - x0, y1 - y0)
 
     def tree(self, x, y):
@@ -1259,7 +1263,7 @@ CAMPUS_PATHS = [
 
 # Signposts (primary metatile 0x003): welcome, then one per building (texts: CeladonUniversity's Sign0-14)
 CAMPUS_SIGNS = [(34, 58), (36, 36), (23, 36), (49, 36), (59, 36), (13, 36), (7, 26), (18, 26), (62, 21), (18, 50),
-                (54, 48), (35, 17), (12, 16), (50, 17), (13, 47)]
+                (54, 48), (35, 17), (12, 16), (50, 17), (13, 47), (54, 58)]
 # Ground metatiles that block: forest, tree trunks, signs, fences
 SOLID_GROUND = {0x01C, 0x01D, 0x014, 0x015, 0x01E, 0x01F, 0x026, 0x027, 0x003, 0x0E7, 0x0F4, 0x0F5, 0x0EC, 0x0ED}
 
@@ -1271,8 +1275,8 @@ def campus_ground(st, reserve=()):
     g.forest(0, 0, CAMPUS_W, 4)
     g.forest(0, 0, 4, CAMPUS_H)
     g.forest(CAMPUS_W - 4, 0, CAMPUS_W, CAMPUS_H)
-    g.forest(0, CAMPUS_H - 3, 35, CAMPUS_H)
-    g.forest(41, CAMPUS_H - 3, CAMPUS_W, CAMPUS_H)
+    g.forest(0, CAMPUS_H - 4, 35, CAMPUS_H)     # From an even row, so the trees are whole
+    g.forest(41, CAMPUS_H - 4, CAMPUS_W, CAMPUS_H)
     for (x0, y0, x1, y1) in CAMPUS_PATHS:
         g.path(x0, y0, x1, y1)
     g.lay()
@@ -1286,7 +1290,12 @@ def campus_ground(st, reserve=()):
     g.fence(48, 5, 58, 17, gap=(52, 54))
     g.block(4, 4, 22, 12)
     for (x, y) in CAMPUS_SIGNS:
-        g.set(x, y, 0x003)
+        # On the paving, the sign stands on paving (the primary's sign has grass under it)
+        if (x, y) in g.paved:
+            g.set(x, y, st['SIGN_ON_PAVING']['rows'][0][0])
+            stamp_solid[(x, y)] = 1
+        else:
+            g.set(x, y, 0x003)
     for (x, y) in reserve:
         g.used.add((x, y))
     g.flowers(4, 72, 38)
@@ -1998,13 +2007,39 @@ def dorm_lobby(F, O, marks, solid, people):
     people += [('people/old_woman_frlg', 5, 4, DOWN), (PLAYER, 10, 9, UP), ('people/lass_frlg', 13, 8, UP)]
 
 
+def mirror_stand(P, x, y):
+    """A standing mirror, 1x2, the course schedule taped to it."""
+    P.r(x + 3, y + 2, 10, 26, FU['wd'])
+    P.hl(x + 3, x + 12, y + 1, FU['ol'])
+    P.vl(x + 3, y + 1, y + 27, FU['ol'])
+    P.vl(x + 12, y + 1, y + 27, FU['ol'])
+    P.r(x + 5, y + 4, 6, 20, FU['mt1'])
+    P.r(x + 6, y + 5, 2, 8, FU['w'])
+    P.r(x + 8, y + 14, 3, 4, FU['ye'])
+    P.r(x + 4, y + 28, 8, 3, FU['wd2'])
+
+
+def photo_stand(P, x, y):
+    """A low cabinet with a framed photo on it, 1x1."""
+    P.r(x + 1, y + 8, 14, 7, FU['wd'])
+    P.hl(x + 1, x + 14, y + 7, FU['ol'])
+    P.hl(x + 1, x + 14, y + 15, FU['ol'])
+    P.vl(x + 7, y + 9, y + 14, FU['wd2'])
+    P.r(x + 4, y, 8, 7, FU['ye'])
+    P.r(x + 5, y + 1, 6, 5, FU['p1'])
+    P.r(x + 5, y + 4, 6, 2, FU['p2'])
+    P.p(x + 7, y + 2, FU['w'])
+
+
 def dorm_floor(top):
     """A dorm floor, 21x12: a corridor along the back wall (rows 2-3) with the stairs, three bedrooms below behind a
-    partition (row 4, doorways at 3, 10, 16; walls at 7 and 13), a bed and a desk in each."""
+    partition (row 4, doorways at 3, 10, 16; walls at 7 and 13), a bed and a desk in each. On 2F the third room is
+    the player's (Act 2 starts at (15,6)): the bed, a mirror with the schedule, the desk, a photo from home, a shelf of
+    textbooks."""
     def build(F, O, marks, solid, people):
         if top:
             stairs_hole(F, marks, 18, 2)
-            plant(O, 1 * T, 0)
+            plant(O, 1 * T, 2 * T)
         else:
             stairs_hole(F, marks, 1, 2)
             stairs_upto(F, marks, 18)
@@ -2019,22 +2054,38 @@ def dorm_floor(top):
             wall_block(F, x, 5, 1, 6)
             for y in range(5, 11):
                 solid.add((x, y))
-        for (bx, dx) in ((1, 5), (8, 11), (14, 18)):
+        rooms = ((1, 5), (8, 11)) if not top else ((1, 5), (8, 11), (14, 18))
+        for (bx, dx) in rooms:
             bed(O, bx * T, 5 * T, 'bl' if bx == 1 else 'rd' if bx == 8 else 'p2')
             study_desk(O, dx * T, 5 * T)
             plant(O, dx * T, 8 * T)
+        if not top:
+            bed(O, 14 * T, 5 * T, 'p2')
+            mirror_stand(O, 17 * T, 5 * T)
+            study_desk(O, 18 * T, 5 * T)
+            photo_stand(O, 19 * T, 5 * T)
+            bookshelf(O, 19 * T, 7 * T, 1)
+            rug(F, 15 * T, 7 * T, 3 * T, 3 * T)
+            people += [(PLAYER, 15, 6, DOWN)]
     return build
 
 
-def dorm_room(F, O, marks, solid, people):
-    bed(O, 1 * T, 2 * T)
-    notice_board(O, 3 * T, 0, 1)
-    picture_frame(F, 5 * T, 0)
-    bookshelf(O, 8 * T, 0, 2)
-    study_desk(O, 6 * T, 2 * T)
-    rug(F, 3 * T, 4 * T, 5 * T, 3 * T)
-    plant(O, 9 * T, 5 * T)
-    people += [(PLAYER, 2, 3, DOWN)]
+def study_hall(F, O, marks, solid, people):
+    """The Study Hall (the small building by the dorms), 15x10: study tables, shelves of old exam papers, a notice
+    board, a lounge corner with a sofa and a vending machine."""
+    bookshelf(O, 1 * T, 0, 2)
+    bookshelf(O, 12 * T, 0, 2)
+    notice_board(O, 6 * T, 0, 3)
+    window_in(F, 4 * T, 2)
+    window_in(F, 10 * T, 2)
+    dining_table(O, 2 * T, 3 * T, 3)
+    dining_table(O, 2 * T, 6 * T, 3)
+    rug(F, 9 * T, 4 * T, 5 * T, 4 * T)
+    sofa(O, 9 * T, 4 * T, 4)
+    low_table(O, 10 * T, 6 * T, 2)
+    vending(O, 13 * T, 2 * T)
+    plant(O, 1 * T, 7 * T)
+    people += [('people/youngster_frlg', 5, 4, LEFT), ('people/lass_frlg', 3, 5, UP), (PLAYER, 7, 7, UP)]
 
 
 def home_ec(F, O, marks, solid, people):
@@ -2138,7 +2189,7 @@ ROOMS = {
     'DORM_LOBBY': (21, 12, 2, parquet, 'wood', dorm_lobby, 10, 'academic'),
     'DORM_2F': (21, 12, 2, parquet, 'wood', dorm_floor(False), None, 'academic'),
     'DORM_3F': (21, 12, 2, parquet, 'wood', dorm_floor(True), None, 'academic'),
-    'DORM_ROOM': (11, 9, 2, parquet, 'wood', dorm_room, 5, 'academic'),
+    'STUDY_HALL': (15, 10, 2, parquet, 'wood', study_hall, 7, 'academic'),
     'HOME_ECONOMICS': (21, 11, 2, flagstone, 'glass', home_ec, 10, 'academic'),
     'SCIENCE_INSTITUTE': (17, 15, 2, marble, 'slate', institute, 8, 'lab'),
     'SCIENCE_LOUNGE': (17, 15, 2, marble, 'slate', lounge, None, 'lab'),
@@ -2262,6 +2313,11 @@ def main():
     ext = Tileset('gTileset_CeladonUniversity', os.path.join(ROOT, 'data/tilesets/secondary/celadon_university'),
                   EXTERIOR_PALS, 'gTileset_General_Frlg', grass)
     ext_stamps = cut_exterior(ext, exterior_stamps(), MB)
+    # The primary's signpost (its top layer, its behavior) over the primary's paving instead of its grass
+    sign = primary_entries('gTileset_General_Frlg', 0x003, 1)
+    sign_mid = ext.metatile(primary_entries('gTileset_General_Frlg', 0x16E), sign,
+                            behavior_of('gTileset_General_Frlg', 0x003), LAYER_COVERED)
+    ext_stamps['SIGN_ON_PAVING'] = {'w': 1, 'h': 1, 'rows': [[sign_mid]], 'solid': [[1]], 'doors': [], 'warps': []}
 
     # The room tilesets: the academic buildings and dorms; the Science Institute and the hospital
     rooms = make_rooms()

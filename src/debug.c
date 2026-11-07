@@ -380,6 +380,7 @@ extern const u8 Debug_EventScript_BefriendHatenna[];
 extern const u8 Debug_EventScript_BefriendTeddiursa[];
 extern const u8 Debug_EventScript_BefriendJangmoO[];
 extern const u8 Debug_EventScript_SkipToAct3[];
+extern const u8 Debug_EventScript_SkipToGrassTrip[];
 extern const u8 Debug_EventScript_SkipToFinalProject[];
 extern const u8 Debug_EventScript_SkipToStation[];
 extern const u8 Debug_EventScript_InflictStatus1[];
@@ -611,6 +612,7 @@ static const struct DebugMenuOption sDebugMenu_Actions_Utilities[] =
     { COMPOUND_STRING("Test Item Randomizer"),      DebugAction_Selection_Init, &sItemGeneratorSelection },
     { COMPOUND_STRING("Wally Tutorial"),            DebugAction_ExecuteScript, Debug_EventScript_WallyTutorial },
     { COMPOUND_STRING("Steven Multi"),              DebugAction_ExecuteScript, Debug_EventScript_Steven_Multi },
+    { COMPOUND_STRING("Skip to Grass trip"),        DebugAction_ExecuteScript, Debug_EventScript_SkipToGrassTrip },
     { COMPOUND_STRING("Skip to final project"),     DebugAction_ExecuteScript, Debug_EventScript_SkipToFinalProject },
     { COMPOUND_STRING("Skip to ranger station"),    DebugAction_ExecuteScript, Debug_EventScript_SkipToStation },
     { COMPOUND_STRING("Skip to Act 3"),             DebugAction_ExecuteScript, Debug_EventScript_SkipToAct3 },

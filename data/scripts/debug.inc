@@ -510,6 +510,18 @@ Debug_EventScript_SkipToAct3::
 	waitstate
 	end
 
+@ Act 2's Grass course (the night bloom): arriving in Viridian at dusk, as PROF. FERN's trip does
+Debug_EventScript_SkipToGrassTrip::
+	setvar VAR_STORY_ACT, STORY_ACT_UNIVERSITY
+	setvar VAR_ACT2_RESEARCH, 0
+	setvar VAR_ACT2_MOVE_SEEN_1, MOVE_NONE
+	setvar VAR_ACT2_MOVE_SEEN_2, MOVE_NONE
+	setvar VAR_ACT2_PROGRESS, ACT2_GRASS_TRIP
+	setrespawn HEAL_LOCATION_VIRIDIAN_CITY
+	warp MAP_VIRIDIAN_CITY, 4, 17
+	waitstate
+	end
+
 @ Act 2's finale (docs/hack/act2_finale.md): the morning of the director's brief, or the Woods with the station open
 Debug_EventScript_SkipToFinalProject::
 	setvar VAR_STORY_ACT, STORY_ACT_UNIVERSITY

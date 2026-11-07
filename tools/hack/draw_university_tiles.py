@@ -960,6 +960,17 @@ class Tileset:
         self.tiles.append(idx)
         return (PRIMARY + len(self.tiles) - 1) | (FIRST_PAL + p) << 12
 
+    def raw_tile(self, idx):
+        """The entry (no palette bits) for a tile given as rows of color indices (another tileset's palette)."""
+        for hf in (0, 1):
+            for vf in (0, 1):
+                f = tuple(tuple(r[::-1]) if hf else r for r in (idx[::-1] if vf else idx))
+                if f in self.lookup:
+                    return (PRIMARY + self.lookup[f]) | hf << 10 | vf << 11
+        self.lookup[idx] = len(self.tiles)
+        self.tiles.append(idx)
+        return PRIMARY + len(self.tiles) - 1
+
     def quarter(self, im, x, y):
         return [self.tile(tile_pixels(im, x + dx, y + dy)) for dy in (0, 8) for dx in (0, 8)]
 
@@ -1005,7 +1016,8 @@ class Tileset:
         t, hf, vf, p = e & 0x3FF, e >> 10 & 1, e >> 11 & 1, e >> 12
         if t >= PRIMARY:
             idx = self.tiles[t - PRIMARY]
-            pal = [None] + list(self.pals[p - FIRST_PAL][1])
+            pal = [None] + list(self.pals[p - FIRST_PAL][1] if p >= FIRST_PAL else
+                                primary_tileset(self.primary)[1][p][1:])
         else:
             ptiles, ppals, _ = primary_tileset(self.primary)
             n = len(ptiles[0]) // 8
@@ -1083,6 +1095,50 @@ def cut_exterior(ts, stamps, MB):
     return out
 
 
+# --- Paving edges ----------------------------------------------------------------------------------------------------
+# The primary's paving (palette 1): its nine metatiles by the states of their quarters (TL, TR, BL, BR). A quarter is
+# 'outer' (grass on both sides it touches), 'horiz' (grass above/below), 'vert' (grass beside), 'plain', or 'inner'
+# (both sides paved, the diagonal not: where two paths meet).
+PRIMARY_PAVING = {
+    ('outer', 'horiz', 'vert', 'plain'): 0x165, ('horiz', 'horiz', 'plain', 'plain'): 0x166,
+    ('horiz', 'outer', 'plain', 'vert'): 0x167, ('vert', 'plain', 'vert', 'plain'): 0x16D,
+    ('plain', 'plain', 'plain', 'plain'): 0x16E, ('plain', 'vert', 'plain', 'vert'): 0x16F,
+    ('vert', 'plain', 'outer', 'horiz'): 0x175, ('plain', 'plain', 'horiz', 'horiz'): 0x176,
+    ('plain', 'vert', 'horiz', 'outer'): 0x177,
+}
+PAVE_PAL = 1 << 12
+HF = 1 << 10
+# The primary's quarter tiles for each corner of a cell (with the flips its metatiles use); the inner corners are drawn
+PAVE_QUARTERS = {
+    0: {'outer': 0x132, 'horiz': 0x133, 'vert': 0x152, 'plain': 0x143},
+    1: {'outer': 0x132 | HF, 'horiz': 0x133, 'vert': 0x152 | HF, 'plain': 0x153},
+    2: {'outer': 0x162, 'horiz': 0x163, 'vert': 0x152, 'plain': 0x153},
+    3: {'outer': 0x162 | HF, 'horiz': 0x163, 'vert': 0x152 | HF, 'plain': 0x143},
+}
+# Inner corners (palette 1 indices): the grass strips of the two paved neighbours meet in a 2x2 corner of grass, their
+# dotted lines turn it. Top-left (the diagonal above-left is lawn); bottom-left (below-left). Mirrored for the right.
+INNER_TL = ('f73' + '1' * 5, '773' + '1' * 5, '33' + '1' * 6) + ('1' * 8,) * 5
+INNER_BL = ('1' * 8,) * 5 + ('33' + '1' * 6, '773' + '1' * 5, 'f73' + '1' * 5)
+
+
+def paving_entries(ts, states):
+    """The four bottom-layer entries of a paved cell with these quarter states (the primary's own where it has
+    that metatile)."""
+    if states in PRIMARY_PAVING:
+        return primary_entries('gTileset_General_Frlg', PRIMARY_PAVING[states])
+    inner = {}
+    for corner, rows in ((0, INNER_TL), (2, INNER_BL)):
+        e = ts.raw_tile(tuple(tuple(int(c, 16) for c in r) for r in rows)) | PAVE_PAL
+        inner[corner], inner[corner + 1] = e, e ^ HF
+    return [inner[k] if s == 'inner' else PAVE_QUARTERS[k][s] | PAVE_PAL for k, s in enumerate(states)]
+
+
+def paving_metatiles(ts, needed):
+    """Campus tileset metatiles for the paving mixes in `needed` (quarter states): {states: id}."""
+    return {states: ts.metatile(paving_entries(ts, states), [0, 0, 0, 0], 0, LAYER_NORMAL)
+            for states in sorted(needed)}
+
+
 # --- Ground (the primary's metatiles) --------------------------------------------------------------------------------
 class Ground:
     """A grid of metatile ids: grass, forest, lone trees, paving with edges, flower beds, fences; stamps on top."""
@@ -1114,11 +1170,43 @@ class Ground:
                 self.paved.add((x, y))
                 self.used.add((x, y))
 
-    def lay(self):
-        for (x, y) in self.paved:
-            key = ((x, y - 1) in self.paved, (x, y + 1) in self.paved, (x - 1, y) in self.paved,
-                   (x + 1, y) in self.paved)
-            self.g[y][x] = self.EDGES.get(key, 0x16E)
+    def lay(self, pave_ids=None):
+        """Paving with its edges, quarter by quarter: each 8x8 quarter of a paved cell looks at the two cells it
+        touches and the diagonal between them (outer corner, edge, plain, or an inner corner where two paths meet),
+        so junctions, 1-wide stretches and dead ends get their dotted edge lines too. A cell whose quarters match one
+        of the primary's nine paving metatiles uses it; any other mix is one of the campus tileset's paving metatiles
+        (`pave_ids`: quarter states -> id). Mixes not in `pave_ids` are collected in `self.pave_needed` (drawn as
+        plain paving meanwhile)."""
+        self.pave_needed, self.sign_needed, self.pave_states = set(), set(), {}
+        p = self.paved
+        for (x, y) in p:
+            def q(dy, dx):
+                v, h, d = (x, y + dy) in p, (x + dx, y) in p, (x + dx, y + dy) in p
+                return 'outer' if not v and not h else 'horiz' if not v else 'vert' if not h else \
+                    'plain' if d else 'inner'
+            states = (q(-1, -1), q(-1, 1), q(1, -1), q(1, 1))
+            self.pave_states[(x, y)] = states
+            if states in PRIMARY_PAVING:
+                self.g[y][x] = PRIMARY_PAVING[states]
+            elif pave_ids is not None and states in pave_ids:
+                self.g[y][x] = pave_ids[states]
+            else:
+                self.pave_needed.add(states)
+                self.g[y][x] = 0x16E
+
+    def fill_notches(self):
+        """Paves any free lawn cell with paving on three sides or more (a notch the paths left), until none is left."""
+        changed = True
+        while changed:
+            changed = False
+            for y in range(self.h):
+                for x in range(self.w):
+                    if (x, y) in self.used:
+                        continue
+                    sides = sum((x + dx, y + dy) in self.paved for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+                    if sides >= 3:
+                        self.path(x, y, x + 1, y + 1)
+                        changed = True
 
     def block(self, x0, y0, w, h):
         for y in range(y0, y0 + h):
@@ -1279,7 +1367,15 @@ def campus_ground(st, reserve=()):
     g.forest(41, CAMPUS_H - 4, CAMPUS_W, CAMPUS_H)
     for (x0, y0, x1, y1) in CAMPUS_PATHS:
         g.path(x0, y0, x1, y1)
-    g.lay()
+    # Fill the lawn notches the paths leave (not under buildings, the ranch, the stadium or the signs), then pave
+    for (name, x, y) in CAMPUS:
+        g.block(x, y, st[name]['w'], st[name]['h'])
+    g.block(48, 5, 10, 12)
+    g.block(4, 4, 22, 12)
+    for (x, y) in CAMPUS_SIGNS:
+        g.used.add((x, y))
+    g.fill_notches()
+    g.lay({tuple(k.split(',')): v for k, v in st.get('PAVING', {}).items()})
     stamp_solid = {}
     for (name, x, y) in CAMPUS:
         g.stamp(st[name], x, y)
@@ -1290,9 +1386,14 @@ def campus_ground(st, reserve=()):
     g.fence(48, 5, 58, 17, gap=(52, 54))
     g.block(4, 4, 22, 12)
     for (x, y) in CAMPUS_SIGNS:
-        # On the paving, the sign stands on paving (the primary's sign has grass under it)
+        # On the paving, the sign stands on that cell's paving, edges and all (the primary's sign has grass under it)
         if (x, y) in g.paved:
-            g.set(x, y, st['SIGN_ON_PAVING']['rows'][0][0])
+            key = ','.join(g.pave_states[(x, y)])
+            if key in st.get('SIGN_PAVING', {}):
+                g.set(x, y, st['SIGN_PAVING'][key])
+            else:
+                g.sign_needed.add(g.pave_states[(x, y)])
+                g.set(x, y, 0x003)
             stamp_solid[(x, y)] = 1
         else:
             g.set(x, y, 0x003)
@@ -2313,11 +2414,16 @@ def main():
     ext = Tileset('gTileset_CeladonUniversity', os.path.join(ROOT, 'data/tilesets/secondary/celadon_university'),
                   EXTERIOR_PALS, 'gTileset_General_Frlg', grass)
     ext_stamps = cut_exterior(ext, exterior_stamps(), MB)
-    # The primary's signpost (its top layer, its behavior) over the primary's paving instead of its grass
+    # The paving's junctions, 1-wide stretches and ends: the mixes of quarters the campus needs
+    g, _ = campus_ground(ext_stamps)
+    pave = paving_metatiles(ext, g.pave_needed)
+    ext_stamps['PAVING'] = {','.join(k): v for k, v in pave.items()}
+    # Signposts on the paving: the primary's signpost (its top layer, its behavior) over the cell's paving
+    g, _ = campus_ground(ext_stamps)
     sign = primary_entries('gTileset_General_Frlg', 0x003, 1)
-    sign_mid = ext.metatile(primary_entries('gTileset_General_Frlg', 0x16E), sign,
-                            behavior_of('gTileset_General_Frlg', 0x003), LAYER_COVERED)
-    ext_stamps['SIGN_ON_PAVING'] = {'w': 1, 'h': 1, 'rows': [[sign_mid]], 'solid': [[1]], 'doors': [], 'warps': []}
+    ext_stamps['SIGN_PAVING'] = {
+        ','.join(k): ext.metatile(paving_entries(ext, k), sign, behavior_of('gTileset_General_Frlg', 0x003),
+                                  LAYER_COVERED) for k in sorted(g.sign_needed)}
 
     # The room tilesets: the academic buildings and dorms; the Science Institute and the hospital
     rooms = make_rooms()

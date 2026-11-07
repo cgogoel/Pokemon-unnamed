@@ -290,7 +290,13 @@ Act2_EventScript_ClubComeIn:
 Act2_EventScript_ClubConfirmTeam:
 	specialvar VAR_RESULT, Act2_BufferClubTeam
 	msgbox gStringVar4
+	goto_if_eq VAR_RESULT, 0, Act2_EventScript_ClubNoTeam
 	msgbox Act2_Text_ClubReady, MSGBOX_YESNO
+	return
+
+@ No one able to battle: as if the player said not yet
+Act2_EventScript_ClubNoTeam:
+	setvar VAR_RESULT, NO
 	return
 
 Act2_EventScript_ClubNotYet:

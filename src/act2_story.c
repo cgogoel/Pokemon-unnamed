@@ -516,6 +516,7 @@ static const u8 sText_Recorded[] = _("Recorded: ");
 static const u8 sText_OfThree[] = _(" of 3.");
 static const u8 sText_NewLine[] = _("\n");
 static const u8 sText_NextPage[] = _("\p");
+static const u8 sText_NoSheet[] = _("There's no research sheet to\nfill in right now.");
 
 static void AppendTask(u8 *dest, const u8 *a, const u8 *b, const u8 *c)
 {
@@ -537,7 +538,8 @@ void Act2_BufferResearchSheet(void)
     u8 count[4];
     if (course == NULL)
     {
-        dest[0] = EOS;
+        // Never an empty message box
+        StringCopy(dest, sText_NoSheet);
         return;
     }
     StringCopy(dest, sText_SheetTitle);
@@ -698,6 +700,7 @@ static u32 GetClubTeamSlots(u8 *slots)
 static const u8 sText_ClubTeam3[] = _("So it's {STR_VAR_1} in front,\n{STR_VAR_2} in the middle\land {STR_VAR_3} in back.");
 static const u8 sText_ClubTeam2[] = _("So it's {STR_VAR_1} in front\nand {STR_VAR_2} in back.");
 static const u8 sText_ClubTeam1[] = _("So it's just {STR_VAR_1}.");
+static const u8 sText_ClubTeam0[] = _("Your POKéMON are all worn out!\nHeal them up first.");
 
 static void BufferNickname(u8 *dest, u32 slot)
 {
@@ -708,7 +711,7 @@ static void BufferNickname(u8 *dest, u32 slot)
 // specialvar VAR_RESULT, Act2_BufferClubTeam: who battles and where, in gStringVar4; returns how many
 u16 Act2_BufferClubTeam(void)
 {
-    static const u8 *const sTexts[] = { sText_ClubTeam1, sText_ClubTeam1, sText_ClubTeam2, sText_ClubTeam3 };
+    static const u8 *const sTexts[] = { sText_ClubTeam0, sText_ClubTeam1, sText_ClubTeam2, sText_ClubTeam3 };
     u8 slots[CLUB_TEAM_SIZE];
     u32 count = GetClubTeamSlots(slots);
     u8 *const vars[] = { gStringVar1, gStringVar2, gStringVar3 };

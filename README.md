@@ -25,8 +25,6 @@ The game follows an ordinary person's life with Pokémon in three acts, each lon
 
   ![Celadon University](docs/readme/campus.png)
 
-- **The friends' families:** each of the player's university friends has a family home in Kanto, with parents who
-  talk about their kid as the story goes on.
 - **Act 3:** none yet.
 
 ### Befriending (Act 1)
@@ -84,6 +82,11 @@ When each side has only two Pokémon, the same rules apply with two Pokémon per
 Each course (Fire, Water, Grass) is a field trip with a research sheet: catch three different Pokémon of the type,
 use and record moves of the type, and solve a puzzle at the site using a Pokémon of the type. Completing the sheet
 lets the player make the course's TM (reusable, as are all TMs) and take the course exam.
+
+### The friends' families (Act 2 on)
+
+Each of the player's university friends has a family home in Kanto, with parents who are always in and who talk
+about their kid as the story goes on.
 
 ### Quests (Acts 2 and 3)
 

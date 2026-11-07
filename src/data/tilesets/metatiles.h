@@ -362,6 +362,9 @@ const u16 gMetatileAttributes_CeladonUniversity[] = INCBIN_U16("data/tilesets/se
 const u16 gMetatiles_UniversityInterior[] = INCBIN_U16("data/tilesets/secondary/university_interior/metatiles.bin");
 const u16 gMetatileAttributes_UniversityInterior[] = INCBIN_U16("data/tilesets/secondary/university_interior/metatile_attributes.bin");
 
+const u16 gMetatiles_UniversityLab[] = INCBIN_U16("data/tilesets/secondary/university_lab/metatiles.bin");
+const u16 gMetatileAttributes_UniversityLab[] = INCBIN_U16("data/tilesets/secondary/university_lab/metatile_attributes.bin");
+
 const u16 gMetatiles_Museum[] = INCBIN_U16("data/tilesets/secondary/museum_frlg/metatiles.bin");
 const u16 gMetatileAttributes_Museum[] = INCBIN_U16("data/tilesets/secondary/museum_frlg/metatile_attributes.bin");
 

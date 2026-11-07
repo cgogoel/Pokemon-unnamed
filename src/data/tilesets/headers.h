@@ -1400,6 +1400,18 @@ const struct Tileset gTileset_UniversityInterior =
     .callback = NULL,
 };
 
+// Celadon University's Science Institute and hospital (over gTileset_BuildingFrlg), tools/hack/draw_university_tiles.py
+const struct Tileset gTileset_UniversityLab =
+{
+    .isCompressed = TRUE,
+    .isSecondary = TRUE,
+    .tiles = gTilesetTiles_UniversityLab,
+    .palettes = gTilesetPalettes_UniversityLab,
+    .metatiles = gMetatiles_UniversityLab,
+    .metatileAttributes = gMetatileAttributes_UniversityLab,
+    .callback = NULL,
+};
+
 const struct Tileset gTileset_RestaurantHotel =
 {
     .isCompressed = TRUE,

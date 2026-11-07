@@ -10,16 +10,13 @@ Act2_EventScript_InstituteObjects::
 	call_if_eq VAR_ACT2_PROGRESS, ACT2_GOT_TRAINER_CARD, Act2_EventScript_ShowObjectsTemp1
 	end
 
-@ Coord events just inside the door (x 3-5, y 8): the player walks up between KAI and MINA, facing the director
+@ Coord events just inside the door (row 12): the player walks over to x 8, then up to (8,10) between KAI and
+@ MINA, facing the director (8,9)
 Act2_EventScript_FinalBrief::
 	lockall
 	msgbox Act2_Text_BriefComeIn
 	closemessage
-	getplayerxy VAR_0x8004, VAR_0x8005
-	call_if_eq VAR_0x8004, 3, Act2_EventScript_BriefWalkFrom3
-	call_if_eq VAR_0x8004, 4, Act2_EventScript_BriefWalkFrom4
-	call_if_eq VAR_0x8004, 5, Act2_EventScript_BriefWalkFrom5
-	waitmovement 0
+	call Act2_EventScript_BriefWalk
 	msgbox Act2_Text_Brief
 	playfanfare MUS_RG_OBTAIN_KEY_ITEM
 	message Act2_Text_GotTownMap
@@ -52,29 +49,25 @@ Act2_EventScript_FinalBrief::
 	releaseall
 	end
 
-Act2_EventScript_BriefWalkFrom3:
-	applymovement LOCALID_PLAYER, Act2_Movement_BriefFrom3
+Act2_EventScript_BriefWalk:
+	getplayerxy VAR_0x8004, VAR_0x8005
+	goto_if_lt VAR_0x8004, 8, Act2_EventScript_BriefStepRight
+	goto_if_gt VAR_0x8004, 8, Act2_EventScript_BriefStepLeft
+	applymovement LOCALID_PLAYER, Common_Movement_WalkUp2
+	waitmovement 0
 	return
 
-Act2_EventScript_BriefWalkFrom4:
-	applymovement LOCALID_PLAYER, Act2_Movement_BriefFrom4
-	return
+Act2_EventScript_BriefStepRight:
+	applymovement LOCALID_PLAYER, Common_Movement_WalkRight
+	waitmovement 0
+	goto Act2_EventScript_BriefWalk
 
-Act2_EventScript_BriefWalkFrom5:
-	applymovement LOCALID_PLAYER, Act2_Movement_BriefFrom5
-	return
+Act2_EventScript_BriefStepLeft:
+	applymovement LOCALID_PLAYER, Common_Movement_WalkLeft
+	waitmovement 0
+	goto Act2_EventScript_BriefWalk
 
-Act2_Movement_BriefFrom3:
-	walk_right
-Act2_Movement_BriefFrom4:
-	walk_right
-Act2_Movement_BriefFrom5:
-	walk_right
-	walk_right
-	walk_up
-	step_end
-
-@ From (9,7) to just below the player (7,8)
+@ From (10,10) to just below the player (8,11)
 Act2_Movement_RowanToPlayer:
 	walk_down
 	walk_left
@@ -391,7 +384,7 @@ Act2_EventScript_EnterStation:
 
 @ ---------------------------------------------------------------------------------------------------------------
 @ The ending. After the chamber, the player is home in their room (2F); the friends come up the stairs (10,2) one
-@ by one and line up beside the player at (3,3). Then the lab (the institute's Research Room): Tri-Blast.
+@ by one and line up beside the player at (3,3). Then the lab (the institute's Research Room, 3F): Tri-Blast.
 
 Act2_EventScript_HomeFriend::
 	msgbox Act2_Text_HomeFriend, MSGBOX_NPC
@@ -425,7 +418,7 @@ Act2_EventScript_FriendsVisit::
 	msgbox Act2_Text_Epiphany
 	closemessage
 	fadescreen FADE_TO_BLACK
-	warp MAP_CELADON_UNIVERSITY_SCIENCE_RESEARCH_ROOM, 5, 2
+	warp MAP_CELADON_UNIVERSITY_SCIENCE_RESEARCH_ROOM, 8, 2
 	waitstate
 	releaseall
 	end
@@ -469,7 +462,7 @@ Act2_Movement_HomeRowan:
 	walk_in_place_faster_left
 	step_end
 
-@ The lab: the friends stand behind the player, who's at the machine (5,2) facing the wall
+@ The lab: the friends stand behind the player, who's at the center terminal (8,2) facing the wall
 Act2_EventScript_LabObjects::
 	goto_if_ne VAR_ACT2_PROGRESS, ACT2_LEGENDS_CALMED, Act2_EventScript_LabObjectsEnd
 	clearflag FLAG_TEMP_1
@@ -534,34 +527,43 @@ Act2_EventScript_TriBlastReveal::
 	releaseall
 	end
 
-@ From the door (7,9): up to (7,7), left to their column, up to row 5, behind the friends
+@ Up the stairs (2,2): down to row 5, then right to their column, behind the friends (7-9,3)
 Act2_Movement_LabAshford:
-	walk_up
-	walk_up
-	walk_left
-	walk_left
-	walk_left
-	walk_up
-	walk_up
+	walk_down
+	walk_down
+	walk_down
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
 	walk_in_place_faster_up
 	step_end
 
 Act2_Movement_LabMarlowe:
-	walk_up
-	walk_up
-	walk_left
-	walk_left
-	walk_up
-	walk_up
+	walk_down
+	walk_down
+	walk_down
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
 	walk_in_place_faster_up
 	step_end
 
 Act2_Movement_LabFern:
-	walk_up
-	walk_up
-	walk_left
-	walk_up
-	walk_up
+	walk_down
+	walk_down
+	walk_down
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
 	walk_in_place_faster_up
 	step_end
 

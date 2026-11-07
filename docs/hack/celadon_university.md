@@ -1,69 +1,51 @@
 # Celadon University
 
-Act 2's setting. The campus is its own map north of Celadon City, through a gate.
+Act 2's setting. The campus is its own map north of Celadon City, through a gate. Its look follows the Tamamushi
+University lore art: white stone buildings with slate roofs in a forest (the remake: `docs/hack/university_remake/`).
 
 | Map | Layout | Notes |
 |---|---|---|
 | `MAP_CELADON_CITY` | `LAYOUT_CELADON_CITY` | Route 6's gate front stamped on the north edge, doors at (38,5)-(39,5) (warps 13, 14) |
-| `MAP_CELADON_CITY_UNIVERSITY_GATE` | `LAYOUT_SAFFRON_CITY_NORTH_SOUTH_ENTRANCE` (shared with Saffron's gates) | A friendly guard; no thirsty-guard triggers |
-| `MAP_CELADON_UNIVERSITY` | `LAYOUT_CELADON_UNIVERSITY` (64x56, Celadon's tilesets) | Gate at the bottom, warps at (31,49)-(32,49) |
+| `MAP_CELADON_CITY_UNIVERSITY_GATE` | `LAYOUT_SAFFRON_CITY_NORTH_SOUTH_ENTRANCE` (shared with Saffron's gates) | A friendly guard |
+| `MAP_CELADON_UNIVERSITY` | `LAYOUT_CELADON_UNIVERSITY` (76x64, `gTileset_General_Frlg` + `gTileset_CeladonUniversity`) | The gate's passage at (37,59)-(38,59) |
 
-## The base layout
+## How it's built
 
-`tools/hack/compose_university.py` builds the campus from pieces of FireRed's maps (with their collision), as a
-starting point to refine in Porymap. Re-running it overwrites the campus layout, so after editing it in Porymap,
-don't. `--celadon` also stamps the gate into Celadon City (already done; only needed again on a fresh Celadon).
+- `tools/hack/draw_university_tiles.py` draws the art and writes the tilesets: `gTileset_CeladonUniversity` (the
+  campus), `gTileset_UniversityInterior` (the academic buildings and dorms), `gTileset_UniversityLab` (the Science
+  Institute and the hospital), and `tools/hack/university_stamps.json` (every building and room as metatile ids with
+  collision). Needs Pillow.
+- `tools/hack/build_university_maps.py` lays out the campus and every room from the stamps and places every warp,
+  person, sign and trigger (its tables are the source of truth). Re-running it overwrites the layouts, so after
+  editing them in Porymap, don't; move events in Porymap or in its tables.
 
-It follows the lore art (the Tamamushi University diagram): a wooded campus with the main hall across the middle.
+Rooms are bigger than their buildings in proportion: building `w x h` -> room `w + 4` by `h + 2` (11x9 to 21x15), the
+door at the same place (column + 2); the player's room stays 11x9.
 
-| Spot | Building (placeholder look) | Doors |
+## Buildings
+
+| Building (campus door) | Room(s) | Notes |
 |---|---|---|
-| Middle | Main hall: the Department Store as the clock tower, Game Corner wings, the Restaurant's glass roof as the greenhouse behind | (29,27), (33,27); wings (18,26), (23,27), (39,27), (44,26) |
-| In front of it | Gyarados fountain square, then the avenue to the gate, with a long reflecting pool and a row of trees | |
-| Top left | Stadium: fenced, with a track | |
-| Left | Research ranch: fenced | |
-| Behind the east wing | Literature (two houses) | (38,18), (42,18) |
-| Top right | Science Research Institute (Condominiums) | (53,15) |
-| Bottom left | University hospital (Pokémon Center) and the pool, with a stone deck around it | (20,42) |
-| By the gate | Dorms: two residence towers (Condominiums) | (39,44) lobby, (46,44) the player's room |
-| Right | Home Economics (Gym) with a garden and pond | (53,38) |
+| Main Hall + clock tower (38,35) | `MAIN_HALL` 19x13, `MAIN_HALL_2F` 19x13 | Stairs up on both sides ((1-2,3), (16-17,3)) to the clock gallery |
+| Lecture Hall A (25,35) | `LECTURE_HALL_A` 15x11 | Fire course (Prof. Ashford) |
+| Lecture Hall B, audiovisual (51,35) | `LECTURE_HALL_B` 15x11 | Water course (Prof. Marlowe) |
+| Faculty Office (15,35) | `FACULTY_OFFICE` 13x10 | West end pavilion |
+| Cafeteria (61,35) | `CAFETERIA` 13x10 | East end pavilion |
+| Literature & Library, one building (9,25), (20,25) | `LITERATURE`, `LIBRARY` 15x11 | |
+| Home Economics, the greenhouse (37,16) | `HOME_ECONOMICS` 21x11 | Grass course (Prof. Fern) |
+| Science Research Institute, the glass tower (64,20) | 1F `SCIENCE_INSTITUTE`, 2F `SCIENCE_LOUNGE`, 3F `SCIENCE_RESEARCH_ROOM`, 4F `SCIENCE_EXPERIMENT_ROOM`, 17x15 each | Stairs alternate sides: up on the right from 1F and 3F, on the left from 2F |
+| University Hospital (20,49) | `HOSPITAL`, `HOSPITAL_2F` 17x12 | The nurse heals; the ward upstairs |
+| Dorm (56,47) | `DORM_LOBBY`, `DORM_2F`, `DORM_3F` 21x12 | Floors: a corridor with three bedrooms (KAI and MINA on 2F, ROWAN on 3F) |
+| Dorm annex (56,57) | `DORM_ROOM` 11x9 | The player's room. **Act 2 starts here**, at (2,3) beside the bed |
+| Stadium (the Sports Complex) | outdoor | The club meets on the infield; triggers across its entrance (row 15) |
+| Ranch, pool, fountain, reflecting pools | outdoor | |
 
-The rest is filled with groves of trees that keep a one-tile walkway along every path and building
-(`fill_with_trees`). Every door is reachable from the gate.
+## Story spots
 
-None of the buildings have interiors or warps yet. `python3 tools/hack/render_layout.py LAYOUT_CELADON_UNIVERSITY
-out.png --map CeladonUniversity` previews it.
-
-## Interiors
-
-Every door has a room, each a copy of a FireRed interior layout (its own `LAYOUT_CELADON_UNIVERSITY_*`, so editing
-it in Porymap leaves the original alone). The Main Hall's two doors lead to the same lobby.
-
-| Map (`MAP_CELADON_UNIVERSITY_*`) | Door on campus | Copied from |
-|---|---|---|
-| `MAIN_HALL`, upstairs `MAIN_HALL_2F` (clock tower gallery; the elevator goes there too) | (29,27), (33,27) | Trainer Tower lobby; Pewter Museum 2F |
-| `LECTURE_HALL_A` | (23,27) west wing | Viridian City school |
-| `LECTURE_HALL_B` (audiovisual classroom) | (39,27) east wing | Fuchsia City warden's house |
-| `CAFETERIA` | (18,26) | Celadon City restaurant |
-| `FACULTY_OFFICE` | (44,26) | A FireRed house |
-| `LITERATURE` | (38,18) | Saffron City Pokémon Trainer Fan Club |
-| `LIBRARY` | (42,18) | Five Island Resort Gorgeous house |
-| `SCIENCE_INSTITUTE`, with `SCIENCE_LOUNGE`, `SCIENCE_RESEARCH_ROOM`, `SCIENCE_EXPERIMENT_ROOM` | (53,15) | Cinnabar Island Pokémon Lab and its three rooms |
-| `HOSPITAL` (the nurse heals), upstairs `HOSPITAL_2F` (the ward) | (20,42) | Pokémon Center 1F and 2F |
-| `DORM_LOBBY`, upstairs `DORM_2F`, `DORM_3F` | (39,44) | Celadon Condominiums 1F; the floors are three bedrooms over a corridor each (`tools/hack/compose_dorm_floor.py`: the player's room without its exit, the Safari Zone office's partition wall, the Pallet Town house's stairs) |
-| `DORM_ROOM`, the player's | (46,44) | Lorelei's house. **Act 2 starts here**, at (2,3) beside the bed (`ACT2_START_MAP`) |
-| `HOME_ECONOMICS` | (53,38) | Celadon City Gym (the garden) |
-
-## Decoration
-
-- **Outside** (`compose_university.py`): signposts at every building, lamp posts along the avenue and at the
-  fountain, floodlights at the stadium, flower beds along the street. The signs' texts are bg events in the
-  campus's `map.json`.
-- **People and Pokémon**: students and staff everywhere, with flavor lines from the lore (the Gyarados fountain
-  marks noon; the strongest Magikarp came from the Science Research Institute; the emblem's Magikarp and Gyarados
-  mean anyone can grow with effort; Erika guest-lectures Home Economics). Ponyta on the ranch, Psyduck at the pool,
-  a swimmer in it, Chansey at the hospital, Meowth and Clefairy in the dorm lobby, the professor's Slowpoke.
-- **Furniture** has things to read: blackboards, bookshelves, computers, exhibits, notice boards. The dorm room has
-  the player's things: a photo of the farm, the course schedule, and a Lapras doll from Mom.
-
-Nothing here is story yet: no flags, no scenes, the same lines in every act.
+- Act 2's start: the friends wait outside the annex ((53,58), (54,58), (59,58)) and walk off toward the Main Hall.
+- Club nights: `Act2_EventScript_ClubGate` (coord events at (5-24,15)) starts the night's arrival; the friends and
+  DALE stand on the infield.
+- The brief (`act2_finale.inc`): coord events across the institute's row 12; the player walks to (8,10) between KAI
+  and MINA, facing the director (8,9).
+- Tri-Blast: the lab is 3F; the player at the center terminal (8,2), the friends behind (7-9,3), the professors
+  come up the stairs (2,2).

@@ -72,8 +72,8 @@ Act2_EventScript_MeetFriends::
 	applymovement LOCALID_CAMPUS_KAI, Act2_Movement_KaiToClass
 	applymovement LOCALID_CAMPUS_MINA, Act2_Movement_MinaToClass
 	applymovement LOCALID_CAMPUS_ROWAN, Act2_Movement_RowanToClass
-	@ Until ROWAN, the last, is out of sight (10 steps along the path, after its 2-step wait), not the whole walk
-	delay 196
+	@ Until ROWAN, the last, is out of sight (11 steps after its 2-step wait), not the whole walk
+	delay 212
 	removeobject LOCALID_CAMPUS_KAI
 	removeobject LOCALID_CAMPUS_MINA
 	removeobject LOCALID_CAMPUS_ROWAN
@@ -81,7 +81,8 @@ Act2_EventScript_MeetFriends::
 	releaseall
 	end
 
-@ Off toward the MAIN HALL: along the path to the avenue (x 33), then up it until well out of sight
+@ Off toward the MAIN HALL: from outside the annex (the player at (56,58)) west along the dorms' path to x 45,
+@ then up it toward the avenue, until well out of sight. ROWAN, east of the player, goes round below.
 Act2_Movement_KaiToClass:
 	walk_left
 	walk_left
@@ -91,9 +92,8 @@ Act2_Movement_KaiToClass:
 	walk_left
 	walk_left
 	walk_left
-	walk_left
-	walk_left
-	walk_left
+	walk_up
+	walk_up
 	walk_up
 	walk_up
 	walk_up
@@ -117,11 +117,8 @@ Act2_Movement_MinaToClass:
 	walk_left
 	walk_left
 	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
+	walk_up
+	walk_up
 	walk_up
 	walk_up
 	walk_up
@@ -137,6 +134,7 @@ Act2_Movement_MinaToClass:
 Act2_Movement_RowanToClass:
 	delay_16
 	delay_16
+	walk_down
 	walk_left
 	walk_left
 	walk_left
@@ -151,7 +149,9 @@ Act2_Movement_RowanToClass:
 	walk_left
 	walk_left
 	walk_left
-	walk_left
+	walk_up
+	walk_up
+	walk_up
 	walk_up
 	walk_up
 	walk_up
@@ -225,6 +225,14 @@ Act2_EventScript_ClubMorning:
 	special Act2_ShowNextDayCard
 	waitstate
 	releaseall
+	end
+
+@ Walking into the stadium (coord events across its entrance, VAR_TEMP_1 0): on a club night, that night's
+@ arrival; otherwise nothing
+Act2_EventScript_ClubGate::
+	goto_if_eq VAR_ACT2_PROGRESS, ACT2_FIRE_INVITED, Act2_EventScript_ClubNight1
+	goto_if_eq VAR_ACT2_PROGRESS, ACT2_WATER_INVITED, Act2_EventScript_ClubNight2
+	goto_if_eq VAR_ACT2_PROGRESS, ACT2_GRASS_INVITED, Act2_EventScript_ClubNight3
 	end
 
 @ Arriving on a club night (coord events at the gate): the friends explain tonight's battle, then the player can line

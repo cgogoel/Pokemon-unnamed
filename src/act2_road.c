@@ -97,7 +97,7 @@ bool32 Act2Road_IsActive(void)
     return VarGet(VAR_STORY_ACT) == STORY_ACT_UNIVERSITY && VarGet(VAR_ACT2_PROGRESS) >= ACT2_FINAL_PROJECT;
 }
 
-// Saffron's four gates let the player through, Route 2's Cut trees are gone and Pewter's gym guide stays put
+// Saffron's four gates let the player through and Route 2's Cut trees are gone
 bool32 Act2Road_IsRouteOpen(void)
 {
     return FlagGet(FLAG_ACT2_ROUTE_OPEN) || Act2Road_IsActive();

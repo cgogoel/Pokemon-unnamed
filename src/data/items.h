@@ -739,7 +739,7 @@ const struct ItemInfo gItemsInfo[] =
         .holdEffectParam = 75,
         .description = COMPOUND_STRING(
             "A homemade wrap\n"
-            "packed with berries.\n"
+            "full of berries.\n"
             "Restores 75 HP."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_HEALTH_RECOVERY,

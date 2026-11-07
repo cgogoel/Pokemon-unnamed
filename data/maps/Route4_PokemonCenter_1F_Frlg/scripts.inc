@@ -16,7 +16,7 @@ Route4_PokemonCenter_1F_EventScript_Boy::
 
 Route4_PokemonCenter_1F_EventScript_Gentleman::
 	lock
-	msgbox Route4_PokemonCenter_1F_Text_TeamRocketAttacksCerulean
+	msgbox Route4_PokemonCenter_1F_Text_MtMoonMeteorShower
 	release
 	end
 
@@ -152,11 +152,13 @@ Route4_PokemonCenter_1F_Text_CanHaveSixMonsWithYou::
 	.string "Yeah, that'll do it. At most, you\n"
 	.string "can have six POKéMON with you.$"
 
-Route4_PokemonCenter_1F_Text_TeamRocketAttacksCerulean::
-	.string "TEAM ROCKET attacks CERULEAN\n"
-	.string "citizens…\p"
-	.string "Not a day goes by without TEAM\n"
-	.string "ROCKET being in the news.$"
+Route4_PokemonCenter_1F_Text_MtMoonMeteorShower::
+	.string "The paper says there'll be a\n"
+	.string "meteor shower over MT. MOON.\p"
+	.string "They say CLEFAIRY come out to\n"
+	.string "dance on nights like that.\p"
+	.string "I've booked a room here just\n"
+	.string "so I won't miss it.$"
 
 Route4_PokemonCenter_1F_Text_LaddieBuyMagikarpForJust500::
 	.string "MAN: Hello there, laddie!\n"

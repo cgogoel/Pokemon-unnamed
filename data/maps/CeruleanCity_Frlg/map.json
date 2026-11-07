@@ -53,21 +53,6 @@
       "flag": "0"
     },
     {
-      "local_id": "LOCALID_CERULEAN_GRUNT",
-      "type": "object",
-      "graphics_id": "OBJ_EVENT_GFX_ROCKET_M",
-      "x": 33,
-      "y": 6,
-      "elevation": 3,
-      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
-      "movement_range_x": 1,
-      "movement_range_y": 1,
-      "trainer_type": "TRAINER_TYPE_NONE",
-      "trainer_sight_or_berry_tree_id": "0",
-      "script": "CeruleanCity_EventScript_Grunt",
-      "flag": "FLAG_HIDE_CERULEAN_ROCKET"
-    },
-    {
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_LITTLE_BOY_FRLG",
       "x": 16,
@@ -138,21 +123,6 @@
       "trainer_sight_or_berry_tree_id": "0",
       "script": "CeruleanCity_EventScript_Youngster",
       "flag": "0"
-    },
-    {
-      "local_id": "LOCALID_CERULEAN_RIVAL",
-      "type": "object",
-      "graphics_id": "OBJ_EVENT_GFX_BLUE",
-      "x": 22,
-      "y": 0,
-      "elevation": 3,
-      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
-      "movement_range_x": 1,
-      "movement_range_y": 1,
-      "trainer_type": "TRAINER_TYPE_NONE",
-      "trainer_sight_or_berry_tree_id": "0",
-      "script": "0x0",
-      "flag": "FLAG_HIDE_CERULEAN_RIVAL"
     },
     {
       "type": "object",
@@ -307,53 +277,7 @@
       "dest_warp_id": "0"
     }
   ],
-  "coord_events": [
-    {
-      "type": "trigger",
-      "x": 22,
-      "y": 6,
-      "elevation": 3,
-      "var": "VAR_MAP_SCENE_CERULEAN_CITY_RIVAL",
-      "var_value": "0",
-      "script": "CeruleanCity_EventScript_RivalTriggerLeft"
-    },
-    {
-      "type": "trigger",
-      "x": 23,
-      "y": 6,
-      "elevation": 3,
-      "var": "VAR_MAP_SCENE_CERULEAN_CITY_RIVAL",
-      "var_value": "0",
-      "script": "CeruleanCity_EventScript_RivalTriggerMid"
-    },
-    {
-      "type": "trigger",
-      "x": 24,
-      "y": 6,
-      "elevation": 3,
-      "var": "VAR_MAP_SCENE_CERULEAN_CITY_RIVAL",
-      "var_value": "0",
-      "script": "CeruleanCity_EventScript_RivalTriggerRight"
-    },
-    {
-      "type": "trigger",
-      "x": 33,
-      "y": 5,
-      "elevation": 3,
-      "var": "VAR_MAP_SCENE_CERULEAN_CITY_ROCKET",
-      "var_value": "0",
-      "script": "CeruleanCity_EventScript_GruntTriggerTop"
-    },
-    {
-      "type": "trigger",
-      "x": 33,
-      "y": 7,
-      "elevation": 3,
-      "var": "VAR_MAP_SCENE_CERULEAN_CITY_ROCKET",
-      "var_value": "0",
-      "script": "CeruleanCity_EventScript_GruntTriggerBottom"
-    }
-  ],
+  "coord_events": [],
   "bg_events": [
     {
       "type": "sign",

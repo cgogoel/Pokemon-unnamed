@@ -134,7 +134,7 @@ CeruleanCity_Gym_Text_LuisPostBattle::
 
 CeruleanCity_Gym_Text_GymGuyAdvice::
 	.string "Yo!\n"
-	.string "Champ in the making!\p"
+	.string "Here to take on the GYM?\p"
 	.string "Let me give you some advice!\p"
 	.string "The LEADER, MISTY, is a pro who\n"
 	.string "uses WATER-type POKéMON.\p"
@@ -146,18 +146,17 @@ CeruleanCity_Gym_Text_GymGuyAdvice::
 CeruleanCity_Gym_Text_WeMakePrettyGoodTeam::
 	.string "You beat MISTY!\n"
 	.string "See, what'd I tell ya?\p"
-	.string "You and me, kid, we make a pretty\n"
-	.string "darn-good team!$"
+	.string "Good advice and a good TRAINER.\n"
+	.string "Can't miss!$"
 
 CeruleanCity_Gym_Text_GymStatue::
 	.string "CERULEAN POKéMON GYM\n"
 	.string "LEADER: MISTY\p"
-	.string "WINNING TRAINERS:\n"
-	.string "{RIVAL}$"
+	.string "The Tomboyish Mermaid!$"
 
 CeruleanCity_Gym_Text_GymStatuePlayerWon::
 	.string "CERULEAN POKéMON GYM\n"
 	.string "LEADER: MISTY\p"
 	.string "WINNING TRAINERS:\n"
-	.string "{RIVAL}, {PLAYER}$"
+	.string "{PLAYER}$"
 

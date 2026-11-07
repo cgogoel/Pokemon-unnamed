@@ -106,15 +106,15 @@ MtMoon_1F_Text_IrisPostBattle::
 	.string "some very rare fossils here.$"
 
 MtMoon_1F_Text_KentIntro::
-	.string "Suspicious men are in the cave.\n"
-	.string "What about you?$"
+	.string "Shh! I'm listening for CLEFAIRY.\n"
+	.string "You'll scare them off!$"
 
 MtMoon_1F_Text_KentDefeat::
 	.string "You got me!$"
 
 MtMoon_1F_Text_KentPostBattle::
-	.string "I saw them!\n"
-	.string "I'm sure they're from TEAM ROCKET!$"
+	.string "I heard tiny footsteps, I swear!\n"
+	.string "They only dance under the moon.$"
 
 MtMoon_1F_Text_RobbyIntro::
 	.string "You need to go through this cave\n"

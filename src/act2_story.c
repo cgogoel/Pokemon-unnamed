@@ -932,7 +932,13 @@ u16 Act2_GetDockFireState(void)
 static bool32 IsFreeLandSquare(s16 x, s16 y, u8 elevation)
 {
     u8 squareElevation = MapGridGetElevationAt(x, y);
-    if (MapGridGetCollisionAt(x, y) || MetatileBehavior_IsSurfableWaterOrUnderwater(MapGridGetMetatileBehaviorAt(x, y)))
+    u32 behavior = MapGridGetMetatileBehaviorAt(x, y);
+    // On this map (not a connected one), not water, not a ledge
+    if (x < MAP_OFFSET || y < MAP_OFFSET || x >= gMapHeader.mapLayout->width + MAP_OFFSET || y >= gMapHeader.mapLayout->height + MAP_OFFSET)
+        return FALSE;
+    if (MapGridGetCollisionAt(x, y) || MetatileBehavior_IsSurfableWaterOrUnderwater(behavior)
+     || MetatileBehavior_IsJumpEast(behavior) || MetatileBehavior_IsJumpWest(behavior)
+     || MetatileBehavior_IsJumpNorth(behavior) || MetatileBehavior_IsJumpSouth(behavior))
         return FALSE;
     if (squareElevation != elevation && squareElevation != 0 && squareElevation != 15)
         return FALSE;

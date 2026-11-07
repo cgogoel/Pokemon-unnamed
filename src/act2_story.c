@@ -1,5 +1,7 @@
 #include "global.h"
+#include "script_movement.h"
 #include "act2_story.h"
+#include "act2_road.h"
 #include "battle.h"
 #include "battle_setup.h"
 #include "event_data.h"
@@ -47,21 +49,12 @@ bool32 Act2_UsesAct2WildPokemon(void)
     return VarGet(VAR_STORY_ACT) == STORY_ACT_UNIVERSITY;
 }
 
-// In Act 2, every wild Pokémon is within ACT2_WILD_LEVEL_SPREAD levels of the party's average level (from
-// ChooseWildMonLevel). The areas' tables still pick the species.
+// In Act 2, every wild Pokémon is within ACT2_WILD_LEVEL_SPREAD levels of the area's level (from ChooseWildMonLevel):
+// the party's average level when the player first came to the area in this course (Act2Road_GetAreaLevel). The
+// areas' tables still pick the species.
 u32 Act2_GetWildLevel(void)
 {
-    u32 i, total = 0, count = 0;
-    s32 level;
-    for (i = 0; i < PARTY_SIZE; i++)
-    {
-        struct Pokemon *mon = &gPlayerParty[i];
-        if (GetMonData(mon, MON_DATA_SPECIES) == SPECIES_NONE || GetMonData(mon, MON_DATA_IS_EGG))
-            continue;
-        total += GetMonData(mon, MON_DATA_LEVEL);
-        count++;
-    }
-    level = (count == 0) ? ACT2_START_LEVEL : (total + count / 2) / count;
+    s32 level = Act2Road_GetAreaLevel();
     level += (s32)(Random() % (ACT2_WILD_LEVEL_SPREAD * 2 + 1)) - ACT2_WILD_LEVEL_SPREAD;
     return min(max(level, 1), MAX_LEVEL);
 }
@@ -273,8 +266,6 @@ void Act2_RecordMoveUse(u32 battler, u32 move)
     if (!IsOnPlayerSide(battler))
         return;
     VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_USED_MOVE);
-    if (move == course->tmMove && (gBattleTypeFlags & BATTLE_TYPE_TRAINER) && TRAINER_BATTLE_PARAM.opponentA == course->professor)
-        VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_USED_TM_MOVE);
 }
 
 // On a field trip, the trip areas' wild Pokémon (Act 2 tables) are sometimes one of the type's Pokémon from
@@ -517,6 +508,7 @@ static const u8 sText_Recorded[] = _("Recorded: ");
 static const u8 sText_OfThree[] = _(" of 3.");
 static const u8 sText_NewLine[] = _("\n");
 static const u8 sText_NextPage[] = _("\p");
+static const u8 sText_NoSheet[] = _("There's no research sheet to\nfill in right now.");
 
 static void AppendTask(u8 *dest, const u8 *a, const u8 *b, const u8 *c)
 {
@@ -538,7 +530,8 @@ void Act2_BufferResearchSheet(void)
     u8 count[4];
     if (course == NULL)
     {
-        dest[0] = EOS;
+        // Never an empty message box
+        StringCopy(dest, sText_NoSheet);
         return;
     }
     StringCopy(dest, sText_SheetTitle);
@@ -572,27 +565,6 @@ void Act2_BufferResearchSheet(void)
     }
     AppendTask(dest, course->puzzleTask, NULL, NULL);
     StringAppend(dest, (done & (1 << 3)) ? sText_Done : sText_NotYet);
-}
-
-// specialvar VAR_RESULT, Act2_PartyCanUseCourseTM: a Pokémon of the course's type that knows its TM's move
-bool16 Act2_PartyCanUseCourseTM(void)
-{
-    const struct Act2Course *course = GetCurrentCourse();
-    u32 i, j;
-    if (course == NULL)
-        return FALSE;
-    for (i = 0; i < PARTY_SIZE; i++)
-    {
-        struct Pokemon *mon = &gPlayerParty[i];
-        if (GetMonData(mon, MON_DATA_SPECIES) == SPECIES_NONE || GetMonData(mon, MON_DATA_IS_EGG) || !MonHasType(mon, course->type))
-            continue;
-        for (j = 0; j < MAX_MON_MOVES; j++)
-        {
-            if (GetMonData(mon, MON_DATA_MOVE1 + j) == course->tmMove)
-                return TRUE;
-        }
-    }
-    return FALSE;
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -720,6 +692,7 @@ static u32 GetClubTeamSlots(u8 *slots)
 static const u8 sText_ClubTeam3[] = _("So it's {STR_VAR_1} in front,\n{STR_VAR_2} in the middle\land {STR_VAR_3} in back.");
 static const u8 sText_ClubTeam2[] = _("So it's {STR_VAR_1} in front\nand {STR_VAR_2} in back.");
 static const u8 sText_ClubTeam1[] = _("So it's just {STR_VAR_1}.");
+static const u8 sText_ClubTeam0[] = _("Your POKéMON are all worn out!\nHeal them up first.");
 
 static void BufferNickname(u8 *dest, u32 slot)
 {
@@ -730,7 +703,7 @@ static void BufferNickname(u8 *dest, u32 slot)
 // specialvar VAR_RESULT, Act2_BufferClubTeam: who battles and where, in gStringVar4; returns how many
 u16 Act2_BufferClubTeam(void)
 {
-    static const u8 *const sTexts[] = { sText_ClubTeam1, sText_ClubTeam1, sText_ClubTeam2, sText_ClubTeam3 };
+    static const u8 *const sTexts[] = { sText_ClubTeam0, sText_ClubTeam1, sText_ClubTeam2, sText_ClubTeam3 };
     u8 slots[CLUB_TEAM_SIZE];
     u32 count = GetClubTeamSlots(slots);
     u8 *const vars[] = { gStringVar1, gStringVar2, gStringVar3 };
@@ -849,6 +822,14 @@ void Act2_SetupSiteObjects(void)
         if ((research & ACT2_RESEARCH_PUZZLE_3) && !FlagGet(FLAG_ACT2_GOT_LAPRAS))
             FlagClear(FLAG_TEMP_8);
     }
+    else if (gSpecialVar_0x8004 == ACT2_FIRE_TRIP)
+    {
+        // The old research journal lies in the Mansion's sealed room from the start, behind the gate the statue
+        // switch opens (and the switch stays cold until the furnaces are lit), until it's read. Spawning it when the
+        // last furnace is lit didn't show it until the next visit.
+        if (!(research & ACT2_RESEARCH_PUZZLE_DONE))
+            FlagClear(FLAG_TEMP_8);
+    }
     else if ((research & ACT2_RESEARCH_PUZZLE_ALL) == ACT2_RESEARCH_PUZZLE_ALL && !(research & ACT2_RESEARCH_PUZZLE_DONE))
     {
         FlagClear(FLAG_TEMP_8);
@@ -946,40 +927,93 @@ u16 Act2_GetDockFireState(void)
 static bool32 IsFreeLandSquare(s16 x, s16 y, u8 elevation)
 {
     u8 squareElevation = MapGridGetElevationAt(x, y);
-    if (MapGridGetCollisionAt(x, y) || MetatileBehavior_IsSurfableWaterOrUnderwater(MapGridGetMetatileBehaviorAt(x, y)))
+    u32 behavior = MapGridGetMetatileBehaviorAt(x, y);
+    // On this map (not a connected one), not water, not a ledge
+    if (x < MAP_OFFSET || y < MAP_OFFSET || x >= gMapHeader.mapLayout->width + MAP_OFFSET || y >= gMapHeader.mapLayout->height + MAP_OFFSET)
+        return FALSE;
+    if (MapGridGetCollisionAt(x, y) || MetatileBehavior_IsSurfableWaterOrUnderwater(behavior)
+     || MetatileBehavior_IsJumpEast(behavior) || MetatileBehavior_IsJumpWest(behavior)
+     || MetatileBehavior_IsJumpNorth(behavior) || MetatileBehavior_IsJumpSouth(behavior))
         return FALSE;
     if (squareElevation != elevation && squareElevation != 0 && squareElevation != 15)
         return FALSE;
     return GetObjectEventIdByXY(x, y) == OBJECT_EVENTS_COUNT;
 }
 
+// How far off a friend starts when they run up to the player: far enough to be out of view when possible
+#define FRIEND_RUN_UP_STEPS 9
+
+static EWRAM_DATA u8 sFriendRunUpSteps = 0;
+static EWRAM_DATA u8 sFriendRunUpDir = 0;
+static EWRAM_DATA u8 sFriendRunUpMovement[FRIEND_RUN_UP_STEPS + 1] = {0};
+
 // specialvar VAR_RESULT, Act2_FindSpotBesidePlayer: a land square next to the player for a friend to run up to
-// (behind them first, then to their left, then their right, then in front), in VAR_0x8005/VAR_0x8006 (map
-// coordinates without MAP_OFFSET, for setobjectxy). VAR_0x8007 is the way the friend faces to look at the player.
-// FALSE if there's none.
+// (behind them first, then to their left, then their right, then in front), and where the friend starts: up to
+// FRIEND_RUN_UP_STEPS squares further out in a straight line, over free land, so they come in from out of view. The
+// start goes in VAR_0x8005/VAR_0x8006 (map coordinates without MAP_OFFSET, for setobjectxy); VAR_0x8007 is the way
+// the friend faces to look at the player. Act2_WalkFriendToPlayer then runs them up. FALSE if there's none.
 bool16 Act2_FindSpotBesidePlayer(void)
 {
     static const s8 sOffsets[][2] = { [DIR_SOUTH] = { 0, 1 }, [DIR_NORTH] = { 0, -1 }, [DIR_WEST] = { -1, 0 }, [DIR_EAST] = { 1, 0 } };
     static const u8 sOpposite[] = { [DIR_SOUTH] = DIR_NORTH, [DIR_NORTH] = DIR_SOUTH, [DIR_WEST] = DIR_EAST, [DIR_EAST] = DIR_WEST };
     static const u8 sLeft[] = { [DIR_SOUTH] = DIR_EAST, [DIR_NORTH] = DIR_WEST, [DIR_WEST] = DIR_SOUTH, [DIR_EAST] = DIR_NORTH };
     struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
-    u8 facing = GetPlayerFacingDirection(), dirs[4], i;
+    u8 facing = GetPlayerFacingDirection(), dirs[4], i, bestDir = 0, bestSteps = 0;
+    s16 bestX = 0, bestY = 0;
+    bool32 found = FALSE;
     dirs[0] = sOpposite[facing];
     dirs[1] = sLeft[facing];
     dirs[2] = sOpposite[sLeft[facing]];
     dirs[3] = facing;
+    // The first direction with a free square beside the player, preferring one with room for the full run-up
     for (i = 0; i < ARRAY_COUNT(dirs); i++)
     {
-        s16 x = player->currentCoords.x + sOffsets[dirs[i]][0], y = player->currentCoords.y + sOffsets[dirs[i]][1];
-        if (IsFreeLandSquare(x, y, player->currentElevation))
+        s16 dx = sOffsets[dirs[i]][0], dy = sOffsets[dirs[i]][1];
+        s16 x = player->currentCoords.x + dx, y = player->currentCoords.y + dy;
+        u8 steps = 0;
+        if (!IsFreeLandSquare(x, y, player->currentElevation))
+            continue;
+        while (steps < FRIEND_RUN_UP_STEPS && IsFreeLandSquare(x + dx, y + dy, player->currentElevation))
         {
-            gSpecialVar_0x8005 = x - MAP_OFFSET;
-            gSpecialVar_0x8006 = y - MAP_OFFSET;
-            gSpecialVar_0x8007 = sOpposite[dirs[i]];
-            return TRUE;
+            x += dx;
+            y += dy;
+            steps++;
         }
+        if (!found || steps > bestSteps)
+        {
+            found = TRUE;
+            bestX = x;
+            bestY = y;
+            bestDir = dirs[i];
+            bestSteps = steps;
+        }
+        if (steps == FRIEND_RUN_UP_STEPS)
+            break;
     }
-    return FALSE;
+    if (!found)
+        return FALSE;
+    gSpecialVar_0x8005 = bestX - MAP_OFFSET;
+    gSpecialVar_0x8006 = bestY - MAP_OFFSET;
+    gSpecialVar_0x8007 = sOpposite[bestDir];
+    sFriendRunUpSteps = bestSteps;
+    sFriendRunUpDir = sOpposite[bestDir];
+    return TRUE;
+}
+
+// special Act2_WalkFriendToPlayer: the friend (local id in VAR_0x8009), placed by Act2_FindSpotBesidePlayer, runs up
+// beside the player. waitmovement VAR_0x8009 after it.
+void Act2_WalkFriendToPlayer(void)
+{
+    static const u8 sRun[] =
+    {
+        [DIR_SOUTH] = MOVEMENT_ACTION_WALK_FAST_DOWN, [DIR_NORTH] = MOVEMENT_ACTION_WALK_FAST_UP,
+        [DIR_WEST] = MOVEMENT_ACTION_WALK_FAST_LEFT, [DIR_EAST] = MOVEMENT_ACTION_WALK_FAST_RIGHT,
+    };
+    u32 i;
+    for (i = 0; i < sFriendRunUpSteps; i++)
+        sFriendRunUpMovement[i] = sRun[sFriendRunUpDir];
+    sFriendRunUpMovement[i] = MOVEMENT_ACTION_STEP_END;
+    ScriptMovement_StartObjectMovementScript(gSpecialVar_0x8009, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, sFriendRunUpMovement);
 }
 
 // specialvar VAR_RESULT, Act2_IsDockFireAlarmDue: the docks are burning and no one has shown the player yet

@@ -13,9 +13,6 @@ PewterCity_Gym_EventScript_DefeatedBrock::
 	famechecker FAMECHECKER_BROCK, 1
 	setflag FLAG_DEFEATED_BROCK
 	setflag FLAG_BADGE01_GET
-	setvar VAR_MAP_SCENE_PEWTER_CITY, 1
-	setflag FLAG_HIDE_PEWTER_CITY_GYM_GUIDE
-	clearflag FLAG_HIDE_PEWTER_CITY_RUNNING_SHOES_GUY
 	set_gym_trainers_frlg 1
 	goto PewterCity_Gym_EventScript_GiveTM39
 	end
@@ -44,13 +41,13 @@ PewterCity_Gym_EventScript_GymGuy::
 	lock
 	faceplayer
 	goto_if_set FLAG_DEFEATED_BROCK, PewterCity_Gym_EventScript_GymGuyPostVictory
-	msgbox PewterCity_Gym_Text_LetMeTakeYouToTheTop, MSGBOX_YESNO
+	msgbox PewterCity_Gym_Text_WantSomeAdvice, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, YES, PewterCity_Gym_EventScript_GymGuyTakeMeToTop
 	goto_if_eq VAR_RESULT, NO, PewterCity_Gym_EventScript_GymGuyDontTakeMeToTop
 	end
 
 PewterCity_Gym_EventScript_GymGuyPostVictory::
-	msgbox PewterCity_Gym_Text_YoureChampMaterial
+	msgbox PewterCity_Gym_Text_BrockWillBeTalkingAboutThat
 	release
 	end
 
@@ -159,14 +156,12 @@ PewterCity_Gym_Text_LiamPostBattle::
 	.string "You're pretty hot.\n"
 	.string "…But not as hot as BROCK!$"
 
-PewterCity_Gym_Text_LetMeTakeYouToTheTop::
-	.string "Hiya!\n"
-	.string "Do you want to dream big?\p"
-	.string "Do you dare to dream of becoming\n"
-	.string "the POKéMON champ?\p"
-	.string "I'm no TRAINER, but I can advise\n"
-	.string "you on how to win.\p"
-	.string "Let me take you to the top!$"
+PewterCity_Gym_Text_WantSomeAdvice::
+	.string "Hiya! Here to take on BROCK?\p"
+	.string "He's tough as granite, that guy.\p"
+	.string "I'm no TRAINER, but I've watched\n"
+	.string "every match here for years.\p"
+	.string "Want some free advice?$"
 
 PewterCity_Gym_Text_LetsGetHappening::
 	.string "All right!\n"
@@ -184,19 +179,19 @@ PewterCity_Gym_Text_ItsFreeLetsGetHappening::
 	.string "It's a free service!\n"
 	.string "Let's get happening!$"
 
-PewterCity_Gym_Text_YoureChampMaterial::
-	.string "Just as I thought!\n"
-	.string "You're POKéMON champ material!$"
+PewterCity_Gym_Text_BrockWillBeTalkingAboutThat::
+	.string "Ha! I knew it the second you\n"
+	.string "walked in!\p"
+	.string "BROCK's going to be talking about\n"
+	.string "that match over dinner tonight!$"
 
 PewterCity_Gym_Text_GymStatue::
 	.string "PEWTER POKéMON GYM\n"
-	.string "LEADER: BROCK\p"
-	.string "WINNING TRAINERS:\n"
-	.string "{RIVAL}$"
+	.string "LEADER: BROCK$"
 
 PewterCity_Gym_Text_GymStatuePlayerWon::
 	.string "PEWTER POKéMON GYM\n"
 	.string "LEADER: BROCK\p"
 	.string "WINNING TRAINERS:\n"
-	.string "{RIVAL}, {PLAYER}$"
+	.string "{PLAYER}$"
 

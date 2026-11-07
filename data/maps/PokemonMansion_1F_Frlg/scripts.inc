@@ -43,8 +43,8 @@ PokemonMansion_1F_Text_TedDefeat::
 	.string "Ouch!$"
 
 PokemonMansion_1F_Text_TedPostBattle::
-	.string "A key? I don't know what you're\n"
-	.string "talking about.$"
+	.string "I'm cataloguing what the old lab\n"
+	.string "left behind. It takes forever.$"
 
 PokemonMansion_1F_Text_JohnsonIntro::
 	.string "W-w-waah! You startled me!\n"

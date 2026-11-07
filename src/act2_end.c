@@ -27,3 +27,21 @@ void Act2_EndAct2(void)
 {
     ShowActEndCards(sCards, ARRAY_COUNT(sCards), StartAct3);
 }
+
+// After each club night's battle: "The next day…" on black, then the player wakes up in their dorm room
+// (Act2_EventScript_ClubMorning). The story stage moves on just before the fade, so it stays night until then.
+static const u8 *const sNextDayCards[] =
+{
+    COMPOUND_STRING("The next day…"),
+};
+
+static void WakeUpInDormRoom(void)
+{
+    SetWarpDestination(MAP_GROUP(ACT2_START_MAP), MAP_NUM(ACT2_START_MAP), WARP_ID_NONE, ACT2_START_X, ACT2_START_Y);
+}
+
+// special Act2_ShowNextDayCard, with the screen already faded to black (then waitstate)
+void Act2_ShowNextDayCard(void)
+{
+    ShowActEndCards(sNextDayCards, ARRAY_COUNT(sNextDayCards), WakeUpInDormRoom);
+}

@@ -5,31 +5,11 @@ IndigoPlateau_PokemonCenter_1F_Frlg_MapScripts::
 
 IndigoPlateau_PokemonCenter_1F_OnTransition::
 	setrespawn HEAL_LOCATION_INDIGO_PLATEAU
-	specialvar VAR_RESULT, IsNationalPokedexEnabled
-	call_if_eq VAR_RESULT, TRUE, IndigoPlateau_PokemonCenter_1F_EventScript_CheckBlockDoor
 	end
-
-IndigoPlateau_PokemonCenter_1F_EventScript_CheckBlockDoor::
-	goto_if_set FLAG_IS_CHAMPION, Common_EventScript_NopReturn
-	setobjectxyperm LOCALID_LEAGUE_DOOR_GUARD, 4, 2
-	return
 
 IndigoPlateau_PokemonCenter_1F_EventScript_DoorGuard::
 	lock
 	faceplayer
-	specialvar VAR_RESULT, IsNationalPokedexEnabled
-	goto_if_eq VAR_RESULT, TRUE, IndigoPlateau_PokemonCenter_1F_EventScript_CheckSeviiIslandComplete
-	msgbox IndigoPlateau_PokemonCenter_1F_Text_FaceEliteFourGoodLuck
-	release
-	end
-
-IndigoPlateau_PokemonCenter_1F_EventScript_CheckSeviiIslandComplete::
-	goto_if_set FLAG_IS_CHAMPION, IndigoPlateau_PokemonCenter_1F_EventScript_SeviiIslandComplete
-	msgbox IndigoPlateau_PokemonCenter_1F_Text_LoreleiIsAbsentClosedForTimeBeing
-	release
-	end
-
-IndigoPlateau_PokemonCenter_1F_EventScript_SeviiIslandComplete::
 	msgbox IndigoPlateau_PokemonCenter_1F_Text_FaceEliteFourGoodLuck
 	release
 	end
@@ -69,8 +49,8 @@ IndigoPlateau_PokemonCenter_1F_EventScript_Nurse::
 	end
 
 IndigoPlateau_PokemonCenter_1F_Text_GymGuyAdvice::
-	.string "Yo!\n"
-	.string "Champ in the making!\p"
+	.string "Yo! Made it all the way up\n"
+	.string "here, huh?\p"
 	.string "At the POKéMON LEAGUE, you will\n"
 	.string "face the ELITE FOUR all in a row.\p"
 	.string "If you lose, you have to start all\n"
@@ -83,14 +63,6 @@ IndigoPlateau_PokemonCenter_1F_Text_FaceEliteFourGoodLuck::
 	.string "ELITE FOUR one by one.\p"
 	.string "If you win, a door opens to the\n"
 	.string "next TRAINER. Good luck!$"
-
-IndigoPlateau_PokemonCenter_1F_Text_LoreleiIsAbsentClosedForTimeBeing::
-	.string "I am so sorry, but you've wasted\n"
-	.string "your time coming here.\p"
-	.string "LORELEI of the ELITE FOUR is\n"
-	.string "absent, you see.\p"
-	.string "As a result, the POKéMON LEAGUE is\n"
-	.string "closed for the time being.$"
 
 IndigoPlateau_PokemonCenter_1F_Text_AgathaWhuppedUs::
 	.string "AGATHA's GHOST-type POKéMON are\n"

@@ -2,8 +2,9 @@ CeladonCity_GameCorner_Frlg_MapScripts::
 	map_script MAP_SCRIPT_ON_LOAD, CeladonCity_GameCorner_OnLoad
 	.byte 0
 
+@ The stairs down to the Rocket Hideout stay walled up: its way in is sealed (Act 3 may open it)
 CeladonCity_GameCorner_OnLoad::
-	call_if_unset FLAG_OPENED_ROCKET_HIDEOUT, CeladonCity_GameCorner_EventScript_HideRocketHideout
+	call CeladonCity_GameCorner_EventScript_HideRocketHideout
 	end
 
 CeladonCity_GameCorner_EventScript_HideRocketHideout::
@@ -97,7 +98,7 @@ CeladonCity_GameCorner_EventScript_ClerkNotEnoughMoney::
 CeladonCity_GameCorner_EventScript_BaldingMan::
 	lock
 	faceplayer
-	msgbox CeladonCity_GameCorner_Text_RumoredTeamRocketRunsThisPlace
+	msgbox CeladonCity_GameCorner_Text_SkippingWork
 	goto CeladonCity_GameCorner_EventScript_FaceSlotMachine
 	end
 
@@ -277,12 +278,6 @@ CeladonCity_GameCorner_EventScript_SlotMachine3::
 	goto CeladonCity_GameCorner_EventScript_SlotMachine
 	end
 
-CeladonCity_GameCorner_EventScript_SlotMachine4::
-	lockall
-	setvar VAR_0x8004, 4
-	goto CeladonCity_GameCorner_EventScript_SlotMachine
-	end
-
 CeladonCity_GameCorner_EventScript_SlotMachine5::
 	lockall
 	setvar VAR_0x8004, 5
@@ -343,12 +338,6 @@ CeladonCity_GameCorner_EventScript_SlotMachine14::
 	goto CeladonCity_GameCorner_EventScript_SlotMachine
 	end
 
-CeladonCity_GameCorner_EventScript_SlotMachine15::
-	lockall
-	setvar VAR_0x8004, 15
-	goto CeladonCity_GameCorner_EventScript_SlotMachine
-	end
-
 CeladonCity_GameCorner_EventScript_SlotMachine16::
 	lockall
 	setvar VAR_0x8004, 16
@@ -358,12 +347,6 @@ CeladonCity_GameCorner_EventScript_SlotMachine16::
 CeladonCity_GameCorner_EventScript_SlotMachine17::
 	lockall
 	setvar VAR_0x8004, 17
-	goto CeladonCity_GameCorner_EventScript_SlotMachine
-	end
-
-CeladonCity_GameCorner_EventScript_SlotMachine18::
-	lockall
-	setvar VAR_0x8004, 18
 	goto CeladonCity_GameCorner_EventScript_SlotMachine
 	end
 
@@ -391,66 +374,8 @@ CeladonCity_GameCorner_EventScript_SlotMachineNoCoinCase::
 	end
 
 CeladonCity_GameCorner_EventScript_Poster::
-	lockall
-	msgbox CeladonCity_GameCorner_Text_SwitchBehindPosterPushIt
-	call_if_unset FLAG_OPENED_ROCKET_HIDEOUT, CeladonCity_GameCorner_EventScript_OpenRocketHideout
-	releaseall
+	msgbox CeladonCity_GameCorner_Text_Poster, MSGBOX_SIGN
 	end
-
-CeladonCity_GameCorner_EventScript_OpenRocketHideout::
-	playse SE_UNLOCK
-	setmetatile 15, 2, METATILE_GameCorner_Floor_StairsTop, 0
-	setmetatile 16, 2, METATILE_GameCorner_StairsTop, 1
-	setmetatile 17, 2, METATILE_GameCorner_StairsBottom, 1
-	setmetatile 16, 3, METATILE_GameCorner_PurpleWall_StairsTop, 1
-	setmetatile 17, 3, METATILE_GameCorner_PurpleWall_stairsBottom, 1
-	special DrawWholeMapView
-	setflag FLAG_OPENED_ROCKET_HIDEOUT
-	return
-
-CeladonCity_GameCorner_EventScript_RocketGrunt::
-	trainerbattle_single TRAINER_TEAM_ROCKET_GRUNT_7, CeladonCity_GameCorner_Text_GruntIntro, CeladonCity_GameCorner_Text_GruntDefeat, CeladonCity_GameCorner_Text_DefeatedGrunt
-	msgbox CeladonCity_GameCorner_Text_GruntPostBattle, MSGBOX_AUTOCLOSE
-	end
-
-CeladonCity_GameCorner_Text_DefeatedGrunt::
-	msgbox CeladonCity_GameCorner_Text_GruntPostBattle
-	closemessage
-	call_if_eq VAR_FACING, DIR_WEST, CeladonCity_GameCorner_Text_GruntExitWest
-	call_if_ne VAR_FACING, DIR_WEST, CeladonCity_GameCorner_Text_GruntExit
-	removeobject LOCALID_GAME_CORNER_GRUNT
-	release
-	end
-
-CeladonCity_GameCorner_Text_GruntExitWest::
-	applymovement LOCALID_GAME_CORNER_GRUNT, CeladonCity_GameCorner_Movement_GruntExitWest
-	waitmovement 0
-	return
-
-CeladonCity_GameCorner_Text_GruntExit::
-	applymovement LOCALID_GAME_CORNER_GRUNT, CeladonCity_GameCorner_Movement_GruntExit
-	waitmovement 0
-	return
-
-CeladonCity_GameCorner_Movement_GruntExitWest::
-	walk_down
-	walk_right
-	walk_right
-	walk_up
-	walk_right
-	walk_right
-	walk_right
-	walk_right
-	step_end
-
-CeladonCity_GameCorner_Movement_GruntExit::
-	walk_right
-	walk_right
-	walk_right
-	walk_right
-	walk_right
-	walk_right
-	step_end
 
 CeladonCity_GameCorner_EventScript_UnusableSlotMachine1::
 	msgbox CeladonCity_GameCorner_Text_OutOfOrder, MSGBOX_SIGN
@@ -470,7 +395,7 @@ CeladonCity_GameCorner_Text_CanExchangeCoinsNextDoor::
 	.string "fabulous prizes next door.$"
 
 CeladonCity_GameCorner_Text_WelcomeBuySomeCoins::
-	.string "Welcome to ROCKET GAME CORNER!\p"
+	.string "Welcome to the GAME CORNER!\p"
 	.string "Do you need some game COINS?\n"
 	.string "Would you like to buy some?$"
 
@@ -493,10 +418,12 @@ CeladonCity_GameCorner_Text_HereAreYourCoins::
 	.string "Thank you.\n"
 	.string "Here are your COINS!$"
 
-CeladonCity_GameCorner_Text_RumoredTeamRocketRunsThisPlace::
+CeladonCity_GameCorner_Text_SkippingWork::
 	.string "Keep this quiet.\p"
-	.string "It's rumored that this place is run\n"
-	.string "by TEAM ROCKET.$"
+	.string "I told my boss I was at the\n"
+	.string "dentist this afternoon.\p"
+	.string "If I win big, I'll buy him\n"
+	.string "something nice. Probably.$"
 
 CeladonCity_GameCorner_Text_ThinkMachinesHaveDifferentOdds::
 	.string "I think these machines have\n"
@@ -522,8 +449,8 @@ CeladonCity_GameCorner_Text_WinOrLoseItsOnlyLuck::
 
 CeladonCity_GameCorner_Text_GymGuyAdvice::
 	.string "Hey!\p"
-	.string "You have better things to do,\n"
-	.string "champ in the making!\p"
+	.string "Shouldn't a TRAINER be out there\n"
+	.string "training, not playing slots?\p"
 	.string "CELADON GYM's LEADER is ERIKA.\p"
 	.string "She is a user of GRASS-type\n"
 	.string "POKéMON, and at one with nature.\p"
@@ -572,22 +499,10 @@ CeladonCity_GameCorner_Text_WatchReelsClosely::
 	.string "The trick is to watch the reels\n"
 	.string "closely.$"
 
-CeladonCity_GameCorner_Text_GruntIntro::
-	.string "I'm guarding this poster!\n"
-	.string "Go away, or else!$"
-
-CeladonCity_GameCorner_Text_GruntDefeat::
-	.string "Dang!$"
-
-CeladonCity_GameCorner_Text_GruntPostBattle::
-	.string "The TEAM ROCKET HIDEOUT might\n"
-	.string "be discovered!\p"
-	.string "I better tell BOSS!$"
-
-CeladonCity_GameCorner_Text_SwitchBehindPosterPushIt::
-	.string "Hey!\p"
-	.string "A switch behind the poster!?\n"
-	.string "Let's push it!$"
+CeladonCity_GameCorner_Text_Poster::
+	.string "It's a poster of a grinning\n"
+	.string "slot machine.\p"
+	.string "The corners are starting to curl.$"
 
 CeladonCity_GameCorner_Text_CoinCaseIsRequired::
 	.string "A COIN CASE is required…$"

@@ -51,20 +51,12 @@ CeladonCity_EventScript_Poliwrath::
 	release
 	end
 
-CeladonCity_EventScript_RocketGrunt1::
-	msgbox CeladonCity_Text_KeepOutOfTeamRocketsWay, MSGBOX_NPC
-	end
-
-CeladonCity_EventScript_RocketGrunt2::
-	msgbox CeladonCity_Text_GetLostOrIllPunchYou, MSGBOX_NPC
-	end
-
 CeladonCity_EventScript_Boy::
 	msgbox CeladonCity_Text_ScaldedTongueOnTea, MSGBOX_NPC
 	end
 
 CeladonCity_EventScript_SilphCoScientist::
-	msgbox CeladonCity_Text_SomeoneStoleSilphScope, MSGBOX_NPC
+	msgbox CeladonCity_Text_SilphSalesman, MSGBOX_NPC
 	end
 
 CeladonCity_EventScript_TrainerTips1::
@@ -131,13 +123,6 @@ CeladonCity_Text_MyTrustedPalPoliwrath::
 CeladonCity_Text_Poliwrath::
 	.string "POLIWRATH: Ribi ribit!$"
 
-CeladonCity_Text_GetLostOrIllPunchYou::
-	.string "What are you staring at?\n"
-	.string "Get lost, or I'll punch you.$"
-
-CeladonCity_Text_KeepOutOfTeamRocketsWay::
-	.string "Keep out of TEAM ROCKET's way!$"
-
 CeladonCity_Text_ExplainXAccuracyDireHit::
 	.string "TRAINER TIPS\p"
 	.string "X ACCURACY boosts the accuracy of\n"
@@ -176,7 +161,7 @@ CeladonCity_Text_PrizeExchangeSign::
 	.string "PRIZE EXCHANGE$"
 
 CeladonCity_Text_GameCornerSign::
-	.string "ROCKET GAME CORNER\n"
+	.string "CELADON GAME CORNER\n"
 	.string "The playground for grown-ups!$"
 
 CeladonCity_Text_ScaldedTongueOnTea::
@@ -208,11 +193,10 @@ Text_SoftboiledWhichMon::
 Text_SoftboiledTaught::
 	.string "I wish you the best of luck!$"
 
-CeladonCity_Text_SomeoneStoleSilphScope::
-	.string "Oh, what am I to do…\p"
-	.string "Someone stole our SILPH SCOPE.\p"
-	.string "The thief came running this way,\n"
-	.string "I'm sure of it.\p"
-	.string "But I lost sight of him!\n"
-	.string "Where'd he go?$"
+CeladonCity_Text_SilphSalesman::
+	.string "I'm with SILPH CO. in SAFFRON.\p"
+	.string "I came to show the DEPT. STORE\n"
+	.string "our new line of POKé BALLS.\p"
+	.string "The buyer said she'd “think\n"
+	.string "about it.” That's good, right?$"
 

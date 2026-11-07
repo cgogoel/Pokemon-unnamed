@@ -15,7 +15,7 @@ SaffronCity_PokemonCenter_1F_EventScript_Nurse::
 	end
 
 SaffronCity_PokemonCenter_1F_EventScript_Gentleman::
-	msgbox SaffronCity_PokemonCenter_1F_Text_SilphCoVictimOfFame, MSGBOX_NPC
+	msgbox SaffronCity_PokemonCenter_1F_Text_SilphStockKeepsRising, MSGBOX_NPC
 	end
 
 SaffronCity_PokemonCenter_1F_EventScript_Woman::
@@ -23,35 +23,22 @@ SaffronCity_PokemonCenter_1F_EventScript_Woman::
 	end
 
 SaffronCity_PokemonCenter_1F_EventScript_Youngster::
-	lock
-	faceplayer
-	goto_if_eq VAR_MAP_SCENE_SILPH_CO_11F, 1, SaffronCity_PokemonCenter_1F_EventScript_YoungsterRocketsGone
-	msgbox SaffronCity_PokemonCenter_1F_Text_GreatIfEliteFourCameBeatRockets
-	release
-	end
-
-SaffronCity_PokemonCenter_1F_EventScript_YoungsterRocketsGone::
-	msgbox SaffronCity_PokemonCenter_1F_Text_TeamRocketTookOff
-	release
+	msgbox SaffronCity_PokemonCenter_1F_Text_WaitingForSabrinaToOpenGym, MSGBOX_NPC
 	end
 
 SaffronCity_PokemonCenter_1F_Text_GrowthRatesDifferBySpecies::
 	.string "POKéMON growth rates differ from\n"
 	.string "species to species.$"
 
-SaffronCity_PokemonCenter_1F_Text_SilphCoVictimOfFame::
-	.string "SILPH CO. is widely known to all.\p"
-	.string "It's a victim of its own fame - it\n"
-	.string "attracted TEAM ROCKET.$"
+SaffronCity_PokemonCenter_1F_Text_SilphStockKeepsRising::
+	.string "SILPH CO. is known all over the\n"
+	.string "world for its POKé BALLS.\p"
+	.string "I bought a few of their shares\n"
+	.string "years ago. Best choice I ever made!$"
 
-SaffronCity_PokemonCenter_1F_Text_GreatIfEliteFourCameBeatRockets::
-	.string "Sigh…\n"
-	.string "Wouldn't this be great?\p"
-	.string "If the ELITE FOUR came and\n"
-	.string "stomped TEAM ROCKET?$"
-
-SaffronCity_PokemonCenter_1F_Text_TeamRocketTookOff::
-	.string "TEAM ROCKET took off!\n"
-	.string "We can go out safely again!\l"
-	.string "That's great!$"
+SaffronCity_PokemonCenter_1F_Text_WaitingForSabrinaToOpenGym::
+	.string "I came all the way here to\n"
+	.string "challenge SABRINA's GYM.\p"
+	.string "But my ABRA keeps teleporting me\n"
+	.string "back here whenever I get nervous!$"
 

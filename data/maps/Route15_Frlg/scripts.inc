@@ -89,8 +89,8 @@ Route15_Text_ErnestDefeat::
 
 Route15_Text_ErnestPostBattle::
 	.string "Life's too short.\n"
-	.string "It's cool to live as an outlaw.\l"
-	.string "TEAM ROCKET RULES!$"
+	.string "It's cool to live on the open road.\l"
+	.string "BIKERS RULE!$"
 
 Route15_Text_AlexIntro::
 	.string "Fork over all your cash when you\n"

@@ -94,6 +94,18 @@ to delete the code and texts only it used. Done so far:
   Oak's new trainers.
 - **Pallet Town**: Oak's "Don't go out!" trigger at the north exit, his post-League rating scene and his object.
 - **Blue's house**: Daisy's Town Map errand and her lines that depend on the lab scenes.
+- **The rest of Kanto and the Sevii Islands** (every act): no rival anywhere (Cerulean's bridge, S.S. Anne,
+  Pokémon Tower, Silph Co., Four Island, Six Island; the Champion talks to a stranger, Oak's League scenes are gone);
+  no Team Rocket (Cerulean's grunt and burglary, Nugget Bridge, Mt. Moon, Celadon, Pokémon Tower and Mr. Fuji's
+  kidnapping, Saffron's occupation, Mt. Ember, Icefall Cave, Dotted Hole, Outcast Island, Five Island). Gyms stay, but
+  their guides and statues treat the player as any challenger; Oak's aides run a survey instead of the player's
+  Pokédex quest. Blockers that came from the story are gone (Pewter's gym guide, Cerulean's exits until the S.S.
+  Ticket, the Tower's ghost Marowak, Viridian Mart's parcel). Story-tied NPC lines are rewritten as everyday life.
+  - Kept for later: the **Rocket Hideout** and the **Rocket Warehouse** (Five Island) are sealed (the Game Corner's
+    stairs stay walled up; the warehouse door is padlocked), their maps unchanged for Act 3. **Silph Co.**'s Rocket
+    objects stay as Act 3's invasion hook, hidden by `FLAG_HIDE_SILPH_ROCKETS` (set at new game).
+  - Neutral gifts kept: Mr. Fuji (home from the start) gives the POKé FLUTE, Bill (home from the start) the S.S.
+    Ticket, the Pewter aide the Running Shoes, the burgled house's hiker TM28 (his Diglett dug the hole).
 
 ## Scripts checked for Act 1
 

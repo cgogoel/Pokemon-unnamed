@@ -32,26 +32,44 @@ on the road will challenge them.
 
 ## The road home
 
-The most direct route home, which needs no HMs:
+Two ways home, on foot and without HMs. Both start the same:
 
-Celadon City → Route 7 → (gate) → Saffron City → (gate) → Route 6 → Vermilion City → Route 11 → Diglett's Cave →
-Route 2 → Viridian City → Route 1 → Pallet Town → the farm.
+Celadon City → Route 7 → (gate) → Saffron City, then
+
+- **South**: (gate) → Route 6 → Vermilion City → Route 11 (its west end) → Diglett's Cave → Route 2 → Viridian City
+- **North**: (gate) → Route 5 → Cerulean City → Route 4 → Mt. Moon (B1F → B2F → B1F → 1F) → Route 4 → Route 3 →
+  Pewter City → Route 2 (through Viridian Forest, or down its east side) → Viridian City
+
+and then Route 1 → Pallet Town → the farm. The Underground Path joins them (Route 5 to Route 6, under Saffron).
 
 The code is `src/act2_road.c`.
 
 - **Open** (`Act2Road_IsRouteOpen`: `FLAG_ACT2_ROUTE_OPEN`, or `VAR_ACT2_PROGRESS` at `ACT2_FINAL_PROJECT` or later in
-  Act 2): the thirsty guards in the Route 7 and Route 6 gates (`Route7_EastEntrance`, `Route6_NorthEntrance`) say
-  "Oh, you've got a TRAINER CARD. Go right on through!" instead of turning the player back (once per visit,
-  `VAR_TEMP_2`; their TEA scene and `VAR_MAP_SCENE_ROUTE5_ROUTE6_ROUTE7_ROUTE8_GATES` are untouched). Route 2's Cut
-  trees at (18,26), (16,62) and (15,69) are gone (`Route2_OnTransition` sets their `FLAG_TEMP_*`). Nothing else on
-  the way needs an HM: the ledges on Routes 6, 7, 1 and 2 face south, toward home.
-- **Levels** (`Act2Road_IsActive`: `ACT2_FINAL_PROJECT` or later while in Act 2), against the party's average level,
+  Act 2):
+  - All four Saffron gates (`Route5_SouthEntrance`, `Route6_NorthEntrance`, `Route7_EastEntrance`,
+    `Route8_WestEntrance`): every trigger tile, either way, checks first; the guard says "Oh, you've got a TRAINER
+    CARD. Go right on through!" instead of the thirsty line (once per visit, `VAR_TEMP_2`; their TEA scene and
+    `VAR_MAP_SCENE_ROUTE5_ROUTE6_ROUTE7_ROUTE8_GATES` are untouched).
+  - Route 2's Cut trees are gone (`Route2_OnTransition` sets their `FLAG_TEMP_*`): (18,26), (16,62) and (15,69)
+    between Diglett's Cave and Viridian, and (11,13) between Pewter and Diglett's Cave.
+  - Route 4: its ledges all faced south (toward Cerulean), so the way west from Cerulean to Mt. Moon was shut. A gap
+    at the west end of the ledge row under the trees, at (90, 9), like the row's own gap at (41-43, 9). It's a map
+    edit: `python3 tools/hack/open_road_home.py` (re-running is harmless).
+  - Mt. Moon B2F: as in FireRed, the way between the two halves runs through the fossils' gap at (13-14, 7); the
+    player takes one fossil (the SUPER NERD takes the other) to pass.
+  - Nothing else on either way needs an HM: the other ledges (Routes 1, 2, 3, 4's west part, 6, 7) face the way home
+    or have a way round. Checked with a walk of the maps (ledges, one-way tiles, NPCs and trainers as walls).
+- **Levels** (`Act2Road_IsActive`: `ACT2_FINAL_PROJECT` or later while in Act 2), from the area's level (below),
   between 1 and 100:
-  - On the route home: trainers' Pokémon are the average (`ACT2_ROUTE_TRAINER_OFFSET`); wild Pokémon are anywhere from 3
-    below (`ACT2_ROUTE_WILD_OFFSET`) up to the average.
-  - Everywhere else: both are 15 above (`ACT2_OFF_ROUTE_OFFSET`).
-  - The story's trainers keep their parties (`Act2_IsStoryTrainer`, and every trainer from `TRAINER_ACT2_PROF_FIRE`
-    on, so ones the finale adds too).
+  - On the route home: trainers' Pokémon are the area's level (`ACT2_ROUTE_TRAINER_OFFSET`); wild Pokémon are
+    anywhere from 3 below (`ACT2_ROUTE_WILD_OFFSET`) up to it.
+  - The area's final trainer on the route (below) is the party's average level when the battle starts.
+  - Everywhere else: both are 15 above the area's level (`ACT2_OFF_ROUTE_OFFSET`).
+  - Every base-game trainer is scaled, however the battle starts (`Act2Road_IsScaledTrainer`; a trainer spotting the
+    player, a script's `trainerbattle_no_intro`, doubles, rematches: they all make the party
+    in `DoTrainerBattle`). The story's trainers keep their parties (`Act2_IsStoryTrainer`, and every trainer from
+    `TRAINER_ACT2_PROF_FIRE` on, so ones the finale adds too). The club's battles still follow the battling team
+    (`Act2_MakeClubParty`).
   - A scaled Pokémon evolves the way it would have by that level (`Act2Road_EvolveSpeciesToLevel`): level-up
     evolutions, including gendered and personality ones (Combee, Wurmple), and Kanto's where a region decides; not
     friendship, time, item or trade ones.
@@ -73,10 +91,49 @@ The route home (`sRouteHomeMaps`; a city's buildings aren't on it):
 |---|---|
 | Celadon | `CELADON_UNIVERSITY`, `CELADON_CITY_UNIVERSITY_GATE`, `CELADON_CITY` |
 | To Saffron | `ROUTE7`, `ROUTE7_EAST_ENTRANCE`, `SAFFRON_CITY_CONNECTION`, `SAFFRON_CITY` |
-| To Vermilion | `ROUTE6_NORTH_ENTRANCE`, `ROUTE6`, `VERMILION_CITY` |
-| Diglett's Cave | `ROUTE11`, `DIGLETTS_CAVE_SOUTH_ENTRANCE`, `DIGLETTS_CAVE_B1F`, `DIGLETTS_CAVE_NORTH_ENTRANCE` |
+| South: to Vermilion | `ROUTE6_NORTH_ENTRANCE`, `ROUTE6`, `VERMILION_CITY` |
+| South: Diglett's Cave | `ROUTE11`, `DIGLETTS_CAVE_SOUTH_ENTRANCE`, `DIGLETTS_CAVE_B1F`, `DIGLETTS_CAVE_NORTH_ENTRANCE` |
+| North: to Cerulean | `ROUTE5_SOUTH_ENTRANCE`, `ROUTE5`, `CERULEAN_CITY` |
+| North: Mt. Moon | `ROUTE4`, `MT_MOON_1F`, `MT_MOON_B1F`, `MT_MOON_B2F` |
+| North: to Pewter | `ROUTE3`, `PEWTER_CITY` |
+| North: Viridian Forest | `ROUTE2_VIRIDIAN_FOREST_NORTH_ENTRANCE`, `VIRIDIAN_FOREST`, `ROUTE2_VIRIDIAN_FOREST_SOUTH_ENTRANCE` |
+| Under Saffron | `UNDERGROUND_PATH_NORTH_ENTRANCE`, `UNDERGROUND_PATH_NORTH_SOUTH_TUNNEL`, `UNDERGROUND_PATH_SOUTH_ENTRANCE` |
 | To Pallet | `ROUTE2`, `ROUTE2_EAST_BUILDING`, `VIRIDIAN_CITY`, `ROUTE1`, `PALLET_TOWN` |
 | Home | `FARMYARD`, `WOODS` |
+
+### Area levels
+
+All of Act 2's levels (the courses' wild Pokémon, `Act2_GetWildLevel`, and the final project's wild and trainers'
+Pokémon) start from the **area's level** (`Act2Road_GetAreaLevel`): the party's average level when the player first
+came to the area. Coming back later, or leveling up, doesn't change it.
+
+- An **area** is a region map section (`MAPSEC_*`): a route with its gates and houses, a city with its buildings, a
+  cave's floors (Mt. Moon's three, Diglett's Cave's), Celadon with the university, Pallet with the farm and the Woods.
+  On and off the route share it: a Pokémon Center on Route 4 is 15 above Route 4's level.
+- **Set** on arrival (`Act2Road_OnMapEntered`, from `LoadMapFromWarp` and `LoadMapFromCameraTransition`), or at the
+  first battle if that comes first (the final project starts inside the institute).
+- **Periods**: each course (field trip and its night: `ACT2_START`-`ACT2_FIRE_INVITED`,
+  `ACT2_CLUB_1_DONE`-`ACT2_WATER_INVITED`, `ACT2_CLUB_2_DONE`-`ACT2_GOT_TRAINER_CARD`) and the final project
+  (`ACT2_FINAL_PROJECT` on) set their areas afresh: Vermilion on the Water trip and Vermilion on the road home are
+  set separately.
+- **Stored** in `SaveBlock3` (`include/global.h`): `act2AreaLevels`, a byte per Kanto map section
+  (`KANTO_MAPSEC_COUNT`, indexed from `KANTO_MAPSEC_START`; 0 = not set yet), and `act2AreaLevelsPeriod`, the period
+  they belong to (a new period clears them). Map sections outside Kanto aren't stored: there, levels follow the
+  party.
+- **Final trainers** (`sAreaFinalTrainers`): in each area of the route home with trainers on the way, the one nearest
+  the area's exit toward home is the party's average level when the battle starts, not the area's:
+
+  | Area | Trainer | Where |
+  |---|---|---|
+  | Route 6 | `TRAINER_CAMPER_JEFF` | (13, 33), by the exit to Vermilion |
+  | Route 11 | `TRAINER_YOUNGSTER_EDDIE` | (19, 8), nearest Diglett's Cave |
+  | Route 4 | `TRAINER_LASS_CRISSY` | (75, 3), Route 4's only trainer |
+  | Mt. Moon | `TRAINER_LASS_IRIS` | 1F (20, 26), nearest the exit to Route 4 |
+  | Route 3 | `TRAINER_BUG_CATCHER_COLTON` | (12, 6), nearest Pewter |
+  | Viridian Forest | `TRAINER_BUG_CATCHER_RICK` | (47, 45), nearest the exit to Route 2 |
+
+  The other areas have no trainers on the way.
+  Rematches use other trainer IDs and get the area's level.
 
 ## Home
 
@@ -198,4 +255,5 @@ and nothing resists it. Any species can learn it from the TM, but only a Pokémo
 | Torches and furnaces | `VAR_ACT2_CLOCK` (bit per torch 1-12; 13 moon, 14 sun) |
 | The Woods' noise | `VAR_ACT2_WOODS_SOUND` |
 | Route 2's trees gone, gates open | `FLAG_ACT2_ROUTE_OPEN` |
+| Each area's level, and its period | `gSaveBlock3Ptr->act2AreaLevels`, `act2AreaLevelsPeriod` |
 | B2F's dead-end Pokémon beaten | `FLAG_ACT2_DEAD_END_1`-`5` |

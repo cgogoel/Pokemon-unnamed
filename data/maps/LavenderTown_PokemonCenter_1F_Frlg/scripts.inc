@@ -15,30 +15,33 @@ LavenderTown_PokemonCenter_1F_EventScript_Nurse::
 	end
 
 LavenderTown_PokemonCenter_1F_EventScript_Gentleman::
-	msgbox LavenderTown_PokemonCenter_1F_Text_RocketsDoAnythingForMoney, MSGBOX_NPC
+	msgbox LavenderTown_PokemonCenter_1F_Text_RadioTowerPlans, MSGBOX_NPC
 	end
 
 LavenderTown_PokemonCenter_1F_EventScript_Lass::
-	msgbox LavenderTown_PokemonCenter_1F_Text_CubonesMotherKilledByRockets, MSGBOX_NPC
+	msgbox LavenderTown_PokemonCenter_1F_Text_NurseKnitsScarves, MSGBOX_NPC
 	end
 
 LavenderTown_PokemonCenter_1F_EventScript_Youngster::
-	msgbox LavenderTown_PokemonCenter_1F_Text_PeoplePayForCuboneSkulls, MSGBOX_NPC
+	msgbox LavenderTown_PokemonCenter_1F_Text_CuboneSkullsAreHeirlooms, MSGBOX_NPC
 	end
 
-LavenderTown_PokemonCenter_1F_Text_RocketsDoAnythingForMoney::
-	.string "TEAM ROCKET will do anything for\n"
-	.string "the sake of money!\p"
-	.string "There is no job too dirty, no deed\n"
-	.string "too heinous, no crime too wicked!$"
+LavenderTown_PokemonCenter_1F_Text_RadioTowerPlans::
+	.string "The town council wants to build\n"
+	.string "a radio tower one day.\p"
+	.string "Imagine LAVENDER's quiet nights\n"
+	.string "full of music! I'm not sure I'd\l"
+	.string "like it.$"
 
-LavenderTown_PokemonCenter_1F_Text_CubonesMotherKilledByRockets::
-	.string "I saw CUBONE's mother trying to\n"
-	.string "escape from TEAM ROCKET.\p"
-	.string "She was killed trying to get away…$"
+LavenderTown_PokemonCenter_1F_Text_NurseKnitsScarves::
+	.string "The NURSE here knits little scarves\n"
+	.string "for the POKéMON in MR. FUJI's care.\p"
+	.string "She gave me one for my ODDISH.\n"
+	.string "It won't take it off!$"
 
-LavenderTown_PokemonCenter_1F_Text_PeoplePayForCuboneSkulls::
+LavenderTown_PokemonCenter_1F_Text_CuboneSkullsAreHeirlooms::
 	.string "You know how the CUBONE species\n"
 	.string "wears skulls, right?\p"
-	.string "People will pay a lot for one.$"
+	.string "They never take them off, not\n"
+	.string "even to sleep. Tough little guys.$"
 

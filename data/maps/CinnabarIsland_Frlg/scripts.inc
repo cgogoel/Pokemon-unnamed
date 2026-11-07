@@ -34,11 +34,7 @@ CinnabarIsland_Movement_ForcePlayerFromDoor::
 	step_end
 
 CinnabarIsland_EventScript_Woman::
-	lock
-	faceplayer
-	famechecker FAMECHECKER_BLAINE, 3
-	msgbox CinnabarIsland_Text_BlaineLivedHereSinceBeforeLab
-	release
+	msgbox CinnabarIsland_Text_BlaineLivedHereSinceBeforeLab, MSGBOX_NPC
 	end
 
 CinnabarIsland_EventScript_OldMan::
@@ -64,16 +60,17 @@ CinnabarIsland_Text_DoorIsLocked::
 	.string "The door is locked…$"
 
 CinnabarIsland_Text_BlaineLivedHereSinceBeforeLab::
-	.string "CINNABAR GYM's BLAINE is quite the\n"
-	.string "odd fellow.\p"
-	.string "He's lived on the island since way\n"
-	.string "before the LAB was built.$"
+	.string "Students again? Every term a new\n"
+	.string "class comes over on the ferry.\p"
+	.string "The ice cream stand does great\n"
+	.string "business on field trip days!$"
 
 CinnabarIsland_Text_ScientistsExperimentInMansion::
-	.string "Scientists conduct experiments \n"
-	.string "in the burned-out building.\p"
-	.string "You know, the one they call the\n"
-	.string "POKéMON MANSION.$"
+	.string "That old mansion's been empty for\n"
+	.string "years. Nobody lights the furnaces\l"
+	.string "anymore.\p"
+	.string "On cold nights, I swear I hear\n"
+	.string "something moving around in there.$"
 
 CinnabarIsland_Text_IslandSign::
 	.string "CINNABAR ISLAND\n"

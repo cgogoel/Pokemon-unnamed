@@ -241,7 +241,7 @@
 #define VAR_0x40E2                 0x40E2
 #define VAR_0x40E3                 0x40E3
 #define VAR_0x40E4                 0x40E4
-#define VAR_0x40E5                 0x40E5
+#define VAR_QUEST_LOG              0x40E5 // Quests: the road home's stops and the ranger station's floors reached (QUEST_LOG_*)
 #define VAR_DAILY_SLOTS            0x40E6
 #define VAR_DAILY_WILDS            0x40E7
 #define VAR_DAILY_BLENDER          0x40E8

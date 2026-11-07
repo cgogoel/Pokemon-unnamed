@@ -79,8 +79,7 @@ OneIsland_PokemonCenter_1F_EventScript_MeetCelioScene::
 	waitmovement 0
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterRight
 	waitmovement 0
-	call_if_set FLAG_SYS_GAME_CLEAR, OneIsland_PokemonCenter_1F_EventScript_IntroducePlayerChamp
-	call_if_unset FLAG_SYS_GAME_CLEAR, OneIsland_PokemonCenter_1F_EventScript_IntroducePlayerNotChamp
+	msgbox OneIsland_PokemonCenter_1F_Text_PlayerKnowsPokemon
 	applymovement LOCALID_CELIO, Common_Movement_WalkInPlaceFasterDown
 	waitmovement 0
 	msgbox OneIsland_PokemonCenter_1F_Text_CelioThatsReallyImpressive
@@ -104,8 +103,9 @@ OneIsland_PokemonCenter_1F_EventScript_MeetCelioScene::
 	msgbox OneIsland_PokemonCenter_1F_Text_CelioPleaseTakeThis
 	giveitem_msg OneIsland_PokemonCenter_1F_Text_ObtainedTriPass, ITEM_TRI_PASS, 1, MUS_RG_OBTAIN_KEY_ITEM
 	msgbox OneIsland_PokemonCenter_1F_Text_PassLetsYouTravelBetweenIslands
-	call_if_ge VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE, 2, OneIsland_PokemonCenter_1F_EventScript_ReceiveTownMapPage
-	call_if_lt VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE, 2, OneIsland_PokemonCenter_1F_EventScript_ReceiveTownMap
+	checkitem ITEM_TOWN_MAP
+	call_if_eq VAR_RESULT, TRUE, OneIsland_PokemonCenter_1F_EventScript_ReceiveTownMapPage
+	call_if_eq VAR_RESULT, FALSE, OneIsland_PokemonCenter_1F_EventScript_ReceiveTownMap
 	setflag FLAG_SYS_SEVII_MAP_123
 	msgbox OneIsland_PokemonCenter_1F_Text_BillCatchYouLater
 	closemessage
@@ -118,14 +118,6 @@ OneIsland_PokemonCenter_1F_EventScript_MeetCelioScene::
 	releaseall
 	end
 
-OneIsland_PokemonCenter_1F_EventScript_IntroducePlayerChamp::
-	msgbox OneIsland_PokemonCenter_1F_Text_PlayerIsReigningPokemonChamp
-	return
-
-OneIsland_PokemonCenter_1F_EventScript_IntroducePlayerNotChamp::
-	msgbox OneIsland_PokemonCenter_1F_Text_PlayerIsRisingPokemonChamp
-	return
-
 OneIsland_PokemonCenter_1F_EventScript_ReceiveTownMapPage::
 	textcolor NPC_TEXT_COLOR_NEUTRAL
 	playfanfare MUS_RG_OBTAIN_KEY_ITEM
@@ -136,8 +128,6 @@ OneIsland_PokemonCenter_1F_EventScript_ReceiveTownMapPage::
 	return
 
 OneIsland_PokemonCenter_1F_EventScript_ReceiveTownMap::
-	setflag FLAG_HIDE_TOWN_MAP
-	setvar VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE, 2
 	giveitem_msg OneIsland_PokemonCenter_1F_Text_ReceivedTownMap, ITEM_TOWN_MAP, 1, MUS_RG_OBTAIN_KEY_ITEM
 	return
 
@@ -164,16 +154,6 @@ OneIsland_PokemonCenter_1F_Movement_BillWalkToCelio::
 	step_end
 
 @ Unused
-OneIsland_PokemonCenter_1F_Movement_WalkUp:
-	walk_up
-	step_end
-
-@ Unused
-OneIsland_PokemonCenter_1F_Movement_StepAsideLeft::
-	walk_left
-	walk_in_place_faster_right
-	step_end
-
 OneIsland_PokemonCenter_1F_EventScript_Nurse::
 	lock
 	faceplayer
@@ -532,18 +512,6 @@ OneIsland_PokemonCenter_1F_Movement_PlayerWalkToBillBottom::
 	step_end
 
 @ Unused
-OneIsland_PokemonCenter_1F_Movement_DelayWalkInPlaceLeft::
-	delay_16
-	delay_16
-	delay_4
-	walk_in_place_faster_left
-	step_end
-
-@ Unused
-OneIsland_PokemonCenter_1F_Movement_WalkInPlaceDown::
-	walk_in_place_fast_down
-	step_end
-
 OneIsland_PokemonCenter_1F_Movement_PlayerExit::
 	walk_left
 	walk_left
@@ -579,13 +547,12 @@ OneIsland_PokemonCenter_1F_Text_ThisIsMyBuddyCelio::
 	.string "{PLAYER}, this is my buddy CELIO.\n"
 	.string "He's one dedicated PC MANIAC!$"
 
-OneIsland_PokemonCenter_1F_Text_PlayerIsRisingPokemonChamp::
-	.string "CELIO, this is {PLAYER}, a rising\n"
-	.string "contender as the POKéMON CHAMP!$"
-
-OneIsland_PokemonCenter_1F_Text_PlayerIsReigningPokemonChamp::
-	.string "CELIO, this is {PLAYER}, the\n"
-	.string "reigning POKéMON CHAMP!$"
+OneIsland_PokemonCenter_1F_Text_PlayerKnowsPokemon::
+	.string "CELIO, this is {PLAYER}.\n"
+	.string "A real POKéMON brain from\l"
+	.string "CELADON UNIVERSITY!\p"
+	.string "Knows a thing or two about\n"
+	.string "battling, too!$"
 
 OneIsland_PokemonCenter_1F_Text_CelioThatsReallyImpressive::
 	.string "CELIO: That's really impressive.\p"
@@ -671,10 +638,6 @@ OneIsland_PokemonCenter_1F_Text_SorryForBeingPoorHost::
 	.string "BILL's time.\p"
 	.string "I'm also sorry for being such a \n"
 	.string "poor host on your visit here.$"
-
-OneIsland_PokemonCenter_1F_Text_UsualPCServicesUnavailable::
-	.string "The usual PC services aren't\n"
-	.string "available…$"
 
 OneIsland_PokemonCenter_1F_Text_BillOhHeyPlayer::
 	.string "BILL: Oh, hey!\n"

@@ -18,6 +18,7 @@
 #include "constants/apricorn_tree.h"
 #include "constants/berry.h"
 #include "constants/maps.h"
+#include "constants/region_map_sections.h"
 #include "constants/mass_outbreak.h"
 #include "constants/pokemon.h"
 #include "constants/easy_chat.h"
@@ -272,6 +273,10 @@ struct SaveBlock3
 #if APRICORN_TREE_COUNT > 0
     u8 apricornTrees[NUM_APRICORN_TREE_BYTES];
 #endif
+    // Act 2's levels (src/act2_road.c): each Kanto area's level, the party's average when the player first came,
+    // for the course (or the final project) in act2AreaLevelsPeriod; 0 for an area not visited yet
+    u8 act2AreaLevels[KANTO_MAPSEC_COUNT];
+    u8 act2AreaLevelsPeriod;
 }; /* max size 1624 bytes */
 
 extern struct SaveBlock3 *gSaveBlock3Ptr;

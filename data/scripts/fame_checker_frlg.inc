@@ -270,17 +270,9 @@ CinnabarIsland_PokemonCenter_1F_EventScript_PokemonJournalMrFuji::
 	end
 
 SilphCo_5F_EventScript_Scientist::
-	lock
-	faceplayer
-	famechecker FAMECHECKER_GIOVANNI, 1
-	msgbox SilphCo_5F_Text_RocketBossLookingForStrongMons
-	release
+	msgbox SilphCo_5F_Text_BallShellsFromFactory, MSGBOX_NPC
 	end
 
 SilphCo_8F_EventScript_Scientist::
-	lock
-	faceplayer
-	famechecker FAMECHECKER_GIOVANNI, 2
-	msgbox SilphCo_8F_Text_ToRocketBossMonsAreTools
-	release
+	msgbox SilphCo_8F_Text_SoftwareUpdateForPorygon, MSGBOX_NPC
 	end

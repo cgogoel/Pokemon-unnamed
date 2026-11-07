@@ -123,6 +123,13 @@ the player's party (the three battling) or already on their team (`Act2_MakeClub
 | 2 | MINA | Clefairy | Vulpix, Ponyta, Growlithe or Slugma | Staryu, Psyduck, Poliwag, Horsea or Krabby |
 | 3 | DALE (examiner) | Pidgeotto, Raticate, Kadabra | | |
 
+Each has a 3v3 strategy: an AI flag in `trainers_frlg.party` and moves to match (`sKaiMoves`, `sMinaMoves`,
+`sExaminerMoves` in `src/act2_story.c`; species not listed keep their level's moves).
+- **KAI** (`Triple Direct`): DIRECT attacks to wear down the front Pokémon; avoids status and stat moves.
+- **MINA** (`Triple Indirect`): INDIRECT attacks aimed past the front, at the middle and back Pokémon.
+- **DALE** (`Triple Mix`): attacks of either reach (INDIRECT ones at the back), few status moves. ROWAN doesn't battle,
+  so the mixed strategy is the examiner's.
+
 ## The Act 2 playtest build
 
 `make act2` builds `pokemon-unnamed-act2.gba` (objects in `build/firered-act2`, `-DACT2_PLAYTEST`). A new game there

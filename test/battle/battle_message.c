@@ -301,3 +301,14 @@ TO_DO_BATTLE_TEST("Battle Message: Switch-out message changes based on condition
             MESSAGE("Wynaut, good! Come back!");
     }
 }*/
+
+TEST("Battle Message: a message ending in a cleared page leaves the box empty, so it isn't waited on again")
+{
+    EXPECT(BattleTextLeavesTextInBox(COMPOUND_STRING("Pikachu used Thunder!")));
+    EXPECT(BattleTextLeavesTextInBox(COMPOUND_STRING("The GHOST appeared!\pDarn!\nThe GHOST can't be ID'd!")));
+    EXPECT(!BattleTextLeavesTextInBox(COMPOUND_STRING("Pikachu fainted!\p")));
+    EXPECT(!BattleTextLeavesTextInBox(COMPOUND_STRING("Pikachu grew to Lv. 5!{WAIT_SE}\p")));
+    EXPECT(!BattleTextLeavesTextInBox(COMPOUND_STRING("Gotcha!{WAIT_SE}\p{PLAY_BGM MUS_CAUGHT}")));
+    EXPECT(!BattleTextLeavesTextInBox(COMPOUND_STRING("")));
+    EXPECT(!BattleTextLeavesTextInBox(COMPOUND_STRING(" ")));
+}

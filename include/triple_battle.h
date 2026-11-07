@@ -68,6 +68,8 @@ void MarkTripleExcludedTargets(enum BattlerId battlerAtk, enum Move move);
 u32 CountTripleSpreadTargets(enum BattlerId battlerAtk);
 void ChooseTripleAiActor(enum BattlerId battler, bool32 (*isAiBattler)(enum BattlerId));
 bool32 IsTripleAiPassing(enum BattlerId battler);
+void RecordTriplePlayerActor(void);
+enum BattlerId GetTriplePlayerStartingActor(enum BattlerId battler);
 u32 GetTripleTrainerBattleTypeFlags(u16 trainerId);
 u32 GetTripleBattleTypeFlagsForFoes(u32 foePartySize);
 u32 GetTripleAiSecondTargetByte(enum BattlerId battlerAtk, enum BattlerId mainTarget, u32 moveIndex);
@@ -88,6 +90,7 @@ void GetTripleHealthboxCoords(enum BattlerId battler, s16 *x, s16 *y);
 bool32 IsTripleNameTagBelowBar(enum BattlerId battler);
 void SetTripleNameTags(u32 battlerMask);
 void DrawTripleBattleFloor(void);
+void InvalidateTripleBattleFloorCache(void);
 // The floor ovals' tiles; blended with the battle background in animations. Palette 7 is only used by the Old Man /
 // tutorial and Battle Arena windows (6 is the level up banner's).
 #define TRIPLE_FLOOR_BG_PALETTE 7

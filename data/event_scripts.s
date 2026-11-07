@@ -963,6 +963,7 @@ gStdScripts_End::
 	.include "data/maps/CinnabarIsland_PokemonCenter_1F_Frlg/scripts.inc"
 	.include "data/maps/CinnabarIsland_PokemonCenter_2F_Frlg/scripts.inc"
 	.include "data/maps/CinnabarIsland_Mart_Frlg/scripts.inc"
+	.include "data/maps/CinnabarIsland_KaisHouse/scripts.inc"
 	.include "data/maps/IndigoPlateau_PokemonCenter_1F_Frlg/scripts.inc"
 	.include "data/maps/IndigoPlateau_PokemonCenter_2F_Frlg/scripts.inc"
 	.include "data/maps/SaffronCity_CopycatsHouse_1F_Frlg/scripts.inc"
@@ -1773,6 +1774,7 @@ EventScript_PalletTown_PlayersHouse_2F_TurnOnPC::
 	.include "data/scripts/act2_story.inc"
 	.include "data/scripts/act2_finale.inc"
 	.include "data/scripts/act2_legends.inc"
+	.include "data/scripts/friend_homes.inc"
 
 	.include "data/maps/PalletTown_PlayersHouse_1F_Frlg_Farm/scripts.inc"
 	.include "data/maps/PalletTown_PlayersHouse_1F_Frlg_Farm/text.inc"

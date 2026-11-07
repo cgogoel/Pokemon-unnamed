@@ -82,7 +82,7 @@
       "movement_range_y": 1,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
-      "script": "Act2_EventScript_TripKai",
+      "script": "Act2_EventScript_TripKaiCinnabar",
       "flag": "FLAG_TEMP_1"
     },
     {
@@ -151,6 +151,13 @@
       "elevation": 0,
       "dest_map": "MAP_CINNABAR_ISLAND_MART",
       "dest_warp_id": "1"
+    },
+    {
+      "x": 15,
+      "y": 2,
+      "elevation": 0,
+      "dest_map": "MAP_CINNABAR_ISLAND_KAIS_HOUSE",
+      "dest_warp_id": "0"
     }
   ],
   "coord_events": [

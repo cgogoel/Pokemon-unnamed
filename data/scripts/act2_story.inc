@@ -726,6 +726,10 @@ Act2_EventScript_TripKai::
 	msgbox Act2_Text_TripKai, MSGBOX_NPC
 	end
 
+Act2_EventScript_TripKaiCinnabar::
+	msgbox Act2_Text_TripKaiCinnabar, MSGBOX_NPC
+	end
+
 Act2_EventScript_TripMina::
 	msgbox Act2_Text_TripMina, MSGBOX_NPC
 	end
@@ -1413,11 +1417,16 @@ Act2_Text_RoomKai:
 
 Act2_Text_RoomMina:
 	.string "MINA: My room! That poster is a\n"
-	.string "STARYU. My favorite.$"
+	.string "STARYU. My favorite.\p"
+	.string "Back home in CERULEAN, Mom and I\n"
+	.string "used to count them in the river.$"
 
 Act2_Text_RoomRowan:
 	.string "ROWAN: Shh, I'm reading.\n"
-	.string "Kidding. Come in!$"
+	.string "Kidding. Come in!\p"
+	.string "My parents live across town, by\n"
+	.string "the GAME CORNER. Mom keeps\l"
+	.string "sending me seedlings.$"
 
 Act2_Text_RoomPlateKai:
 	.string "KAI's room.$"
@@ -2037,6 +2046,13 @@ Act2_Text_ClassRowan:
 
 Act2_Text_TripKai:
 	.string "KAI: I'm going to catch the\n"
+	.string "strongest one out there!$"
+
+@ On Cinnabar, KAI's home island (data/scripts/friend_homes.inc)
+Act2_Text_TripKaiCinnabar:
+	.string "KAI: Welcome to my island! My\n"
+	.string "dads' house is right by the GYM.\p"
+	.string "I'm going to catch the\n"
 	.string "strongest one out there!$"
 
 Act2_Text_TripMina:

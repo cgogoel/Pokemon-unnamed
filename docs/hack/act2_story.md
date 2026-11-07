@@ -207,6 +207,27 @@ From Act 2 on, the whole party gains experience from every battle, as with the E
 | DALE | The stadium, night 3 | Cooltrainer |
 | The director | Science Research Institute (7,7) | Gentleman |
 
+## The friends' families
+
+Each friend grew up in the town of the type they love. Their parents are always home, in every act, and what they say
+follows the story (`FriendHomes_EventScript_GetStage` in `data/scripts/friend_homes.inc`, where all their lines are):
+Act 1 (the friends are kids), Act 2's courses (their kid is at Celadon University), the final project (from the
+Trainer Card: proud and a little worried, and they know their kid's TM), and Act 3 (several years later: what their
+kid does now). Each also knows the player as their kid's friend.
+
+| Friend | Home | Parents (sprite) | In Act 3 | Also there |
+|---|---|---|---|---|
+| KAI (Fire) | Cinnabar Island, a house between the Mansion and the Gym, door (15,2) (`CinnabarIsland_KaisHouse`, new) | Two dads: the loud one, by the stove (Fat man), and the quiet one, at the table (Man) | Training Fire Pokémon full time; means to take on the Gym one day | A photo of KAI as a kid with his dads and a Vulpix |
+| MINA (Water) | Cerulean City, the small house that was the Wonder News man's (`CeruleanCity_House4_Frlg`) | Her mom, by the stove (Woman 3); it's been just the two of them | At a marine research station out at sea; sends postcards | A photo of MINA as a kid with a Staryu |
+| ROWAN (Grass) | Celadon City, the house by the Game Corner (`CeladonCity_House1_Frlg`, was the Game Corner owner's) | Mom, tending a plant (Woman 1), and Dad, at the table (Balding man) | Runs a greenhouse at a botanical lab, naming new plants | A photo of ROWAN as a kid; a plant labeled by ROWAN |
+
+- On the Fire trip, KAI's class is on his island: his dads have their own lines then, and KAI says his dads' house is
+  by the Gym (`Act2_EventScript_TripKaiCinnabar`).
+- MINA and ROWAN mention their homes in their dorm rooms (`Act2_Text_RoomMina`, `Act2_Text_RoomRowan`).
+- Cinnabar had no houses: `python3 tools/hack/add_kais_house.py` stamps the general tileset's route house (as on
+  Route 2) into the island's layout. Its interior is a copy of FireRed's small house (`LAYOUT_CINNABAR_ISLAND_KAIS_HOUSE`,
+  from `LAYOUT_HOUSE1_FRLG`), free to change in Porymap.
+
 ## Base-game scenes stripped for Act 2
 
 - **Cinnabar Island**: Bill's trip to One Island and the return from the Sevii Islands (Bill and the Seagallop).

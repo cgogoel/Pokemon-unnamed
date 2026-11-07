@@ -14,9 +14,11 @@ What happens after the Trainer Card (the story so far: [act2_story.md](act2_stor
 ## The brief
 
 The director of the Science Research Institute (the student's own professor for the project) gives the four students
-an open brief: make a TM with at least 120 power. Follow your passion; remember what got you interested in the first
-place. It's an unguided exam: each gets a TOWN MAP and ¥10,000, and should stock up at the Department Store before
-leaving.
+an open brief: make a TM with at least 120 power, the capstone of their studies. Remember the studies, and the passion
+that got them into university. It's an unguided exam: each gets a TOWN MAP and ¥10,000 (spend it wisely: healing
+items, towns are far apart). Then the DOOM SCROLL: as PROF. FERN taught, some Pokémon only appear at night or by day;
+the director once saw a freshman stand mesmerized at the fountain for 12 hours. "Learn the art of the DOOM SCROLL"
+(a key item: wait until night or morning, [time_of_day.md](time_of_day.md)). KAI: "So… open social media."
 
 Then the friends come over, each with a TM in their favorite type, matching the night the player battled them:
 
@@ -27,9 +29,11 @@ Then the friends come over, each with a TM in their favorite type, matching the 
 | ROWAN | Grass | Solar Beam |
 
 They ask the player's plan; "…" — the player doesn't love one type, they want to discover something new. The friends
-echo the director: maybe go back to the Woods where it all started? Last, a warning: with a Trainer Card, trainers
-on the road will challenge them. Then KAI hands the player a DOOM SCROLL (no more curfew), and MINA explains it: some
-Pokémon only come out at night, and it waits until night or day ([time_of_day.md](time_of_day.md)).
+echo the director: the player grew up on a farm near Pallet Town, maybe go back there. Last, the road: town by town,
+with trainers (they all have Trainer Cards now) and wild Pokémon; south through Vermilion and Diglett's Cave or north
+through Cerulean, Mt. Moon and Pewter. KAI is heading home first, and invites the player to stop by his family's
+apartment (Celadon Condominiums, 2F, by the university gate) for snacks: there, during the final project, his dads give
+5 MOOMOO MILK and 5 SITRUS BERRIES once (`FriendHomes_EventScript_KaiDadsSnacks`, `FLAG_ACT2_KAI_DADS_SNACKS`).
 
 ## The road home
 

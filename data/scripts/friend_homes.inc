@@ -42,6 +42,7 @@ FriendHomes_EventScript_KaiDadChildhood::
 	end
 
 FriendHomes_EventScript_KaiDadProject::
+	call_if_unset FLAG_ACT2_KAI_DADS_SNACKS, FriendHomes_EventScript_KaiDadsSnacks
 	msgbox FriendHomes_Text_KaiDadProject
 	release
 	end
@@ -68,6 +69,7 @@ FriendHomes_EventScript_KaiPapaChildhood::
 	end
 
 FriendHomes_EventScript_KaiPapaProject::
+	call_if_unset FLAG_ACT2_KAI_DADS_SNACKS, FriendHomes_EventScript_KaiDadsSnacks
 	msgbox FriendHomes_Text_KaiPapaProject
 	release
 	end
@@ -76,6 +78,16 @@ FriendHomes_EventScript_KaiPapaLater::
 	msgbox FriendHomes_Text_KaiPapaLater
 	release
 	end
+
+@ The final project: KAI told the player to stop by for snacks. Once (FLAG_ACT2_KAI_DADS_SNACKS), whichever dad
+@ the player talks to first: the loud one gives MOOMOO MILK, the quiet one SITRUS BERRIES.
+FriendHomes_EventScript_KaiDadsSnacks:
+	msgbox FriendHomes_Text_KaiDadSnacks
+	giveitem ITEM_MOOMOO_MILK, 5
+	msgbox FriendHomes_Text_KaiPapaSnacks
+	giveitem ITEM_SITRUS_BERRY, 5
+	setflag FLAG_ACT2_KAI_DADS_SNACKS
+	return
 
 FriendHomes_EventScript_KaiPhoto::
 	msgbox FriendHomes_Text_KaiPhoto, MSGBOX_SIGN
@@ -225,6 +237,19 @@ FriendHomes_Text_KaiDadProject:
 	.string "think he gets that from? Ha!\p"
 	.string "…Between you and me, I hope he\n"
 	.string "remembers to duck.$"
+
+FriendHomes_Text_KaiDadSnacks:
+	.string "KAI's DAD: {PLAYER}! KAI said\n"
+	.string "you'd stop by. Ha!\p"
+	.string "You can't cross KANTO on an empty\n"
+	.string "stomach. Here, MOOMOO MILK for\l"
+	.string "the road!$"
+
+FriendHomes_Text_KaiPapaSnacks:
+	.string "KAI's PAPA: And these SITRUS\n"
+	.string "BERRIES, from our window box.\p"
+	.string "Don't let him fool you. They heal\n"
+	.string "more than you'd think.$"
 
 FriendHomes_Text_KaiDadLater:
 	.string "{PLAYER}! Look at you, all\n"

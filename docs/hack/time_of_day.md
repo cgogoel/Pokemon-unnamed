@@ -17,7 +17,7 @@ Day and night are the game's, not the real-time clock's. Code: `src/game_time.c`
 ## The DOOM SCROLL
 
 A key item (`ITEM_DOOM_SCROLL`, the Scroll of Darkness icon): "Scroll away the hours. Wait until night or day."
-KAI gives it to the player at the final project's brief (`Act2_EventScript_FinalBrief`); saves already past the
+The director hands it out at the final project's brief (`Act2_EventScript_FinalBrief`); saves already past the
 brief get it with the starting kit (`Act2_GiveStartingKit`). Used from the bag (or registered to SELECT,
 `EventScript_DoomScroll` in `data/scripts/doom_scroll.inc`), it offers the other time ("It's daytime. Scroll until
 night?"); yes fades out, "{PLAYER} scrolled for hours…", and the map reloads where the player stands at the new time

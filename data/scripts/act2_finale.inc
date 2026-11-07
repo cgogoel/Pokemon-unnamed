@@ -25,8 +25,14 @@ Act2_EventScript_FinalBrief::
 	additem ITEM_TOWN_MAP
 	addmoney 10000
 	playse SE_SHOP
-	msgbox Act2_Text_GotMoney
-	msgbox Act2_Text_BriefMart
+	msgbox Act2_Text_BriefSpendWisely
+	msgbox Act2_Text_BriefDoomScroll
+	playfanfare MUS_RG_OBTAIN_KEY_ITEM
+	message Act2_Text_GotDoomScroll
+	waitmessage
+	waitfanfare
+	additem ITEM_DOOM_SCROLL
+	msgbox Act2_Text_BriefEnd
 	closemessage
 	@ The friends come over
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterDown
@@ -37,13 +43,6 @@ Act2_EventScript_FinalBrief::
 	msgbox Act2_Text_FriendsTMs
 	msgbox Act2_Text_FriendsAskPlayer
 	msgbox Act2_Text_FriendsWarn
-	msgbox Act2_Text_DoomScrollGift
-	playfanfare MUS_RG_OBTAIN_KEY_ITEM
-	message Act2_Text_GotDoomScroll
-	waitmessage
-	waitfanfare
-	additem ITEM_DOOM_SCROLL
-	msgbox Act2_Text_DoomScrollHow
 	closemessage
 	fadescreen FADE_TO_BLACK
 	removeobject LOCALID_INSTITUTE_KAI
@@ -116,29 +115,67 @@ Act2_Text_BriefComeIn:
 
 Act2_Text_Brief:
 	.string "DIRECTOR: Good morning, all four\n"
-	.string "of you. Your final project.\p"
-	.string "Make a TM. Any move you like,\n"
-	.string "as long as it has 120 power or\l"
-	.string "more.\p"
-	.string "No research sheet this time.\n"
-	.string "No field trip. Follow your passion.\p"
-	.string "Remember what got you interested\n"
-	.string "in POKéMON in the first place.\l"
-	.string "That's where your move is.\p"
-	.string "This exam is unguided, so you'll\n"
+	.string "of you. It's time for your final\l"
+	.string "project, the capstone of your\l"
+	.string "studies.\p"
+	.string "I want you to make a TM…but not\n"
+	.string "just any TM. The move it contains\l"
+	.string "must have 120 power or more.\p"
+	.string "These are the most difficult moves\n"
+	.string "to capture, for this you will need\l"
+	.string "to remember all of your studies,\l"
+	.string "and maybe more importantly,\l"
+	.string "remember your passion, what got\l"
+	.string "you into university in the first\l"
+	.string "place.\p"
+	.string "This exam is unguided, explore the\n"
+	.string "region to find your inspiration\l"
+	.string "and return when you've discovered\l"
+	.string "how to craft your TM.\p"
+	.string "Since you will not be escorted like\n"
+	.string "your previous courses you will\l"
 	.string "need these.$"
 
 Act2_Text_GotTownMap:
-	.string "Each of you got a TOWN MAP!$"
+	.string "Each of you gets a TOWN MAP and\n"
+	.string "¥10,000 to sustain yourselves on\l"
+	.string "your time away from the campus!$"
 
-Act2_Text_GotMoney:
-	.string "And ¥10,000 for the project!$"
+Act2_Text_BriefSpendWisely:
+	.string "I recommend you spend it wisely,\n"
+	.string "perhaps some healing items as the\l"
+	.string "distance between towns can be vast.$"
 
-Act2_Text_BriefMart:
-	.string "DIRECTOR: That's your budget.\n"
-	.string "Spend it well.\p"
-	.string "Stock up at the DEPT. STORE in\n"
-	.string "CELADON before you head out.\p"
+Act2_Text_BriefDoomScroll:
+	.string "DIRECTOR: And one more thing.\p"
+	.string "As you've learned from PROF. FERN\n"
+	.string "you may find that certain POKéMON\l"
+	.string "may only appear at night or in\l"
+	.string "the daytime.\p"
+	.string "If you find yourself needing to\n"
+	.string "pass time, take a lesson from the\l"
+	.string "freshmen.\p"
+	.string "I once left for my home and\n"
+	.string "returned the next morning to see\l"
+	.string "the same student stood in front of\l"
+	.string "the fountain mesmerized…\p"
+	.string "12 hours straight!\p"
+	.string "Open up your KEY ITEMS and zone\n"
+	.string "in…no…zone out.\p"
+	.string "Learn the art of the DOOM SCROLL.$"
+
+Act2_Text_GotDoomScroll:
+	.string "{PLAYER} got the DOOM SCROLL!$"
+
+Act2_Text_BriefEnd:
+	.string "Start your DOOM SCROLL and hours\n"
+	.string "vanish. Wait for night, or for\l"
+	.string "morning, whichever the work needs.\p"
+	.string "KAI: So… open social media.\p"
+	.string "DIRECTOR: Precisely, it's a\n"
+	.string "research instrument, KAI.\p"
+	.string "DIRECTOR: That's your brief now go\n"
+	.string "on and explore.\p"
 	.string "Come back when your TM is ready.\n"
 	.string "Good luck.$"
 
@@ -152,54 +189,46 @@ Act2_Text_FriendsTMs:
 
 Act2_Text_FriendsAskPlayer:
 	.string "KAI: What about you, {PLAYER}?\n"
-	.string "What's your type?\p"
+	.string "What's your favorite type?\p"
 	.string "{PLAYER}: …\p"
 	.string "……\p"
 	.string "MINA: You don't have one, do you?\p"
-	.string "ROWAN: You never did. You liked\n"
+	.string "ROWAN: You never did. You've liked\n"
 	.string "every POKéMON you met.\p"
 	.string "{PLAYER}: …\p"
 	.string "KAI: So you want to find\n"
-	.string "something new!\p"
+	.string "something new huh?\p"
 	.string "MINA: Then do what the DIRECTOR\n"
 	.string "said. Remember how it started.\p"
-	.string "ROWAN: You grew up by some woods,\n"
-	.string "right? Maybe go back there.$"
+	.string "ROWAN: You grew up on a farm near\n"
+	.string "PALLET TOWN, right? Maybe go back\l"
+	.string "there.$"
 
 Act2_Text_FriendsWarn:
 	.string "ROWAN: It's a long road, though.\n"
 	.string "Check your TOWN MAP to find\l"
 	.string "your way home.\p"
 	.string "Take it town by town. TRAINERS\n"
-	.string "and wild POKéMON will be waiting\l"
-	.string "all along the way.\p"
-	.string "MINA: There are two ways, I think.\n"
-	.string "South through VERMILION and\l"
+	.string "will be waiting along the way now\l"
+	.string "that we have our TRAINER CARDS\l"
+	.string "and wild POKéMON too.\p"
+	.string "MINA: There are two ways, I think\n"
+	.string "back to PALLET.\p"
+	.string "South through VERMILION and\n"
 	.string "DIGLETT'S CAVE…\p"
 	.string "Or north through CERULEAN,\n"
 	.string "MT. MOON and PEWTER.\p"
 	.string "Your call, {PLAYER}!\p"
-	.string "KAI: And you've got a TRAINER CARD\n"
-	.string "now. Every TRAINER out there will\l"
-	.string "want a shot at you!\p"
-	.string "MINA: See you back here with\n"
-	.string "your TM!$"
-
-Act2_Text_DoomScrollGift:
-	.string "KAI: Oh, and no more curfew!\n"
-	.string "Here, take this. A DOOM SCROLL.\p"
-	.string "One look, and the whole day's\n"
-	.string "gone. Or the whole night!$"
-
-Act2_Text_GotDoomScroll:
-	.string "{PLAYER} got a DOOM SCROLL!$"
-
-Act2_Text_DoomScrollHow:
-	.string "MINA: KAI! …Well, it does help.\n"
-	.string "Some POKéMON only come out at\l"
-	.string "night.\p"
-	.string "Use it from your BAG to wait\n"
-	.string "until night, or until day.$"
+	.string "KAI: Maybe we'll see each other\n"
+	.string "along the way, I'm heading home to\l"
+	.string "get some advice from my parents\l"
+	.string "first.\p"
+	.string "Feel free to stop by our apartment\n"
+	.string "in CELADON CITY on your way out,\l"
+	.string "they might have some extra snacks\l"
+	.string "for your POKéMON!\p"
+	.string "It's the CONDOMINIUMS right by the\n"
+	.string "UNIVERSITY gate, on the 2F.$"
 
 Act2_Text_InstituteKai:
 	.string "KAI: The DIRECTOR's waiting!$"

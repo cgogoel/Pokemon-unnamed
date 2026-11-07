@@ -115,7 +115,6 @@ Somewhere along the way, a brand-new move is invented, one no Pokémon game has 
 
 - **Remote Desktop:** opens the Pokémon Storage System from anywhere.
 - **Heal Dash:** returns the player to the last Pokémon Center they visited.
-- **Doom Scroll:** wait until night or day.
 
   While it's part of the challenge of pokemon games to properly prepare for journeys many users (myself included)
   prefer to just walk back to the pokemon centers to reset. The game punishes you for this by making you walk both

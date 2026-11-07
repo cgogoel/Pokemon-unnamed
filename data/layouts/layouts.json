@@ -10595,19 +10595,6 @@
       "border_filepath": "data/layouts/RangerStation_B4F/border.bin",
       "blockdata_filepath": "data/layouts/RangerStation_B4F/map.bin",
       "layout_version": "frlg"
-    },
-    {
-      "id": "LAYOUT_CINNABAR_ISLAND_KAIS_HOUSE",
-      "name": "CinnabarIsland_KaisHouse_Layout",
-      "width": 11,
-      "height": 9,
-      "border_width": 2,
-      "border_height": 2,
-      "primary_tileset": "gTileset_BuildingFrlg",
-      "secondary_tileset": "gTileset_GenericBuilding1",
-      "border_filepath": "data/layouts/CinnabarIsland_KaisHouse/border.bin",
-      "blockdata_filepath": "data/layouts/CinnabarIsland_KaisHouse/map.bin",
-      "layout_version": "frlg"
     }
   ]
 }

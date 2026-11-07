@@ -3643,7 +3643,7 @@ static void DumpMemoryRegion(char tag, const u8 *base, u32 size)
 
 static void DumpRegisters(char tag, const u16 *values, u32 count)
 {
-    char line[2 + 5 * 8 + 1];
+    char line[2 + 5 * 10 + 1];
     char *p = line;
 
     *p++ = tag;
@@ -3737,6 +3737,16 @@ static void DumpScreen(void)
     Test_MgbaPrintf("SCRDUMP BEGIN %s %d", gTestRunnerState.test->name, DATA.uiPreviewDumps++);
     DumpRegisters('R', regs, ARRAY_COUNT(regs));
     DumpRegisters('S', scroll, ARRAY_COUNT(scroll));
+    {
+        // Windows and blending (the renderer ignores them; for checking by hand)
+        const u16 effects[] =
+        {
+            GetGpuReg(REG_OFFSET_WIN0H), GetGpuReg(REG_OFFSET_WIN1H), GetGpuReg(REG_OFFSET_WIN0V), GetGpuReg(REG_OFFSET_WIN1V),
+            GetGpuReg(REG_OFFSET_WININ), GetGpuReg(REG_OFFSET_WINOUT), GetGpuReg(REG_OFFSET_BLDCNT), GetGpuReg(REG_OFFSET_BLDALPHA),
+            GetGpuReg(REG_OFFSET_BLDY),
+        };
+        DumpRegisters('W', effects, ARRAY_COUNT(effects));
+    }
     DumpMemoryRegion('V', (const u8 *)VRAM, VRAM_SIZE);
     DumpMemoryRegion('O', (const u8 *)OAM, OAM_SIZE);
     DumpMemoryRegion('P', (const u8 *)PLTT, PLTT_SIZE);

@@ -734,10 +734,6 @@ Act2_EventScript_TripKai::
 	msgbox Act2_Text_TripKai, MSGBOX_NPC
 	end
 
-Act2_EventScript_TripKaiCinnabar::
-	msgbox Act2_Text_TripKaiCinnabar, MSGBOX_NPC
-	end
-
 Act2_EventScript_TripMina::
 	msgbox Act2_Text_TripMina, MSGBOX_NPC
 	end
@@ -1421,7 +1417,10 @@ Act2_Text_FriendHeadedOut:
 
 Act2_Text_RoomKai:
 	.string "KAI: Welcome to my room!\n"
-	.string "Don't mind the mess.$"
+	.string "Don't mind the mess.\p"
+	.string "My dads live across town, in the\n"
+	.string "CONDOMINIUMS. They still drop off\l"
+	.string "food every week. Too much food.$"
 
 Act2_Text_RoomMina:
 	.string "MINA: My room! That poster is a\n"
@@ -2054,13 +2053,6 @@ Act2_Text_ClassRowan:
 
 Act2_Text_TripKai:
 	.string "KAI: I'm going to catch the\n"
-	.string "strongest one out there!$"
-
-@ On Cinnabar, KAI's home island (data/scripts/friend_homes.inc)
-Act2_Text_TripKaiCinnabar:
-	.string "KAI: Welcome to my island! My\n"
-	.string "dads' house is right by the GYM.\p"
-	.string "I'm going to catch the\n"
 	.string "strongest one out there!$"
 
 Act2_Text_TripMina:

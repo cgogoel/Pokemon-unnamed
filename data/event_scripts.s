@@ -963,7 +963,6 @@ gStdScripts_End::
 	.include "data/maps/CinnabarIsland_PokemonCenter_1F_Frlg/scripts.inc"
 	.include "data/maps/CinnabarIsland_PokemonCenter_2F_Frlg/scripts.inc"
 	.include "data/maps/CinnabarIsland_Mart_Frlg/scripts.inc"
-	.include "data/maps/CinnabarIsland_KaisHouse/scripts.inc"
 	.include "data/maps/IndigoPlateau_PokemonCenter_1F_Frlg/scripts.inc"
 	.include "data/maps/IndigoPlateau_PokemonCenter_2F_Frlg/scripts.inc"
 	.include "data/maps/SaffronCity_CopycatsHouse_1F_Frlg/scripts.inc"

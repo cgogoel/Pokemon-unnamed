@@ -603,6 +603,8 @@ struct BattleStruct
     u8 tripleAiActor[NUM_BATTLE_SIDES];         // AI side's chosen actor this turn
     u8 tripleFirstTarget[MAX_BATTLERS_COUNT];   // Player picking the second target of a 2-target move: first target + 1
     u8 triplePickedActor;                       // Player picked (L/R) which Pokémon acts: battler + 1, 0 = none
+    u8 tripleLastPlayerActor;                   // The player's Pokémon that acted last turn: battler + 1, 0 = none
+    u16 tripleLastActorPickedTurn;              // gBattleTurnCounter + 1 of the turn it was picked again to start with
     u16 tripleAiDecidedTurn[NUM_BATTLE_SIDES];  // gBattleTurnCounter + 1 of the turn the actor was chosen
     u8 faintCounter[MAX_BATTLE_TRAINERS]; // Supreme Overload / Last Respects
     u32 expShareExpValue;

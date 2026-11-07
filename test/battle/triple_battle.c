@@ -545,3 +545,130 @@ AI_TRIPLE_BATTLE_TEST("Triple battles: the AI never switches to a Pokémon alrea
         EXPECT_EQ(opponentMiddle->species, SPECIES_TYRANITAR);
     }
 }
+
+TRIPLE_BATTLE_TEST("Triple battles: the player's Pokémon that acted last turn starts selected the next turn")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WYNAUT);
+        PLAYER(SPECIES_PIKACHU);
+        OPPONENT(SPECIES_BULBASAUR);
+        OPPONENT(SPECIES_CHARMANDER);
+        OPPONENT(SPECIES_SQUIRTLE);
+    } WHEN {
+        TURN { MOVE(playerMiddle, MOVE_CELEBRATE); }
+    } THEN {
+        EXPECT_EQ(gBattleStruct->tripleLastPlayerActor, B_POSITION_PLAYER_MIDDLE + 1);
+        EXPECT_EQ(GetTriplePlayerStartingActor((enum BattlerId)B_POSITION_PLAYER_LEFT), (enum BattlerId)B_POSITION_PLAYER_MIDDLE);
+        // Only the first time the player is asked in a turn
+        EXPECT_EQ(GetTriplePlayerStartingActor((enum BattlerId)B_POSITION_PLAYER_LEFT), (enum BattlerId)MAX_BATTLERS_COUNT);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: if the Pokémon that acted last turn fainted, the turn starts with the first one")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WYNAUT);
+        PLAYER(SPECIES_PIKACHU) { HP(1); }
+        OPPONENT(SPECIES_BULBASAUR);
+        OPPONENT(SPECIES_CHARMANDER);
+        OPPONENT(SPECIES_SQUIRTLE);
+    } WHEN {
+        TURN { MOVE(playerMiddle, MOVE_CELEBRATE); MOVE(opponentLeft, MOVE_PSYCHIC, target: playerMiddle); }
+    } THEN {
+        EXPECT_EQ(GetTriplePlayerStartingActor((enum BattlerId)B_POSITION_PLAYER_LEFT), (enum BattlerId)MAX_BATTLERS_COUNT);
+    }
+}
+
+// The Act 2 club's strategies (AI_FLAG_TRIPLE_DIRECT / INDIRECT / MIX): KAI, MINA and DALE
+#define CLUB_AI_FLAGS (AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT | AI_FLAG_OMNISCIENT)
+
+AI_TRIPLE_BATTLE_TEST("Triple battles: a DIRECT trainer (KAI) wears down the front foe with DIRECT attacks, not stat moves")
+{
+    u64 flags = 0;
+    PARAMETRIZE { flags = CLUB_AI_FLAGS | AI_FLAG_TRIPLE_DIRECT; }
+    PARAMETRIZE { flags = AI_FLAG_SMART_TRAINER | AI_FLAG_TARGET_THREAT | AI_FLAG_TRIPLE_DIRECT; }
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_TACKLE)->reach == TRIPLE_REACH_FRONT);
+        ASSUME(GetTripleMoveInfo(MOVE_SWIFT)->reach == TRIPLE_REACH_ANY);
+        AI_FLAGS(flags);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_SWORDS_DANCE, MOVE_GROWL, MOVE_SWIFT, MOVE_TACKLE); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+    } WHEN {
+        TURN { EXPECT_MOVE(opponentLeft, MOVE_TACKLE, target: playerLeft); }
+        TURN { EXPECT_MOVE(opponentLeft, MOVE_TACKLE, target: playerLeft); }
+    }
+}
+
+AI_TRIPLE_BATTLE_TEST("Triple battles: an INDIRECT trainer (MINA) aims INDIRECT attacks past the front foe")
+{
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_TACKLE)->reach == TRIPLE_REACH_FRONT);
+        ASSUME(GetTripleMoveInfo(MOVE_CONFUSION)->reach == TRIPLE_REACH_ANY);
+        AI_FLAGS(CLUB_AI_FLAGS | AI_FLAG_TRIPLE_INDIRECT);
+        // Formation: playerLeft front, playerRight middle, playerMiddle rear
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_TACKLE, MOVE_CONFUSION, MOVE_GROWL); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+    } WHEN {
+        TURN { EXPECT_MOVE(opponentLeft, MOVE_CONFUSION); }
+    } SCENE {
+        NOT HP_BAR(playerLeft);
+    }
+}
+
+AI_TRIPLE_BATTLE_TEST("Triple battles: a mixed trainer (DALE) attacks with either reach rather than use stat moves")
+{
+    enum Move move = MOVE_NONE;
+    PARAMETRIZE { move = MOVE_TACKLE; }
+    PARAMETRIZE { move = MOVE_CONFUSION; }
+    GIVEN {
+        AI_FLAGS(CLUB_AI_FLAGS | AI_FLAG_TRIPLE_MIX);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_SWORDS_DANCE, MOVE_GROWL, move); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+    } WHEN {
+        TURN { EXPECT_MOVE(opponentLeft, move); }
+    }
+}
+
+// Animations that darken or tint the arena (F_PAL_BG: Absorb, Mega Drain...) blend the whole background: palettes 1-3,
+// and in 3v3 the floor ovals' palette. Singles once only got palette 2, leaving the platforms light.
+SINGLE_BATTLE_TEST("Battle anims: the arena's palettes all blend in single battles")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN {}
+    } THEN {
+        EXPECT_EQ(GetBattlePalettesMask(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE), 0xE);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Battle anims: the arena's palettes and the floor ovals' blend in triple battles")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN {}
+    } THEN {
+        EXPECT_EQ(GetBattlePalettesMask(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE), 0xE | (1 << TRIPLE_FLOOR_BG_PALETTE));
+    }
+}

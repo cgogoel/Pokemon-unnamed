@@ -256,6 +256,7 @@ u32 BattleStringExpandPlaceholdersToDisplayedString(const u8 *src);
 u32 BattleStringExpandPlaceholders(const u8 *src, u8 *dst, u32 dstSize);
 void BattlePutTextOnWindow(const u8 *text, u8 windowId);
 extern bool8 gBattleMessageAwaitsButton;
+bool32 BattleTextLeavesTextInBox(const u8 *text);
 void SetPPNumbersPaletteInMoveSelection(enum BattlerId battler);
 u8 GetCurrentPPToMaxPPState(u8 currentPP, u8 maxPP);
 void ExpandBattleTextBuffPlaceholders(const u8 *src, u8 *dst);

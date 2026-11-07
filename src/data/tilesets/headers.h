@@ -921,7 +921,7 @@ const struct Tileset gTileset_VermilionCity =
     .palettes = gTilesetPalettes_VermilionCity,
     .metatiles = gMetatiles_VermilionCity,
     .metatileAttributes = gMetatileAttributes_VermilionCity,
-    .callback = NULL,
+    .callback = InitTilesetAnim_VermilionCity,
 };
 
 const struct Tileset gTileset_CeladonCity =
@@ -1361,7 +1361,7 @@ const struct Tileset gTileset_PokemonMansion =
     .palettes = gTilesetPalettes_PokemonMansion,
     .metatiles = gMetatiles_PokemonMansion,
     .metatileAttributes = gMetatileAttributes_PokemonMansion,
-    .callback = NULL,
+    .callback = InitTilesetAnim_PokemonMansion,
 };
 
 // The ranger station's overgrown basement (B3F), tools/hack/draw_station_grove.py

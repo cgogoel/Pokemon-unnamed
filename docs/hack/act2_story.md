@@ -58,7 +58,7 @@ Then the **exam**, a battle with the professor; any win passes. Progress is `VAR
 
 | Course | TM | Site | Puzzle (each part: a Pokémon of the type that knows a move of it, `Act2_FindCourseMoveUser`) | Its end |
 |---|---|---|---|---|
-| Fire | TM35 Flamethrower | Pokémon Mansion | Relight 3 cold furnaces on 1F (on the walls at (6,2), (31,2), (4,12); `METATILE_PokemonMansion_Furnace_Cold`, swapped for `_Lit` once relit, drawn by `tools/hack/draw_mansion_furnace.py`). Until then, the statue switch is cold. | The switch opens the sealed room; the old research journal there (23,13), in it for the whole trip until read (readable once the furnaces are lit) |
+| Fire | TM35 Flamethrower | Pokémon Mansion | Relight 3 cold furnaces on 1F (on the walls at (6,2), (31,2), (4,12); `METATILE_PokemonMansion_Furnace_Cold`, swapped for `_Lit` once relit, drawn by `tools/hack/draw_mansion_furnace.py`; the lit flames flicker, `InitTilesetAnim_PokemonMansion`). Until then, the statue switch is cold. | The switch opens the sealed room; the old research journal there (23,13), in it for the whole trip until read (readable once the furnaces are lit) |
 | Water | TM51 BubbleBeam (new: `FOREACH_TM` in `include/constants/tms_hms.h`) | Vermilion City | Put out the 2 small dock fires (2x2 at (30,28) and (35,25)) with any WATER move | The big fire (2x3 at (24,28), across the pier) needs BubbleBeam; behind it a young Lapras surfaces (21,29) and asks to come along (see below) |
 | Grass | TM19 Giga Drain | Route 22 | Regrow 3 withered plants ((24,13), (38,6), (44,10); `OBJ_EVENT_GFX_WITHERED_PLANT`, a dried-out shrub); they grow into young trees | The field blooms |
 
@@ -66,7 +66,7 @@ Then the **exam**, a battle with the professor; any win passes. Progress is `VAR
 from the catch script; `ACT2_RESEARCH_DOCK_FIRE`). Back on Route 6 or in Vermilion after that battle, MINA runs up
 (`Act2_EventScript_CheckDockFireAlarm` on map resume, then the map's frame script) and takes the player to the pier
 to see it (`ACT2_RESEARCH_DOCK_FIRE_SEEN`, `_ARRIVING`). The fires are metatiles over the planks, drawn on Vermilion's
-load while burning (`Act2_DrawDockFires`; art by `tools/hack/draw_dock_fire.py`), with a sign event on each square.
+load while burning (`Act2_DrawDockFires`; art and flicker frames by `tools/hack/draw_dock_fire.py`, animated by `InitTilesetAnim_VermilionCity`), with a sign event on each square.
 The puzzle task needs all three fires out. The small ones go out with any WATER move; the big one, which cuts off
 the pier's west end, only with the TM move (`Act2_FindTmMoveUser`). So on the Water trip the TM is made from the
 other three tasks (`Act2_IsReadyForTM`), and the exam waits for all four (`Act2_IsResearchDone`). PROF. MARLOWE's

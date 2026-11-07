@@ -5,7 +5,9 @@ A 16x16 flame over each kind of pier plank the fires sit on: the plank's own til
 palette 11 (unused before). Two looks per plank, the flame and its mirror image, so neighbouring fire squares don't
 repeat. Adds 4 tiles (a new row at the end of tiles.png) and two metatiles per plank after the tileset's own,
 starting at METATILE_VermilionCity_DockFire_First, in the order of PLANKS (plank, then mirrored). The C side
-(src/act2_story.c, sDockFirePlanks) uses the same order. Re-running redraws them in place.
+(src/act2_story.c, sDockFirePlanks) uses the same order. The flames flicker: frames in anim/dock_fire/
+(draw_mansion_furnace.flicker_frames), animated over the 4 tiles by InitTilesetAnim_VermilionCity
+(src/tileset_anims.c). Re-running redraws them in place.
 
     python3 tools/hack/draw_dock_fire.py
 """
@@ -14,7 +16,7 @@ import struct
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from draw_mansion_furnace import read_png, write_png  # noqa: E402
+from draw_mansion_furnace import flicker_frames, read_png, tiles_of, write_anim_frames, write_png  # noqa: E402
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
 TILESET = os.path.join(ROOT, 'data/tilesets/secondary/vermilion_city_frlg')
@@ -75,6 +77,9 @@ def main():
                 rows[BASE_TILE_ROWS * 8 + y][n * 8 + x] = art[y0 + y][x0 + x]
     write_png(png, width, rows, plte)
     first_tile = PRIMARY_TILES + BASE_TILE_ROWS * 16
+    write_anim_frames(os.path.join(TILESET, 'anim/dock_fire'),
+                      [tiles_of(frame, 0, 1, 2, 3) for frame in flicker_frames(FLAME, 'DROYW', '.', (0, 0, 15, 13))],
+                      KEYS, PALETTE)
 
     # Metatiles: the plank's own layer underneath, the flame (or its mirror image) on top
     primary = open(os.path.join(PRIMARY, 'metatiles.bin'), 'rb').read()

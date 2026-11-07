@@ -52,7 +52,6 @@ The code is `src/act2_road.c`.
     `VAR_MAP_SCENE_ROUTE5_ROUTE6_ROUTE7_ROUTE8_GATES` are untouched).
   - Route 2's Cut trees are gone (`Route2_OnTransition` sets their `FLAG_TEMP_*`): (18,26), (16,62) and (15,69)
     between Diglett's Cave and Viridian, and (11,13) between Pewter and Diglett's Cave.
-  - Pewter's gym guide doesn't lead the player off to the gym when they cross his row (x 42, by the Route 3 exit).
   - Route 4: its ledges all faced south (toward Cerulean), so the way west from Cerulean to Mt. Moon was shut. A gap
     at the west end of the ledge row under the trees, at (90, 9), like the row's own gap at (41-43, 9). It's a map
     edit: `python3 tools/hack/open_road_home.py` (re-running is harmless).
@@ -67,7 +66,7 @@ The code is `src/act2_road.c`.
   - The area's final trainer on the route (below) is the party's average level when the battle starts.
   - Everywhere else: both are 15 above the area's level (`ACT2_OFF_ROUTE_OFFSET`).
   - Every base-game trainer is scaled, however the battle starts (`Act2Road_IsScaledTrainer`; a trainer spotting the
-    player, a script's `trainerbattle_no_intro` like Cerulean's Rocket, doubles, rematches: they all make the party
+    player, a script's `trainerbattle_no_intro`, doubles, rematches: they all make the party
     in `DoTrainerBattle`). The story's trainers keep their parties (`Act2_IsStoryTrainer`, and every trainer from
     `TRAINER_ACT2_PROF_FIRE` on, so ones the finale adds too). The club's battles still follow the battling team
     (`Act2_MakeClubParty`).
@@ -133,7 +132,7 @@ came to the area. Coming back later, or leveling up, doesn't change it.
   | Route 3 | `TRAINER_BUG_CATCHER_COLTON` | (12, 6), nearest Pewter |
   | Viridian Forest | `TRAINER_BUG_CATCHER_RICK` | (47, 45), nearest the exit to Route 2 |
 
-  The other areas have no trainers on the way (Cerulean's Rocket battles from a script and isn't one of them).
+  The other areas have no trainers on the way.
   Rematches use other trainer IDs and get the area's level.
 
 ## Home

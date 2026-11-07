@@ -8,16 +8,7 @@ SilphCo_3F_OnLoad::
 	end
 
 SilphCo_3F_EventScript_WorkerM::
-	lock
-	faceplayer
-	goto_if_ge VAR_MAP_SCENE_SILPH_CO_11F, 1, SilphCo_3F_EventScript_WorkerMRocketsGone
-	msgbox SilphCo_3F_Text_WhatAmIToDo
-	release
-	end
-
-SilphCo_3F_EventScript_WorkerMRocketsGone::
-	msgbox SilphCo_3F_Text_YouAndYourMonsSavedUs
-	release
+	msgbox SilphCo_3F_Text_TeleportPadsSaveTime, MSGBOX_NPC
 	end
 
 SilphCo_3F_EventScript_FloorSign::
@@ -34,13 +25,11 @@ SilphCo_3F_EventScript_Grunt::
 	msgbox SilphCo_3F_Text_GruntPostBattle, MSGBOX_AUTOCLOSE
 	end
 
-SilphCo_3F_Text_WhatAmIToDo::
-	.string "I work for SILPH CO.\n"
-	.string "What am I to do?$"
-
-SilphCo_3F_Text_YouAndYourMonsSavedUs::
-	.string "{PLAYER}!\n"
-	.string "You and your POKéMON saved us!$"
+SilphCo_3F_Text_TeleportPadsSaveTime::
+	.string "The warp pads on these floors\n"
+	.string "were my team's idea.\p"
+	.string "They save us a long walk to\n"
+	.string "the coffee machine!$"
 
 SilphCo_3F_Text_GruntIntro::
 	.string "Quit messing with us, kid!$"

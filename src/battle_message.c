@@ -3903,6 +3903,43 @@ void ExpandBattleTextBuffPlaceholders(const u8 *src, u8 *dst)
 // B_TEXT_NEEDS_BUTTON_PRESS: a message is in the message box that the player hasn't dismissed yet
 EWRAM_DATA bool8 gBattleMessageAwaitsButton = FALSE;
 
+// Whether a message leaves something to read in the box once printed: a message ending in "\p" ("…fainted!\p")
+// already waited for A/B and cleared the box, so waiting again would show an empty box
+bool32 BattleTextLeavesTextInBox(const u8 *text)
+{
+    bool32 visible = FALSE;
+    while (*text != EOS)
+    {
+        switch (*text)
+        {
+        case CHAR_PROMPT_CLEAR:
+            visible = FALSE;
+            text++;
+            break;
+        case CHAR_SPACE:
+        case CHAR_NEWLINE:
+        case CHAR_PROMPT_SCROLL:
+            text++;
+            break;
+        case EXT_CTRL_CODE_BEGIN:
+            text++;
+            if (*text == EXT_CTRL_CODE_FILL_WINDOW)
+                visible = FALSE;
+            else if (*text == EXT_CTRL_CODE_ESCAPE)
+                visible = TRUE;
+            if (*text == EOS)
+                return visible;
+            text += max(GetExtCtrlCodeLength(*text), 1);
+            break;
+        default:
+            visible = TRUE;
+            text++;
+            break;
+        }
+    }
+    return visible;
+}
+
 void BattlePutTextOnWindow(const u8 *text, u8 windowId)
 {
     const struct BattleWindowText *textInfo = sBattleTextOnWindowsInfo[gBattleScripting.windowsType];
@@ -3921,7 +3958,7 @@ void BattlePutTextOnWindow(const u8 *text, u8 windowId)
         copyToVram = TRUE;
     }
     if (windowId == B_WIN_MSG)
-        gBattleMessageAwaitsButton = (text[0] != EOS);
+        gBattleMessageAwaitsButton = BattleTextLeavesTextInBox(text);
 
     printerTemplate.currentChar = text;
     printerTemplate.type = WINDOW_TEXT_PRINTER;

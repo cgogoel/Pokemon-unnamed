@@ -231,8 +231,8 @@
 #define VAR_0x40D8                 0x40D8
 #define VAR_0x40D9                 0x40D9
 #define VAR_0x40DA                 0x40DA
-#define VAR_0x40DB                 0x40DB
-#define VAR_0x40DC                 0x40DC
+#define VAR_GAME_TIME              0x40DB // Day or night: the game's, not the clock's (GAME_TIME_*, src/game_time.c)
+#define VAR_ACT2_NIGHT_BLOOM       0x40DC // Act 2, the Grass trip: the night bloom's puzzle (NIGHT_BLOOM_* bits)
 #define VAR_0x40DD                 0x40DD
 #define VAR_0x40DE                 0x40DE
 #define VAR_0x40DF                 0x40DF
@@ -241,7 +241,7 @@
 #define VAR_0x40E2                 0x40E2
 #define VAR_0x40E3                 0x40E3
 #define VAR_0x40E4                 0x40E4
-#define VAR_0x40E5                 0x40E5
+#define VAR_QUEST_LOG              0x40E5 // Quests: the road home's stops and the ranger station's floors reached (QUEST_LOG_*)
 #define VAR_DAILY_SLOTS            0x40E6
 #define VAR_DAILY_WILDS            0x40E7
 #define VAR_DAILY_BLENDER          0x40E8

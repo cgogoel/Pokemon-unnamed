@@ -10,16 +10,13 @@ Act2_EventScript_InstituteObjects::
 	call_if_eq VAR_ACT2_PROGRESS, ACT2_GOT_TRAINER_CARD, Act2_EventScript_ShowObjectsTemp1
 	end
 
-@ Coord events just inside the door (x 3-5, y 8): the player walks up between KAI and MINA, facing the director
+@ Coord events just inside the door (row 12): the player walks over to x 8, then up to (8,10) between KAI and
+@ MINA, facing the director (8,9)
 Act2_EventScript_FinalBrief::
 	lockall
 	msgbox Act2_Text_BriefComeIn
 	closemessage
-	getplayerxy VAR_0x8004, VAR_0x8005
-	call_if_eq VAR_0x8004, 3, Act2_EventScript_BriefWalkFrom3
-	call_if_eq VAR_0x8004, 4, Act2_EventScript_BriefWalkFrom4
-	call_if_eq VAR_0x8004, 5, Act2_EventScript_BriefWalkFrom5
-	waitmovement 0
+	call Act2_EventScript_BriefWalk
 	msgbox Act2_Text_Brief
 	playfanfare MUS_RG_OBTAIN_KEY_ITEM
 	message Act2_Text_GotTownMap
@@ -28,8 +25,15 @@ Act2_EventScript_FinalBrief::
 	additem ITEM_TOWN_MAP
 	addmoney 10000
 	playse SE_SHOP
-	msgbox Act2_Text_GotMoney
-	msgbox Act2_Text_BriefMart
+	msgbox Act2_Text_BriefSpendWisely
+	msgbox Act2_Text_BriefDoomScroll
+	playfanfare MUS_RG_OBTAIN_KEY_ITEM
+	message Act2_Text_GotDoomScroll
+	waitmessage
+	waitfanfare
+	additem ITEM_DOOM_SCROLL
+	msgbox Act2_Text_BriefEnd
+	msgbox Act2_Text_BriefTmMachine
 	closemessage
 	@ The friends come over
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterDown
@@ -52,29 +56,25 @@ Act2_EventScript_FinalBrief::
 	releaseall
 	end
 
-Act2_EventScript_BriefWalkFrom3:
-	applymovement LOCALID_PLAYER, Act2_Movement_BriefFrom3
+Act2_EventScript_BriefWalk:
+	getplayerxy VAR_0x8004, VAR_0x8005
+	goto_if_lt VAR_0x8004, 8, Act2_EventScript_BriefStepRight
+	goto_if_gt VAR_0x8004, 8, Act2_EventScript_BriefStepLeft
+	applymovement LOCALID_PLAYER, Common_Movement_WalkUp2
+	waitmovement 0
 	return
 
-Act2_EventScript_BriefWalkFrom4:
-	applymovement LOCALID_PLAYER, Act2_Movement_BriefFrom4
-	return
+Act2_EventScript_BriefStepRight:
+	applymovement LOCALID_PLAYER, Common_Movement_WalkRight
+	waitmovement 0
+	goto Act2_EventScript_BriefWalk
 
-Act2_EventScript_BriefWalkFrom5:
-	applymovement LOCALID_PLAYER, Act2_Movement_BriefFrom5
-	return
+Act2_EventScript_BriefStepLeft:
+	applymovement LOCALID_PLAYER, Common_Movement_WalkLeft
+	waitmovement 0
+	goto Act2_EventScript_BriefWalk
 
-Act2_Movement_BriefFrom3:
-	walk_right
-Act2_Movement_BriefFrom4:
-	walk_right
-Act2_Movement_BriefFrom5:
-	walk_right
-	walk_right
-	walk_up
-	step_end
-
-@ From (9,7) to just below the player (7,8)
+@ From (10,10) to just below the player (8,11)
 Act2_Movement_RowanToPlayer:
 	walk_down
 	walk_left
@@ -116,31 +116,75 @@ Act2_Text_BriefComeIn:
 
 Act2_Text_Brief:
 	.string "DIRECTOR: Good morning, all four\n"
-	.string "of you. Your final project.\p"
-	.string "Make a TM. Any move you like,\n"
-	.string "as long as it has 120 power or\l"
-	.string "more.\p"
-	.string "No research sheet this time.\n"
-	.string "No field trip. Follow your passion.\p"
-	.string "Remember what got you interested\n"
-	.string "in POKéMON in the first place.\l"
-	.string "That's where your move is.\p"
-	.string "This exam is unguided, so you'll\n"
+	.string "of you. It's time for your final\l"
+	.string "project, the capstone of your\l"
+	.string "studies.\p"
+	.string "I want you to make a TM…but not\n"
+	.string "just any TM. The move it contains\l"
+	.string "must have 120 power or more.\p"
+	.string "These are the most difficult moves\n"
+	.string "to capture, for this you will need\l"
+	.string "to remember all of your studies,\l"
+	.string "and maybe more importantly,\l"
+	.string "remember your passion, what got\l"
+	.string "you into university in the first\l"
+	.string "place.\p"
+	.string "This exam is unguided, explore the\n"
+	.string "region to find your inspiration\l"
+	.string "and return when you've discovered\l"
+	.string "how to craft your TM.\p"
+	.string "Since you will not be escorted like\n"
+	.string "your previous courses you will\l"
 	.string "need these.$"
 
 Act2_Text_GotTownMap:
-	.string "Each of you got a TOWN MAP!$"
+	.string "Each of you gets a TOWN MAP and\n"
+	.string "¥10,000 to sustain yourselves on\l"
+	.string "your time away from the campus!$"
 
-Act2_Text_GotMoney:
-	.string "And ¥10,000 for the project!$"
+Act2_Text_BriefSpendWisely:
+	.string "I recommend you spend it wisely,\n"
+	.string "perhaps some healing items as the\l"
+	.string "distance between towns can be vast.$"
 
-Act2_Text_BriefMart:
-	.string "DIRECTOR: That's your budget.\n"
-	.string "Spend it well.\p"
-	.string "Stock up at the DEPT. STORE in\n"
-	.string "CELADON before you head out.\p"
+Act2_Text_BriefDoomScroll:
+	.string "DIRECTOR: And one more thing.\p"
+	.string "As you've learned from PROF. FERN\n"
+	.string "you may find that certain POKéMON\l"
+	.string "may only appear at night or in\l"
+	.string "the daytime.\p"
+	.string "If you find yourself needing to\n"
+	.string "pass time, take a lesson from the\l"
+	.string "freshmen.\p"
+	.string "I once left for my home and\n"
+	.string "returned the next morning to see\l"
+	.string "the same student stood in front of\l"
+	.string "the fountain mesmerized…\p"
+	.string "12 hours straight!\p"
+	.string "Open up your KEY ITEMS and zone\n"
+	.string "in…no…zone out.\p"
+	.string "Learn the art of the DOOM SCROLL.$"
+
+Act2_Text_GotDoomScroll:
+	.string "{PLAYER} got the DOOM SCROLL!$"
+
+Act2_Text_BriefEnd:
+	.string "Start your DOOM SCROLL and hours\n"
+	.string "vanish. Wait for night, or for\l"
+	.string "morning, whichever the work needs.\p"
+	.string "KAI: So… open social media.\p"
+	.string "DIRECTOR: Precisely, it's a\n"
+	.string "research instrument, KAI.\p"
+	.string "DIRECTOR: That's your brief now go\n"
+	.string "on and explore.\p"
 	.string "Come back when your TM is ready.\n"
 	.string "Good luck.$"
+
+@ The TM Database (docs/hack/tm_database.md): the researcher on 3F explains it
+Act2_Text_BriefTmMachine:
+	.string "DIRECTOR: Oh, and before you head\n"
+	.string "out, see our researcher on 3F\l"
+	.string "about the TM MACHINE.$"
 
 Act2_Text_FriendsTMs:
 	.string "KAI: FIRE, obviously. I'm making\n"
@@ -152,28 +196,46 @@ Act2_Text_FriendsTMs:
 
 Act2_Text_FriendsAskPlayer:
 	.string "KAI: What about you, {PLAYER}?\n"
-	.string "What's your type?\p"
+	.string "What's your favorite type?\p"
 	.string "{PLAYER}: …\p"
 	.string "……\p"
 	.string "MINA: You don't have one, do you?\p"
-	.string "ROWAN: You never did. You liked\n"
+	.string "ROWAN: You never did. You've liked\n"
 	.string "every POKéMON you met.\p"
 	.string "{PLAYER}: …\p"
 	.string "KAI: So you want to find\n"
-	.string "something new!\p"
+	.string "something new huh?\p"
 	.string "MINA: Then do what the DIRECTOR\n"
 	.string "said. Remember how it started.\p"
-	.string "ROWAN: You grew up by some woods,\n"
-	.string "right? Maybe go back there.$"
+	.string "ROWAN: You grew up on a farm near\n"
+	.string "PALLET TOWN, right? Maybe go back\l"
+	.string "there.$"
 
 Act2_Text_FriendsWarn:
-	.string "KAI: Oh, and watch yourself out\n"
-	.string "there.\p"
-	.string "You've got a TRAINER CARD now.\n"
-	.string "TRAINERS on the road will\l"
-	.string "challenge you!\p"
-	.string "MINA: See you back here with\n"
-	.string "your TM!$"
+	.string "ROWAN: It's a long road, though.\n"
+	.string "Check your TOWN MAP to find\l"
+	.string "your way home.\p"
+	.string "Take it town by town. TRAINERS\n"
+	.string "will be waiting along the way now\l"
+	.string "that we have our TRAINER CARDS\l"
+	.string "and wild POKéMON too.\p"
+	.string "MINA: There are two ways, I think\n"
+	.string "back to PALLET.\p"
+	.string "South through VERMILION and\n"
+	.string "DIGLETT'S CAVE…\p"
+	.string "Or north through CERULEAN,\n"
+	.string "MT. MOON and PEWTER.\p"
+	.string "Your call, {PLAYER}!\p"
+	.string "KAI: Maybe we'll see each other\n"
+	.string "along the way, I'm heading home to\l"
+	.string "get some advice from my parents\l"
+	.string "first.\p"
+	.string "Feel free to stop by our apartment\n"
+	.string "in CELADON CITY on your way out,\l"
+	.string "they might have some extra snacks\l"
+	.string "for your POKéMON!\p"
+	.string "It's the CONDOMINIUMS right by the\n"
+	.string "UNIVERSITY gate, on the 2F.$"
 
 Act2_Text_InstituteKai:
 	.string "KAI: The DIRECTOR's waiting!$"
@@ -381,7 +443,7 @@ Act2_EventScript_EnterStation:
 
 @ ---------------------------------------------------------------------------------------------------------------
 @ The ending. After the chamber, the player is home in their room (2F); the friends come up the stairs (10,2) one
-@ by one and line up beside the player at (3,3). Then the lab (the institute's Research Room): Tri-Blast.
+@ by one and line up beside the player at (3,3). Then the lab (the institute's Research Room, 3F): Tri-Blast.
 
 Act2_EventScript_HomeFriend::
 	msgbox Act2_Text_HomeFriend, MSGBOX_NPC
@@ -415,7 +477,7 @@ Act2_EventScript_FriendsVisit::
 	msgbox Act2_Text_Epiphany
 	closemessage
 	fadescreen FADE_TO_BLACK
-	warp MAP_CELADON_UNIVERSITY_SCIENCE_RESEARCH_ROOM, 5, 2
+	warp MAP_CELADON_UNIVERSITY_SCIENCE_RESEARCH_ROOM, 8, 2
 	waitstate
 	releaseall
 	end
@@ -459,7 +521,7 @@ Act2_Movement_HomeRowan:
 	walk_in_place_faster_left
 	step_end
 
-@ The lab: the friends stand behind the player, who's at the machine (5,2) facing the wall
+@ The lab: the friends stand behind the player, who's at the center terminal (8,2) facing the wall
 Act2_EventScript_LabObjects::
 	goto_if_ne VAR_ACT2_PROGRESS, ACT2_LEGENDS_CALMED, Act2_EventScript_LabObjectsEnd
 	clearflag FLAG_TEMP_1
@@ -524,34 +586,43 @@ Act2_EventScript_TriBlastReveal::
 	releaseall
 	end
 
-@ From the door (7,9): up to (7,7), left to their column, up to row 5, behind the friends
+@ Up the stairs (2,2): down to row 5, then right to their column, behind the friends (7-9,3)
 Act2_Movement_LabAshford:
-	walk_up
-	walk_up
-	walk_left
-	walk_left
-	walk_left
-	walk_up
-	walk_up
+	walk_down
+	walk_down
+	walk_down
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
 	walk_in_place_faster_up
 	step_end
 
 Act2_Movement_LabMarlowe:
-	walk_up
-	walk_up
-	walk_left
-	walk_left
-	walk_up
-	walk_up
+	walk_down
+	walk_down
+	walk_down
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
 	walk_in_place_faster_up
 	step_end
 
 Act2_Movement_LabFern:
-	walk_up
-	walk_up
-	walk_left
-	walk_up
-	walk_up
+	walk_down
+	walk_down
+	walk_down
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
 	walk_in_place_faster_up
 	step_end
 

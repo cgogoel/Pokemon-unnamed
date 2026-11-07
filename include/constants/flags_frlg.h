@@ -149,8 +149,8 @@
 #define FLAG_HIDE_SAFFRON_CITY_POKECENTER_SABRINA_JOURNALS 0x0AE
 
 // Unused?
-#define FLAG_0x0AF               0x0AF
-#define FLAG_0x0B0               0x0B0
+#define FLAG_ACT2_KAI_DADS_SNACKS 0x0AF // Act 2 final project: KAI's dads gave the MOOMOO MILK and POKé WRAPS
+#define FLAG_TM_DATABASE_UNLOCKED 0x0B0 // The TM Database: the institute's researcher explained it (docs/hack/tm_database.md)
 #define FLAG_0x0B1               0x0B1
 #define FLAG_0x0B2               0x0B2
 #define FLAG_0x0B3               0x0B3
@@ -1011,7 +1011,7 @@
 #define FLAG_HIDDEN_ITEM_ROCKET_HIDEOUT_B4F_NEST_BALL                      (FLAG_HIDDEN_ITEMS_START +  13)
 #define FLAG_HIDDEN_ITEM_POKEMON_TOWER_5F_BIG_MUSHROOM                     (FLAG_HIDDEN_ITEMS_START +  14)
 #define FLAG_HIDDEN_ITEM_ROUTE13_PP_UP                                     (FLAG_HIDDEN_ITEMS_START +  15)
-#define FLAG_HIDDEN_ITEM_UNUSED_0x10                                       (FLAG_HIDDEN_ITEMS_START +  16)
+#define FLAG_ACT2_GOT_MORELULL                                             (FLAG_HIDDEN_ITEMS_START + 16) // Act 2: the glade's MORELULL came along (the Grass course)
 #define FLAG_HIDDEN_ITEM_ROUTE17_RARE_CANDY                                (FLAG_HIDDEN_ITEMS_START +  17)
 #define FLAG_HIDDEN_ITEM_ROUTE17_FULL_RESTORE                              (FLAG_HIDDEN_ITEMS_START +  18)
 #define FLAG_HIDDEN_ITEM_ROUTE17_PP_UP                                     (FLAG_HIDDEN_ITEMS_START +  19)

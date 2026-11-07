@@ -777,6 +777,19 @@ void ItemUseOutOfBattle_HealDash(u8 taskId)
     }
 }
 
+// The DOOM SCROLL: wait until night or day (src/game_time.c, data/scripts/doom_scroll.inc)
+static void Task_UseDoomScroll(u8 taskId)
+{
+    ScriptContext_SetupScript(EventScript_DoomScroll);
+    DestroyTask(taskId);
+}
+
+void ItemUseOutOfBattle_DoomScroll(u8 taskId)
+{
+    sItemUseOnFieldCB = Task_UseDoomScroll;
+    SetUpItemUseOnFieldCallback(taskId);
+}
+
 void ItemUseOutOfBattle_CoinCase(u8 taskId)
 {
     ConvertIntToDecimalStringN(gStringVar1, GetCoins(), STR_CONV_MODE_LEFT_ALIGN, 4);

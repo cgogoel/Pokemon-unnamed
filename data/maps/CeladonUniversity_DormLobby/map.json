@@ -19,8 +19,8 @@
     {
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_OLD_WOMAN_FRLG",
-      "x": 2,
-      "y": 9,
+      "x": 5,
+      "y": 4,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
       "movement_range_x": 1,
@@ -33,10 +33,10 @@
     {
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_SPECIES(MEOWTH)",
-      "x": 1,
+      "x": 16,
       "y": 9,
       "elevation": 3,
-      "movement_type": "MOVEMENT_TYPE_FACE_RIGHT",
+      "movement_type": "MOVEMENT_TYPE_FACE_LEFT",
       "movement_range_x": 1,
       "movement_range_y": 1,
       "trainer_type": "TRAINER_TYPE_NONE",
@@ -47,8 +47,8 @@
     {
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_SPECIES(CLEFAIRY)",
-      "x": 5,
-      "y": 13,
+      "x": 8,
+      "y": 7,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_WANDER_LEFT_AND_RIGHT",
       "movement_range_x": 1,
@@ -61,55 +61,41 @@
   ],
   "warp_events": [
     {
-      "x": 11,
-      "y": 19,
+      "x": 10,
+      "y": 10,
       "elevation": 0,
       "dest_map": "MAP_CELADON_UNIVERSITY",
-      "dest_warp_id": "12"
+      "dest_warp_id": "11"
     },
     {
-      "x": 12,
-      "y": 18,
-      "elevation": 3,
-      "dest_map": "MAP_CELADON_UNIVERSITY",
-      "dest_warp_id": "12"
-    },
-    {
-      "x": 13,
-      "y": 19,
-      "elevation": 0,
-      "dest_map": "MAP_CELADON_UNIVERSITY",
-      "dest_warp_id": "12"
-    },
-    {
-      "x": 4,
+      "x": 1,
       "y": 2,
-      "elevation": 3,
+      "elevation": 0,
       "dest_map": "MAP_CELADON_UNIVERSITY_DORM_2F",
       "dest_warp_id": "0"
     },
     {
-      "x": 12,
+      "x": 2,
       "y": 2,
-      "elevation": 3,
+      "elevation": 0,
       "dest_map": "MAP_CELADON_UNIVERSITY_DORM_2F",
-      "dest_warp_id": "0"
+      "dest_warp_id": "1"
     }
   ],
   "coord_events": [],
   "bg_events": [
     {
       "type": "sign",
-      "x": 7,
-      "y": 12,
+      "x": 11,
+      "y": 1,
       "elevation": 0,
       "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
       "script": "CeladonUniversity_DormLobby_EventScript_Sign0"
     },
     {
       "type": "sign",
-      "x": 8,
-      "y": 12,
+      "x": 12,
+      "y": 1,
       "elevation": 0,
       "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
       "script": "CeladonUniversity_DormLobby_EventScript_Sign0"

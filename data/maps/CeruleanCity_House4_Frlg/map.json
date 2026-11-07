@@ -17,7 +17,6 @@
   "connections": null,
   "object_events": [
     {
-      "local_id": "LOCALID_WONDER_NEWS_BERRY_MAN",
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_OLD_MAN_1",
       "x": 5,
@@ -28,7 +27,7 @@
       "movement_range_y": 1,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
-      "script": "CeruleanCity_House4_EventScript_WonderNewsBerryMan",
+      "script": "CeruleanCity_House4_EventScript_OldMan",
       "flag": "0"
     }
   ],

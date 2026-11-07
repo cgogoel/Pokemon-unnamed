@@ -1378,12 +1378,12 @@ u32 GetBattlePalettesMask(bool8 battleBackground, bool8 attacker, bool8 target, 
 
     if (battleBackground)
     {
-        if (!IsContest())
+        if (IsContest())
+            selectedPalettes = 1 << GetBattleBgPaletteNum();
+        else
             selectedPalettes = 0xe; // Palettes 1, 2, and 3
         if (IsTripleBattle())
-            selectedPalettes |= 1 << TRIPLE_FLOOR_BG_PALETTE;
-        else
-            selectedPalettes = 1 << GetBattleBgPaletteNum();
+            selectedPalettes |= 1 << TRIPLE_FLOOR_BG_PALETTE; // The 3v3 floor ovals
     }
     if (attacker)
     {

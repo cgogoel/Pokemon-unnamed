@@ -1,6 +1,9 @@
 #include "global.h"
 #include "heal_dash.h"
 #include "act2_story.h"
+#include "game_time.h"
+#include "act2_night_bloom.h"
+#include "act2_road.h"
 #include "overworld.h"
 #include "battle_pyramid.h"
 #include "battle_setup.h"
@@ -57,6 +60,7 @@
 #include "rotating_gate.h"
 #include "rtc.h"
 #include "safari_zone.h"
+#include "quests.h"
 #include "save.h"
 #include "save_location.h"
 #include "script.h"
@@ -902,6 +906,8 @@ void LoadMapFromCameraTransition(u8 mapGroup, u8 mapNum)
     ChooseAmbientCrySpecies();
     SetDefaultFlashLevel();
     Overworld_ClearSavedMusic();
+    Act2Road_OnMapEntered();
+    Quests_OnMapEnter();
     RunOnTransitionMapScript();
     InitMap();
     CopySecondaryTilesetToVramUsingHeap(gMapHeader.mapLayout);
@@ -972,6 +978,8 @@ static void LoadMapFromWarp(bool32 a1)
         FlagClear(FLAG_SYS_USE_FLASH);
     SetDefaultFlashLevel();
     Overworld_ClearSavedMusic();
+    Act2Road_OnMapEntered();
+    Quests_OnMapEnter();
     RunOnTransitionMapScript();
     UpdateLocationHistoryForRoamer();
     MoveAllRoamersToOtherLocationSets();
@@ -1108,7 +1116,11 @@ bool32 Overworld_IsBikingAllowed(void)
 // Flash level of 8 is fully black
 void SetDefaultFlashLevel(void)
 {
-    if (!gMapHeader.cave)
+    // The hack: Viridian Forest on the Grass trip's night (src/act2_night_bloom.c)
+    u32 nightLevel = Act2_GetNightForestFlashLevel();
+    if (nightLevel != 0)
+        gSaveBlock1Ptr->flashLevel = nightLevel;
+    else if (!gMapHeader.cave)
         gSaveBlock1Ptr->flashLevel = 0;
     else if (FlagGet(FLAG_SYS_USE_FLASH))
         gSaveBlock1Ptr->flashLevel = 1;
@@ -1705,15 +1717,9 @@ const struct BlendSettings gTimeOfDayBlend[] =
 void UpdateTimeOfDay(bool32 updateBlend)
 {
     s32 hours, minutes;
-    RtcCalcLocalTime();
-    hours = sHoursOverride ? sHoursOverride : gLocalTime.hours;
-    minutes = sHoursOverride ? 0 : gLocalTime.minutes;
-    // Act 2's club nights: night until the club's battle, whatever the clock says
-    if (!sHoursOverride && Act2_IsClubNight())
-    {
-        hours = ACT2_CLUB_NIGHT_HOUR;
-        minutes = 0;
-    }
+    // The hack: day and night are the game's, not the real-time clock's (src/game_time.c)
+    hours = sHoursOverride ? sHoursOverride : GameTime_GetHour();
+    minutes = 0;
 
     if (IsBetweenHours(hours, MORNING_HOUR_BEGIN, MORNING_HOUR_MIDDLE)) // night->morning
     {

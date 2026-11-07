@@ -2207,6 +2207,13 @@ static void PlayerHandleChooseAction(enum BattlerId battler)
 {
     s32 i;
 
+    // Triple battles: the Pokémon that acted last turn starts selected
+    if (IsTripleBattle() && gBattleStruct->triplePickedActor == 0)
+    {
+        enum BattlerId startingActor = GetTriplePlayerStartingActor(battler);
+        if (startingActor != MAX_BATTLERS_COUNT)
+            gBattleStruct->triplePickedActor = startingActor + 1;
+    }
     if (IsTripleBattle() && gBattleStruct->triplePickedActor != 0)
     {
         if (gBattleStruct->triplePickedActor - 1 != battler)

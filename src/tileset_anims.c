@@ -1432,3 +1432,69 @@ void InitTilesetAnim_CeladonGym(void)
     sSecondaryTilesetAnimCallback = TilesetAnim_CeladonGym;
 }
 
+// The hack's flames (Act 2): three flicker frames each, drawn by their generators, shown 0, 1, 0, 2
+static const u8 sFlickerOrder[] = { 0, 1, 0, 2 };
+
+// The dock fires of Vermilion's harbor (tools/hack/draw_dock_fire.py): the flame's 4 tiles, after the tileset's own
+static const u16 sTilesetAnims_VermilionCity_DockFire_Frame0[] = INCGFX_U16("data/tilesets/secondary/vermilion_city_frlg/anim/dock_fire/0.png", ".4bpp");
+static const u16 sTilesetAnims_VermilionCity_DockFire_Frame1[] = INCGFX_U16("data/tilesets/secondary/vermilion_city_frlg/anim/dock_fire/1.png", ".4bpp");
+static const u16 sTilesetAnims_VermilionCity_DockFire_Frame2[] = INCGFX_U16("data/tilesets/secondary/vermilion_city_frlg/anim/dock_fire/2.png", ".4bpp");
+
+static const u16 *const sTilesetAnims_VermilionCity_DockFire[] = {
+    sTilesetAnims_VermilionCity_DockFire_Frame0,
+    sTilesetAnims_VermilionCity_DockFire_Frame1,
+    sTilesetAnims_VermilionCity_DockFire_Frame2
+};
+
+static void TilesetAnim_VermilionCity(u16 timer)
+{
+    if (timer % 8 == 0)
+        AppendTilesetAnimToBuffer(sTilesetAnims_VermilionCity_DockFire[sFlickerOrder[(timer / 8) % ARRAY_COUNT(sFlickerOrder)]],
+                                  (u16 *)(BG_VRAM + TILE_OFFSET_4BPP(784)), 4 * TILE_SIZE_4BPP);
+}
+
+void InitTilesetAnim_VermilionCity(void)
+{
+    sSecondaryTilesetAnimCounter = 0;
+    sSecondaryTilesetAnimCounterMax = 32;
+    sSecondaryTilesetAnimCallback = TilesetAnim_VermilionCity;
+}
+
+// The Pokémon Mansion's lit furnaces (tools/hack/draw_mansion_furnace.py: their 2 bottom tiles) and the ranger
+// station's lit torches (tools/hack/draw_station_tiles.py: their 2 top tiles)
+static const u16 sTilesetAnims_PokemonMansion_Furnace_Frame0[] = INCGFX_U16("data/tilesets/secondary/pokemon_mansion_frlg/anim/furnace/0.png", ".4bpp");
+static const u16 sTilesetAnims_PokemonMansion_Furnace_Frame1[] = INCGFX_U16("data/tilesets/secondary/pokemon_mansion_frlg/anim/furnace/1.png", ".4bpp");
+static const u16 sTilesetAnims_PokemonMansion_Furnace_Frame2[] = INCGFX_U16("data/tilesets/secondary/pokemon_mansion_frlg/anim/furnace/2.png", ".4bpp");
+static const u16 sTilesetAnims_PokemonMansion_Torch_Frame0[] = INCGFX_U16("data/tilesets/secondary/pokemon_mansion_frlg/anim/torch/0.png", ".4bpp");
+static const u16 sTilesetAnims_PokemonMansion_Torch_Frame1[] = INCGFX_U16("data/tilesets/secondary/pokemon_mansion_frlg/anim/torch/1.png", ".4bpp");
+static const u16 sTilesetAnims_PokemonMansion_Torch_Frame2[] = INCGFX_U16("data/tilesets/secondary/pokemon_mansion_frlg/anim/torch/2.png", ".4bpp");
+
+static const u16 *const sTilesetAnims_PokemonMansion_Furnace[] = {
+    sTilesetAnims_PokemonMansion_Furnace_Frame0,
+    sTilesetAnims_PokemonMansion_Furnace_Frame1,
+    sTilesetAnims_PokemonMansion_Furnace_Frame2
+};
+
+static const u16 *const sTilesetAnims_PokemonMansion_Torch[] = {
+    sTilesetAnims_PokemonMansion_Torch_Frame0,
+    sTilesetAnims_PokemonMansion_Torch_Frame1,
+    sTilesetAnims_PokemonMansion_Torch_Frame2
+};
+
+static void TilesetAnim_PokemonMansion(u16 timer)
+{
+    if (timer % 8 == 0)
+        AppendTilesetAnimToBuffer(sTilesetAnims_PokemonMansion_Furnace[sFlickerOrder[(timer / 8) % ARRAY_COUNT(sFlickerOrder)]],
+                                  (u16 *)(BG_VRAM + TILE_OFFSET_4BPP(996)), 2 * TILE_SIZE_4BPP);
+    if (timer % 8 == 4)
+        AppendTilesetAnimToBuffer(sTilesetAnims_PokemonMansion_Torch[sFlickerOrder[(timer / 8) % ARRAY_COUNT(sFlickerOrder)]],
+                                  (u16 *)(BG_VRAM + TILE_OFFSET_4BPP(1012)), 2 * TILE_SIZE_4BPP);
+}
+
+void InitTilesetAnim_PokemonMansion(void)
+{
+    sSecondaryTilesetAnimCounter = 0;
+    sSecondaryTilesetAnimCounterMax = 32;
+    sSecondaryTilesetAnimCallback = TilesetAnim_PokemonMansion;
+}
+

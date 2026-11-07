@@ -26,11 +26,7 @@ VermilionCity_EventScript_Woman::
 	end
 
 VermilionCity_EventScript_OldMan1::
-	lock
-	faceplayer
-	goto_if_eq VAR_MAP_SCENE_VERMILION_CITY, 3, VermilionCity_EventScript_OldMan1SSAnneLeft
-	msgbox VermilionCity_Text_DidYouSeeSSAnneInHarbor
-	release
+	msgbox VermilionCity_Text_DidYouSeeSSAnneInHarbor, MSGBOX_NPC
 	end
 
 VermilionCity_EventScript_OldMan1SSAnneLeft::
@@ -210,11 +206,7 @@ VermilionCity_EventScript_Sailor::
 	end
 
 VermilionCity_EventScript_OaksAide::
-	lock
-	faceplayer
-	setflag FLAG_TALKED_TO_OAKS_AIDE_IN_VERMILION
-	msgbox VermilionCity_Text_Route2AideHasPackageForYou
-	release
+	msgbox VermilionCity_Text_Route2AideHasPackageForYou, MSGBOX_NPC
 	end
 
 VermilionCity_EventScript_OldMan2::
@@ -256,13 +248,17 @@ VermilionCity_EventScript_HarborSign::
 	end
 
 VermilionCity_Text_GrimerMultipliesInSludge::
-	.string "We're careful about pollution here.\p"
-	.string "We've heard GRIMER multiplies in\n"
-	.string "toxic sludge.$"
+	.string "I run the fish stall by the\n"
+	.string "harbor. Up before the sun, every\l"
+	.string "single day.\p"
+	.string "The MAGIKARP don't sell, but\n"
+	.string "the kids love to look at them.$"
 
 VermilionCity_Text_DidYouSeeSSAnneInHarbor::
-	.string "Did you see the S.S. ANNE moored\n"
-	.string "in the harbor?$"
+	.string "Every evening I sit here and\n"
+	.string "watch the boats come in.\p"
+	.string "Forty years, and the sunset over\n"
+	.string "the harbor never gets old.$"
 
 VermilionCity_Text_SSAnneHasDepartedForYear::
 	.string "So, the S.S. ANNE has departed?\p"
@@ -270,10 +266,10 @@ VermilionCity_Text_SSAnneHasDepartedForYear::
 	.string "this time next year.$"
 
 VermilionCity_Text_BuildingOnThisLand::
-	.string "I'm putting up a building on this\n"
-	.string "plot of land. I own it all.\p"
-	.string "My POKéMON is tamping the land\n"
-	.string "to lay the foundation.$"
+	.string "A fish market goes up on this\n"
+	.string "plot next spring. My plot!\p"
+	.string "My MACHOP is packing the ground\n"
+	.string "down for the foundation.$"
 
 VermilionCity_Text_Machop::
 	.string "MACHOP: Guoh! Gogogoh!$"
@@ -282,9 +278,10 @@ VermilionCity_Text_MachopStompingLandFlat::
 	.string "A MACHOP is stomping the land flat.$"
 
 VermilionCity_Text_SSAnneVisitsOnceAYear::
-	.string "The S.S. ANNE is a famous luxury\n"
-	.string "cruise ship.\p"
-	.string "It visits VERMILION once a year.$"
+	.string "I've loaded cargo on this pier\n"
+	.string "since I was your age.\p"
+	.string "Crates in, crates out. Watch your\n"
+	.string "feet, the planks are slippery!$"
 
 VermilionCity_Text_CitySign::
 	.string "VERMILION CITY\n"
@@ -311,7 +308,8 @@ VermilionCity_Text_VermilionHarbor::
 	.string "VERMILION HARBOR$"
 
 VermilionCity_Text_WelcomeToTheSSAnne::
-	.string "Welcome to the S.S. ANNE!$"
+	.string "This end of the pier's for the\n"
+	.string "big ships. None due in today.$"
 
 VermilionCity_Text_DoYouHaveATicket::
 	.string "Welcome to the S.S. ANNE!\p"
@@ -375,14 +373,9 @@ VermilionCity_Text_Seagallop12Departing::
 	.string "departing immediately.$"
 
 VermilionCity_Text_Route2AideHasPackageForYou::
-	.string "Oh, hello, {PLAYER}!\n"
-	.string "How are you doing?\p"
-	.string "It's me, one of PROF. OAK's AIDES.\p"
-	.string "Did you meet the other AIDE?\p"
-	.string "He had a package from PROF. OAK\n"
-	.string "for you, {PLAYER}.\p"
-	.string "He said he'd look for you around\n"
-	.string "ROUTE 2, {PLAYER}.\p"
-	.string "If you're in the ROUTE 2 area,\n"
-	.string "please look for him.$"
+	.string "I'm with a marine lab in town.\n"
+	.string "We count the WATER POKéMON that\l"
+	.string "swim into the harbor.\p"
+	.string "More TENTACOOL every year.\n"
+	.string "Warmer water, I suspect.$"
 

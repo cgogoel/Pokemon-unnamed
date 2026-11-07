@@ -4,7 +4,8 @@
 Pokémon Mansion tileset (B1F, the clock), after the furnaces of draw_mansion_furnace.py (which this runs first, so
 the tileset is rebuilt from the same base every time). A new row of 16 tiles at the end of tiles.png, palette 09
 (the furnaces' iron, brick and flame colors):
-    0x384 torch, unlit     0x385 torch, lit       (standing iron braziers on the basement floor)
+    0x384 torch, unlit     0x385 torch, lit       (standing iron braziers on the basement floor; the lit flames
+                                                   flicker: frames in anim/torch/)
     0x386 moon emblem      0x387 sun emblem       (painted on the wall, above the furnaces)
     0x388 iron bars        (the cage around B1F's stairs; on the basement floor)
     0x389, 0x38A           the Mansion 1F stair down's right-hand pieces (0x2D2, 0x2DA) on the basement floor
@@ -172,6 +173,10 @@ def draw_mansion():
     # Tiles: torch top (unlit) x2, torch bottom x2, torch top (lit) x2, moon x4, sun x4, bars top, bars bottom
     tiles = unlit + lit[:2] + moon + sun + [bars[0], bars[2]]
     first = add_tile_row(MANSION, MANSION_TILE_ROWS, tiles)
+    # The lit torch's flames flicker (its top two tiles, animated by InitTilesetAnim_PokemonMansion)
+    flames = furnace.flicker_frames(TORCH_LIT, 'ROYW', '.', (1, 0, 14, 6))
+    furnace.write_anim_frames(os.path.join(MANSION, 'anim/torch'), [furnace.tiles_of(f, 0, 1) for f in flames],
+                              KEYS, furnace.PALETTE)
 
     def top(*tiles):
         return [(first + t) | (MANSION_PAL << 12) for t in tiles]

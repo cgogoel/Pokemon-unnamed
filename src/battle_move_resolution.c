@@ -1,5 +1,6 @@
 #include "global.h"
 #include "act2_story.h"
+#include "tm_research.h"
 #include "battle.h"
 #include "battle_arena.h"
 #include "battle_environment.h"
@@ -4962,13 +4963,16 @@ static enum MoveEndResult MoveEndOpportunist(struct BattleCalcValues *cv)
     return MOVEEND_RESULT_CONTINUE;
 }
 
+// A course's research counter or the TM Database's: the state moves on once neither has a message left
 static enum MoveEndResult MoveEndAct2Research(struct BattleCalcValues *cv)
 {
+    if (Act2_TakeResearchMoveMessage() || TmResearch_TakeMoveMessage())
+    {
+        BattleScriptCall(BattleScript_Act2ResearchMessage);
+        return MOVEEND_RESULT_RUN_SCRIPT;
+    }
     gBattleScripting.moveendState++;
-    if (!Act2_TakeResearchMoveMessage())
-        return MOVEEND_RESULT_CONTINUE;
-    BattleScriptCall(BattleScript_Act2ResearchMessage);
-    return MOVEEND_RESULT_RUN_SCRIPT;
+    return MOVEEND_RESULT_CONTINUE;
 }
 
 static enum MoveEndResult MoveEndThirdMoveBlock(struct BattleCalcValues *cv)

@@ -651,9 +651,35 @@ gSpecials::
 	def_special Act1_TakeFarmMonWithYou
 	def_special Act1_FinishChoosing
 	def_special Act1_StartPrologueEnd
+	def_special TmDatabase_OpenFromMachine, waitstate=1
+	def_special TmResearch_Unlock
 	def_special Act2_PartyHasType
 	def_special Act2_IsClubNight
 	def_special Act2_GiveStartingKit
+	def_special GameTime_GetDoomScrollState
+	def_special GameTime_IsNight
+	def_special GameTime_ScrollToOtherTime
+	def_special GameTime_ShowHour
+	def_special Act2_SetupForestObjects
+	def_special Act2_DrawForestOpening
+	def_special Act2_WakeGlowcap
+	def_special Act2_IsGlowcapLit
+	def_special Act2_BrightenForest
+	def_special Act2_FollowOddish
+	def_special Act2_FindHoldStillMoveUser
+	def_special Act2_FindHedgeMoveUser
+	def_special Act2_SetNightBloomBit
+	def_special Act2_HasNightBloomBit
+	def_special Act2_SetupGladeObjects
+	def_special Act2_DrawGladeHedges
+	def_special Act2_GetGladeScene
+	def_special Act2_GetNextWave
+	def_special Act2_EndWave
+	def_special Act2_PlantHedge
+	def_special Act2_BreakDawn
+	def_special Act2_GiveGladeMorelull
+	def_special StartAct2BloomWaveBattle
+	def_special Act2_SetupViridianObjects
 	def_special Act2_IsResearchDone
 	def_special Act2_IsReadyForTM
 	def_special Act2_BufferResearchSheet
@@ -665,9 +691,9 @@ gSpecials::
 	def_special Act2_IsDockFireBurningSpecial
 	def_special Act2_IsDockFireAlarmDue
 	def_special Act2_FindSpotBesidePlayer
+	def_special Act2_WalkFriendToPlayer
 	def_special Act2_GetDockFireState
 	def_special Act2_FindTmMoveUser
-	def_special Act2_PartyCanUseCourseTM
 	def_special Act2_FindCourseMoveUser
 	def_special Act2_SolvePuzzlePart
 	def_special Act2_IsPuzzlePartSolved
@@ -678,6 +704,7 @@ gSpecials::
 	def_special Act2_ResetWoodsNoise
 	def_special Act2_FillChamberParty
 	def_special Act2_EndAct2
+	def_special Act2_ShowNextDayCard
 	def_special Act2Road_IsRouteOpenSpecial
 	def_special Act2Station_DrawFloor
 	def_special Act2Station_HasFinaleBit

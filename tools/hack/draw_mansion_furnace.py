@@ -4,7 +4,8 @@ iron hood, cold (an empty firebox with ash) and lit (flames inside).
 
 Adds palette 09 (unused before), 6 tiles (a new row at the end of tiles.png) and two metatiles after the tileset's
 own: METATILE_PokemonMansion_Furnace_Cold and _Lit, both drawn over the wall of the building tileset's metatile
-0x061. Re-running redraws them in place.
+0x061. The lit furnace's flames flicker: frames in anim/furnace/ (flicker_frames), animated over its two bottom
+tiles by InitTilesetAnim_PokemonMansion (src/tileset_anims.c). Re-running redraws them in place.
 
     python3 tools/hack/draw_mansion_furnace.py
 """
@@ -122,6 +123,46 @@ def pixels(art):
     return [[KEYS.index(c) for c in row] for row in art]
 
 
+# The flames' flicker (a tileset animation, src/tileset_anims.c): the drawn flame, then the same flame leaning right
+# and reaching a row higher, then leaning left. Each frame moves the flame's pixels (flame_keys) inside a box, more
+# toward the top; what's left behind becomes the background key, and nothing else in the picture changes.
+FLICKER_SHIFTS = [(0, 0), (1, 1), (-1, 0)]
+
+
+def flicker_frames(art, flame_keys, background, box):
+    """The flicker frames of a picture (a list of strings): box is (x0, y0, x1, y1), inclusive, around the flame."""
+    x0, y0, x1, y1 = box
+    frames = []
+    for dx, dy in FLICKER_SHIFTS:
+        frame = [list(row) for row in art]
+        for y in range(y0, y1 + 1):
+            t = (y1 - y) / max(1, y1 - y0)  # 0 at the flame's base, 1 at its tip
+            for x in range(x0, x1 + 1):
+                if art[y][x] not in flame_keys and art[y][x] != background:
+                    continue
+                sx, sy = x - round(dx * t), y + round(dy * t)
+                inside = x0 <= sx <= x1 and y0 <= sy <= y1
+                frame[y][x] = art[sy][sx] if inside and art[sy][sx] in flame_keys else background
+        frames.append([''.join(row) for row in frame])
+    return frames
+
+
+def write_anim_frames(folder, frames, keys, palette):
+    """Each frame's tiles (lists of 8x8 rows of keys), side by side in a PNG: folder/0.png, 1.png, ..."""
+    os.makedirs(folder, exist_ok=True)
+    plte = b''.join(bytes(c) for c in palette)
+    for n, tiles in enumerate(frames):
+        rows = [[keys.index(c) for tile in tiles for c in tile[y]] for y in range(8)]
+        write_png(os.path.join(folder, '%d.png' % n), 8 * len(tiles), rows, plte)
+
+
+def tiles_of(art, *quarters):
+    """The 8x8 tiles of a 16x16 picture (a list of strings), by quarter: 0 top-left, 1 top-right, 2 bottom-left, 3
+    bottom-right"""
+    origin = ((0, 0), (8, 0), (0, 8), (8, 8))
+    return [[art[origin[q][1] + y][origin[q][0]:origin[q][0] + 8] for y in range(8)] for q in quarters]
+
+
 def main():
     open(os.path.join(TILESET, 'palettes/%02d.pal' % PAL), 'w').write(
         'JASC-PAL\r\n0100\r\n16\r\n' + ''.join('%d %d %d\r\n' % c for c in PALETTE))
@@ -138,6 +179,9 @@ def main():
                 rows[BASE_TILE_ROWS * 8 + y][n * 8 + x] = art[y0 + y][x0 + x]
     write_png(png, width, rows, plte)
     first_tile = PRIMARY_TILES + BASE_TILE_ROWS * 16
+    write_anim_frames(os.path.join(TILESET, 'anim/furnace'),
+                      [tiles_of(frame, 2, 3) for frame in flicker_frames(LIT, 'ROYW', 'o', (4, 8, 11, 12))],
+                      KEYS, PALETTE)
 
     # Metatiles: the wall's bottom layer, the furnace on top
     primary = open(os.path.join(ROOT, 'data/tilesets/primary/building_frlg/metatiles.bin'), 'rb').read()

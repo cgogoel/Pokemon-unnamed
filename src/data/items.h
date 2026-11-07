@@ -732,6 +732,26 @@ const struct ItemInfo gItemsInfo[] =
         .iconPalette = gItemIconPalette_MoomooMilk,
     },
 
+    [ITEM_POKE_WRAP] = // The hack: KAI's dads' homemade wrap (data/scripts/friend_homes.inc)
+    {
+        .name = ITEM_NAME("Poké Wrap"),
+        .price = 400,
+        .holdEffectParam = 75,
+        .description = COMPOUND_STRING(
+            "A homemade wrap\n"
+            "full of berries.\n"
+            "Restores 75 HP."),
+        .pocket = POCKET_ITEMS,
+        .sortType = ITEM_TYPE_HEALTH_RECOVERY,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_Medicine,
+        .battleUsage = EFFECT_ITEM_RESTORE_HP,
+        .effect = gItemEffect_PokeWrap,
+        .flingPower = 30,
+        .iconPic = gItemIcon_PokeWrap,
+        .iconPalette = gItemIconPalette_PokeWrap,
+    },
+
     [ITEM_ENERGY_POWDER] =
     {
         .name = ITEM_NAME("Energy Powder"),
@@ -14212,6 +14232,22 @@ const struct ItemInfo gItemsInfo[] =
         .fieldUseFunc = ItemUseOutOfBattle_HealDash,
         .iconPic = gItemIcon_HeavyDutyBoots,
         .iconPalette = gItemIconPalette_HeavyDutyBoots,
+    },
+
+    [ITEM_DOOM_SCROLL] =
+    {
+        .name = ITEM_NAME("Doom Scroll"),
+        .price = 0,
+        .description = COMPOUND_STRING(
+            "Scroll away the\n"
+            "hours. Wait until\n"
+            "night or day."),
+        .importance = 1,
+        .pocket = POCKET_KEY_ITEMS,
+        .type = ITEM_USE_FIELD,
+        .fieldUseFunc = ItemUseOutOfBattle_DoomScroll,
+        .iconPic = gItemIcon_ScrollOfDarkness,
+        .iconPalette = gItemIconPalette_ScrollOfDarkness,
     },
 
     [ITEM_COIN_CASE] =

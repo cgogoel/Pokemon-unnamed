@@ -8052,10 +8052,10 @@ void AnimTask_GetTimeOfDay(u8 taskId)
 {
     gBattleAnimArgs[0] = 0; //Daytime is default
 
-    RtcCalcLocalTime();
-    if (gLocalTime.hours >= 20 || gLocalTime.hours < 4)
+    // The hack: the game's time of day, not the clock's (src/game_time.c)
+    if (GetTimeOfDay() == TIME_NIGHT)
         gBattleAnimArgs[0] = 1;
-    else if (gLocalTime.hours >= 17 && gLocalTime.hours < 20)
+    else if (GetTimeOfDay() == TIME_EVENING)
         gBattleAnimArgs[0] = 2;
 
     DestroyAnimVisualTask(taskId);

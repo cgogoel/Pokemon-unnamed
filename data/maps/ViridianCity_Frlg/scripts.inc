@@ -67,42 +67,11 @@ ViridianCity_EventScript_Boy::
 
 @ Other old man, not the tutorial old man
 ViridianCity_EventScript_OldMan::
-	lock
-	faceplayer
-	goto_if_eq VAR_MAP_SCENE_VIRIDIAN_CITY_GYM_DOOR, 1, ViridianCity_EventScript_OldManGymLeaderReturned
-	msgbox ViridianCity_Text_GymClosedWonderWhoLeaderIs
-	closemessage
-	applymovement LOCALID_VIRIDIAN_OLD_MAN, Common_Movement_FaceOriginalDirection
-	waitmovement 0
-	release
-	end
-
-ViridianCity_EventScript_OldManGymLeaderReturned::
-	msgbox ViridianCity_Text_ViridiansGymLeaderReturned
-	release
+	msgbox ViridianCity_Text_GymClosedWonderWhoLeaderIs, MSGBOX_NPC
 	end
 
 ViridianCity_EventScript_TutorialOldMan::
-	lock
-	faceplayer
-	goto_if_set FLAG_BADGE01_GET, ViridianCity_EventScript_AskIfTeachyTVHelpful
-	goto ViridianCity_EventScript_TutorialCompleted
-
-ViridianCity_EventScript_AskIfTeachyTVHelpful::
-	msgbox ViridianCity_Text_HowsTeachyTVHelping, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, NO, ViridianCity_EventScript_TeachyTVNotHelpful
-	msgbox ViridianCity_Text_MyGrandsonOnTheShow
-	release
-	end
-
-ViridianCity_EventScript_TeachyTVNotHelpful::
-	msgbox ViridianCity_Text_TooBusyForTeachyTV
-	release
-	end
-
-ViridianCity_EventScript_TutorialCompleted::
-	msgbox ViridianCity_Text_WeakenMonsFirstToCatch
-	release
+	msgbox ViridianCity_Text_WeakenMonsFirstToCatch, MSGBOX_NPC
 	end
 
 ViridianCity_EventScript_Youngster::
@@ -124,19 +93,7 @@ ViridianCity_EventScript_YoungsterDeclineExplanation::
 	end
 
 ViridianCity_EventScript_Woman::
-	lock
-	faceplayer
-	goto_if_eq VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN, 0, ViridianCity_EventScript_WomanRoadBlocked
-	msgbox ViridianCity_Text_GoShoppingInPewterOccasionally
-	release
-	end
-
-ViridianCity_EventScript_WomanRoadBlocked::
-	msgbox ViridianCity_Text_GrandpaHasntHadCoffeeYet
-	closemessage
-	applymovement LOCALID_VIRIDIAN_WOMAN, Common_Movement_FaceOriginalDirection
-	waitmovement 0
-	release
+	msgbox ViridianCity_Text_GoShoppingInPewterOccasionally, MSGBOX_NPC
 	end
 
 ViridianCity_EventScript_DreamEaterTutor::
@@ -144,72 +101,42 @@ ViridianCity_EventScript_DreamEaterTutor::
 	end
 
 ViridianCity_Text_CanCarryMonsAnywhere::
-	.string "Those POKé BALLS at your waist!\n"
-	.string "You have POKéMON, don't you?\p"
-	.string "It's great that you can carry and\n"
-	.string "use POKéMON anytime, anywhere.$"
+	.string "My mom runs the flower shop.\n"
+	.string "I deliver the bouquets!\p"
+	.string "My PIDGEY carries the small\n"
+	.string "ones. It works for seeds.$"
 
 ViridianCity_Text_GymClosedWonderWhoLeaderIs::
-	.string "This POKéMON GYM is always closed.\p"
-	.string "I wonder who the LEADER is?$"
-
-ViridianCity_Text_ViridiansGymLeaderReturned::
-	.string "VIRIDIAN GYM's LEADER returned!$"
+	.string "Ah, a fine morning for sitting\n"
+	.string "in the sun.\p"
+	.string "At my age, that's a full day's\n"
+	.string "work. Hohoho!$"
 
 ViridianCity_Text_WantToKnowAboutCaterpillarMons::
-	.string "You want to know about the two\n"
-	.string "kinds of caterpillar POKéMON?$"
+	.string "Want to hear about the bugs in\n"
+	.string "the forest up north?$"
 
 ViridianCity_Text_OhOkayThen::
-	.string "Oh, okay then!$"
+	.string "Aw. You'd have liked it.$"
 
 ViridianCity_Text_ExplainCaterpieWeedle::
-	.string "CATERPIE has no poison,\n"
-	.string "but WEEDLE does.\p"
-	.string "Watch that your POKéMON aren't\n"
-	.string "stabbed by WEEDLE's POISON STING.$"
-
-ViridianCity_Text_GrandpaHasntHadCoffeeYet::
-	.string "Oh, Grandpa!\n"
-	.string "Don't be so mean!\p"
-	.string "I'm so sorry.\n"
-	.string "He hasn't had his coffee yet.$"
+	.string "CATERPIE are harmless, but\n"
+	.string "WEEDLE sting! I've got the\l"
+	.string "scar to prove it.\p"
+	.string "I'm going to be a bug professor\n"
+	.string "when I grow up!$"
 
 ViridianCity_Text_GoShoppingInPewterOccasionally::
-	.string "I go shopping in PEWTER CITY\n"
-	.string "occasionally.\p"
-	.string "I have to take the winding trail in\n"
-	.string "VIRIDIAN FOREST when I go.$"
+	.string "The fields west of town used to\n"
+	.string "be so green.\p"
+	.string "This dry spell's been hard on\n"
+	.string "them. I hope the rain comes soon.$"
 
 ViridianCity_Text_WeakenMonsFirstToCatch::
-	.string "Well, now, I've had my coffee, and\n"
-	.string "that's what I need to get going!\p"
-	.string "But I made it too strong.\n"
-	.string "It gave me a headache…\p"
-	.string "Incidentally, are you filling your\n"
-	.string "POKéDEX?\p"
-	.string "At first, focus on weakening the\n"
-	.string "POKéMON before trying to catch it.$"
-
-ViridianCity_Text_HowsTeachyTVHelping::
-	.string "Well, now, I've had my coffee, and\n"
-	.string "that's what I need to get going!\p"
-	.string "But I made it too strong.\n"
-	.string "It gave me a headache…\p"
-	.string "Incidentally, is my old TEACHY TV\n"
-	.string "helping you?$"
-
-ViridianCity_Text_MyGrandsonOnTheShow::
-	.string "Wahaha!\n"
-	.string "It's my grandson on the show!\p"
-	.string "Since he's the one doing the\n"
-	.string "teaching, you're bound to learn.$"
-
-ViridianCity_Text_TooBusyForTeachyTV::
-	.string "Hm… You're too busy to not even\n"
-	.string "have the time for TEACHY TV…\p"
-	.string "Time is money, and neither should\n"
-	.string "be ill spent…$"
+	.string "I've had my coffee, and now I'm\n"
+	.string "ready for my walk!\p"
+	.string "Every morning, out to ROUTE 22\n"
+	.string "and back. Doctor's orders.$"
 
 ViridianCity_Text_CitySign::
 	.string "VIRIDIAN CITY \n"

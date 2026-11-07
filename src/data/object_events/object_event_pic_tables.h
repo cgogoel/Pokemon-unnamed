@@ -820,8 +820,20 @@ static const struct SpriteFrameImage sPicTable_DockFire[] = {
     obj_frame_tiles(gObjectEventPic_DockFire),
 };
 
-static const struct SpriteFrameImage sPicTable_WitheredPlant[] = {
-    obj_frame_tiles(gObjectEventPic_WitheredPlant),
+static const struct SpriteFrameImage sPicTable_GlowcapDim[] = {
+    obj_frame_tiles(gObjectEventPic_GlowcapDim),
+};
+
+static const struct SpriteFrameImage sPicTable_GlowcapLit[] = {
+    obj_frame_tiles(gObjectEventPic_GlowcapLit),
+};
+
+static const struct SpriteFrameImage sPicTable_MoonveilBud[] = {
+    obj_frame_tiles(gObjectEventPic_MoonveilBud),
+};
+
+static const struct SpriteFrameImage sPicTable_MoonveilBloom[] = {
+    obj_frame_tiles(gObjectEventPic_MoonveilBloom),
 };
 
 static const struct SpriteFrameImage sPicTable_WaterCushion[] = {

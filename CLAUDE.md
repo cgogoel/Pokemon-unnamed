@@ -80,8 +80,8 @@ that grow in length. Act 3 retells Kanto events (Red, Blue, Oak, Giovanni, Silph
   3 opponents it targets. The enemy side does the same. Each move hits 1, 2 or all 3 targets.
 - Structure (docs/hack/act2_story.md): three courses, Fire, Water and Grass, in that order. Each is a field trip
   (Cinnabar Island, Vermilion City, Viridian City) with a research sheet: catch a Pokémon of the type, use and
-  record its moves, solve the site's puzzle with it. That makes a TM (Flamethrower, BubbleBeam, Giga Drain), and
-  the professor's exam only counts if the TM's move is used.
+  record its moves, solve the site's puzzle with it. That makes a TM (Flamethrower, BubbleBeam, Giga Drain),
+  then the professor's exam (a battle; using the TM's move isn't required). TMs are reusable.
 - The friends' club teams grow with what they caught on each field trip.
 - Between courses, the player's friends take them to a secret battle club at the campus stadium at night.
 - No Trainer Card until the third night's exam: until then trainers refuse to battle; only wild Pokémon do.

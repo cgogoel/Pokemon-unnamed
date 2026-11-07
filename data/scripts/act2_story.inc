@@ -72,8 +72,8 @@ Act2_EventScript_MeetFriends::
 	applymovement LOCALID_CAMPUS_KAI, Act2_Movement_KaiToClass
 	applymovement LOCALID_CAMPUS_MINA, Act2_Movement_MinaToClass
 	applymovement LOCALID_CAMPUS_ROWAN, Act2_Movement_RowanToClass
-	@ Until ROWAN, the last, is out of sight (10 steps along the path, after its 2-step wait), not the whole walk
-	delay 196
+	@ Until ROWAN, the last, is out of sight (11 steps after its 2-step wait), not the whole walk
+	delay 212
 	removeobject LOCALID_CAMPUS_KAI
 	removeobject LOCALID_CAMPUS_MINA
 	removeobject LOCALID_CAMPUS_ROWAN
@@ -81,7 +81,8 @@ Act2_EventScript_MeetFriends::
 	releaseall
 	end
 
-@ Off toward the MAIN HALL: along the path to the avenue (x 33), then up it until well out of sight
+@ Off toward the MAIN HALL: from outside the annex (the player at (56,58)) west along the dorms' path to x 45,
+@ then up it toward the avenue, until well out of sight. ROWAN, east of the player, goes round below.
 Act2_Movement_KaiToClass:
 	walk_left
 	walk_left
@@ -91,9 +92,8 @@ Act2_Movement_KaiToClass:
 	walk_left
 	walk_left
 	walk_left
-	walk_left
-	walk_left
-	walk_left
+	walk_up
+	walk_up
 	walk_up
 	walk_up
 	walk_up
@@ -117,11 +117,8 @@ Act2_Movement_MinaToClass:
 	walk_left
 	walk_left
 	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
-	walk_left
+	walk_up
+	walk_up
 	walk_up
 	walk_up
 	walk_up
@@ -137,6 +134,7 @@ Act2_Movement_MinaToClass:
 Act2_Movement_RowanToClass:
 	delay_16
 	delay_16
+	walk_down
 	walk_left
 	walk_left
 	walk_left
@@ -151,7 +149,9 @@ Act2_Movement_RowanToClass:
 	walk_left
 	walk_left
 	walk_left
-	walk_left
+	walk_up
+	walk_up
+	walk_up
 	walk_up
 	walk_up
 	walk_up
@@ -215,14 +215,24 @@ Act2_EventScript_ClubArrive:
 	waitmovement 0
 	return
 
-@ After a club night: back to bed, and it's morning
+@ After a club night, with the next story stage in VAR_0x8008: "The next day…" on black, then the player wakes up in
+@ their room. The stage only moves on once the screen is black: it's night until then (Act2_IsClubNight).
 Act2_EventScript_ClubMorning:
 	closemessage
 	fadescreen FADE_TO_BLACK
+	copyvar VAR_ACT2_PROGRESS, VAR_0x8008
 	special HealPlayerParty
-	warp MAP_CELADON_UNIVERSITY_DORM_ROOM, 2, 3
+	special Act2_ShowNextDayCard
 	waitstate
 	releaseall
+	end
+
+@ Walking into the stadium (coord events across its entrance, VAR_TEMP_1 0): on a club night, that night's
+@ arrival; otherwise nothing
+Act2_EventScript_ClubGate::
+	goto_if_eq VAR_ACT2_PROGRESS, ACT2_FIRE_INVITED, Act2_EventScript_ClubNight1
+	goto_if_eq VAR_ACT2_PROGRESS, ACT2_WATER_INVITED, Act2_EventScript_ClubNight2
+	goto_if_eq VAR_ACT2_PROGRESS, ACT2_GRASS_INVITED, Act2_EventScript_ClubNight3
 	end
 
 @ Arriving on a club night (coord events at the gate): the friends explain tonight's battle, then the player can line
@@ -288,7 +298,13 @@ Act2_EventScript_ClubComeIn:
 Act2_EventScript_ClubConfirmTeam:
 	specialvar VAR_RESULT, Act2_BufferClubTeam
 	msgbox gStringVar4
+	goto_if_eq VAR_RESULT, 0, Act2_EventScript_ClubNoTeam
 	msgbox Act2_Text_ClubReady, MSGBOX_YESNO
+	return
+
+@ No one able to battle: as if the player said not yet
+Act2_EventScript_ClubNoTeam:
+	setvar VAR_RESULT, NO
 	return
 
 Act2_EventScript_ClubNotYet:
@@ -304,6 +320,7 @@ Act2_EventScript_ClubGoAgain:
 Act2_EventScript_ClubBattle1:
 	call Act2_EventScript_ClubConfirmTeam
 	goto_if_eq VAR_RESULT, NO, Act2_EventScript_ClubNotYet
+	msgbox Act2_Text_KaiStrategy
 	closemessage
 	special Act2_SetAsideClubBench
 	trainerbattle_earlyrival TRAINER_ACT2_KAI, RIVAL_BATTLE_HEAL_AFTER, Act2_Text_KaiDefeat, Act2_Text_KaiWins
@@ -314,12 +331,13 @@ Act2_EventScript_ClubBattle1:
 	goto_if_eq VAR_RESULT, YES, Act2_EventScript_ClubBattle1
 Act2_EventScript_ClubWon1:
 	msgbox Act2_Text_Night1After
-	setvar VAR_ACT2_PROGRESS, ACT2_CLUB_1_DONE
+	setvar VAR_0x8008, ACT2_CLUB_1_DONE
 	goto Act2_EventScript_ClubMorning
 
 Act2_EventScript_ClubBattle2:
 	call Act2_EventScript_ClubConfirmTeam
 	goto_if_eq VAR_RESULT, NO, Act2_EventScript_ClubNotYet
+	msgbox Act2_Text_MinaStrategy
 	closemessage
 	special Act2_SetAsideClubBench
 	trainerbattle_earlyrival TRAINER_ACT2_MINA, RIVAL_BATTLE_HEAL_AFTER, Act2_Text_MinaDefeat, Act2_Text_MinaWins
@@ -330,12 +348,13 @@ Act2_EventScript_ClubBattle2:
 	goto_if_eq VAR_RESULT, YES, Act2_EventScript_ClubBattle2
 Act2_EventScript_ClubWon2:
 	msgbox Act2_Text_Night2After
-	setvar VAR_ACT2_PROGRESS, ACT2_CLUB_2_DONE
+	setvar VAR_0x8008, ACT2_CLUB_2_DONE
 	goto Act2_EventScript_ClubMorning
 
 Act2_EventScript_ClubBattle3:
 	call Act2_EventScript_ClubConfirmTeam
 	goto_if_eq VAR_RESULT, NO, Act2_EventScript_ClubNotYet
+	msgbox Act2_Text_DaleStrategy
 	closemessage
 	special Act2_SetAsideClubBench
 	trainerbattle_earlyrival TRAINER_ACT2_EXAMINER, RIVAL_BATTLE_HEAL_AFTER, Act2_Text_DaleDefeat, Act2_Text_DaleWins
@@ -353,14 +372,15 @@ Act2_EventScript_ClubTrainerCard:
 	message Act2_Text_GotTrainerCard
 	waitmessage
 	waitfanfare
-	setvar VAR_ACT2_PROGRESS, ACT2_GOT_TRAINER_CARD
 	msgbox Act2_Text_Night3After
+	setvar VAR_0x8008, ACT2_GOT_TRAINER_CARD
 	goto Act2_EventScript_ClubMorning
 
 @ ---------------------------------------------------------------------------------------------------------------
-@ The friends' dorm rooms (KAI and MINA on 2F, ROWAN on 3F). Back from each course it's night: the friend who asked
-@ the player to come by says where the club meets, then heads there. Night lasts until the club battle
-@ (Act2_IsClubNight).
+@ The friends' dorm rooms (KAI and MINA on 2F, ROWAN on 3F). Back from the Fire course it's night: KAI asked the
+@ player to come by, says where the club meets, then heads there. After the other courses, the friends just say
+@ they'll see the player there (ACT2_WATER_INVITED, ACT2_GRASS_INVITED). Night lasts until the club battle
+@ (Act2_IsClubNight). ACT2_WATER_SEE_MINA and ACT2_GRASS_SEE_ROWAN are only for saves already at them.
 
 CeladonUniversity_Dorm2F_OnTransition::
 	setflag FLAG_TEMP_5
@@ -466,8 +486,8 @@ Act2_EventScript_RoomPlateRowan::
 @ ---------------------------------------------------------------------------------------------------------------
 @ The courses. Each professor starts their course on campus: what to do, Poké Balls, then the field trip. There,
 @ the professor's research sheet: catch 3 different Pokémon of the type, use a move of it, record 3 different moves of it,
-@ and solve the site's puzzle. With all four done, the professor helps make the course's TM; the exam only counts if
-@ the player's Pokémon of the type uses its move (src/act2_story.c tracks all this).
+@ and solve the site's puzzle. With all four done, the professor helps make the course's TM, then the exam
+@ (src/act2_story.c tracks all this).
 
 @ Fire: PROF. ASHFORD, Lecture Hall A; field trip to Cinnabar Island
 Act2_EventScript_ProfAshford::
@@ -523,33 +543,16 @@ Act2_EventScript_FireMakeTM:
 	end
 
 Act2_EventScript_FireExam:
-	specialvar VAR_RESULT, Act2_PartyCanUseCourseTM
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_FireTeachTMFirst
 	msgbox Act2_Text_ReadyForFireExam, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, Act2_EventScript_ComeBackWhenReady
 	msgbox Act2_Text_FireExamBegins
 	closemessage
-	setvar VAR_0x8004, ACT2_RESEARCH_USED_TM_MOVE
-	special Act2_ClearResearchFlag
 	cleartrainerflag TRAINER_ACT2_PROF_FIRE
 	trainerbattle_no_intro TRAINER_ACT2_PROF_FIRE, Act2_Text_AshfordDefeat
-	setvar VAR_0x8004, ACT2_RESEARCH_USED_TM_MOVE
-	specialvar VAR_RESULT, Act2_HasResearchFlag
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_FireExamNoMove
 	msgbox Act2_Text_FirePassed
 	msgbox Act2_Text_FireComeSeeKai
 	setvar VAR_ACT2_PROGRESS, ACT2_FIRE_SEE_KAI
 	goto Act2_EventScript_BackToDorms
-
-Act2_EventScript_FireExamNoMove:
-	msgbox Act2_Text_FireExamNoMove
-	release
-	end
-
-Act2_EventScript_FireTeachTMFirst:
-	msgbox Act2_Text_FireTeachTM
-	release
-	end
 
 @ Water: PROF. MARLOWE, the audiovisual classroom; field trip to Vermilion City
 Act2_EventScript_ProfMarlowe::
@@ -618,40 +621,33 @@ Act2_EventScript_WaterMakeTM:
 @ The exam only once every task is done, the big dock fire included
 Act2_EventScript_WaterAfterTM:
 	specialvar VAR_RESULT, Act2_IsResearchDone
-	goto_if_eq VAR_RESULT, TRUE, Act2_EventScript_WaterExam
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_WaterLastFire
+	goto_if_unset FLAG_ACT2_GOT_LAPRAS, Act2_EventScript_WaterSeeLapras
+	goto Act2_EventScript_WaterExam
+
+Act2_EventScript_WaterLastFire:
 	msgbox Act2_Text_WaterLastFire
+	release
+	end
+
+@ The fires are out, but the young Lapras is still by the pier: no exam until it's been looked after
+Act2_EventScript_WaterSeeLapras:
+	msgbox Act2_Text_WaterSeeLapras
 	release
 	end
 
 Act2_EventScript_WaterExam:
 	msgbox Act2_Text_WaterAllDone
-	specialvar VAR_RESULT, Act2_PartyCanUseCourseTM
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_WaterTeachTMFirst
 	msgbox Act2_Text_ReadyForWaterExam, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, Act2_EventScript_ComeBackWhenReady
 	msgbox Act2_Text_WaterExamBegins
 	closemessage
-	setvar VAR_0x8004, ACT2_RESEARCH_USED_TM_MOVE
-	special Act2_ClearResearchFlag
 	cleartrainerflag TRAINER_ACT2_PROF_WATER
 	trainerbattle_no_intro TRAINER_ACT2_PROF_WATER, Act2_Text_MarloweDefeat
-	setvar VAR_0x8004, ACT2_RESEARCH_USED_TM_MOVE
-	specialvar VAR_RESULT, Act2_HasResearchFlag
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_WaterExamNoMove
 	msgbox Act2_Text_WaterPassed
-	msgbox Act2_Text_WaterComeSeeMina
-	setvar VAR_ACT2_PROGRESS, ACT2_WATER_SEE_MINA
+	msgbox Act2_Text_WaterSeeYouTonight
+	setvar VAR_ACT2_PROGRESS, ACT2_WATER_INVITED
 	goto Act2_EventScript_BackToDorms
-
-Act2_EventScript_WaterExamNoMove:
-	msgbox Act2_Text_WaterExamNoMove
-	release
-	end
-
-Act2_EventScript_WaterTeachTMFirst:
-	msgbox Act2_Text_WaterTeachTM
-	release
-	end
 
 @ Grass: PROF. FERN, Home Economics; field trip to Viridian City
 Act2_EventScript_ProfFern::
@@ -681,9 +677,12 @@ Act2_EventScript_StartGrass:
 	release
 	end
 
+@ In VIRIDIAN until dawn, then in the glade (data/scripts/act2_night_bloom.inc), where she makes the TM and gives
+@ the exam
 Act2_EventScript_ProfFernTrip::
 	lock
 	faceplayer
+Act2_EventScript_ProfFernTalk::
 	setvar VAR_0x8004, ACT2_RESEARCH_GOT_TM
 	specialvar VAR_RESULT, Act2_HasResearchFlag
 	goto_if_eq VAR_RESULT, TRUE, Act2_EventScript_GrassExam
@@ -692,60 +691,69 @@ Act2_EventScript_ProfFernTrip::
 	msgbox Act2_Text_GrassSheetIntro
 	special Act2_BufferResearchSheet
 	msgbox gStringVar4
-	msgbox Act2_Text_GrassHint
+	call Act2_EventScript_GrassHint
 	call Act2_EventScript_RefillBalls
 	release
 	end
 
+@ The hint follows the night bloom: the glowcaps, the ODDISH, the MOONVEIL, then (in the glade) the sheet
+Act2_EventScript_GrassHint:
+	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_1
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_GrassHintGlowcaps
+	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_2
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_GrassHintOddish
+	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_DONE
+	specialvar VAR_RESULT, Act2_HasResearchFlag
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_GrassHintGuard
+	msgbox Act2_Text_GrassHintSheet
+	return
+
+Act2_EventScript_GrassHintGlowcaps:
+	msgbox Act2_Text_GrassHint
+	return
+
+Act2_EventScript_GrassHintOddish:
+	msgbox Act2_Text_GrassHintOddish
+	return
+
+Act2_EventScript_GrassHintGuard:
+	msgbox Act2_Text_GrassHintGuard
+	return
+
+@ The MOONVEIL's dew makes the TM; then straight to the exam, at sunrise in the glade
 Act2_EventScript_GrassMakeTM:
 	msgbox Act2_Text_GrassResearchDone
 	giveitem ITEM_TM_GIGA_DRAIN
 	setvar VAR_0x8004, ACT2_RESEARCH_GOT_TM
 	special Act2_SetResearchFlag
 	msgbox Act2_Text_GrassTeachTM
-	release
-	end
+	goto Act2_EventScript_GrassExam
 
 Act2_EventScript_GrassExam:
-	specialvar VAR_RESULT, Act2_PartyCanUseCourseTM
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_GrassTeachTMFirst
 	msgbox Act2_Text_ReadyForGrassExam, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, Act2_EventScript_ComeBackWhenReady
 	msgbox Act2_Text_GrassExamBegins
 	closemessage
-	setvar VAR_0x8004, ACT2_RESEARCH_USED_TM_MOVE
-	special Act2_ClearResearchFlag
 	cleartrainerflag TRAINER_ACT2_PROF_GRASS
 	trainerbattle_no_intro TRAINER_ACT2_PROF_GRASS, Act2_Text_FernDefeat
-	setvar VAR_0x8004, ACT2_RESEARCH_USED_TM_MOVE
-	specialvar VAR_RESULT, Act2_HasResearchFlag
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_GrassExamNoMove
 	msgbox Act2_Text_GrassPassed
-	msgbox Act2_Text_GrassComeSeeRowan
-	setvar VAR_ACT2_PROGRESS, ACT2_GRASS_SEE_ROWAN
+	msgbox Act2_Text_GrassSeeYouTonight
+	setvar VAR_ACT2_PROGRESS, ACT2_GRASS_INVITED
 	goto Act2_EventScript_BackToDorms
-
-Act2_EventScript_GrassExamNoMove:
-	msgbox Act2_Text_GrassExamNoMove
-	release
-	end
-
-Act2_EventScript_GrassTeachTMFirst:
-	msgbox Act2_Text_GrassTeachTM
-	release
-	end
 
 Act2_EventScript_ComeBackWhenReady:
 	msgbox Act2_Text_ComeBackWhenReady
 	release
 	end
 
-@ A passed exam: the class heads home, to the dorm lobby, where the friends talk about tonight
+@ A passed exam: the class heads home, and the player ends up back in their room. It's night now (Act2_IsClubNight).
 Act2_EventScript_BackToDorms:
 	closemessage
 	setrespawn HEAL_LOCATION_CELADON_CITY
 	special HealPlayerParty
-	warp MAP_CELADON_UNIVERSITY_DORM_LOBBY, 12, 14
+	warp MAP_CELADON_UNIVERSITY_DORM_ROOM, 2, 3
 	waitstate
 	release
 	end
@@ -757,6 +765,11 @@ Act2_EventScript_TripKai::
 
 Act2_EventScript_TripMina::
 	msgbox Act2_Text_TripMina, MSGBOX_NPC
+	end
+
+@ In VERMILION, MINA's hometown (data/scripts/friend_homes.inc)
+Act2_EventScript_TripMinaVermilion::
+	msgbox Act2_Text_TripMinaVermilion, MSGBOX_NPC
 	end
 
 Act2_EventScript_TripRowan::
@@ -874,15 +887,9 @@ VermilionCity_EventScript_Act2Objects::
 	goto Act2_EventScript_CheckBriefing
 
 ViridianCity_EventScript_Act2Objects::
-	setvar VAR_0x8004, ACT2_GRASS_TRIP
-	special Act2_SetupSiteObjects
+	special Act2_SetupViridianObjects
 	setvar VAR_0x8004, ACT2_GRASS_TRIP
 	goto Act2_EventScript_CheckBriefing
-
-Route22_OnTransition::
-	setvar VAR_0x8004, ACT2_GRASS_TRIP
-	special Act2_SetupSiteObjects
-	end
 
 @ ---------------------------------------------------------------------------------------------------------------
 @ The site puzzles: each part needs a Pokémon of the course's type that knows a move of it (Act2_FindCourseMoveUser)
@@ -958,9 +965,6 @@ Act2_EventScript_DrawFurnaceIfLit:
 
 Act2_EventScript_FurnacesAllLit:
 	msgbox Act2_Text_FurnacesAllLit
-	@ The journal appears in the sealed room now, not just the next time the player comes in (Act2_SetupSiteObjects)
-	clearflag FLAG_TEMP_8
-	addobject LOCALID_MANSION_JOURNAL
 	return
 
 Act2_EventScript_FurnaceCold:
@@ -992,13 +996,23 @@ Act2_EventScript_MansionStatue::
 	releaseall
 	end
 
+@ It's in the sealed room from the start of the trip (Act2_SetupSiteObjects). The other floors' switches can open
+@ that room's gate too, so before the furnaces are lit its pages are still stuck together.
 Act2_EventScript_MansionJournal::
 	lock
+	setvar VAR_0x8004, 0
+	specialvar VAR_RESULT, Act2_IsPuzzlePartSolved
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_MansionJournalCold
 	msgbox Act2_Text_MansionJournal
 	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_DONE
 	special Act2_SetResearchFlag
 	removeobject LOCALID_MANSION_JOURNAL
 	call Act2_EventScript_TaskDone
+	release
+	end
+
+Act2_EventScript_MansionJournalCold:
+	msgbox Act2_Text_MansionJournalCold
 	release
 	end
 
@@ -1024,15 +1038,7 @@ Act2_EventScript_SmallDockFire:
 	goto_if_eq VAR_RESULT, NO, Act2_EventScript_PuzzleRelease
 	call Act2_EventScript_DouseDockFire
 	specialvar VAR_RESULT, Act2_SolvePuzzlePart
-	setvar VAR_0x8004, 1
-	specialvar VAR_RESULT, Act2_IsPuzzlePartSolved
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_PuzzleRelease
-	setvar VAR_0x8004, 2
-	specialvar VAR_RESULT, Act2_IsPuzzlePartSolved
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_PuzzleRelease
-	msgbox Act2_Text_SmallDockFiresOut
-	releaseall
-	end
+	goto Act2_EventScript_DockFiresCheckOut
 
 @ The big fire: only the TM move puts it out
 Act2_EventScript_DockFire3::
@@ -1047,15 +1053,34 @@ Act2_EventScript_DockFire3::
 	call Act2_EventScript_DouseDockFire
 	specialvar VAR_RESULT, Act2_SolvePuzzlePart
 	call Act2_EventScript_LaprasSurfaces
+	goto Act2_EventScript_DockFiresCheckOut
+
+@ After a fire goes out: with the small ones out, the big one still burning or, all out, the task is done. The young
+@ Lapras comes first: the player is sent to it, not the professor, until it has come along.
+Act2_EventScript_DockFiresCheckOut:
 	setvar VAR_0x8004, 1
 	specialvar VAR_RESULT, Act2_IsPuzzlePartSolved
 	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_PuzzleRelease
 	setvar VAR_0x8004, 2
 	specialvar VAR_RESULT, Act2_IsPuzzlePartSolved
 	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_PuzzleRelease
+	setvar VAR_0x8004, 3
+	specialvar VAR_RESULT, Act2_IsPuzzlePartSolved
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_SmallDockFiresOut
 	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_DONE
 	special Act2_SetResearchFlag
+	goto_if_set FLAG_ACT2_GOT_LAPRAS, Act2_EventScript_DockFiresAllOut
+	msgbox Act2_Text_DockFiresOutSeeLapras
+	releaseall
+	end
+
+Act2_EventScript_DockFiresAllOut:
 	call Act2_EventScript_TaskDone
+	releaseall
+	end
+
+Act2_EventScript_SmallDockFiresOut:
+	msgbox Act2_Text_SmallDockFiresOut
 	releaseall
 	end
 
@@ -1102,9 +1127,9 @@ Act2_EventScript_CheckDockFireAlarm::
 	setvar VAR_TEMP_2, 1
 	return
 
-@ MINA runs up to the player (on ROUTE 6, her object waits hidden; in VERMILION she's already on the map). She
-@ stands on a land square beside them (Act2_FindSpotBesidePlayer: behind, left, right, then in front; never water),
-@ facing them; with no free square, the player is just told and taken to the docks.
+@ MINA runs up to the player from out of view (on ROUTE 6, her object waits hidden; in VERMILION she's already on the
+@ map). She ends on a land square beside them (Act2_FindSpotBesidePlayer: behind, left, right, then in front; never
+@ water), facing them; with no free square, the player is just told and taken to the docks.
 Route6_EventScript_DockFireAlarm::
 	lockall
 	setvar VAR_TEMP_2, 0
@@ -1114,7 +1139,7 @@ Route6_EventScript_DockFireAlarm::
 	clearflag FLAG_TEMP_2
 	addobject LOCALID_ROUTE6_MINA
 	setvar VAR_0x8009, LOCALID_ROUTE6_MINA
-	call Act2_EventScript_FriendFacesPlayer
+	call Act2_EventScript_FriendRunsUp
 	goto Act2_EventScript_DockFireAlarm
 
 VermilionCity_EventScript_DockFireAlarm::
@@ -1124,8 +1149,16 @@ VermilionCity_EventScript_DockFireAlarm::
 	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_DockFireAlarm
 	setobjectxy LOCALID_VERMILION_MINA, VAR_0x8005, VAR_0x8006
 	setvar VAR_0x8009, LOCALID_VERMILION_MINA
-	call Act2_EventScript_FriendFacesPlayer
+	call Act2_EventScript_FriendRunsUp
 	goto Act2_EventScript_DockFireAlarm
+
+@ The friend in VAR_0x8009 runs up beside the player, who turns to them
+Act2_EventScript_FriendRunsUp:
+	playse SE_PIN
+	special Act2_WalkFriendToPlayer
+	waitmovement VAR_0x8009
+	call Act2_EventScript_FriendFacesPlayer
+	return
 
 @ The friend in VAR_0x8009 faces the way in VAR_0x8007, and the player faces back
 Act2_EventScript_FriendFacesPlayer:
@@ -1157,7 +1190,6 @@ Act2_EventScript_FriendFacesRight:
 	return
 
 Act2_EventScript_DockFireAlarm:
-	playse SE_PIN
 	msgbox Act2_Text_DockFireAlarm
 	closemessage
 	setvar VAR_0x8004, ACT2_RESEARCH_DOCK_FIRE_SEEN | ACT2_RESEARCH_DOCK_FIRE_ARRIVING
@@ -1265,79 +1297,16 @@ Act2_EventScript_LaprasJoined:
 	bufferspeciesname STR_VAR_1, SPECIES_LAPRAS
 	return
 
+@ On the trip, with the fires out, the research is done: now it's time for the professor
 Act2_EventScript_LaprasDone:
+	specialvar VAR_RESULT, Act2_IsResearchDone
+	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_LaprasReportToProf
 	release
 	end
 
-@ Grass: three withered patches on Route 22. Regrown, the field blooms.
-Act2_EventScript_Withered1::
-	setvar VAR_0x8004, 1
-	lockall
-	specialvar VAR_RESULT, Act2_FindCourseMoveUser
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_WitheredNeedsGrass
-	msgbox Act2_Text_WitheredAsk, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, NO, Act2_EventScript_PuzzleRelease
-	playse SE_M_GIGA_DRAIN
-	msgbox Act2_Text_WitheredRegrown
-	waitse
-	removeobject LOCALID_ROUTE22_WITHERED_1
-	clearflag FLAG_TEMP_5
-	addobject LOCALID_ROUTE22_GROWN_1
-	goto Act2_EventScript_WitheredSolved
-
-Act2_EventScript_Withered2::
-	setvar VAR_0x8004, 2
-	lockall
-	specialvar VAR_RESULT, Act2_FindCourseMoveUser
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_WitheredNeedsGrass
-	msgbox Act2_Text_WitheredAsk, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, NO, Act2_EventScript_PuzzleRelease
-	playse SE_M_GIGA_DRAIN
-	msgbox Act2_Text_WitheredRegrown
-	waitse
-	removeobject LOCALID_ROUTE22_WITHERED_2
-	clearflag FLAG_TEMP_6
-	addobject LOCALID_ROUTE22_GROWN_2
-	goto Act2_EventScript_WitheredSolved
-
-Act2_EventScript_Withered3::
-	setvar VAR_0x8004, 3
-	lockall
-	specialvar VAR_RESULT, Act2_FindCourseMoveUser
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_WitheredNeedsGrass
-	msgbox Act2_Text_WitheredAsk, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, NO, Act2_EventScript_PuzzleRelease
-	playse SE_M_GIGA_DRAIN
-	msgbox Act2_Text_WitheredRegrown
-	waitse
-	removeobject LOCALID_ROUTE22_WITHERED_3
-	clearflag FLAG_TEMP_7
-	addobject LOCALID_ROUTE22_GROWN_3
-	goto Act2_EventScript_WitheredSolved
-
-Act2_EventScript_WitheredSolved:
-	specialvar VAR_RESULT, Act2_SolvePuzzlePart
-	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_FieldBlooms
-	releaseall
-	end
-
-Act2_EventScript_FieldBlooms:
-	playse SE_M_SWEET_SCENT
-	msgbox Act2_Text_FieldBlooms
-	waitse
-	setvar VAR_0x8004, ACT2_RESEARCH_PUZZLE_DONE
-	special Act2_SetResearchFlag
-	call Act2_EventScript_TaskDone
+Act2_EventScript_LaprasReportToProf:
+	msgbox Act2_Text_LaprasReportToProf
 	return
-
-Act2_EventScript_WitheredNeedsGrass:
-	msgbox Act2_Text_WitheredNeedsGrass
-	releaseall
-	end
-
-Act2_EventScript_Regrown::
-	msgbox Act2_Text_Regrown, MSGBOX_SIGN
-	end
 
 @ ---------------------------------------------------------------------------------------------------------------
 
@@ -1368,15 +1337,17 @@ Act2_Text_FireComeSeeKai:
 	.string "in my dorm room when we get back.\p"
 	.string "2F, the first room. Don't forget!$"
 
-Act2_Text_WaterComeSeeMina:
-	.string "MINA: Two courses down! Come see\n"
-	.string "me in my room when we get back.\p"
-	.string "2F, the second room!$"
+Act2_Text_WaterSeeYouTonight:
+	.string "MINA: Two courses down!\p"
+	.string "See you at the meeting spot\n"
+	.string "tonight. You know where it is!$"
 
-Act2_Text_GrassComeSeeRowan:
-	.string "ROWAN: That's all three courses.\n"
-	.string "Come find me in my room tonight.\p"
-	.string "3F, the room at the end.$"
+Act2_Text_GrassSeeYouTonight:
+	.string "ROWAN: That's all three courses.\p"
+	.string "See you at the meeting spot\n"
+	.string "tonight. You know where it is.\p"
+	.string "And come ready. We've invited\n"
+	.string "someone special.$"
 
 Act2_Text_RoomKaiInvite:
 	.string "KAI: You came! Okay, here's the\n"
@@ -1404,15 +1375,23 @@ Act2_Text_FriendHeadedOut:
 
 Act2_Text_RoomKai:
 	.string "KAI: Welcome to my room!\n"
-	.string "Don't mind the mess.$"
+	.string "Don't mind the mess.\p"
+	.string "My dads live across town, in the\n"
+	.string "CONDOMINIUMS. They still drop off\l"
+	.string "food every week. Too much food.$"
 
 Act2_Text_RoomMina:
 	.string "MINA: My room! That poster is a\n"
-	.string "STARYU. My favorite.$"
+	.string "STARYU. My favorite.\p"
+	.string "Back home in VERMILION, Mom and I\n"
+	.string "counted them off the pier.$"
 
 Act2_Text_RoomRowan:
 	.string "ROWAN: Shh, I'm reading.\n"
-	.string "Kidding. Come in!$"
+	.string "Kidding. Come in!\p"
+	.string "My parents live across town, by\n"
+	.string "the GAME CORNER. Mom keeps\l"
+	.string "sending me seedlings.$"
 
 Act2_Text_RoomPlateKai:
 	.string "KAI's room.$"
@@ -1487,6 +1466,33 @@ Act2_Text_ClubNotYet:
 
 Act2_Text_ClubGoAgain:
 	.string "Want to go again?$"
+
+@ Before each club battle, the opponent says how they fight (the AI's strategy is in the battle code)
+Act2_Text_KaiStrategy:
+	.string "KAI: Fair warning, I don't do\n"
+	.string "fancy.\p"
+	.string "I hit your front POKéMON with\n"
+	.string "direct attacks, again and again,\l"
+	.string "until its defense cracks.\p"
+	.string "Then your whole team's open.\n"
+	.string "Let's go!$"
+
+Act2_Text_MinaStrategy:
+	.string "MINA: Want to know my secret?\n"
+	.string "I'll tell you anyway.\p"
+	.string "I don't bother with your front\n"
+	.string "line. My indirect attacks go\l"
+	.string "right over it, at your back line.\p"
+	.string "Protect them if you can!$"
+
+Act2_Text_DaleStrategy:
+	.string "DALE: KAI hits the front line.\n"
+	.string "MINA goes for the back.\p"
+	.string "A real TRAINER does both. Direct\n"
+	.string "attacks, indirect attacks, mixed\l"
+	.string "as the battle needs.\p"
+	.string "Show me you can read it.\n"
+	.string "Begin!$"
 
 Act2_Text_KaiWins:
 	.string "Ha! Got you this time!$"
@@ -1644,24 +1650,18 @@ Act2_Text_FireResearchDone:
 	.string "FLAMETHROWER.$"
 
 Act2_Text_FireTeachTM:
-	.string "Teach FLAMETHROWER to a FIRE\n"
-	.string "POKéMON, then use it in my exam.$"
+	.string "The TM is yours to keep. Talk to\n"
+	.string "me when you're ready for my exam.$"
 
 Act2_Text_ReadyForFireExam:
-	.string "PROF. ASHFORD: FLAMETHROWER, ready?\n"
-	.string "Shall we begin the exam?$"
+	.string "PROF. ASHFORD: Your research is\n"
+	.string "done. Shall we begin the exam?$"
 
 Act2_Text_FireExamBegins:
 	.string "Let's see how hot it burns!$"
 
 Act2_Text_AshfordDefeat:
 	.string "Excellent work!$"
-
-Act2_Text_FireExamNoMove:
-	.string "PROF. ASHFORD: You won, but you\n"
-	.string "never used FLAMETHROWER!\p"
-	.string "The exam is about the move.\n"
-	.string "Try again when you're ready.$"
 
 Act2_Text_FirePassed:
 	.string "PROF. ASHFORD: You pass!\p"
@@ -1731,6 +1731,13 @@ Act2_Text_WaterLastFire:
 	.string "And hurry. I saw a POKéMON\n"
 	.string "cowering from the flames there.$"
 
+Act2_Text_WaterSeeLapras:
+	.string "PROF. MARLOWE: The fires are out!\n"
+	.string "Splendid work.\p"
+	.string "But the exam can wait. That young\n"
+	.string "LAPRAS at the end of the pier\l"
+	.string "needs you first. Go to it!$"
+
 Act2_Text_WaterAllDone:
 	.string "PROF. MARLOWE: The docks are safe,\n"
 	.string "and your research is complete.\p"
@@ -1742,11 +1749,11 @@ Act2_Text_WaterResearchDone:
 	.string "BUBBLEBEAM.$"
 
 Act2_Text_WaterTeachTM:
-	.string "Teach BUBBLEBEAM to a WATER\n"
-	.string "POKéMON, then use it in my exam.$"
+	.string "The TM is yours to keep. Teach\n"
+	.string "BUBBLEBEAM to a WATER POKéMON.$"
 
 Act2_Text_ReadyForWaterExam:
-	.string "PROF. MARLOWE: BUBBLEBEAM, ready?\n"
+	.string "PROF. MARLOWE: Now, then.\n"
 	.string "Shall we begin the exam?$"
 
 Act2_Text_WaterExamBegins:
@@ -1754,10 +1761,6 @@ Act2_Text_WaterExamBegins:
 
 Act2_Text_MarloweDefeat:
 	.string "Splendid. Simply splendid.$"
-
-Act2_Text_WaterExamNoMove:
-	.string "PROF. MARLOWE: A win, yes, but no\n"
-	.string "BUBBLEBEAM. Try again.$"
 
 Act2_Text_WaterPassed:
 	.string "PROF. MARLOWE: You pass!\p"
@@ -1776,57 +1779,73 @@ Act2_Text_StartGrass:
 	.string "course, your last one.\p"
 	.string "GRASS POKéMON teach patience.\n"
 	.string "Nothing here can be rushed.\p"
-	.string "For the GRASS course, we're headed\n"
-	.string "to VIRIDIAN CITY.\p"
-	.string "I'll explain the assignment when we\n"
-	.string "arrive. Let's go!$"
+	.string "We leave for VIRIDIAN CITY at\n"
+	.string "dusk. Yes, at night!\p"
+	.string "I'll explain when we arrive.\n"
+	.string "Let's go!$"
 
 Act2_Text_GrassBriefing:
 	.string "PROF. FERN: Welcome to VIRIDIAN\n"
 	.string "CITY, the gateway to the forests.\p"
-	.string "West of here, ROUTE 22's fields are\n"
-	.string "home to wild GRASS POKéMON.\p"
-	.string "Catch three different GRASS\n"
-	.string "POKéMON. Battle with them, and\l"
-	.string "watch how GRASS moves work.\p"
-	.string "Parts of the field have withered.\n"
-	.string "See what your POKéMON can do.\p"
-	.string "Finish the sheet, and you may just\n"
-	.string "be able to make a TM based on your\l"
-	.string "newfound knowledge.\p"
-	.string "Now, you'll need these.$"
+	.string "Once a year, a flower called the\n"
+	.string "MOONVEIL blooms for a single\l"
+	.string "night in VIRIDIAN FOREST.\p"
+	.string "Tonight is that night. And nobody\n"
+	.string "has ever recorded where it grows.\p"
+	.string "Find the bloom, protect it until\n"
+	.string "dawn, and collect its dew.\p"
+	.string "Along the way, catch three\n"
+	.string "different GRASS POKéMON. Battle\l"
+	.string "with them, and record how GRASS\l"
+	.string "moves work.\p"
+	.string "The forest is north, past\n"
+	.string "ROUTE 2. It will be very dark.\p"
+	.string "Finish the sheet, and the dew may\n"
+	.string "just make a TM. You'll need these.$"
 
 Act2_Text_GrassSheetIntro:
 	.string "PROF. FERN: Let's see your research\n"
 	.string "sheet.$"
 
 Act2_Text_GrassHint:
-	.string "GRASS POKéMON grow on ROUTE 22,\n"
-	.string "west of here. Some of its field\l"
-	.string "has withered, though…$"
+	.string "VIRIDIAN FOREST is pitch-dark\n"
+	.string "tonight. GLOWCAPS grow along its\l"
+	.string "trail. A GRASS move wakes them.$"
+
+Act2_Text_GrassHintOddish:
+	.string "The ODDISH know the forest's\n"
+	.string "hidden paths. If only one would\l"
+	.string "hold still… SLEEP POWDER, maybe?$"
+
+Act2_Text_GrassHintGuard:
+	.string "The MOONVEIL must be close.\n"
+	.string "Whatever comes, guard it until\l"
+	.string "dawn!$"
+
+Act2_Text_GrassHintSheet:
+	.string "Finish your sheet, {PLAYER}.\n"
+	.string "I'll wait right here in the glade.$"
 
 Act2_Text_GrassResearchDone:
 	.string "PROF. FERN: Beautiful research.\p"
-	.string "From your notes, we can make a TM:\n"
-	.string "GIGA DRAIN.$"
+	.string "And this dew… It holds a whole\n"
+	.string "night's energy in a single drop.\p"
+	.string "Let's make a TM from it together:\n"
+	.string "GIGA DRAIN. It drinks the night.$"
 
 Act2_Text_GrassTeachTM:
-	.string "Teach GIGA DRAIN to a GRASS\n"
-	.string "POKéMON, then use it in my exam.$"
+	.string "The TM is yours to keep. Teach\n"
+	.string "GIGA DRAIN to a GRASS POKéMON.$"
 
 Act2_Text_ReadyForGrassExam:
-	.string "PROF. FERN: GIGA DRAIN, ready?\n"
-	.string "Shall we begin the exam?$"
+	.string "PROF. FERN: The sun's up. Shall\n"
+	.string "we begin the exam, right here?$"
 
 Act2_Text_GrassExamBegins:
 	.string "Let it grow!$"
 
 Act2_Text_FernDefeat:
 	.string "Beautifully done.$"
-
-Act2_Text_GrassExamNoMove:
-	.string "PROF. FERN: You won without GIGA\n"
-	.string "DRAIN. Patience. Try again.$"
 
 Act2_Text_GrassPassed:
 	.string "PROF. FERN: You pass!\p"
@@ -1881,6 +1900,12 @@ Act2_Text_MansionJournal:
 	.string "{PLAYER} copied the notes onto the\n"
 	.string "research sheet.$"
 
+Act2_Text_MansionJournalCold:
+	.string "An old research journal.\p"
+	.string "Its pages are cold and damp, stuck\n"
+	.string "together. Maybe if the mansion\l"
+	.string "were warm again…$"
+
 Act2_Text_DockFireNeedsWater:
 	.string "The dock is on fire!\p"
 	.string "A WATER POKéMON's move could\n"
@@ -1898,6 +1923,12 @@ Act2_Text_SmallDockFiresOut:
 	.string "The small fires are out!\p"
 	.string "But the big one at the end of the\n"
 	.string "pier is still burning…$"
+
+Act2_Text_DockFiresOutSeeLapras:
+	.string "All the fires are out!\p"
+	.string "The young LAPRAS is still at the\n"
+	.string "end of the pier, watching\l"
+	.string "{PLAYER}. Better go see it!$"
 
 Act2_Text_BigDockFireTooStrong:
 	.string "The flames at the end of the pier\n"
@@ -1953,30 +1984,13 @@ Act2_Text_LaprasWontLeave:
 	.string "The LAPRAS won't leave\n"
 	.string "{PLAYER}'s side…$"
 
+Act2_Text_LaprasReportToProf:
+	.string "The docks are safe, and the\n"
+	.string "research sheet is complete.\p"
+	.string "Time to report to PROF. MARLOWE!$"
+
 Act2_Text_LaprasJoined:
 	.string "The LAPRAS joined {PLAYER}!$"
-
-Act2_Text_WitheredNeedsGrass:
-	.string "A patch of withered plants.\p"
-	.string "A GRASS POKéMON's move could\n"
-	.string "bring it back.$"
-
-Act2_Text_WitheredAsk:
-	.string "A withered patch. Have {STR_VAR_1}\n"
-	.string "use {STR_VAR_2} on it?$"
-
-Act2_Text_WitheredRegrown:
-	.string "{STR_VAR_1} used {STR_VAR_2}!\n"
-	.string "New shoots sprang up!$"
-
-Act2_Text_FieldBlooms:
-	.string "The whole field burst into bloom!\n"
-	.string "GRASS POKéMON gather all around.\p"
-	.string "{PLAYER} recorded the bloom on the\n"
-	.string "research sheet!$"
-
-Act2_Text_Regrown:
-	.string "A young tree, growing strong.$"
 
 Act2_Text_ComeBackWhenReady:
 	.string "Come back when you're ready.$"
@@ -1999,6 +2013,12 @@ Act2_Text_TripKai:
 
 Act2_Text_TripMina:
 	.string "MINA: Good luck! Remember to weaken\n"
+	.string "them before you throw a BALL.$"
+
+Act2_Text_TripMinaVermilion:
+	.string "MINA: Welcome to my hometown!\n"
+	.string "Mom's house is just up the street.\p"
+	.string "Good luck! Remember to weaken\n"
 	.string "them before you throw a BALL.$"
 
 Act2_Text_TripRowan:

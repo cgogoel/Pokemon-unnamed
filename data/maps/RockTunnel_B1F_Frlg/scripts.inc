@@ -75,8 +75,8 @@ RockTunnel_B1F_Text_CooperDefeat::
 	.string "I am so jealous!$"
 
 RockTunnel_B1F_Text_CooperPostBattle::
-	.string "When you finish your POKéDEX,\n"
-	.string "can I have it?$"
+	.string "My brother has a POKéDEX.\n"
+	.string "He never lets me touch it!$"
 
 RockTunnel_B1F_Text_SteveIntro::
 	.string "Um… Do you know about POKéMON\n"

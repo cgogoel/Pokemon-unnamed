@@ -8,16 +8,7 @@ SilphCo_4F_OnLoad::
 	end
 
 SilphCo_4F_EventScript_WorkerM::
-	lock
-	faceplayer
-	goto_if_ge VAR_MAP_SCENE_SILPH_CO_11F, 1, SilphCo_4F_EventScript_WorkerMRocketsGone
-	msgbox SilphCo_4F_Text_CantYouSeeImHiding
-	release
-	end
-
-SilphCo_4F_EventScript_WorkerMRocketsGone::
-	msgbox SilphCo_4F_Text_TeamRocketIsGone
-	release
+	msgbox SilphCo_4F_Text_HidingFromMyBoss, MSGBOX_NPC
 	end
 
 SilphCo_4F_EventScript_FloorSign::
@@ -39,13 +30,11 @@ SilphCo_4F_EventScript_Grunt2::
 	msgbox SilphCo_4F_Text_Grunt2PostBattle, MSGBOX_AUTOCLOSE
 	end
 
-SilphCo_4F_Text_CantYouSeeImHiding::
+SilphCo_4F_Text_HidingFromMyBoss::
 	.string "Sssh!\n"
-	.string "Can't you see I'm hiding?$"
-
-SilphCo_4F_Text_TeamRocketIsGone::
-	.string "Huh?\n"
-	.string "TEAM ROCKET is gone?$"
+	.string "Can't you see I'm hiding?\p"
+	.string "My manager wants my sales report\n"
+	.string "by noon. I haven't started it…$"
 
 SilphCo_4F_Text_Grunt1Intro::
 	.string "TEAM ROCKET has taken control\n"

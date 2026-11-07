@@ -7,16 +7,7 @@ SilphCo_8F_OnLoad::
 	end
 
 SilphCo_8F_EventScript_WorkerM::
-	lock
-	faceplayer
-	goto_if_ge VAR_MAP_SCENE_SILPH_CO_11F, 1, SilphCo_8F_EventScript_WorkerMRocketsGone
-	msgbox SilphCo_8F_Text_WonderIfSilphIsFinished
-	release
-	end
-
-SilphCo_8F_EventScript_WorkerMRocketsGone::
-	msgbox SilphCo_8F_Text_ThanksForSavingUs
-	release
+	msgbox SilphCo_8F_Text_ElevatorInspectionToday, MSGBOX_NPC
 	end
 
 SilphCo_8F_EventScript_FloorSign::
@@ -38,11 +29,11 @@ SilphCo_8F_EventScript_Grunt2::
 	msgbox SilphCo_8F_Text_Grunt2PostBattle, MSGBOX_AUTOCLOSE
 	end
 
-SilphCo_8F_Text_WonderIfSilphIsFinished::
-	.string "I wonder if SILPH is finished…$"
-
-SilphCo_8F_Text_ThanksForSavingUs::
-	.string "Thanks for saving us!$"
+SilphCo_8F_Text_ElevatorInspectionToday::
+	.string "The elevator inspector comes\n"
+	.string "today.\p"
+	.string "Last time, a PIKACHU was napping\n"
+	.string "on the cables. Took all afternoon!$"
 
 SilphCo_8F_Text_Grunt1Intro::
 	.string "That's as far as you'll go!$"
@@ -80,10 +71,9 @@ SilphCo_8F_Text_FloorSign::
 	.string "SILPH CO. HEAD OFFICE\n"
 	.string "8F$"
 
-SilphCo_8F_Text_ToRocketBossMonsAreTools::
-	.string "TEAM ROCKET's BOSS is terribly\n"
-	.string "cruel!\p"
-	.string "To him, POKéMON are just tools to\n"
-	.string "be used.\p"
-	.string "What will happen if that tyrant\n"
-	.string "takes over our company…$"
+SilphCo_8F_Text_SoftwareUpdateForPorygon::
+	.string "I write the software for PORYGON.\p"
+	.string "Every update, it gets a little\n"
+	.string "smarter. And a little pickier!\p"
+	.string "Now it won't run unless I say\n"
+	.string "“please.”$"

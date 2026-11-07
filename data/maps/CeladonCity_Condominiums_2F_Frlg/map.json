@@ -18,31 +18,31 @@
   "object_events": [
     {
       "type": "object",
-      "graphics_id": "0",
-      "x": 6,
-      "y": 6,
-      "elevation": 0,
-      "movement_type": "MOVEMENT_TYPE_INVISIBLE",
+      "graphics_id": "OBJ_EVENT_GFX_FAT_MAN_FRLG",
+      "x": 5,
+      "y": 8,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_LEFT",
       "movement_range_x": 1,
       "movement_range_y": 1,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
-      "script": "CeladonCity_Condominiums_2F_EventScript_PokemonJournalErika",
-      "flag": "FLAG_HIDE_FAME_CHECKER_ERIKA_JOURNALS"
+      "script": "FriendHomes_EventScript_KaiDad",
+      "flag": "0"
     },
     {
       "type": "object",
-      "graphics_id": "0",
-      "x": 5,
-      "y": 6,
-      "elevation": 0,
-      "movement_type": "MOVEMENT_TYPE_INVISIBLE",
+      "graphics_id": "OBJ_EVENT_GFX_MAN",
+      "x": 6,
+      "y": 10,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_LEFT",
       "movement_range_x": 1,
       "movement_range_y": 1,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
-      "script": "CeladonCity_Condominiums_2F_EventScript_PokemonJournalErika",
-      "flag": "FLAG_HIDE_FAME_CHECKER_ERIKA_JOURNALS"
+      "script": "FriendHomes_EventScript_KaiPapa",
+      "flag": "0"
     }
   ],
   "warp_events": [
@@ -83,7 +83,7 @@
       "y": 12,
       "elevation": 0,
       "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
-      "script": "CeladonCity_Condominiums_2F_EventScript_MeetingRoomSign"
+      "script": "FriendHomes_EventScript_KaiNameplate"
     },
     {
       "type": "sign",
@@ -91,7 +91,23 @@
       "y": 12,
       "elevation": 0,
       "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
-      "script": "CeladonCity_Condominiums_2F_EventScript_MeetingRoomSign"
+      "script": "FriendHomes_EventScript_KaiNameplate"
+    },
+    {
+      "type": "sign",
+      "x": 5,
+      "y": 6,
+      "elevation": 0,
+      "player_facing_dir": "BG_EVENT_PLAYER_FACING_NORTH",
+      "script": "FriendHomes_EventScript_KaiPhoto"
+    },
+    {
+      "type": "sign",
+      "x": 6,
+      "y": 6,
+      "elevation": 0,
+      "player_facing_dir": "BG_EVENT_PLAYER_FACING_NORTH",
+      "script": "FriendHomes_EventScript_KaiPhoto"
     }
   ]
 }

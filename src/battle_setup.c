@@ -1,4 +1,5 @@
 #include "global.h"
+#include "act2_night_bloom.h"
 #include "act2_legends.h"
 #include "data.h"
 #include "main.h"
@@ -323,20 +324,11 @@ static void CreateBattleStartTask_Debug(u8 transition, u16 song)
 #undef tState
 #undef tTransition
 
+// The hack: the Rocket Hideout is sealed, so there's no Silph Scope. Pokémon Tower's ghosts are normal wild
+// Pokémon, never the unidentifiable GHOST.
 static bool8 CheckSilphScopeInPokemonTower(u16 mapGroup, u16 mapNum)
 {
-    if (mapGroup == MAP_GROUP(MAP_POKEMON_TOWER_1F)
-     && (mapNum == MAP_NUM(MAP_POKEMON_TOWER_1F)
-      || mapNum == MAP_NUM(MAP_POKEMON_TOWER_2F)
-      || mapNum == MAP_NUM(MAP_POKEMON_TOWER_3F)
-      || mapNum == MAP_NUM(MAP_POKEMON_TOWER_4F)
-      || mapNum == MAP_NUM(MAP_POKEMON_TOWER_5F)
-      || mapNum == MAP_NUM(MAP_POKEMON_TOWER_6F)
-      || mapNum == MAP_NUM(MAP_POKEMON_TOWER_7F))
-     && !(CheckBagHasItem(ITEM_SILPH_SCOPE, 1)))
-        return TRUE;
-    else
-        return FALSE;
+    return FALSE;
 }
 
 void BattleSetup_StartWildBattle(void)
@@ -588,6 +580,21 @@ void StartAct2LegendsBattle(void)
     IncrementGameStat(GAME_STAT_WILD_BATTLES);
 }
 
+// special StartAct2BloomWaveBattle with the wave (1-3) in VAR_0x8004: the Grass trip's glade, a wave of BUG POKéMON
+// after the MOONVEIL (src/act2_night_bloom.c). As many a side as both can field, with the 3v3 rules (as the legends).
+// The script waits (waitstate) and reads GetBattleOutcome; losing whites out as usual.
+void StartAct2BloomWaveBattle(void)
+{
+    u32 count = Act2_CreateBloomWaveParty();
+    LockPlayerFieldControls();
+    gMain.savedCallback = CB2_EndScriptedWildBattle;
+    gBattleTypeFlags = 0;
+    gBattleTypeFlags = GetTripleBattleTypeFlagsForFoes(count);
+    CreateBattleStartTask(GetWildBattleTransition(), 0);
+    IncrementGameStat(GAME_STAT_TOTAL_BATTLES);
+    IncrementGameStat(GAME_STAT_WILD_BATTLES);
+}
+
 void BattleSetup_StartScriptedDoubleWildBattle(void)
 {
     LockPlayerFieldControls();
@@ -604,17 +611,13 @@ void StartMarowakBattle(void)
 {
     LockPlayerFieldControls();
     gMain.savedCallback = CB2_EndMarowakBattle;
-    gBattleTypeFlags = BATTLE_TYPE_GHOST;
+    // The hack: no Silph Scope (the Rocket Hideout is sealed), so the ghost is always Marowak, seen as it is
+    gBattleTypeFlags = 0;
 
-    if (CheckBagHasItem(ITEM_SILPH_SCOPE, 1))
-    {
-        u32 personality = GetMonPersonality(SPECIES_MAROWAK, MON_FEMALE, NATURE_SERIOUS, RANDOM_UNOWN_LETTER);
-
-        CreateMonWithIVsPersonality(&gParties[B_TRAINER_OPPONENT_A][0], SPECIES_MAROWAK, 30, 31, personality);
-    }
+    u32 personality = GetMonPersonality(SPECIES_MAROWAK, MON_FEMALE, NATURE_SERIOUS, RANDOM_UNOWN_LETTER);
+    CreateMonWithIVsPersonality(&gParties[B_TRAINER_OPPONENT_A][0], SPECIES_MAROWAK, 30, 31, personality);
 
     CreateBattleStartTask(GetWildBattleTransition(), 0);
-    SetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_NICKNAME, gText_Ghost);
     IncrementGameStat(GAME_STAT_TOTAL_BATTLES);
     IncrementGameStat(GAME_STAT_WILD_BATTLES);
 }

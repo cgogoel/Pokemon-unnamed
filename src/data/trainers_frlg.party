@@ -13858,7 +13858,7 @@ Pic: Camper Frlg
 Gender: Male
 Music: Serious
 Battle Type: Triples
-AI: Smart Trainer / Target Threat
+AI: Smart Trainer / Target Threat / Triple Direct
 
 Mankey
 Level: 14
@@ -13879,7 +13879,7 @@ Pic: Picnicker Frlg
 Gender: Female
 Music: Cute
 Battle Type: Triples
-AI: Check Bad Move
+AI: Check Bad Move / Try To Faint / Check Viability / Triple Indirect
 
 Clefairy
 Level: 17
@@ -13900,7 +13900,7 @@ Pic: Cooltrainer M Frlg
 Gender: Male
 Music: Serious
 Battle Type: Triples
-AI: Check Bad Move / Try To Faint
+AI: Check Bad Move / Try To Faint / Check Viability / Triple Mix
 
 Pidgeotto
 Level: 23

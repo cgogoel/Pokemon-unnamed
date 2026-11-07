@@ -4,13 +4,7 @@ LavenderTown_House1_Frlg_MapScripts::
 LavenderTown_House1_EventScript_CooltrainerF::
 	lock
 	faceplayer
-	goto_if_set FLAG_RESCUED_MR_FUJI, LavenderTown_House1_EventScript_CooltrainerFGhostGone
-	msgbox LavenderTown_House1_Text_RocketsKilledCubonesMother
-	release
-	end
-
-LavenderTown_House1_EventScript_CooltrainerFGhostGone::
-	msgbox LavenderTown_House1_Text_GhostOfPokemonTowerIsGone
+	msgbox LavenderTown_House1_Text_AdoptedCuboneFromFuji
 	release
 	end
 
@@ -27,16 +21,11 @@ LavenderTown_House1_EventScript_Cubone::
 LavenderTown_House1_Text_Cubone::
 	.string "CUBONE: Kyarugoo!$"
 
-LavenderTown_House1_Text_RocketsKilledCubonesMother::
-	.string "Those horrible ROCKETS!\n"
-	.string "They deserve no mercy!\p"
-	.string "That poor CUBONE's mother…\p"
-	.string "It was killed trying to escape from\n"
-	.string "TEAM ROCKET.$"
-
-LavenderTown_House1_Text_GhostOfPokemonTowerIsGone::
-	.string "The ghost of POKéMON TOWER is\n"
-	.string "gone!\p"
-	.string "Someone must have soothed its\n"
-	.string "restless spirit!$"
+LavenderTown_House1_Text_AdoptedCuboneFromFuji::
+	.string "I adopted this CUBONE from MR.\n"
+	.string "FUJI's house down the road.\p"
+	.string "It was so shy at first. It hid\n"
+	.string "under its skull for weeks.\p"
+	.string "Now it follows me everywhere,\n"
+	.string "even into the bath!$"
 

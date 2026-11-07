@@ -1,4 +1,4 @@
-@ Celadon University: Science Research Institute (Act 2, docs/hack/celadon_university.md).
+@ Celadon University: Science Research Institute, 1F of its glass tower (Act 2, docs/hack/celadon_university.md).
 
 CeladonUniversity_ScienceInstitute_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, Act2_EventScript_InstituteObjects
@@ -16,14 +16,6 @@ CeladonUniversity_ScienceInstitute_EventScript_Sign1::
 	msgbox CeladonUniversity_ScienceInstitute_Text_Sign1, MSGBOX_SIGN
 	end
 
-CeladonUniversity_ScienceInstitute_EventScript_Sign2::
-	msgbox CeladonUniversity_ScienceInstitute_Text_Sign2, MSGBOX_SIGN
-	end
-
-CeladonUniversity_ScienceInstitute_EventScript_Sign3::
-	msgbox CeladonUniversity_ScienceInstitute_Text_Sign3, MSGBOX_SIGN
-	end
-
 CeladonUniversity_ScienceInstitute_Text_Scientist0::
 	.string "Welcome to the POKéMON SCIENCE\n"
 	.string "RESEARCH INSTITUTE.\p"
@@ -35,10 +27,6 @@ CeladonUniversity_ScienceInstitute_Text_Sign0::
 	.string "MAGIKARP was born.'$"
 
 CeladonUniversity_ScienceInstitute_Text_Sign1::
-	.string "INSTITUTE LOUNGE$"
-
-CeladonUniversity_ScienceInstitute_Text_Sign2::
-	.string "RESEARCH ROOM$"
-
-CeladonUniversity_ScienceInstitute_Text_Sign3::
-	.string "EXPERIMENT ROOM$"
+	.string "2F INSTITUTE LOUNGE\n"
+	.string "3F RESEARCH ROOM\p"
+	.string "4F EXPERIMENT ROOM$"

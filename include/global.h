@@ -18,6 +18,7 @@
 #include "constants/apricorn_tree.h"
 #include "constants/berry.h"
 #include "constants/maps.h"
+#include "constants/region_map_sections.h"
 #include "constants/mass_outbreak.h"
 #include "constants/pokemon.h"
 #include "constants/easy_chat.h"
@@ -254,6 +255,19 @@ struct NPCFollower
 #include "constants/items.h"
 #define ITEM_FLAGS_COUNT ((ITEMS_COUNT / 8) + ((ITEMS_COUNT % 8) ? 1 : 0))
 
+// The TM Database (docs/hack/tm_database.md): a TM under research, and the different Pokémon of its type caught and
+// moves of its type recorded since it started
+#define TM_RESEARCH_SLOTS     3
+#define TM_RESEARCH_MAX_COUNT 5
+
+struct TmResearchSlot
+{
+    u8 tm; // Its TM number (1 = TM01), 0 for an empty slot
+    u8 padding;
+    u16 species[TM_RESEARCH_MAX_COUNT];
+    u16 moves[TM_RESEARCH_MAX_COUNT];
+};
+
 struct SaveBlock3
 {
 #if OW_USE_FAKE_RTC
@@ -272,6 +286,12 @@ struct SaveBlock3
 #if APRICORN_TREE_COUNT > 0
     u8 apricornTrees[NUM_APRICORN_TREE_BYTES];
 #endif
+    // Act 2's levels (src/act2_road.c): each Kanto area's level, the party's average when the player first came,
+    // for the course (or the final project) in act2AreaLevelsPeriod; 0 for an area not visited yet
+    u8 act2AreaLevels[KANTO_MAPSEC_COUNT];
+    u8 act2AreaLevelsPeriod;
+    // The TM Database's research slots (src/tm_research.c)
+    struct TmResearchSlot tmResearch[TM_RESEARCH_SLOTS];
 }; /* max size 1624 bytes */
 
 extern struct SaveBlock3 *gSaveBlock3Ptr;

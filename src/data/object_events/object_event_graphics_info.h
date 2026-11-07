@@ -3185,7 +3185,7 @@ const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_DockFire = {
     .images = sPicTable_DockFire,
 };
 
-const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_WitheredPlant = {
+const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_GlowcapDim = {
     .tileTag = TAG_NONE,
     .paletteTag = OBJ_EVENT_PAL_TAG_NPC_1,
     .reflectionPaletteTag = OBJ_EVENT_PAL_TAG_NONE,
@@ -3200,7 +3200,61 @@ const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_WitheredPlant = {
     .oam = &gObjectEventBaseOam_16x16,
     .subspriteTables = sOamTables_16x16,
     .anims = sAnimTable_Inanimate,
-    .images = sPicTable_WitheredPlant,
+    .images = sPicTable_GlowcapDim,
+};
+
+const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_GlowcapLit = {
+    .tileTag = TAG_NONE,
+    .paletteTag = OBJ_EVENT_PAL_TAG_NIGHT_BLOOM,
+    .reflectionPaletteTag = OBJ_EVENT_PAL_TAG_NONE,
+    .size = 128,
+    .width = 16,
+    .height = 16,
+    .paletteSlot = PALSLOT_NPC_1,
+    .shadowSize = SHADOW_SIZE_S,
+    .inanimate = TRUE,
+    .compressed = FALSE,
+    .tracks = TRACKS_NONE,
+    .oam = &gObjectEventBaseOam_16x16,
+    .subspriteTables = sOamTables_16x16,
+    .anims = sAnimTable_Inanimate,
+    .images = sPicTable_GlowcapLit,
+};
+
+const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_MoonveilBud = {
+    .tileTag = TAG_NONE,
+    .paletteTag = OBJ_EVENT_PAL_TAG_NIGHT_BLOOM,
+    .reflectionPaletteTag = OBJ_EVENT_PAL_TAG_NONE,
+    .size = 256,
+    .width = 16,
+    .height = 32,
+    .paletteSlot = PALSLOT_NPC_1,
+    .shadowSize = SHADOW_SIZE_S,
+    .inanimate = TRUE,
+    .compressed = FALSE,
+    .tracks = TRACKS_NONE,
+    .oam = &gObjectEventBaseOam_16x32,
+    .subspriteTables = sOamTables_16x32,
+    .anims = sAnimTable_Inanimate,
+    .images = sPicTable_MoonveilBud,
+};
+
+const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_MoonveilBloom = {
+    .tileTag = TAG_NONE,
+    .paletteTag = OBJ_EVENT_PAL_TAG_NIGHT_BLOOM,
+    .reflectionPaletteTag = OBJ_EVENT_PAL_TAG_NONE,
+    .size = 256,
+    .width = 16,
+    .height = 32,
+    .paletteSlot = PALSLOT_NPC_1,
+    .shadowSize = SHADOW_SIZE_S,
+    .inanimate = TRUE,
+    .compressed = FALSE,
+    .tracks = TRACKS_NONE,
+    .oam = &gObjectEventBaseOam_16x32,
+    .subspriteTables = sOamTables_16x32,
+    .anims = sAnimTable_Inanimate,
+    .images = sPicTable_MoonveilBloom,
 };
 
 const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_WaterCushion = {

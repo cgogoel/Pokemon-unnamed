@@ -1,9 +1,11 @@
 ViridianForest_Frlg_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, ViridianForest_OnTransition
+	map_script MAP_SCRIPT_ON_LOAD, ViridianForest_OnLoad
 	.byte 0
 
 ViridianForest_OnTransition::
 	setworldmapflag FLAG_WORLD_MAP_VIRIDIAN_FOREST
+	call ViridianForest_EventScript_Act2Objects
 	end
 
 ViridianForest_EventScript_Youngster::
@@ -23,7 +25,7 @@ ViridianForest_EventScript_TrainerTips2::
 	end
 
 ViridianForest_EventScript_TrainerTips3::
-	msgbox ViridianForest_Text_ContactOakViaPCToRatePokedex, MSGBOX_SIGN
+	msgbox ViridianForest_Text_BugMonsLoveTrees, MSGBOX_SIGN
 	end
 
 ViridianForest_EventScript_TrainerTips4::
@@ -146,10 +148,12 @@ ViridianForest_Text_UseAntidoteForPoison::
 	.string "For poison, use ANTIDOTE!\n"
 	.string "Get it at POKéMON MARTS!$"
 
-ViridianForest_Text_ContactOakViaPCToRatePokedex::
+ViridianForest_Text_BugMonsLoveTrees::
 	.string "TRAINER TIPS\p"
-	.string "Contact PROF. OAK via a PC to\n"
-	.string "get your POKéDEX evaluated!$"
+	.string "BUG POKéMON love the shade of\n"
+	.string "old trees.\p"
+	.string "Walk slowly through the deep grass\n"
+	.string "to meet the shy ones!$"
 
 ViridianForest_Text_CantCatchOwnedMons::
 	.string "TRAINER TIPS\p"

@@ -209,7 +209,10 @@ const u32 gObjectEventPic_BallCushion[] = INCGFX_U32("graphics/object_events/pic
 const u32 gObjectEventPic_GrassCushion[] = INCGFX_U32("graphics/object_events/pics/cushions/grass_cushion.png", ".4bpp");
 const u32 gObjectEventPic_FireCushion[] = INCGFX_U32("graphics/object_events/pics/cushions/fire_cushion.png", ".4bpp");
 const u32 gObjectEventPic_DockFire[] = INCGFX_U32("graphics/object_events/pics/misc/dock_fire.png", ".4bpp");
-const u32 gObjectEventPic_WitheredPlant[] = INCGFX_U32("graphics/object_events/pics/misc/withered_plant.png", ".4bpp");
+const u32 gObjectEventPic_GlowcapDim[] = INCGFX_U32("graphics/object_events/pics/misc/glowcap_dim.png", ".4bpp");
+const u32 gObjectEventPic_GlowcapLit[] = INCGFX_U32("graphics/object_events/pics/misc/glowcap_lit.png", ".4bpp");
+const u32 gObjectEventPic_MoonveilBud[] = INCGFX_U32("graphics/object_events/pics/misc/moonveil_bud.png", ".4bpp");
+const u32 gObjectEventPic_MoonveilBloom[] = INCGFX_U32("graphics/object_events/pics/misc/moonveil_bloom.png", ".4bpp");
 const u32 gObjectEventPic_WaterCushion[] = INCGFX_U32("graphics/object_events/pics/cushions/water_cushion.png", ".4bpp");
 const u32 gObjectEventPic_BigSnorlaxDoll[] = INCGFX_U32("graphics/object_events/pics/dolls/big_snorlax_doll.png", ".4bpp");
 const u32 gObjectEventPic_BigRhydonDoll[] = INCGFX_U32("graphics/object_events/pics/dolls/big_rhydon_doll.png", ".4bpp");
@@ -393,6 +396,7 @@ const u16 gObjectEventPal_Substitute[] = INCGFX_U16("graphics/object_events/pics
 
 const u16 gObjectEventPaletteEmotes[] = INCGFX_U16("graphics/misc/emotes.pal", ".gbapal");
 const u16 gObjectEventPaletteNeonLight[] = INCGFX_U16("graphics/object_events/palettes/neon_light.pal", ".gbapal");
+const u16 gObjectEventPal_NightBloom[] = INCGFX_U16("graphics/object_events/palettes/night_bloom.pal", ".gbapal");
 
 #if OW_FOLLOWERS_POKEBALLS
 const u32 gObjectEventPic_MasterBall[] = INCGFX_U32("graphics/object_events/pics/misc/ball_master.png", ".4bpp", "-mwidth 2 -mheight 4");

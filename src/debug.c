@@ -45,6 +45,8 @@
 #include "random_mon_generation.h"
 #include "region_map.h"
 #include "rtc.h"
+#include "game_time.h"
+#include "constants/story.h"
 #include "script.h"
 #include "script_pokemon_util.h"
 #include "sound.h"
@@ -378,6 +380,7 @@ extern const u8 Debug_EventScript_BefriendHatenna[];
 extern const u8 Debug_EventScript_BefriendTeddiursa[];
 extern const u8 Debug_EventScript_BefriendJangmoO[];
 extern const u8 Debug_EventScript_SkipToAct3[];
+extern const u8 Debug_EventScript_SkipToGrassTrip[];
 extern const u8 Debug_EventScript_SkipToFinalProject[];
 extern const u8 Debug_EventScript_SkipToStation[];
 extern const u8 Debug_EventScript_InflictStatus1[];
@@ -609,6 +612,7 @@ static const struct DebugMenuOption sDebugMenu_Actions_Utilities[] =
     { COMPOUND_STRING("Test Item Randomizer"),      DebugAction_Selection_Init, &sItemGeneratorSelection },
     { COMPOUND_STRING("Wally Tutorial"),            DebugAction_ExecuteScript, Debug_EventScript_WallyTutorial },
     { COMPOUND_STRING("Steven Multi"),              DebugAction_ExecuteScript, Debug_EventScript_Steven_Multi },
+    { COMPOUND_STRING("Skip to Grass trip"),        DebugAction_ExecuteScript, Debug_EventScript_SkipToGrassTrip },
     { COMPOUND_STRING("Skip to final project"),     DebugAction_ExecuteScript, Debug_EventScript_SkipToFinalProject },
     { COMPOUND_STRING("Skip to ranger station"),    DebugAction_ExecuteScript, Debug_EventScript_SkipToStation },
     { COMPOUND_STRING("Skip to Act 3"),             DebugAction_ExecuteScript, Debug_EventScript_SkipToAct3 },
@@ -3606,18 +3610,15 @@ static void DebugAction_TimeMenu_ChangeTimeOfDay(u8 taskId)
     DebugAction_DestroyExtraWindow(taskId);
     switch (input)
     {
+    // The hack: day and night are the game's (src/game_time.c)
     case TIME_MORNING:
-        FakeRtc_ForwardTimeTo(MORNING_HOUR_BEGIN, 0, 0);
-        break;
     case TIME_DAY:
-        FakeRtc_ForwardTimeTo(DAY_HOUR_BEGIN, 0, 0);
+        GameTime_Set(GAME_TIME_DAY);
         break;
     case TIME_EVENING:
-        FakeRtc_ForwardTimeTo(EVENING_HOUR_BEGIN, 0, 0);
-        break;
     case TIME_NIGHT:
-            FakeRtc_ForwardTimeTo(NIGHT_HOUR_BEGIN, 0, 0);
-            break;
+        GameTime_Set(GAME_TIME_NIGHT);
+        break;
     }
     Debug_DestroyMenu_Full(taskId);
     SetMainCallback2(CB2_LoadMap);

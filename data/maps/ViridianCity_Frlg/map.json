@@ -174,7 +174,7 @@
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
       "script": "Act2_EventScript_ProfFernTrip",
-      "flag": "FLAG_TEMP_1"
+      "flag": "FLAG_TEMP_9"
     },
     {
       "local_id": "LOCALID_VIRIDIAN_KAI",

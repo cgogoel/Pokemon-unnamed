@@ -89,8 +89,9 @@ VictoryRoad_3F_Text_GeorgeDefeat::
 	.string "The rumors were true!$"
 
 VictoryRoad_3F_Text_GeorgePostBattle::
-	.string "So, it was you who beat GIOVANNI\n"
-	.string "of TEAM ROCKET?$"
+	.string "Five years on this road, and you\n"
+	.string "beat me in one try.\p"
+	.string "Maybe I'll open a bakery instead.$"
 
 VictoryRoad_3F_Text_AlexaIntro::
 	.string "TRAINERS live to seek stronger\n"

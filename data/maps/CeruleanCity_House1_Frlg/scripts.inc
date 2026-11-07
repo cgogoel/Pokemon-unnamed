@@ -74,9 +74,10 @@ CeruleanCity_House1_EventScript_StopDescribingBadges::
 CeruleanCity_House1_Text_BadgesHaveAmazingSecrets::
 	.string "Only skilled TRAINERS can collect\n"
 	.string "POKéMON BADGES.\p"
-	.string "I see you have at least one.\p"
-	.string "Those BADGES have amazing secrets,\n"
-	.string "did you know?$"
+	.string "I studied them for years before\n"
+	.string "I retired here to CERULEAN.\p"
+	.string "Each BADGE has its own secret.\n"
+	.string "Shall I tell you about them?$"
 
 CeruleanCity_House1_Text_DescribeWhichBadge::
 	.string "Now then…\p"

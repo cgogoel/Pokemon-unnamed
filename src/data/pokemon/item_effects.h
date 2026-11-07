@@ -78,6 +78,12 @@ const u8 gItemEffect_MoomooMilk[7] = {
     [6] = 100, // Amount of HP to recover
 };
 
+// The hack: KAI's dads' homemade POKé WRAP
+const u8 gItemEffect_PokeWrap[7] = {
+    [4] = ITEM4_HEAL_HP,
+    [6] = 75, // Amount of HP to recover
+};
+
 const u8 gItemEffect_EnergyPowder[10] = {
     [4] = ITEM4_HEAL_HP,
     [5] = ITEM5_FRIENDSHIP_ALL,

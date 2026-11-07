@@ -221,7 +221,7 @@ FuchsiaCity_Gym_Text_ShawnPostBattle::
 
 FuchsiaCity_Gym_Text_GymGuyAdvice::
 	.string "Yo!\n"
-	.string "Champ in the making!\p"
+	.string "Here to take on the GYM?\p"
 	.string "FUCHSIA GYM is a tricked-up place.\n"
 	.string "It's riddled with invisible walls!\p"
 	.string "KOGA might appear close, but he's\n"
@@ -235,13 +235,11 @@ FuchsiaCity_Gym_Text_GymGuyPostVictory::
 
 FuchsiaCity_Gym_Text_GymStatue::
 	.string "FUCHSIA POKéMON GYM\n"
-	.string "LEADER: KOGA\p"
-	.string "WINNING TRAINERS:\n"
-	.string "{RIVAL}$"
+	.string "LEADER: KOGA$"
 
 FuchsiaCity_Gym_Text_GymStatuePlayerWon::
 	.string "FUCHSIA POKéMON GYM\n"
 	.string "LEADER: KOGA\p"
 	.string "WINNING TRAINERS:\n"
-	.string "{RIVAL}, {PLAYER}$"
+	.string "{PLAYER}$"
 

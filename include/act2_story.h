@@ -8,9 +8,8 @@ bool32 Act2_UsesAct2WildPokemon(void);
 u32 Act2_GetWildLevel(void);
 bool16 Act2_PartyHasType(void);
 bool16 Act2_IsClubNight(void);
-
-// The hour it is on a club night (any night hour)
-#define ACT2_CLUB_NIGHT_HOUR 2
+bool32 Act2_IsGrassTrip(void);
+bool32 Act2_IsGrassTripNight(void);
 void Act2_RaisePartyLevels(void);
 void Act2_GiveStartingMoves(struct Pokemon *mon);
 void Act2_GiveStartingKit(void);
@@ -25,7 +24,6 @@ bool16 Act2_IsResearchDone(void);
 bool16 Act2_IsReadyForTM(void);
 u32 Act2_CountCaughtSpeciesOfType(enum Type type);
 void Act2_BufferResearchSheet(void);
-bool16 Act2_PartyCanUseCourseTM(void);
 void Act2_MakeClubParty(struct Pokemon *party, u32 trainerId);
 u16 Act2_BufferClubTeam(void);
 void Act2_SetAsideClubBench(void);
@@ -34,11 +32,13 @@ bool16 Act2_FindCourseMoveUser(void);
 bool16 Act2_SolvePuzzlePart(void);
 bool16 Act2_IsPuzzlePartSolved(void);
 void Act2_SetupSiteObjects(void);
+void Act2_SetupViridianObjects(void);
 void Act2_DrawDockFires(void);
 void Act2_PutOutDockFire(void);
 bool16 Act2_IsDockFireBurningSpecial(void);
 bool16 Act2_IsDockFireAlarmDue(void);
 bool16 Act2_FindSpotBesidePlayer(void);
+void Act2_WalkFriendToPlayer(void);
 u16 Act2_GetDockFireState(void);
 void Act2_OnCaughtMon(u32 species);
 bool16 Act2_FindTmMoveUser(void);

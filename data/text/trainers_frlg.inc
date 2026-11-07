@@ -270,8 +270,8 @@ Route13_Text_SusieRematchIntro::
 	.string "while I'm a kid!$"
 
 Route13_Text_ValerieRematchIntro::
-	.string "Wow!\n"
-	.string "You got more cool BADGES!$"
+	.string "You again!\n"
+	.string "Your POKéMON look tougher, too!$"
 
 Route13_Text_GwenRematchIntro::
 	.string "My cutely grown POKéMON wish to\n"

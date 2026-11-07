@@ -10506,16 +10506,16 @@
       "layout_version": "frlg"
     },
     {
-      "id": "LAYOUT_CELADON_UNIVERSITY_DORM_ROOM",
-      "name": "CeladonUniversity_DormRoom_Layout",
-      "width": 11,
-      "height": 9,
+      "id": "LAYOUT_CELADON_UNIVERSITY_STUDY_HALL",
+      "name": "CeladonUniversity_StudyHall_Layout",
+      "width": 15,
+      "height": 10,
       "border_width": 2,
       "border_height": 2,
       "primary_tileset": "gTileset_BuildingFrlg",
       "secondary_tileset": "gTileset_UniversityInterior",
-      "border_filepath": "data/layouts/CeladonUniversity_DormRoom/border.bin",
-      "blockdata_filepath": "data/layouts/CeladonUniversity_DormRoom/map.bin",
+      "border_filepath": "data/layouts/CeladonUniversity_StudyHall/border.bin",
+      "blockdata_filepath": "data/layouts/CeladonUniversity_StudyHall/map.bin",
       "layout_version": "frlg"
     },
     {

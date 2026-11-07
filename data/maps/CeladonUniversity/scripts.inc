@@ -140,6 +140,10 @@ CeladonUniversity_EventScript_Sign14::
 	msgbox CeladonUniversity_Text_Sign14, MSGBOX_SIGN
 	end
 
+CeladonUniversity_EventScript_Sign15::
+	msgbox CeladonUniversity_Text_Sign15, MSGBOX_SIGN
+	end
+
 CeladonUniversity_Text_Lass0::
 	.string "When the GYARADOS fountain\n"
 	.string "sprays, it's noon.\p"
@@ -264,3 +268,7 @@ CeladonUniversity_Text_Sign13::
 CeladonUniversity_Text_Sign14::
 	.string "POOL\n"
 	.string "No running!$"
+
+CeladonUniversity_Text_Sign15::
+	.string "STUDY HALL\n"
+	.string "Quiet study, all night long.$"

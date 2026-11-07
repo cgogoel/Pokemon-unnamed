@@ -821,7 +821,7 @@ gStdScripts_End::
 	.include "data/maps/CeladonUniversity_DormLobby/scripts.inc"
 	.include "data/maps/CeladonUniversity_Dorm2F/scripts.inc"
 	.include "data/maps/CeladonUniversity_Dorm3F/scripts.inc"
-	.include "data/maps/CeladonUniversity_DormRoom/scripts.inc"
+	.include "data/maps/CeladonUniversity_StudyHall/scripts.inc"
 	.include "data/maps/CeladonUniversity_HomeEconomics/scripts.inc"
 	.include "data/maps/ViridianCity_Frlg/scripts.inc"
 	.include "data/maps/PewterCity_Frlg/scripts.inc"

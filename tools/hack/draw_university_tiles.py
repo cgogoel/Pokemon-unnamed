@@ -438,7 +438,7 @@ def pavilion():
 
 def humanities():
     """Literature & Library, 22x9: one building, two doors (columns 5 and 16)."""
-    P = academic(22, 5, 2, doors=(5, 16), dormers=(3, 8, 13, 18), spacing=3, skip=[(6, 1), (15, 1)])  # None beside the doors
+    P = academic(22, 5, 2, doors=(5, 16), dormers=(3, 8, 13, 18), spacing=5)  # Windows at 3, 8, 13, 18, under the dormers
     P.mirror()
     return P
 

@@ -580,3 +580,65 @@ TRIPLE_BATTLE_TEST("Triple battles: if the Pokémon that acted last turn fainted
         EXPECT_EQ(GetTriplePlayerStartingActor((enum BattlerId)B_POSITION_PLAYER_LEFT), (enum BattlerId)MAX_BATTLERS_COUNT);
     }
 }
+
+// The Act 2 club's strategies (AI_FLAG_TRIPLE_DIRECT / INDIRECT / MIX): KAI, MINA and DALE
+#define CLUB_AI_FLAGS (AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT | AI_FLAG_OMNISCIENT)
+
+AI_TRIPLE_BATTLE_TEST("Triple battles: a DIRECT trainer (KAI) wears down the front foe with DIRECT attacks, not stat moves")
+{
+    u64 flags = 0;
+    PARAMETRIZE { flags = CLUB_AI_FLAGS | AI_FLAG_TRIPLE_DIRECT; }
+    PARAMETRIZE { flags = AI_FLAG_SMART_TRAINER | AI_FLAG_TARGET_THREAT | AI_FLAG_TRIPLE_DIRECT; }
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_TACKLE)->reach == TRIPLE_REACH_FRONT);
+        ASSUME(GetTripleMoveInfo(MOVE_SWIFT)->reach == TRIPLE_REACH_ANY);
+        AI_FLAGS(flags);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_SWORDS_DANCE, MOVE_GROWL, MOVE_SWIFT, MOVE_TACKLE); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+    } WHEN {
+        TURN { EXPECT_MOVE(opponentLeft, MOVE_TACKLE, target: playerLeft); }
+        TURN { EXPECT_MOVE(opponentLeft, MOVE_TACKLE, target: playerLeft); }
+    }
+}
+
+AI_TRIPLE_BATTLE_TEST("Triple battles: an INDIRECT trainer (MINA) aims INDIRECT attacks past the front foe")
+{
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_TACKLE)->reach == TRIPLE_REACH_FRONT);
+        ASSUME(GetTripleMoveInfo(MOVE_CONFUSION)->reach == TRIPLE_REACH_ANY);
+        AI_FLAGS(CLUB_AI_FLAGS | AI_FLAG_TRIPLE_INDIRECT);
+        // Formation: playerLeft front, playerRight middle, playerMiddle rear
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_TACKLE, MOVE_CONFUSION, MOVE_GROWL); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+    } WHEN {
+        TURN { EXPECT_MOVE(opponentLeft, MOVE_CONFUSION); }
+    } SCENE {
+        NOT HP_BAR(playerLeft);
+    }
+}
+
+AI_TRIPLE_BATTLE_TEST("Triple battles: a mixed trainer (DALE) attacks with either reach rather than use stat moves")
+{
+    enum Move move = MOVE_NONE;
+    PARAMETRIZE { move = MOVE_TACKLE; }
+    PARAMETRIZE { move = MOVE_CONFUSION; }
+    GIVEN {
+        AI_FLAGS(CLUB_AI_FLAGS | AI_FLAG_TRIPLE_MIX);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_SWORDS_DANCE, MOVE_GROWL, move); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+    } WHEN {
+        TURN { EXPECT_MOVE(opponentLeft, move); }
+    }
+}

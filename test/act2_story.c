@@ -492,3 +492,36 @@ TEST("Act 2: a save that left the Water trip without the young Lapras finds it w
     EXPECT(FlagGet(FLAG_TEMP_8));
     FlagClear(FLAG_ACT2_GOT_LAPRAS);
 }
+
+TEST("Act 2: KAI's team only knows DIRECT attacks, MINA's partner INDIRECT ones")
+{
+    struct Pokemon *foes = gParties[B_TRAINER_OPPONENT_A];
+    u32 i, j, indirect = 0;
+    ZeroPlayerPartyMons();
+    ZeroEnemyPartyMons();
+    MakePartyMon(0, SPECIES_ODDISH, 14);
+    MakePartyMon(1, SPECIES_PSYDUCK, 14);
+    MakePartyMon(2, SPECIES_TYNAMO, 14);
+    CalculatePlayerPartyCount();
+    Act2_MakeClubParty(foes, TRAINER_ACT2_KAI);
+    for (i = 0; i < 3; i++)
+    {
+        for (j = 0; j < MAX_MON_MOVES; j++)
+        {
+            enum Move move = GetMonData(&foes[i], MON_DATA_MOVE1 + j);
+            EXPECT(!IsBattleMoveStatus(move));
+            EXPECT_EQ((u32)GetTripleMoveInfo(move)->reach, TRIPLE_REACH_FRONT);
+        }
+    }
+    Act2_MakeClubParty(foes, TRAINER_ACT2_MINA);
+    EXPECT_EQ(GetMonData(&foes[0], MON_DATA_SPECIES), SPECIES_CLEFAIRY);
+    for (j = 0; j < MAX_MON_MOVES; j++)
+    {
+        enum Move move = GetMonData(&foes[0], MON_DATA_MOVE1 + j);
+        if (!IsBattleMoveStatus(move) && GetTripleMoveInfo(move)->reach == TRIPLE_REACH_ANY)
+            indirect++;
+    }
+    EXPECT_GE(indirect, 3);
+    ZeroPlayerPartyMons();
+    ZeroEnemyPartyMons();
+}

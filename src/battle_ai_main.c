@@ -82,6 +82,9 @@ static s32 AI_DynamicFunc(enum BattlerId battlerAtk, enum BattlerId battlerDef, 
 static s32 AI_PredictSwitch(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score);
 static s32 AI_CheckPpStall(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score);
 static s32 AI_TargetThreat(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score);
+static s32 AI_TripleDirect(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score);
+static s32 AI_TripleIndirect(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score);
+static s32 AI_TripleMix(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score);
 
 static s32 (*const sBattleAiFuncTable[])(enum BattlerId, enum BattlerId, enum Move, s32) =
 {
@@ -123,9 +126,9 @@ static s32 (*const sBattleAiFuncTable[])(enum BattlerId, enum BattlerId, enum Mo
     [35] = NULL,                     // AI_FLAG_ITEM_OMNISCIENCE
     [36] = NULL,                     // AI_FLAG_MOVE_OMNISCIENCE
     [37] = AI_TargetThreat,          // AI_FLAG_TARGET_THREAT
-    [38] = NULL,                     // Unused
-    [39] = NULL,                     // Unused
-    [40] = NULL,                     // Unused
+    [38] = AI_TripleDirect,          // AI_FLAG_TRIPLE_DIRECT
+    [39] = AI_TripleIndirect,        // AI_FLAG_TRIPLE_INDIRECT
+    [40] = AI_TripleMix,             // AI_FLAG_TRIPLE_MIX
     [41] = NULL,                     // Unused
     [42] = NULL,                     // Unused
     [43] = NULL,                     // Unused
@@ -3171,6 +3174,67 @@ static s32 AI_TargetThreat(enum BattlerId battlerAtk, enum BattlerId battlerDef,
      && battlerDef == GetBiggestThreatToSide(battlerAtk))
         ADJUST_SCORE(WEAK_EFFECT);
     return score;
+}
+
+// The 3v3 strategies of the Act 2 club. Status moves (stat changes included) are discouraged; attacks of the trainer's
+// favored reach are encouraged, INDIRECT ones more when aimed past the front foe.
+enum TripleStrategy
+{
+    TRIPLE_STRATEGY_DIRECT,
+    TRIPLE_STRATEGY_INDIRECT,
+    TRIPLE_STRATEGY_MIX,
+};
+
+static s32 ScoreTripleStrategy(enum TripleStrategy strategy, enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score)
+{
+    static const s8 sStatusPenalty[] = { [TRIPLE_STRATEGY_DIRECT] = -10, [TRIPLE_STRATEGY_INDIRECT] = -6, [TRIPLE_STRATEGY_MIX] = -4 };
+    const struct TripleMoveInfo *info = GetTripleMoveInfo(move);
+    bool32 indirect, pastFront;
+
+    if (!IsTripleBattle() || IsBattlerAlly(battlerAtk, battlerDef))
+        return score;
+    if (IsBattleMoveStatus(move))
+    {
+        ADJUST_SCORE(sStatusPenalty[strategy]);
+        return score;
+    }
+    // Moves outside the 3v3 table (aoe 0) and all-foe moves have no reach to speak of: they count as INDIRECT
+    indirect = (info->aoe == 0 || info->aoe == 3 || info->reach == TRIPLE_REACH_ANY);
+    pastFront = (battlerDef != GetTripleFoeAtRank(battlerAtk, 0));
+    switch (strategy)
+    {
+    case TRIPLE_STRATEGY_DIRECT:
+        if (!indirect)
+            ADJUST_SCORE(5);
+        else if (!pastFront)
+            ADJUST_SCORE(2);
+        break;
+    case TRIPLE_STRATEGY_INDIRECT:
+        if (indirect)
+            ADJUST_SCORE(pastFront ? 6 : 3);
+        break;
+    case TRIPLE_STRATEGY_MIX:
+        ADJUST_SCORE(3);
+        if (indirect && pastFront)
+            ADJUST_SCORE(1);
+        break;
+    }
+    return score;
+}
+
+static s32 AI_TripleDirect(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score)
+{
+    return ScoreTripleStrategy(TRIPLE_STRATEGY_DIRECT, battlerAtk, battlerDef, move, score);
+}
+
+static s32 AI_TripleIndirect(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score)
+{
+    return ScoreTripleStrategy(TRIPLE_STRATEGY_INDIRECT, battlerAtk, battlerDef, move, score);
+}
+
+static s32 AI_TripleMix(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score)
+{
+    return ScoreTripleStrategy(TRIPLE_STRATEGY_MIX, battlerAtk, battlerDef, move, score);
 }
 
 static s32 AI_DoubleBattle(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, s32 score)

@@ -625,6 +625,58 @@ static const struct ClubSlot sExaminerTeam[] =
     { { SPECIES_KADABRA } },
 };
 
+// Each club member's moves fit their 3v3 strategy (their AI flags in trainers_frlg.party): KAI's are DIRECT attacks to
+// wear down the front Pokémon (AI_FLAG_TRIPLE_DIRECT), MINA's INDIRECT ones for the middle and back
+// (AI_FLAG_TRIPLE_INDIRECT), DALE mixes both (AI_FLAG_TRIPLE_MIX). A species not listed keeps its level's moves.
+struct ClubMoves
+{
+    u16 species;
+    u16 moves[MAX_MON_MOVES];
+};
+
+static const struct ClubMoves sKaiMoves[] =
+{
+    { SPECIES_MANKEY,    { MOVE_KARATE_CHOP, MOVE_LOW_KICK, MOVE_FURY_SWIPES, MOVE_SCRATCH } },
+    { SPECIES_GROWLITHE, { MOVE_FLAME_WHEEL, MOVE_BITE, MOVE_EMBER, MOVE_TAKE_DOWN } },
+    { SPECIES_PONYTA,    { MOVE_FLAME_WHEEL, MOVE_STOMP, MOVE_EMBER, MOVE_TACKLE } },
+    { SPECIES_VULPIX,    { MOVE_EMBER, MOVE_FLAME_BURST, MOVE_PAYBACK, MOVE_FIRE_SPIN } },
+    { SPECIES_SLUGMA,    { MOVE_EMBER, MOVE_ROCK_THROW, MOVE_FLAME_BURST, MOVE_CLEAR_SMOG } },
+};
+
+static const struct ClubMoves sMinaMoves[] =
+{
+    { SPECIES_CLEFAIRY,  { MOVE_FAIRY_WIND, MOVE_SWIFT, MOVE_DISARMING_VOICE, MOVE_SING } },
+    { SPECIES_VULPIX,    { MOVE_HEX, MOVE_QUICK_ATTACK, MOVE_FEINT_ATTACK, MOVE_WILL_O_WISP } },
+    { SPECIES_PONYTA,    { MOVE_QUICK_ATTACK, MOVE_FLAME_BURST, MOVE_EMBER, MOVE_STOMP } },
+    { SPECIES_GROWLITHE, { MOVE_FEINT_ATTACK, MOVE_QUICK_ATTACK, MOVE_EMBER, MOVE_BITE } },
+    { SPECIES_SLUGMA,    { MOVE_FLAME_BURST, MOVE_ROCK_THROW, MOVE_CLEAR_SMOG, MOVE_EMBER } },
+    { SPECIES_STARYU,    { MOVE_SWIFT, MOVE_PSYBEAM, MOVE_WATER_GUN, MOVE_RAPID_SPIN } },
+    { SPECIES_PSYDUCK,   { MOVE_CONFUSION, MOVE_PSYBEAM, MOVE_WATER_GUN, MOVE_FURY_SWIPES } },
+    { SPECIES_POLIWAG,   { MOVE_BUBBLE_BEAM, MOVE_HYPNOSIS, MOVE_WATER_GUN, MOVE_MUD_SHOT } },
+    { SPECIES_HORSEA,    { MOVE_TWISTER, MOVE_BUBBLE_BEAM, MOVE_WATER_GUN, MOVE_SMOKESCREEN } },
+    { SPECIES_KRABBY,    { MOVE_BUBBLE_BEAM, MOVE_MUD_SHOT, MOVE_METAL_CLAW, MOVE_VISE_GRIP } },
+};
+
+static const struct ClubMoves sExaminerMoves[] =
+{
+    { SPECIES_PIDGEOTTO, { MOVE_WING_ATTACK, MOVE_GUST, MOVE_QUICK_ATTACK, MOVE_TWISTER } },
+    { SPECIES_RATICATE,  { MOVE_HYPER_FANG, MOVE_CRUNCH, MOVE_QUICK_ATTACK, MOVE_FOCUS_ENERGY } },
+    { SPECIES_KADABRA,   { MOVE_PSYBEAM, MOVE_CONFUSION, MOVE_SHOCK_WAVE, MOVE_REFLECT } },
+};
+
+static void GiveClubMoves(struct Pokemon *mon, const struct ClubMoves *moves, u32 count)
+{
+    u32 species = GetMonData(mon, MON_DATA_SPECIES), i, j;
+    for (i = 0; i < count; i++)
+    {
+        if (moves[i].species != species)
+            continue;
+        for (j = 0; j < MAX_MON_MOVES; j++)
+            SetMonMoveSlot(mon, moves[i].moves[j], j);
+        return;
+    }
+}
+
 #define CLUB_IVS     14
 #define EXAMINER_IVS 18
 
@@ -668,13 +720,14 @@ static u32 GetPlayerPartyAverageLevel(void)
 void Act2_MakeClubParty(struct Pokemon *party, u32 trainerId)
 {
     const struct ClubSlot *team;
-    u32 count, i, j, level, ivs = CLUB_IVS;
+    const struct ClubMoves *moves;
+    u32 count, movesCount, i, j, level, ivs = CLUB_IVS;
     if (trainerId == TRAINER_ACT2_KAI)
-        team = sKaiTeam, count = ARRAY_COUNT(sKaiTeam);
+        team = sKaiTeam, count = ARRAY_COUNT(sKaiTeam), moves = sKaiMoves, movesCount = ARRAY_COUNT(sKaiMoves);
     else if (trainerId == TRAINER_ACT2_MINA)
-        team = sMinaTeam, count = ARRAY_COUNT(sMinaTeam);
+        team = sMinaTeam, count = ARRAY_COUNT(sMinaTeam), moves = sMinaMoves, movesCount = ARRAY_COUNT(sMinaMoves);
     else if (trainerId == TRAINER_ACT2_EXAMINER)
-        team = sExaminerTeam, count = ARRAY_COUNT(sExaminerTeam), ivs = EXAMINER_IVS;
+        team = sExaminerTeam, count = ARRAY_COUNT(sExaminerTeam), ivs = EXAMINER_IVS, moves = sExaminerMoves, movesCount = ARRAY_COUNT(sExaminerMoves);
     else
         return;
     level = GetPlayerPartyAverageLevel();
@@ -689,6 +742,7 @@ void Act2_MakeClubParty(struct Pokemon *party, u32 trainerId)
         }
         CreateMonWithIVs(&party[i], species, level, Random32(), OTID_STRUCT_RANDOM_NO_SHINY, ivs);
         GiveMonInitialMoveset(&party[i]);
+        GiveClubMoves(&party[i], moves, movesCount);
         // No Dynamax or Terastal: the markers the trainer party loader sets (CreateNPCTrainerPartyFromTrainer),
         // without which the AI may use them
         SetMonData(&party[i], MON_DATA_DYNAMAX_LEVEL, &(u32){ BLOCK_AI_DYNAMAX });

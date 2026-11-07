@@ -144,7 +144,7 @@ The prompt reads "What will Pikachu do?" with a hint line: `L R Pick`, `SELECT O
    targeting from the move CSV (reach, 1/2/3 targets, 50% secondary damage), one-actor-per-side turn flow,
    faint replacement for 3 slots, exp.
    `TRIPLE_BATTLE_TEST` in the test runner so all of this is checked by `make check`.
-3. **AI:** run move scoring for each of the AI's 3 battlers and act with the best-scoring one; switching logic for 3 on field.
+3. **AI** (strategies: `AI_FLAG_TRIPLE_DIRECT` / `INDIRECT` / `MIX`, `ScoreTripleStrategy` in `src/battle_ai_main.c`)**:** run move scoring for each of the AI's 3 battlers and act with the best-scoring one; switching logic for 3 on field.
 4. **Graphics / UI:** sprite and healthbox layout for 6 (compact healthboxes for OBJ VRAM), intro send-out of 3,
    actor selection + 6-way target cursor, move info indicator (damage squares, reach outline, ally marker),
    party menu for 3 active, animation fixes (BG layering, partner anims).

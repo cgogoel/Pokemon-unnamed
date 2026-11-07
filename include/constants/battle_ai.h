@@ -45,6 +45,10 @@
 #define AI_FLAG_ITEM_OMNISCIENCE            AI_FLAG(35)  // AI knows the player's item
 #define AI_FLAG_MOVE_OMNISCIENCE            AI_FLAG(36)  // AI knows the player's moves
 #define AI_FLAG_TARGET_THREAT               AI_FLAG(37)  // The hack: in doubles and 3v3, attacks favor the foe expected to deal the most damage to the AI's side
+// The hack's 3v3 strategies (the Act 2 club, docs/hack/act2_story.md): which attacks a trainer favors
+#define AI_FLAG_TRIPLE_DIRECT               AI_FLAG(38)  // DIRECT attacks to wear down the front foe; avoids status and stat moves
+#define AI_FLAG_TRIPLE_INDIRECT             AI_FLAG(39)  // INDIRECT attacks aimed past the front, at the middle and back foes
+#define AI_FLAG_TRIPLE_MIX                  AI_FLAG(40)  // Attacks of either reach, back foes for INDIRECT ones; few status moves
 
 // The following options are enough to have a basic/smart trainer. Any other addtion could make the trainer worse/better depending on the flag
 #define AI_FLAG_BASIC_TRAINER         (AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_TRY_TO_FAINT | AI_FLAG_CHECK_VIABILITY)

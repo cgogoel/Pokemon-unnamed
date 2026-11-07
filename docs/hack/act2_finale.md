@@ -33,7 +33,7 @@ echo the director: the player grew up on a farm near Pallet Town, maybe go back 
 with trainers (they all have Trainer Cards now) and wild Pokémon; south through Vermilion and Diglett's Cave or north
 through Cerulean, Mt. Moon and Pewter. KAI is heading home first, and invites the player to stop by his family's
 apartment (Celadon Condominiums, 2F, by the university gate) for snacks: there, during the final project, his dads give
-5 MOOMOO MILK and 5 SITRUS BERRIES once (`FriendHomes_EventScript_KaiDadsSnacks`, `FLAG_ACT2_KAI_DADS_SNACKS`).
+5 MOOMOO MILK and 5 POKé WRAPS (a new item, homemade: restores 75 HP, `ITEM_POKE_WRAP`, icon by `tools/hack/draw_poke_wrap.py`) once (`FriendHomes_EventScript_KaiDadsSnacks`, `FLAG_ACT2_KAI_DADS_SNACKS`).
 
 ## The road home
 

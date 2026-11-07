@@ -120,6 +120,10 @@ const u16 gItemIconPalette_Lemonade[] = INCGFX_U16("graphics/items/icon_palettes
 const u32 gItemIcon_MoomooMilk[] = INCGFX_U32("graphics/items/icons/moomoo_milk.png", ".4bpp.smol");
 const u16 gItemIconPalette_MoomooMilk[] = INCGFX_U16("graphics/items/icon_palettes/moomoo_milk.pal", ".gbapal");
 
+// The hack: the POKé WRAP (tools/hack/draw_poke_wrap.py)
+const u32 gItemIcon_PokeWrap[] = INCGFX_U32("graphics/items/icons/poke_wrap.png", ".4bpp.smol");
+const u16 gItemIconPalette_PokeWrap[] = INCGFX_U16("graphics/items/icon_palettes/poke_wrap.pal", ".gbapal");
+
 const u32 gItemIcon_Powder[] = INCGFX_U32("graphics/items/icons/powder.png", ".4bpp.smol");
 const u16 gItemIconPalette_EnergyPowder[] = INCGFX_U16("graphics/items/icon_palettes/energy_powder.pal", ".gbapal");
 

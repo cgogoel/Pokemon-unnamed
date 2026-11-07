@@ -80,12 +80,12 @@ FriendHomes_EventScript_KaiPapaLater::
 	end
 
 @ The final project: KAI told the player to stop by for snacks. Once (FLAG_ACT2_KAI_DADS_SNACKS), whichever dad
-@ the player talks to first: the loud one gives MOOMOO MILK, the quiet one SITRUS BERRIES.
+@ the player talks to first: the loud one gives MOOMOO MILK, the quiet one POKé WRAPS (ITEM_POKE_WRAP).
 FriendHomes_EventScript_KaiDadsSnacks:
 	msgbox FriendHomes_Text_KaiDadSnacks
 	giveitem ITEM_MOOMOO_MILK, 5
 	msgbox FriendHomes_Text_KaiPapaSnacks
-	giveitem ITEM_SITRUS_BERRY, 5
+	giveitem ITEM_POKE_WRAP, 5
 	setflag FLAG_ACT2_KAI_DADS_SNACKS
 	return
 
@@ -246,10 +246,10 @@ FriendHomes_Text_KaiDadSnacks:
 	.string "the road!$"
 
 FriendHomes_Text_KaiPapaSnacks:
-	.string "KAI's PAPA: And these SITRUS\n"
-	.string "BERRIES, from our window box.\p"
-	.string "Don't let him fool you. They heal\n"
-	.string "more than you'd think.$"
+	.string "KAI's PAPA: And these POKé WRAPS.\n"
+	.string "Homemade. KAI's favorite.\p"
+	.string "Don't laugh. They heal more than\n"
+	.string "you'd think.$"
 
 FriendHomes_Text_KaiDadLater:
 	.string "{PLAYER}! Look at you, all\n"

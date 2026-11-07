@@ -1,6 +1,15 @@
 PalletTown_PlayersHouse_2F_Frlg_Farm_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, Farmhouse2F_OnTransition
 	map_script MAP_SCRIPT_ON_FRAME_TABLE, Farmhouse2F_OnFrame
 	.byte 0
+
+@ KAI, MINA and ROWAN (on the stairs, (10,2)) only come up the stairs in Act 2's ending (Act2_EventScript_FriendsVisit
+@ shows them one by one); otherwise they're hidden, or they'd stand in the way at the top of the stairs
+Farmhouse2F_OnTransition:
+	setflag FLAG_TEMP_1
+	setflag FLAG_TEMP_2
+	setflag FLAG_TEMP_3
+	end
 
 Farmhouse2F_OnFrame:
 	map_script_2 VAR_ACT1_WOKE_UP, 2, Farmhouse2F_EventScript_WokeUp

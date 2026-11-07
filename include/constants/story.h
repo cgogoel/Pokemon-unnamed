@@ -51,7 +51,6 @@
 #define ACT2_RESEARCH_PUZZLE_ALL    (ACT2_RESEARCH_PUZZLE_1 | ACT2_RESEARCH_PUZZLE_2 | ACT2_RESEARCH_PUZZLE_3)
 #define ACT2_RESEARCH_PUZZLE_DONE   (1 << 4) // Its end: the last task
 #define ACT2_RESEARCH_GOT_TM        (1 << 5)
-#define ACT2_RESEARCH_USED_TM_MOVE  (1 << 6) // In the exam, the player's Pokémon used the TM's move
 #define ACT2_RESEARCH_BRIEFED       (1 << 7) // The professor explained the assignment at the site
 // Act2_GetDockFireState
 #define DOCK_FIRE_NONE    0

@@ -14,16 +14,16 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 | `ACT2_START` | The end of the prologue: the player wakes in their dorm room | Stepping outside, KAI, MINA and ROWAN introduce themselves: they're in the Fire course too. |
 | `ACT2_MET_FRIENDS` | Meeting them | PROF. ASHFORD (Lecture Hall A) introduces the course and the field trip leaves. On arrival, he explains the assignment, the Remote Desktop, and gives 5 Poké Balls (`Act2_EventScript_FireBriefing`, `ACT2_RESEARCH_BRIEFED`). |
 | `ACT2_FIRE_TRIP` | The field trip: warped to Cinnabar Island (8,5) | The research sheet (the Pokémon Mansion), the TM (Flamethrower), the exam. |
-| `ACT2_FIRE_SEE_KAI` | Passing (KAI: come see me in my dorm room when we get back; the party is healed): warped to the dorm lobby, at night | KAI's room (Dorms 2F, the first room): the secret club meets at the Sports Complex. He heads there. |
+| `ACT2_FIRE_SEE_KAI` | Passing (KAI: come see me in my dorm room when we get back; the party is healed): warped to the player's dorm room, at night | KAI's room (Dorms 2F, the first room): the secret club meets at the Sports Complex. He heads there. |
 | `ACT2_FIRE_INVITED` | | The friends wait at the Sports Complex (the stadium); walking in, KAI battles the player. Then morning, in the dorm room (healed). |
 | `ACT2_CLUB_1_DONE` | | PROF. MARLOWE (the audiovisual classroom) introduces the Water course; on arrival he explains the assignment and gives 5 Poké Balls and the Good Rod. |
 | `ACT2_WATER_TRIP` | Warped to Vermilion City (32,19) | The research sheet (fishing at the harbor, or Route 6's grass; the docks), the TM (BubbleBeam), the exam. |
-| `ACT2_WATER_SEE_MINA` | Passing (MINA asks the player over): the dorm lobby, at night | MINA's room (2F, the second room): club night at the Sports Complex. |
-| `ACT2_WATER_INVITED` | | Night: MINA battles the player. |
+| `ACT2_WATER_SEE_MINA` | Only saves already at it (MINA used to ask the player over) | MINA's room (2F, the second room): club night at the Sports Complex. |
+| `ACT2_WATER_INVITED` | Passing (MINA: see you at the meeting spot tonight, you know where it is): the player's room, at night | Night: MINA battles the player at the Sports Complex. |
 | `ACT2_CLUB_2_DONE` | | PROF. FERN (Home Economics) introduces the Grass course; on arrival she explains the assignment and gives 5 Poké Balls. |
 | `ACT2_GRASS_TRIP` | Warped to Viridian City (4,17) | The research sheet (Route 22, west of the city), the TM (Giga Drain), the exam. |
-| `ACT2_GRASS_SEE_ROWAN` | Passing (ROWAN asks the player over): the dorm lobby, at night | ROWAN's room (3F, the last room): a League examiner is coming; battle for a real Trainer Card. |
-| `ACT2_GRASS_INVITED` | | The friends and DALE, a Pokémon League examiner, wait at the Sports Complex. Beating him: the Trainer Card. |
+| `ACT2_GRASS_SEE_ROWAN` | Only saves already at it (ROWAN used to ask the player over) | ROWAN's room (3F, the last room): a League examiner is coming; battle for a real Trainer Card. |
+| `ACT2_GRASS_INVITED` | Passing (ROWAN: see you at the meeting spot tonight; someone special is coming): the player's room, at night | The friends and DALE, a Pokémon League examiner, wait at the Sports Complex. Beating him: the Trainer Card. |
 | `ACT2_GOT_TRAINER_CARD` | Winning | **Trainers battle the player again.** In the morning, the director's final project brief at the Science Research Institute. |
 | `ACT2_FINAL_PROJECT` … `ACT2_DONE` | The brief | The finale: make a TM with 120 power or more. See [act2_finale.md](act2_finale.md). |
 
@@ -52,14 +52,13 @@ time they go up, until they're done: a new move once the move in progress is ove
 `Act2_TakeResearchMoveMessage`), a new species after it's caught (`BS_Act2ResearchCatch` in
 `BattleScript_SuccessBallThrowEnd`, `Act2_BufferResearchCatchMessage`).
 
-With all four done, the professor makes the course's **TM** with the player. The **exam** needs a Pokémon of the
-course's type that knows the TM's move (`Act2_PartyCanUseCourseTM`), and only counts if it uses that move in the
-battle (`ACT2_RESEARCH_USED_TM_MOVE`); a win without it is retaken. Progress is `VAR_ACT2_RESEARCH`
+With all four done, the professor makes the course's **TM** with the player (TMs are reusable: `I_REUSABLE_TMS`).
+Then the **exam**, a battle with the professor; any win passes. Progress is `VAR_ACT2_RESEARCH`
 (`ACT2_RESEARCH_*`), reset when a course starts.
 
 | Course | TM | Site | Puzzle (each part: a Pokémon of the type that knows a move of it, `Act2_FindCourseMoveUser`) | Its end |
 |---|---|---|---|---|
-| Fire | TM35 Flamethrower | Pokémon Mansion | Relight 3 cold furnaces on 1F (on the walls at (6,2), (31,2), (4,12); `METATILE_PokemonMansion_Furnace_Cold`, swapped for `_Lit` once relit, drawn by `tools/hack/draw_mansion_furnace.py`). Until then, the statue switch is cold. | The switch opens the sealed room; the old research journal there (23,13) |
+| Fire | TM35 Flamethrower | Pokémon Mansion | Relight 3 cold furnaces on 1F (on the walls at (6,2), (31,2), (4,12); `METATILE_PokemonMansion_Furnace_Cold`, swapped for `_Lit` once relit, drawn by `tools/hack/draw_mansion_furnace.py`). Until then, the statue switch is cold. | The switch opens the sealed room; the old research journal there (23,13), in it for the whole trip until read (readable once the furnaces are lit) |
 | Water | TM51 BubbleBeam (new: `FOREACH_TM` in `include/constants/tms_hms.h`) | Vermilion City | Put out the 2 small dock fires (2x2 at (30,28) and (35,25)) with any WATER move | The big fire (2x3 at (24,28), across the pier) needs BubbleBeam; behind it a young Lapras surfaces (21,29) and asks to come along (see below) |
 | Grass | TM19 Giga Drain | Route 22 | Regrow 3 withered plants ((24,13), (38,6), (44,10); `OBJ_EVENT_GFX_WITHERED_PLANT`, a dried-out shrub); they grow into young trees | The field blooms |
 
@@ -74,12 +73,14 @@ other three tasks (`Act2_IsReadyForTM`), and the exam waits for all four (`Act2_
 lines follow the stage: the usual hint, then (fires started) the TM is urgent, then (TM made, big fire still
 burning) go put it out, a POKéMON is cowering there, then the exam. A save that left the trip without the Lapras
 finds it waiting by the pier for the rest of Act 2. When a puzzle's task is done, the message says whether the
-sheet is finished (`Act2_EventScript_TaskDone`). MINA's alarm puts her on a land square beside the player
-(`Act2_FindSpotBesidePlayer`). The dock workers (the harbor's sailors, and one on the pier during the trip) call
+sheet is finished (`Act2_EventScript_TaskDone`). MINA's alarm has her run in from out of view (up to 9 squares
+straight out, over free land) to a land square beside the player (`Act2_FindSpotBesidePlayer`,
+`Act2_WalkFriendToPlayer`). The dock workers (the harbor's sailors, and one on the pier during the trip) call
 for help while it burns and thank the player after (`Act2_GetDockFireState`).
 
 **The young Lapras.** It floats on the water, below the pier's elevation, so the player talks to it through a sign
-event on its square (`Act2_EventScript_DockLaprasFromPier`). Once the big fire is out, the Lapras nuzzles the player and asks to come along; saying no just
+event on its square (`Act2_EventScript_DockLaprasFromPier`). Once the big fire is out, the message sends the player to the Lapras (not the professor), and PROF. MARLOWE
+holds the exam until it has come along. The Lapras nuzzles the player and asks to come along; saying no just
 makes it ask again. It joins at level 15 (`ACT2_LAPRAS_LEVEL`): into the party, or straight to the PC if the party
 is full. `FLAG_ACT2_GOT_LAPRAS` is set. It doesn't count as catching a Water Pokémon for the sheet (it's a gift),
 but it can take the BubbleBeam TM and the exam. **In Act 3, this is the Lapras in Silph Co.'s lab** that masters the
@@ -103,6 +104,11 @@ the friends explain the night's battle and leave the player free to line up thei
   (`Act2_BufferClubTeam`). For the battle the rest of the party is set aside, and put back in its slots afterwards
   (`Act2_SetAsideClubBench`, `Act2_RestoreClubBench`).
 - **Levels:** every foe is at the average level of the player's three, with its level's moves.
+- **Before each battle** the opponent says how they fight: KAI breaks down the front line with direct attacks, MINA
+  aims indirect attacks at the back line, DALE mixes both.
+- **After each battle**, "The next day…" on black (`Act2_ShowNextDayCard`, the act-end cards of
+  `src/prologue_end.c`), then the player wakes in their room. The stage moves on only once the screen is black, so
+  it stays night through the talk after the battle.
 - **Losing** doesn't white out or stop the story (`trainerbattle_earlyrival`, healed after): the friend says nobody
   wins every time and offers to go again. Saying no carries on as after a win; on night 3, DALE passes the player
   anyway.
@@ -192,7 +198,7 @@ From Act 2 on, the whole party gains experience from every battle, as with the E
 
 | Who | Where | Sprite |
 |---|---|---|
-| KAI, MINA, ROWAN | Classmates: outside the dorm room at the start, on each field trip, the dorm lobby after each course, the stadium at night | Camper, Picnicker, Boy |
+| KAI, MINA, ROWAN | Classmates: outside the dorm room at the start, on each field trip, KAI's room after the Fire course, the stadium at night | Camper, Picnicker, Boy |
 | PROF. ASHFORD | Lecture Hall A; Cinnabar | Scientist |
 | PROF. MARLOWE | Audiovisual classroom; Vermilion, by the harbor | Old man |
 | PROF. FERN | Home Economics; Viridian, at the west exit | Beauty |

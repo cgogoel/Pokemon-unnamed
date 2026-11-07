@@ -76,7 +76,7 @@ When each side has only two Pokémon, the same rules apply with two Pokémon per
 
 Each course (Fire, Water, Grass) is a field trip with a research sheet: catch three different Pokémon of the type,
 use and record moves of the type, and solve a puzzle at the site using a Pokémon of the type. Completing the sheet
-lets the player make the course's TM, and the course exam only counts if the TM's move is used.
+lets the player make the course's TM (reusable, as are all TMs) and take the course exam.
 
 ### Custom dungeons
 

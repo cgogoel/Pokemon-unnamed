@@ -2,5 +2,6 @@
 #define GUARD_ACT2_END_H
 
 void Act2_EndAct2(void);
+void Act2_ShowNextDayCard(void);
 
 #endif // GUARD_ACT2_END_H

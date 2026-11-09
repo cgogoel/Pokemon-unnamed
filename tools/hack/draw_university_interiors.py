@@ -3,7 +3,7 @@
 
 Run by draw_university_tiles.py (which writes the campus and calls build() for the rooms); on its own it only renders:
 
-    <venv with Pillow>/bin/python tools/hack/draw_university_interiors.py [--before DIR]
+    <venv with Pillow>/bin/python tools/hack/draw_university_interiors.py [--before DIR] [--audit]
 
 Every room is composed from FireRed metatiles where one fits (the School's classroom, the Cinnabar Lab, the houses'
 furniture in gTileset_BuildingFrlg, the Pokemon Center's counter) and new art drawn by FireRed's rules (outline
@@ -185,6 +185,41 @@ def hslice(im, left, mid, right, width):
         out.paste(piece.crop((0, 0, min(m1 - m0, width - right - x), h)), (x, 0))
         x += m1 - m0
     out.paste(im.crop((im.width - right, 0, im.width, h)), (width - right, 0))
+    # The joins must continue the piece as it was drawn: the column before each one must be the column the piece
+    # has before the column after it (else the strip shows a seam)
+    seams = []
+    for jx in range(left, width - right, m1 - m0):
+        if jx and m0 and list(out.crop((jx - 1, 0, jx, h)).getdata()) != list(im.crop((m0 - 1, 0, m0, h)).getdata()):
+            seams.append(jx)
+    last = width - right
+    src_before = im.width - right - 1
+    if last and list(out.crop((last - 1, 0, last, h)).getdata()) != list(im.crop((src_before, 0, src_before + 1,
+                                                                                     h)).getdata()):
+        seams.append(last)
+    if seams:
+        HSLICE_SEAMS.append((im, left, mid, right, width, seams))
+    return out
+
+
+HSLICE_SEAMS = []
+
+
+def narrow(im):
+    """A two-cell FireRed piece made one cell wide: its left and right edges joined where a shelf or panel boundary
+    runs through it (the column pair that matches best), so the cut doesn't show."""
+    w = im.width
+    best, at = None, None
+    for c in range(4, w - 4 - T + 1):
+        # Keep columns [0, c) and [c + w - 2T ... ) : choose c where the columns meeting look alike
+        d = c + (w - T) - 1
+        a = list(im.crop((c - 1, 0, c, im.height)).getdata())
+        b = list(im.crop((d, 0, d + 1, im.height)).getdata())
+        score = sum(p != q for p, q in zip(a, b))
+        if best is None or score < best:
+            best, at = score, c
+    out = Image.new('RGBA', (T, im.height), (0, 0, 0, 0))
+    out.paste(im.crop((0, 0, at, im.height)), (0, 0))
+    out.paste(im.crop((at + w - T, 0, w, im.height)), (at, 0))
     return out
 
 
@@ -599,12 +634,19 @@ COLLISION = {
 
 
 # --- The shell: walls, windows, edges, mats, stairs -----------------------------------------------------------------
-def wall_top(room):
-    """The wall's top edge seen from above, across the top of row 0 (outline, white, white, light grey, outline)."""
-    P = Pix((room.w - 2) * T, 5)
+WALL_TOP = 5                 # The wall's top band (rows 0-4): wall-mounted pieces hang below it
+
+
+def wall_top(room, y=0):
+    """The wall's top edge seen from above, across the top of row y (outline, white, white, light grey, outline),
+    running on over the edge columns' wall tops so the corners join (their outer outline closes it)."""
+    x0, x1 = 10, room.w * T - 11
+    P = Pix(x1 - x0 + 1, WALL_TOP)
     for k, c in enumerate((OL, WH, WH, GR1, OL)):
         P.hl(0, P.w - 1, k, c)
-    room.put(P.im, T, 0, 'F')
+    P.vl(0, 0, WALL_TOP - 1, OL)
+    P.vl(P.w - 1, 0, WALL_TOP - 1, OL)
+    room.put(P.im, x0, y * T, 'F')
 
 
 def edges(room):
@@ -641,8 +683,7 @@ def lab_wall(room, foot=True):
     for x in range(1, room.w - 1):
         room.fr(x, 0, LAB, 0x069, 'bottom')
         if rows == 3:
-            room.fr(x, 1, LAB, 0x069, 'bottom')
-            room.F.paste(Source(LAB).flat(0x069).crop((0, 6, T, T)).resize((T, T)), (x * T, T))
+            room.F.paste(Image.new('RGBA', (T, T), Source(LAB).flat(0x069).getpixel((0, T - 1))), (x * T, T))
         room.fr(x, rows - 1, LAB, 0x071, 'bottom')
         if foot:
             room.fr(x, rows, LAB, 0x079, 'bottom')
@@ -668,16 +709,34 @@ def glass_wall(room):
              T, 0, 'F')
 
 
+# Where each wall's rail (or skirting band) starts on its last row: windows end above it
+RAIL = {'school': 7, 'lab': 7, 'house': 8, 'center': 4}
+
+
+def campus_window(room, draw, sill, cut_at):
+    """The campus window (16x32), made as much shorter as the wall's rail needs (rows of its lower pane taken out from
+    `cut_at`, so the arch or frame, the cross and the sill keep their shape), the sill resting on the rail."""
+    im = campus_pic(draw, T, 2 * T, 0, 0)
+    rail = T + RAIL.get(room.wall_kind, T)          # The rail's first row, from the window's top (row wall_rows-2)
+    cut = max(0, sill + 1 - (rail - 1))
+    if cut:
+        short = Image.new('RGBA', im.size, (0, 0, 0, 0))
+        short.paste(im.crop((0, 0, T, cut_at)), (0, 0))
+        short.paste(im.crop((0, cut_at + cut, T, 2 * T)), (0, cut_at))
+        im = short
+    return im
+
+
 def arched(room, *cols):
     """The stone buildings' tall arched window (the campus's window()), on the wall's last two rows."""
     for c in cols:
-        room.put(campus_pic(U.window, T, 2 * T, 0, 0), c * T, (room.wall_rows - 2) * T, 'F')
+        room.put(campus_window(room, U.window, 28, 14), c * T, (room.wall_rows - 2) * T, 'F')
 
 
 def square(room, *cols):
     """The dorms' and the hospital's square window (the campus's sqwindow())."""
     for c in cols:
-        room.put(campus_pic(U.sqwindow, T, 2 * T, 0, 0), c * T, (room.wall_rows - 2) * T, 'F')
+        room.put(campus_window(room, U.sqwindow, 23, 15), c * T, (room.wall_rows - 2) * T, 'F')
 
 
 MATS = {'school': (SCHOOL, (0x2A5, 0x2A6, 0x2A7)), 'lab': (LAB, (0x290, 0x291, 0x292))}
@@ -704,6 +763,8 @@ def stairs_up(room, x):
     y = room.wall_rows
     room.fr(x, y - 2, HOME, 0x0EA, 'top')
     room.fr_block(x, y - 1, HOME, [[0x0DA, 0x0DB], [0x0E2, 0x0E3]])
+    for k in (0, 1):
+        refloor(room, x + k, y, HOME, (PLANKS, PLANKS_SHADE))
 
 
 def stairs_down(room, x):
@@ -712,6 +773,8 @@ def stairs_down(room, x):
     y = room.wall_rows
     room.fr(x, y - 2, HOME, 0x015, 'top')
     room.fr_block(x, y - 1, HOME, [[0x005, 0x006], [0x00D, 0x00E]])
+    for k in (0, 1):
+        refloor(room, x + k, y, HOME, (PARQUET, PARQUET_SHADE))
 
 
 # --- FireRed furniture ------------------------------------------------------------------------------------------------
@@ -736,13 +799,16 @@ def shelves(room, x, y, w, standing=False):
         unit.alpha_composite(bot, (0, T))
     wide = Image.new('RGBA', (w * T, 2 * T), (0, 0, 0, 0))
     if w == 1:
-        wide = hslice(unit, 8, (8, 9), 8, T)
+        wide = narrow(unit)
     else:
         for k in range(0, w - 1, 2):
             wide.alpha_composite(unit, (k * T, 0))
         if w % 2:
-            wide.alpha_composite(hslice(unit, 8, (8, 9), 8, T), ((w - 1) * T, 0))
-    room.put(wide, x * T, y * T)
+            wide.alpha_composite(narrow(unit), ((w - 1) * T, 0))
+    if y == 0 and not standing:
+        against_wall(room, x, wide)
+    else:
+        room.put(wide, x * T, y * T)
 
 
 def notices(room, *cols):
@@ -911,7 +977,7 @@ def wall_clock(room, cx, cy, r=12):
     room.put(P.im, cx - c, cy - c, 'F')
 
 
-def banner(room, x, y, h=24):
+def banner(room, x, y, h=18):
     """A school banner in slate and gold, hanging from a rod."""
     P = Pix(12, h + 6)
     P.hl(0, 11, 0, P3['au2'])
@@ -981,20 +1047,21 @@ def display_case(room, x, y, w, h, kind):
 def screen(room, x, w):
     """A projection screen on the wall's two rows: grey case, a white sheet showing a slide (Lapras on the waves)."""
     P = Pix(w * T, 2 * T)
-    P.box(2, 2, w * T - 4, 4, GR1)
-    P.hl(3, w * T - 5, 3, WH)
-    P.box(4, 5, w * T - 8, 22, WH, GR2)
-    P.box(14, 8, w * T - 28, 16, BLUE2, BLUE3)
-    P.hl(15, w * T - 16, 9, BLUE1)
-    for k in range(15, w * T - 15):
-        P.p(k, 20 + (k // 3) % 2, WH)
+    y0 = WALL_TOP + 1
+    P.box(2, y0, w * T - 4, 4, GR1)
+    P.hl(3, w * T - 5, y0 + 1, WH)
+    P.box(4, y0 + 3, w * T - 8, 18, WH, GR2)
+    P.box(14, y0 + 5, w * T - 28, 13, BLUE2, BLUE3)
+    P.hl(15, w * T - 16, y0 + 6, BLUE1)
+    for k in range(15, w * T - 15):         # Waves, a whole number of 6-pixel periods across
+        P.p(k, y0 + 14 + ((k - 15) // 3) % 2, WH)
     cx = w * T // 2
-    for yy in range(-4, 4):
+    for yy in range(-3, 3):
         for xx in range(-8, 8):
-            if (xx / 8) ** 2 + (yy / 4) ** 2 <= 1:
-                P.p(cx + xx, 15 + yy, BLUE3 if yy > 1 else hx('7BA4DE'))
-    P.vl(cx + 7, 8, 14, BLUE3)
-    P.p(cx + 8, 9, BLUE3)
+            if (xx / 8) ** 2 + (yy / 3) ** 2 <= 1:
+                P.p(cx + xx, y0 + 10 + yy, BLUE3 if yy > 0 else hx('7BA4DE'))
+    P.vl(cx + 7, y0 + 5, y0 + 10, BLUE3)
+    P.p(cx + 8, y0 + 6, BLUE3)
     room.put(P.im, x * T, 0)
 
 
@@ -1026,6 +1093,15 @@ def chalkboard(room, x, w):
         for xx in range(3, w * T - 3):
             if key(px[xx, yy]) in (key(WH), key(BOARD1)):
                 px[xx, yy] = BOARD2 + (255,)
+    # The eraser and chalk on the board's ledge (0x28B's columns 6-11) once, not at every repeat of the middle
+    for yy in range(13, T):
+        for xx in range(12, w * T - 8):
+            px[xx, yy] = BOARD2 + (255,)
+    tp = tray.load()
+    plain = [tp[2, yy] for yy in range(T)]
+    for yy in range(0, 2):
+        for xx in range(T, w * T - T):
+            tp[xx, yy] = plain[yy]
     P = Pix(w * T, T)
     cx = w * T // 2
 
@@ -1050,13 +1126,14 @@ def chalkboard(room, x, w):
     board.alpha_composite(P.im)
     room.put(board, x * T, T, 'F')
     room.put(tray, x * T, 2 * T, 'F')
+    for k in range(w):                  # The tray's own floor: the board's shadow, as the School's 0x293-0x294 have it
+        room.decor.add((x + k, 2))
 
 
 def school_bookcase(room, x, w=1):
-    """The School's bookcase (0x29B-0x29C over 0x2A3-0x2A4, top layers) on the wall's rows, 1 or 2 cells wide."""
-    for row, ids in ((0, (0x29B, 0x29C)), (1, (0x2A3, 0x2A4))):
-        im = strip(SCHOOL, list(ids), True)
-        room.put(im if w == 2 else hslice(im, 8, (8, 9), 8, T), x * T, row * T)
+    """The School's bookcase (0x29B-0x29C over 0x2A3-0x2A4, top layers) against the wall, 1 or 2 cells wide."""
+    im = strip(SCHOOL, [[0x29B, 0x29C], [0x2A3, 0x2A4]], True)
+    against_wall(room, x, im if w == 2 else narrow(im))
 
 
 def long_desk(room, x, y, w, books=()):
@@ -1141,17 +1218,30 @@ def garden_bed(room, x, y, w=2):
     room.put(P.im, x * T, y * T)
 
 
+def against_wall(room, x, im):
+    """A piece standing against the back wall: its feet 2 px onto the first floor row, as FireRed's stand (or, if it's
+    too tall for that, its top just under the wall's top band)."""
+    box = im.getbbox()
+    floor_y = room.wall_rows * T
+    y = floor_y + 2 - box[3]
+    if y + box[1] < WALL_TOP:
+        y = WALL_TOP - box[1]
+    room.put(im, x * T, y)
+    if y + box[3] > floor_y:
+        for k in range(im.width // T):
+            room.decor.add((x + k, room.wall_rows))
+
+
 def terminal(room, x, kind='pc'):
-    """A computer against the wall, on the wall's two rows: the Lab's PC (0x062 over 0x30B's top layers), or the
-    TM MACHINE (the Lab's analysis machine 0x2A6 over 0x2B6)."""
+    """A computer against the wall: the Lab's PC (0x062 over 0x30B's top layers), or the TM MACHINE (the Lab's
+    analysis machine 0x2A6 over 0x2B6)."""
     a, b = (0x062, 0x30B) if kind == 'pc' else (0x2A6, 0x2B6)
-    room.fr(x, 0, LAB, a, 'top')
-    room.fr(x, 1, LAB, b, 'top')
+    against_wall(room, x, strip(LAB, [[a], [b]], True))
 
 
 def consoles(room, x):
-    """The Lab's experiment consoles (0x320-0x322 over 0x328-0x32A), 3 wide, on the wall's two rows."""
-    room.fr_block(x, 0, LAB, [[0x320, 0x321, 0x322], [0x328, 0x329, 0x32A]], 'top')
+    """The Lab's experiment consoles (0x320-0x322 over 0x328-0x32A), 3 wide, against the wall."""
+    against_wall(room, x, strip(LAB, [[0x320, 0x321, 0x322], [0x328, 0x329, 0x32A]], True))
 
 
 def picture(room, x):
@@ -1179,22 +1269,53 @@ def shell(room, floor, wall):
     src, mid, shade = {'white': (LAB, WHITE_TILE, WHITE_TILE_SHADE), 'parquet': (HOME, PARQUET, PARQUET_SHADE),
                        'planks': (HOME, PLANKS, PLANKS_SHADE), 'school': (SCHOOL, SCHOOL_FLOOR, SCHOOL_SHADE)}[floor]
     room.floor(src, mid, shade)
+    room.floor_spec = (src, mid, shade, floor)
+    room.wall_kind = wall
+    room.foot = (SCHOOL, 0x296) if wall == 'school' else (LAB, 0x079) if (wall == 'lab' and floor == 'white') else None
     if wall == 'school':
         school_wall(room)
-        room.fr(1, 2, SCHOOL, SCHOOL_SHADE, 'bottom')
     elif wall == 'lab':
         lab_wall(room, foot=floor == 'white')
-        if floor == 'white':
-            room.fr(1, room.wall_rows, LAB, WHITE_TILE_SHADE, 'bottom')
     elif wall == 'house':
         house_wall(room)
     elif wall == 'center':
         center_wall(room)
     elif wall == 'glass':
         glass_wall(room)
+    if wall == 'school':                # The School's skirting foot in the left wall's shadow (the Lab's foot runs on
+        shade_cell(room, 1, 2)          # to the wall unshaded, as in the Cinnabar Lab)
     edges(room)
     wall_top(room)
     return ramp(floor)
+
+
+def shade_cell(room, x, y):
+    """The left wall's shadow on a floor cell that isn't plain floor (the wall's foot): the floor's shadow ramp on the
+    pixels FireRed's shaded floor darkens."""
+    src, mid, shade, kind = room.floor_spec
+    a, b = Source(src).flat(mid).load(), Source(src).flat(shade).load()
+    sh = {key(k): v for k, v in ramp(kind).items()}
+    px = room.F.load()
+    for yy in range(T):
+        for xx in range(T):
+            if a[xx, yy] != b[xx, yy]:
+                c = px[x * T + xx, y * T + yy]
+                if key(c) in sh:
+                    px[x * T + xx, y * T + yy] = tuple(sh[key(c)]) + (255,)
+
+
+def refloor(room, x, y, source, floors):
+    """A FireRed piece drawn on another floor (its bottom layer) put on this room's: its pixels that are that floor
+    (any of `floors`, in phase) become the room's floor (the shaded one in the first column)."""
+    src, mid, shade, _ = room.floor_spec
+    mine = Source(src).flat(shade if x == 1 else mid).load()
+    theirs = [Source(source).flat(f).load() for f in floors]
+    px = room.F.load()
+    for yy in range(T):
+        for xx in range(T):
+            c = px[x * T + xx, y * T + yy]
+            if any(key(c) == key(t[xx, yy]) for t in theirs):
+                px[x * T + xx, y * T + yy] = mine[xx, yy]
 
 
 # --- The rooms (collision and marks: COLLISION; the comments give the solid cells each piece stands on) --------------
@@ -1211,7 +1332,7 @@ def main_hall():
     notices(r, 3, 15)
     stairs_up(r, 1)
     stairs_up(r, 16)
-    lab_rug(r, 8, 6, 3, 5, bottom=False)
+    lab_rug(r, 8, 6, 3, 5)
     emblem(r, 9 * T + 8, 8 * T + 8)
     counter(r, 7, 5, 5)                                     # (7-11,5)
     r.drop_shadow(sh, 7, 5, 5, 1)
@@ -1304,10 +1425,11 @@ def cafeteria():
     r = Room('CAFETERIA')
     sh = shell(r, 'white', 'lab')
     arched(r, 6, 8)
-    r.fr_block(1, 1, HOME, [[0x031, 0x032]], 'top')
-    r.fr(3, 1, HOME, 0x036, 'top')
-    r.fr(4, 1, HOME, 0x037, 'top')
-    r.fr(5, 1, HOME, 0x076, 'top')
+    # The houses' kitchen (sink and stove 0x140-0x141 over 0x148-0x149, the cupboard 0x114-0x115 over
+    # 0x11C-0x11D, the fridge 0x117 over 0x11F), against the wall
+    against_wall(r, 1, strip(HOME, [[0x140, 0x141], [0x148, 0x149]], True))
+    against_wall(r, 3, strip(HOME, [[0x114, 0x115], [0x11C, 0x11D]], True))
+    against_wall(r, 5, strip(HOME, [[0x117], [0x11F]], True))
     counter(r, 1, 3, 5)
     r.drop_shadow(sh, 1, 3, 5, 1)
     for (x, y) in ((7, 3), (10, 3), (7, 6), (10, 6)):
@@ -1406,7 +1528,7 @@ def home_economics():
 def dorm_lobby():
     """Dorm lobby, 21x12: the houses' look. Stairs up (1-2), the square windows (4, 13), mailboxes (7-9), notices
     (11-12), a bookshelf (16-17), the vending machine (19, 1-2), the warden's counter (3-6,5), the lounge on a rug
-    (12-18, 5-8: sofa 13-17, low table 14-16), palms (4, 1-2; 1|19, 8-9)."""
+    (12-18, 5-8: sofa 13-17, low table 14-16), a low palm under the window (4,2), palms (1|19, 8-9)."""
     r = Room('DORM_LOBBY')
     sh = shell(r, 'planks', 'house')
     square(r, 4, 13)
@@ -1420,7 +1542,7 @@ def dorm_lobby():
     house_rug(r, 12, 5, 7, 4)
     sofa(r, 13, 5, 5)
     low_table(r, 14, 7, 3)
-    palm(r, 4, 1)
+    r.fr(4, 2, LAB, 0x094, 'top')           # A low palm under the window (the palm's pot cell alone), (4,2)
     palm(r, 1, 8)
     palm(r, 19, 8)
     door_mat(r)
@@ -1444,6 +1566,12 @@ def partition(room, y, gaps):
         for xx in (x * T - 1, (x + 1) * T):
             for k in range(T):
                 room.F.putpixel((xx, y * T + k), OL + (255,))
+    # The top runs on over the edge columns' wall tops
+    for x0 in (10, (room.w - 1) * T):
+        P = Pix(6, 6)
+        for k, c in enumerate((OL, WH, GR1, GR1, GR2, OL)):
+            P.hl(0, 5, k, c)
+        room.F.paste(P.im, (x0, y * T))
 
 
 def partition_v(room, x, y0, y1, sh):
@@ -1454,6 +1582,11 @@ def partition_v(room, x, y0, y1, sh):
             P.vl(4 + i, 0, T - 1, c)
         room.F.alpha_composite(P.im, (x * T, y * T))
         room.walls.add((x, y))
+    # Up through the corridor wall's face to its top, which runs across it
+    P = Pix(T, T - 5)
+    for i, c in enumerate((OL, WH, GR1, GR1, GR1, GR1, GR2, OL)):
+        P.vl(4 + i, 0, P.h - 1, c)
+    room.F.alpha_composite(P.im, (x * T, (y0 - 1) * T + 5))
     room.shade(sh, (x * T + 12, y0 * T, x * T + 20, y1 * T))
 
 
@@ -1503,7 +1636,7 @@ def science(name):
     sh = shell(r, 'white', 'glass')
     if name == 'SCIENCE_INSTITUTE':
         # The director's hall: a runner to the stairs, a picture and the floor directory, desks either side
-        lab_rug(r, 7, 2, 3, 11, bottom=False)
+        lab_rug(r, 7, 2, 3, 11)
         stairs_up(r, 14)
         picture(r, 4)
         notices(r, 12)
@@ -1563,7 +1696,8 @@ def hospital(upstairs):
     else:
         square(r, 4, 6, 10, 12)
         stairs_up(r, 14)
-        r.fr_block(8, 0, CENTER, [[0x2AA, 0x2AB], [0x2B2, 0x2B3]], 'top')
+        machine = strip(CENTER, [[0x2AA, 0x2AB], [0x2B2, 0x2B3]], True)
+        against_wall(r, 8, machine.crop((0, 0, 2 * T, T + 9)))      # Its counter is the one in front
         r.put(center_counter(5), 6 * T, 4 * T)
         r.drop_shadow(sh, 6, 4, 5, 1)
         for y in (6, 8):
@@ -1620,6 +1754,70 @@ def make_rooms():
         r = build()
         r.group = group
         out[name] = r
+    return out
+
+
+# --- The seam audit ----------------------------------------------------------------------------------------------
+def audit(room):
+    """Where the pieces of a room don't meet cleanly. Returns (kind, x, y, detail) for:
+    - 'floor': floor pixels (not covered by the middle layer) that aren't the room's floor in its own phase, its
+      shaded column, or either one in the floor's shadow ramp (another floor showing through a piece's bottom layer,
+      a pattern restarting mid-floor);
+    - 'jump': a vertical cell boundary where the picture's lines (rows of a color running across it) jump by 1-3
+      rows (a rail, skirting or edge a pixel off), anywhere in the room;
+    - 'step': a horizontal cell boundary in the floor where the floor doesn't continue (shadow bands that stop, a
+      wall foot that ends)."""
+    out = []
+    src, mid, shade, kind = room.floor_spec
+    sh = ramp(kind)
+    plain, shaded = Source(src).flat(mid).load(), Source(src).flat(shade).load()
+    down = {key(a): key(b) for a, b in sh.items()}
+    F, O = room.F.load(), room.O.load()
+    img = room.image()
+    px = img.load()
+    foot = Source(room.foot[0]).flat(room.foot[1]).load() if getattr(room, 'foot', None) else None
+    for cy in range(room.wall_rows, room.h - 1):
+        for cx in range(1, room.w - 1):
+            if (cx, cy) in room.decor or (cx, cy) in room.walls or (cx, cy) in room.marks:
+                continue
+            bad = 0
+            for y in range(T):
+                for x in range(T):
+                    X, Y = cx * T + x, cy * T + y
+                    if O[X, Y][3]:
+                        continue
+                    ok = {key(plain[x, y]), key(shaded[x, y])}
+                    if foot and cy == room.wall_rows:
+                        ok.add(key(foot[x, y]))
+                        ok |= {down[key(foot[x, y])]} if key(foot[x, y]) in down else set()
+                    ok |= {down[k] for k in list(ok) if k in down}
+                    if key(F[X, Y]) not in ok:
+                        bad += 1
+            if bad:
+                out.append(('floor', cx, cy, bad))
+    W, H = img.size
+    for bx in range(T, W, T):
+        col_a = [key(px[bx - 1, y]) for y in range(H)]
+        col_b = [key(px[bx, y]) for y in range(H)]
+        for cy in range(room.h):
+            ys = range(cy * T, cy * T + T)
+            mism = [y for y in ys if col_a[y] != col_b[y]]
+            if 1 <= len(mism) <= 3:
+                # A line that jumps: the left cell's edge column matches the right one's shifted by a row or two
+                for d in (-2, -1, 1, 2):
+                    if all(0 <= y + d < H and col_a[y] == col_b[y + d] for y in mism):
+                        out.append(('jump', bx // T, cy, 'rows %s shift %d' % (mism, d)))
+                        break
+    for by in range((room.wall_rows + 1) * T, (room.h - 1) * T, T):
+        for cx in range(1, room.w - 1):
+            a = [key(F[cx * T + x, by - 1]) for x in range(T)]
+            b = [key(F[cx * T + x, by]) for x in range(T)]
+            # The floor's own pattern across the boundary, for comparison
+            pa = [key(plain[x, 15]) for x in range(T)]
+            pb = [key(plain[x, 0]) for x in range(T)]
+            covered = any(O[cx * T + x, by - 1][3] or O[cx * T + x, by][3] for x in range(T))
+            if not covered and sum(p != q for p, q in zip(a, b)) > sum(p != q for p, q in zip(pa, pb)) + 4:
+                out.append(('step', cx, by // T, ''))
     return out
 
 
@@ -1872,7 +2070,7 @@ def people(img, room):
 
 
 def mockups(stamps, sets, before_dir=None):
-    """interior_<room>.png for every room (scale 2, its people), interiors.png (all of them), and with a folder of
+    """interior_<room>.png for every room (scale 3, its people), interiors.png (all of them), and with a folder of
     the rooms as they were (before_dir/<ROOM>.png, scale 1), interiors_before_after.png."""
     order = list(ROOMS)
     shots = {}
@@ -1881,7 +2079,7 @@ def mockups(stamps, sets, before_dir=None):
         img = sets[st['tileset']].render_room(st)
         people(img, name)
         shots[name] = img
-        U.scaled(img, 2).convert('RGB').save(os.path.join(OUT, 'interior_%s.png' % name.lower()))
+        U.scaled(img, 3).convert('RGB').save(os.path.join(OUT, 'interior_%s.png' % name.lower()))
     titles = {n: n.replace('_', ' ').title().replace('2F', '2F').replace('3F', '3F') for n in order}
 
     def grid(pairs, cols, s, path, header):
@@ -1925,6 +2123,15 @@ def main():
         sets[symbol] = ts
     before = sys.argv[sys.argv.index('--before') + 1] if '--before' in sys.argv else None
     mockups(stamps, sets, before)
+    if '--audit' in sys.argv:
+        # What's left is by design: curves (the clock, the emblem, chalk) crossing cell edges read as line jumps,
+        # and the stairs' landings carry FireRed's own rail feet and shadow
+        for name, r in rooms.items():
+            for issue in audit(r):
+                print(name, *issue)
+        for (im, left, mid, right, width, seams) in HSLICE_SEAMS:
+            print('widened %dx%d piece (ends %d+%d, middle %s) to %d: joins differ at %s' % (
+                im.width, im.height, left, right, mid, width, seams))
 
 
 if __name__ == '__main__':

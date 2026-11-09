@@ -12,9 +12,10 @@ lays the rooms out from `university_stamps.json` as before.
 |---|---|
 | `interiors.png` | Every room, as the game draws it (rendered from the written tilesets), with its people |
 | `interiors_before_after.png` | Every room: the first version (left) and now (right) |
-| `interior_<room>.png` | One room each (scale 2) |
+| `interior_<room>.png` | One room each (scale 3) |
 | `interior_v2_reference.png` | The FireRed rooms the look comes from: Viridian School, Cinnabar Lab lounge, the Copycat's bedroom, a house |
 | `tiles_classroom.png`, `tiles_dorm.png`, `tiles_lab.png` | Every metatile of the three tilesets |
+| `audit/*.png` | The seam audit's fixes, before and after (scale 5) |
 
 ## What's off in v1
 
@@ -151,13 +152,13 @@ secondary palettes (near-identical whites and greys merged); it stops if a tiles
 
 | Tileset | Rooms | Tiles | Metatiles | Secondary palettes |
 |---|---|---|---|---|
-| `gTileset_UniversityClassroom` | Main Hall 1F/2F, Lecture Halls A/B, Faculty Office, Literature, Library | 195 / 384 | 184 / 384 | 6 / 6 |
-| `gTileset_UniversityDorm` | Dorm lobby, 2F, 3F, Cafeteria | 117 / 384 | 111 / 384 | 5 / 6 |
-| `gTileset_UniversityLab` | Science Institute 1F-4F, Hospital 1F/2F, Study Hall, Home Economics | 108 / 384 | 117 / 384 | 5 / 6 |
+| `gTileset_UniversityClassroom` | Main Hall 1F/2F, Lecture Halls A/B, Faculty Office, Literature, Library | 203 / 384 | 195 / 384 | 5 / 6 |
+| `gTileset_UniversityDorm` | Dorm lobby, 2F, 3F, Cafeteria | 171 / 384 | 128 / 384 | 5 / 6 |
+| `gTileset_UniversityLab` | Science Institute 1F-4F, Hospital 1F/2F, Study Hall, Home Economics | 138 / 384 | 130 / 384 | 5 / 6 |
 
-Palettes are what fills up (copying from several FireRed tilesets brings several 15-color palettes): the Classroom
-set has none left, so new pieces for its rooms should reuse its colors (`fit()` moves a piece into colors already
-used) or go in the Dorm or Lab set. The first version's `gTileset_UniversityInterior` is gone.
+Palettes are what fills up (copying from several FireRed tilesets brings several 15-color palettes): each set has
+one slot left, so new pieces should reuse a set's colors where they can (`fit()` moves a piece into colors already
+used). The first version's `gTileset_UniversityInterior` is gone.
 
 ## Layout compatibility
 
@@ -171,3 +172,40 @@ with nothing on it); none now. Visible differences: the last row is FireRed's bl
 (solid either way); the stairs are FireRed's house stairs (drawn over the wall's rows, the warp cells unchanged); the
 door mat is FireRed's 3-cell mat (only its middle cell warps, as before); the Library's wall shelves are 1-3 and 11-13
 (were 1-4, 10-13) to make room for its windows (its signs at 2, 3, 11, 12 are still on shelves).
+
+## Seam audit
+
+`draw_university_interiors.py --audit` checks every room for pieces that don't meet cleanly (`audit()`):
+- **floor**: floor pixels (not under the middle layer) that aren't the room's floor in its own phase, its shaded
+  column, the wall's foot, or one of those in the floor's shadow ramp: another floor showing through a FireRed
+  piece's bottom layer, a pattern restarting mid-floor, a piece hanging into the floor row;
+- **jump**: a cell edge where the picture's lines run on 1-2 rows higher or lower (a rail, skirting or outline a
+  pixel off);
+- **step**: a row edge in the floor where the floor doesn't continue (a shadow band or a wall foot that stops);
+- every widened FireRed piece (`hslice`) whose joins don't continue the piece as drawn.
+
+Each room was also checked by eye at scale 5-6 (walls and corners, windows on the trims, stairs, mats and the void
+row, rugs, desks, shelves, counters, sofas, beds, partitions). Fixed (`audit/<n>.png`, before | after):
+
+| Room | Issue | Fix | Crop |
+|---|---|---|---|
+| All | The wall's top band stopped at the edge columns, whose inner outline ran up through it | The band runs on over the edge columns' wall tops, closed by their outline | `01_corners` |
+| Lecture halls | The shaded first column replaced the skirting's foot at (1,2) | The column's shadow is laid over the foot (`shade_cell`) | `01_corners` |
+| All stone rooms | The arched windows cut through the wall's rail and wainscot | Windows shortened (rows of the lower pane taken out, the arch, cross and sill kept) so the sill rests on the rail (`campus_window`, `RAIL`) | `02_windows_rail` |
+| Hospital, Study Hall | The square windows ran over the Pokemon Center wall's band, and 1 px into the Lab's rail | Same, for each wall | `03_square_windows` |
+| Every room with stairs | The stairs' landings showed the floor FireRed drew them on (the Copycat's planks, the Pallet parquet) | Those pixels become the room's floor (`refloor`) | `04_stairs_floor`, `05_stairs_down` |
+| Lecture halls, Literature, Library, Faculty Office, Study Hall, lobby, Science floors, Cafeteria, Hospital | Pieces against the back wall (bookcases, shelves, PCs, consoles, the TM machine, the kitchen, the healing machine) covered the wall's top band | They stand with their feet 2 px onto the floor row, as FireRed's do, or hang just under the band if taller (`against_wall`); one-cell bookcases are narrowed where a shelf edge runs (`narrow`) | `06_wall_pieces`, `07_consoles`, `18_shelves` |
+| Lecture Hall A | The board's eraser and chalk repeated at every slice of the widened board and tray | Once, at its end | `08_chalkboard` |
+| Main Hall 1F/2F | The banners hung into the floor row; a light line across the plaster's middle row (a stretched crop) | Shorter banners; the middle row plain plaster | `09_main_hall_wall` |
+| Main Hall, Science Institute | The runners stopped without their border | Bordered ends | `10_runner_end`, `11_institute_runner` |
+| Cafeteria | Sink, stove, cupboard and fridge cut off at their middles | The houses' whole pieces (0x140-0x149, 0x114-0x11D, 0x117 / 0x11F), standing on the floor | `12_kitchen` |
+| Hospital | A strip of the healing machine's counter showed in the wall | Cropped (the counter in front is the one used) | `13_healing_machine` |
+| Dorm 2F/3F | The bedroom walls stopped under the corridor wall's face; the corridor wall's top didn't meet the edge columns | The bedroom walls run up through the face to its top; its top runs on over the edges | `14_partitions`, `15_partition_edges` |
+| Lecture Hall B | The screen's case covered the wall's top band | Hung below it | `16_screen` |
+| Dorm lobby | A tall palm stood in front of the window | A low palm (its pot cell) under it | `17_lobby_window` |
+
+What the audit still lists is by design: curves crossing a cell edge (the clock, the emblem, the satellite model, the
+chalk notes and the screen's slide) read as 1-2 row line jumps; the stairs' landings carry FireRed's own rail feet
+and shadow; the chalk tray's floor is the board's shadow, as in the School (0x293-0x294); a few table legs and the
+narrowed bookcases differ from the source at their joins without a visible seam. Collision, elevation and every event
+were checked unchanged cell by cell after the rebuild.

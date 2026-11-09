@@ -285,6 +285,7 @@ class Room:
         self.decor = set()          # Walkable cells with something in the middle layer (rugs, mats, stairs)
         self.walls = set()          # Solid cells drawn in the bottom layer (partitions, wall pieces)
         self.stairs = []            # The stairs' left columns
+        self.stairs_down = []
         self.wall_rows = 3 if name.startswith('MAIN_HALL') else 2
 
     def fr(self, x, y, source, mid, mode='both'):
@@ -761,37 +762,70 @@ def door_mat(room, style='lab'):
 STAIRWELL_GREY = hx('7B7B7B')      # The houses' stairwell behind the steps (0x0DA's backdrop)
 
 
-def stairwell(room, x, rail, steps, floors):
-    """FireRed's house staircase built into this room's wall: the steps (two rows: the wall's last row and the
-    first floor row, the warp cells) climb against the room's own plaster, rail and skirting, which show wherever
-    the house's grey stairwell was behind them (the grey reached from the steps' top edge; the grey faces inside
-    the steps stay); the white rail (its post on the wall's row above) in front; the landing on the room's floor."""
+# Stairs down: treads seen from above, from the floor line down into the dark (FireRed's Department Store and
+# Rocket Hideout stairs down): the top tread at the floor, each one below it a shade darker
+TREADS = [(hx('F6EE94'), hx('D5C56A')), (hx('D5C56A'), hx('AC9441')), (hx('AC9441'), hx('837310')),
+          (hx('837310'), OL)]
+
+
+def stairwell(room, x, rail, steps, floors, down=False):
+    """A staircase in an opening in this room's wall: a dark doorway (outlined, the wall's white edge round it) from
+    the wall's top band down to the floor line, over the stairs' two columns, so every flight ends in it.
+    Up: FireRed's house staircase (the wall's last row and the first floor row, the warp cells) climbs into it, the
+    house's grey stairwell behind the steps (reached from their top edge) now the opening's dark, the white rail in
+    front. Down: the flight starts at the floor line and goes down into the dark: treads seen from above (the top one
+    level with the floor, each lower one a shade darker), the rail's post down its side; the landing (the warp
+    cells) is floor. The landing is on the room's floor either way."""
     y = room.wall_rows
-    wall = room.F.crop((x * T, (y - 1) * T, (x + 2) * T, (y + 1) * T)).load()
-    room.fr(x, y - 2, HOME, rail, 'top')
-    room.fr_block(x, y - 1, HOME, steps)
-    block = Image.new('RGBA', (2 * T, 2 * T))
-    for r, row in enumerate(steps):
-        for c, mid in enumerate(row):
-            block.paste(Source(HOME).cell(mid)[0], (c * T, r * T))
-    bp = block.load()
-    grey = key(STAIRWELL_GREY)
-    seen, todo = set(), [(xx, 0) for xx in range(2 * T) if key(bp[xx, 0]) == grey]
-    while todo:
-        q = todo.pop()
-        if q in seen:
-            continue
-        seen.add(q)
-        qx, qy = q
-        for nx, ny in ((qx + 1, qy), (qx - 1, qy), (qx, qy + 1), (qx, qy - 1)):
-            if 0 <= nx < 2 * T and 0 <= ny < 2 * T and (nx, ny) not in seen and key(bp[nx, ny]) == grey:
-                todo.append((nx, ny))
+    X0, X1 = x * T, (x + 2) * T            # The opening's inside: the stairs' two columns
+    top, line = WALL_TOP, y * T            # From under the top band to the floor line
     px = room.F.load()
-    for (qx, qy) in seen:
-        px[x * T + qx, (y - 1) * T + qy] = wall[qx, qy]
-    for k in (0, 1):
-        refloor(room, x + k, y, HOME, floors)
+    if not down:
+        room.fr(x, y - 2, HOME, rail, 'top')
+        room.fr_block(x, y - 1, HOME, steps)
+        block = Image.new('RGBA', (2 * T, 2 * T))
+        for r, row in enumerate(steps):
+            for c, mid in enumerate(row):
+                block.paste(Source(HOME).cell(mid)[0], (c * T, r * T))
+        bp = block.load()
+        grey = key(STAIRWELL_GREY)
+        seen, todo = set(), [(xx, 0) for xx in range(2 * T) if key(bp[xx, 0]) == grey]
+        while todo:
+            q = todo.pop()
+            if q in seen:
+                continue
+            seen.add(q)
+            qx, qy = q
+            for nx, ny in ((qx + 1, qy), (qx - 1, qy), (qx, qy + 1), (qx, qy - 1)):
+                if 0 <= nx < 2 * T and 0 <= ny < 2 * T and (nx, ny) not in seen and key(bp[nx, ny]) == grey:
+                    todo.append((nx, ny))
+        for yy in range(top, line - T):
+            for xx in range(X0, X1):
+                px[xx, yy] = OL + (255,)
+        for (qx, qy) in seen:
+            px[X0 + qx, line - T + qy] = OL + (255,)
+        for k in (0, 1):
+            refloor(room, x + k, y, HOME, floors)
+    else:
+        for yy in range(top, line):
+            for xx in range(X0, X1):
+                px[xx, yy] = OL + (255,)
+        for k, (tread, edge) in enumerate(TREADS):     # 4 px a step: 3 of tread, its edge a shade down
+            y0 = line - 4 * (k + 1)
+            inset = k                                   # Each lower step a little narrower, further away
+            for xx in range(X0 + 4 + inset, X1 - 1 - inset):
+                for yy in range(y0, y0 + 3):
+                    px[xx, yy] = tread + (255,)
+                px[xx, y0 + 3] = edge + (255,)
+        post = strip(HOME, [[rail, None], [steps[0][0], steps[0][1]], [steps[1][0], steps[1][1]]], True)
+        room.put(post.crop((0, 0, 5, 3 * T - 6)), X0, (y - 2) * T)
+    # The frame: the wall's white edge and an outline either side, down to the floor line
+    for yy in range(top, line):
+        for (xx, c) in ((X0 - 2, WH), (X0 - 1, OL), (X1, OL), (X1 + 1, WH)):
+            if T <= xx < (room.w - 1) * T:
+                px[xx, yy] = c + (255,)
     room.stairs.append(x)
+    room.stairs_down.append(x) if down else None
 
 
 def stairs_up(room, x):
@@ -801,7 +835,7 @@ def stairs_up(room, x):
 
 def stairs_down(room, x):
     """The Pallet house's stairs (rail 0x015, steps 0x005-0x006 over 0x00D-0x00E), built into the wall."""
-    stairwell(room, x, 0x015, [[0x005, 0x006], [0x00D, 0x00E]], (PARQUET, PARQUET_SHADE))
+    stairwell(room, x, 0x015, [[0x005, 0x006], [0x00D, 0x00E]], (PARQUET, PARQUET_SHADE), down=True)
 
 
 # --- FireRed furniture ------------------------------------------------------------------------------------------------
@@ -1794,7 +1828,10 @@ def audit(room):
     - 'jump': a vertical cell boundary where the picture's lines (rows of a color running across it) jump by 1-3
       rows (a rail, skirting or edge a pixel off), anywhere in the room;
     - 'step': a horizontal cell boundary in the floor where the floor doesn't continue (shadow bands that stop, a
-      wall foot that ends)."""
+      wall foot that ends);
+    - 'wall': another wall's colors in a staircase's wall cells (the houses' grey stairwell, plaster or skirting);
+    - 'blank': plain wall left between a staircase's steps and the wall's top band (a flight ending mid-wall);
+    - 'down': a flight down whose top tread isn't at the floor line."""
     out = []
     src, mid, shade, kind = room.floor_spec
     sh = ramp(kind)
@@ -1838,8 +1875,8 @@ def audit(room):
                         break
     # Stairs: in their wall cells (the rail's row, the steps' row), no colors of another wall (the houses' grey
     # stairwell, their plaster and skirting) where the room's own wall is
-    foreign = {key(STAIRWELL_GREY)} | {key(c) for m in (0x0A8, 0x0B0, 0x020, 0x028)
-                                        for c in Source(HOME).flat(m).getdata()}
+    foreign = ({key(STAIRWELL_GREY)} | {key(c) for m in (0x0A8, 0x0B0, 0x020, 0x028)
+                                         for c in Source(HOME).flat(m).getdata()}) - {key(OL)}
     wp = room.wall_plain.load()
     for sx in room.stairs:
         # Foreign pixels reached from the top of the steps' row (or under the wall's top band) through foreign pixels:
@@ -1862,6 +1899,20 @@ def audit(room):
                 n = sum(1 for (x, y) in big if x // T == cx and y // T == cy)
                 if n:
                     out.append(('wall', cx, cy, n))
+    # A flight down starts at the floor line: its lightest tread is the bottom one of the opening
+    for sx in room.stairs_down:
+        line = room.wall_rows * T
+        n = sum(1 for y in range(WALL_TOP, line - 4) for x in range(sx * T, sx * T + 2 * T)
+                if key(px[x, y]) == key(TREADS[0][0]))
+        if n:
+            out.append(('down', sx, room.wall_rows - 1, n))
+    # Every flight ends in its opening: no pixel of the plain wall left over the stairs' columns between the top
+    # band and the steps
+    for sx in room.stairs:
+        n = sum(1 for y in range(WALL_TOP, (room.wall_rows - 1) * T) for x in range(sx * T + 4, sx * T + 2 * T)
+                if px[x, y][:3] == wp[x, y][:3] and not O[x, y][3])
+        if n:
+            out.append(('blank', sx, room.wall_rows - 1, n))
     for by in range((room.wall_rows + 1) * T, (room.h - 1) * T, T):
         for cx in range(1, room.w - 1):
             a = [key(F[cx * T + x, by - 1]) for x in range(T)]

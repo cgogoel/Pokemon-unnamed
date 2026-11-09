@@ -152,9 +152,9 @@ secondary palettes (near-identical whites and greys merged); it stops if a tiles
 
 | Tileset | Rooms | Tiles | Metatiles | Secondary palettes |
 |---|---|---|---|---|
-| `gTileset_UniversityClassroom` | Main Hall 1F/2F, Lecture Halls A/B, Faculty Office, Literature, Library | 203 / 384 | 195 / 384 | 5 / 6 |
-| `gTileset_UniversityDorm` | Dorm lobby, 2F, 3F, Cafeteria | 171 / 384 | 128 / 384 | 5 / 6 |
-| `gTileset_UniversityLab` | Science Institute 1F-4F, Hospital 1F/2F, Study Hall, Home Economics | 138 / 384 | 130 / 384 | 5 / 6 |
+| `gTileset_UniversityClassroom` | Main Hall 1F/2F, Lecture Halls A/B, Faculty Office, Literature, Library | 207 / 384 | 195 / 384 | 5 / 6 |
+| `gTileset_UniversityDorm` | Dorm lobby, 2F, 3F, Cafeteria | 175 / 384 | 128 / 384 | 5 / 6 |
+| `gTileset_UniversityLab` | Science Institute 1F-4F, Hospital 1F/2F, Study Hall, Home Economics | 146 / 384 | 132 / 384 | 5 / 6 |
 
 Palettes are what fills up (copying from several FireRed tilesets brings several 15-color palettes): each set has
 one slot left, so new pieces should reuse a set's colors where they can (`fit()` moves a piece into colors already
@@ -182,6 +182,8 @@ door mat is FireRed's 3-cell mat (only its middle cell warps, as before); the Li
 - **jump**: a cell edge where the picture's lines run on 1-2 rows higher or lower (a rail, skirting or outline a
   pixel off);
 - **step**: a row edge in the floor where the floor doesn't continue (a shadow band or a wall foot that stops);
+- **wall**: in a staircase's wall cells, another wall showing where the room's own wall is (the houses' grey
+  stairwell, their plaster or skirting), reached from the top of the steps' row;
 - every widened FireRed piece (`hslice`) whose joins don't continue the piece as drawn.
 
 Each room was also checked by eye at scale 5-6 (walls and corners, windows on the trims, stairs, mats and the void
@@ -194,6 +196,7 @@ row, rugs, desks, shelves, counters, sofas, beds, partitions). Fixed (`audit/<n>
 | All stone rooms | The arched windows cut through the wall's rail and wainscot | Windows shortened (rows of the lower pane taken out, the arch, cross and sill kept) so the sill rests on the rail (`campus_window`, `RAIL`) | `02_windows_rail` |
 | Hospital, Study Hall | The square windows ran over the Pokemon Center wall's band, and 1 px into the Lab's rail | Same, for each wall | `03_square_windows` |
 | Every room with stairs | The stairs' landings showed the floor FireRed drew them on (the Copycat's planks, the Pallet parquet) | Those pixels become the room's floor (`refloor`) | `04_stairs_floor`, `05_stairs_down` |
+| Every room with stairs (16 staircases) | The house stairs brought the houses' grey stairwell behind the steps: a foreign block over the room's rail, wainscot and trim | Built into the room's wall (`stairwell`): wherever the grey stairwell showed above the steps (reached from their top edge), the room's own plaster, rail and skirting show; the steps climb against it, the white rail in front, nothing above the wall's top band; the shaded faces inside the steps stay | `19_stairs_all` (every staircase) |
 | Lecture halls, Literature, Library, Faculty Office, Study Hall, lobby, Science floors, Cafeteria, Hospital | Pieces against the back wall (bookcases, shelves, PCs, consoles, the TM machine, the kitchen, the healing machine) covered the wall's top band | They stand with their feet 2 px onto the floor row, as FireRed's do, or hang just under the band if taller (`against_wall`); one-cell bookcases are narrowed where a shelf edge runs (`narrow`) | `06_wall_pieces`, `07_consoles`, `18_shelves` |
 | Lecture Hall A | The board's eraser and chalk repeated at every slice of the widened board and tray | Once, at its end | `08_chalkboard` |
 | Main Hall 1F/2F | The banners hung into the floor row; a light line across the plaster's middle row (a stretched crop) | Shorter banners; the middle row plain plaster | `09_main_hall_wall` |

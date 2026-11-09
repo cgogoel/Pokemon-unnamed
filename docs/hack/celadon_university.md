@@ -11,10 +11,13 @@ University lore art: white stone buildings with slate roofs in a forest (the rem
 
 ## How it's built
 
-- `tools/hack/draw_university_tiles.py` draws the art and writes the tilesets: `gTileset_CeladonUniversity` (the
-  campus), `gTileset_UniversityInterior` (the academic buildings and dorms), `gTileset_UniversityLab` (the Science
-  Institute and the hospital), and `tools/hack/university_stamps.json` (every building and room as metatile ids with
-  collision). Needs Pillow.
+- `tools/hack/draw_university_tiles.py` draws the campus and writes `gTileset_CeladonUniversity`, then has
+  `tools/hack/draw_university_interiors.py` compose the rooms in FireRed's interior look
+  ([university_remake/interior_art.md](university_remake/interior_art.md)) and write their tilesets, all over
+  `gTileset_BuildingFrlg`: `gTileset_UniversityClassroom` (Main Hall, lecture halls, Faculty Office, Literature,
+  Library), `gTileset_UniversityDorm` (dorm lobby and floors, cafeteria), `gTileset_UniversityLab` (Science Institute,
+  hospital, Study Hall, greenhouse); and `tools/hack/university_stamps.json` (every building and room as metatile ids
+  with collision). Needs Pillow.
 - `tools/hack/build_university_maps.py` lays out the campus and every room from the stamps and places every warp,
   person, sign and trigger (its tables are the source of truth). Re-running it overwrites the layouts, so after
   editing them in Porymap, don't; move events in Porymap or in its tables.
@@ -39,6 +42,23 @@ door at the same place (column + 2).
 | Study Hall, by the dorms (56,57) | `STUDY_HALL` 15x10 | Study tables, old exam papers, a lounge corner |
 | Stadium (the Sports Complex) | outdoor | The club meets on the infield; triggers across its entrance (row 15) |
 | Ranch, pool, fountain, reflecting pools | outdoor | |
+
+## Day and night
+
+Time of day is the game's (docs/hack/time_of_day.md); club nights are night.
+
+- **Music**: the campus plays `MUS_RG_SEVII_67` at night (its map.json `night_music`).
+- **Locked buildings**: at night the academic buildings (Main Hall, Lecture Halls A and B, Faculty Office,
+  Cafeteria, Literature, Library, the Home Economics greenhouse) are locked: their doors say "It's locked. Classes are
+  over for the day." (`University_IsDoorLockedAtNight` in `src/act2_story.c`, checked in `TryDoorWarp`). Open all
+  night: the dorms, the Study Hall, the hospital, and the Science Research Institute (research doesn't stop at night,
+  and the TM MACHINE on 3F stays reachable in the final project).
+- **People**: the campus's students (`FLAG_TEMP_4`) are out only by day; by night a guard stands in front of the Main
+  Hall and a student heads for the Study Hall (`FLAG_TEMP_5`). The dorm corridors' students are in their rooms at
+  night (`FLAG_TEMP_8`); three more students cram in the Study Hall (its `FLAG_TEMP_1`). The ranch keeper by the
+  ranch's gate has a day line and a night one.
+- **Names**: the buildings have plaques beside their doors (bg events on the wall); freestanding signposts only for
+  the welcome by the gate, the stadium, the ranch and the pool, on the lawn beside the paths.
 
 ## Story spots
 

@@ -2,6 +2,7 @@
 #include "act2_finale.h"
 #include "act2_station.h"
 #include "act1_story.h"
+#include "act2_story.h"
 #include "battle_setup.h"
 #include "bike.h"
 #include "coord_event_weather.h"
@@ -1138,6 +1139,11 @@ static bool8 TryDoorWarp(struct MapPosition *position, u16 metatileBehavior, enu
             warpEventId = GetWarpEventAtMapPosition(&gMapHeader, position);
             if (warpEventId != WARP_ID_NONE && IsWarpMetatileBehavior(metatileBehavior) == TRUE)
             {
+                if (University_IsDoorLockedAtNight(&gMapHeader.events->warps[warpEventId]))
+                {
+                    ScriptContext_SetupScript(Act2_EventScript_LockedAtNight);
+                    return TRUE;
+                }
                 StoreInitialPlayerAvatarState();
                 SetupWarp(&gMapHeader, warpEventId, position);
                 DoDoorWarp();

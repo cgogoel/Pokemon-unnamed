@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Celadon University's own tiles (docs/hack/university_remake/plan.md): draws every campus building and the
-university rooms as GBA pixel art, writes the two secondary tilesets, and renders the design mockups from them.
+campus's windows the rooms use, writes the campus tileset, has draw_university_interiors.py compose the rooms and write
+their tilesets, and renders the design mockups from them.
 
     <venv with Pillow>/bin/python tools/hack/draw_university_tiles.py
 
 Writes
     data/tilesets/secondary/celadon_university/    gTileset_CeladonUniversity (over gTileset_General_Frlg): the campus
-    data/tilesets/secondary/university_interior/   gTileset_UniversityInterior (over gTileset_BuildingFrlg): the rooms
+    data/tilesets/secondary/university_{classroom,dorm,lab}/   the rooms' tilesets (draw_university_interiors.py)
     tools/hack/university_stamps.json              every building / room / furniture piece as a grid of metatile ids,
                                                    for the layout scripts (null = leave the ground as it is)
     docs/hack/university_remake/*.png              the mockups, rendered from the written tilesets
@@ -15,13 +16,13 @@ and prints the tile budget (FRLG secondary: 384 tiles, 384 metatiles, palettes 7
 The look follows the Tamamushi University lore art: white stone with grey-blue slate mansard roofs, tall arched
 windows and gold trim, the clock tower over the Main Hall, the Gyarados fountain, the glass greenhouse, the glass
 Science tower, the stadium with its track and floodlights, all in dense forest. The rooms carry the same materials
-inside. To fit one campus tileset the art is kept plain and is drawn on the metatile grid, in the palettes' colors only,
+inside (draw_university_interiors.py: FireRed's interior look, with the campus's own windows). To fit one campus tileset the art is kept plain and is drawn on the metatile grid, in the palettes' colors only,
 and mirror-symmetric wherever it can be (the right half of a building is the left half flipped, which the tile
 deduplication gets for free).
 
 Metatiles: the campus art sits in the middle layer over the primary's grass (layer type COVERED, under the player);
 the clock tower's spire, which rises over the path behind the Main Hall, is in the top layer (NORMAL) so people walk
-behind it. Room art: floor in the bottom layer, furniture in the middle (COVERED). Doors are MB_ANIMATED_DOOR (no
+behind it. Doors are MB_ANIMATED_DOOR (no
 door animation yet: the game just doesn't animate them), the gate's passage and room door mats MB_SOUTH_ARROW_WARP,
 stairs the behavior of the Celadon Condominiums' stairs. Everything else is MB_NORMAL: collision goes in the layouts.
 """
@@ -70,21 +71,13 @@ PAL = {
               (248, 232, 168), (224, 72, 56), (248, 136, 56), AU],
     'accent': [OL, WHITE, S1, S2, S3, (200, 96, 72), (152, 64, 56), (88, 120, 200), (48, 72, 144), (224, 56, 56),
                (160, 32, 40), (248, 176, 192), (64, 160, 96), (104, 112, 128), (248, 216, 96)],
-    'floor': [OL, (240, 240, 232), (216, 216, 200), (184, 184, 168), (216, 168, 104), (184, 128, 72), (136, 88, 48),
-              (88, 128, 200), (56, 88, 168), (32, 56, 112), AU, AU2, (248, 136, 56), (224, 72, 56)],
-    'furn': [OL, WHITE, (208, 144, 88), WD, WD2, (64, 112, 80), (40, 72, 56), (200, 64, 56), (64, 96, 184),
-             (232, 192, 72), (136, 200, 96), (72, 152, 64), (40, 96, 48), (168, 176, 192), (104, 112, 128)],
 }
 PAL = {k: [gba(c) for c in v] for k, v in PAL.items()}
 EXTERIOR_PALS = ('stone', 'glass', 'water', 'accent')
-INTERIOR_PALS = ('stone', 'floor', 'furn', 'glass', 'accent')
 GL = dict(zip(('ol', 'w', 's1', 'f1', 'f2', 'f3', 'q0', 'q1', 'q2', 'q3', 'p1', 'p2', 'p3', 'pk', 'rd'), PAL['glass']))
 WA = dict(zip(('ol', 'w', 's1', 's2', 's3', 'a1', 'a2', 'a3', 'b1', 'b2', 'cr', 'rd', 'or', 'au'), PAL['water']))
 AC = dict(zip(('ol', 'w', 's1', 's2', 's3', 't1', 't2', 'b1', 'b2', 'rd', 'rd2', 'pk', 'gn', 'mt', 'ye'),
               PAL['accent']))
-FL = dict(zip(('ol', 'm0', 'm1', 'm2', 'pq1', 'pq2', 'pq3', 'c1', 'c2', 'c3', 'au', 'au2', 'or', 'rd'), PAL['floor']))
-FU = dict(zip(('ol', 'w', 'wd0', 'wd', 'wd2', 'bg1', 'bg2', 'rd', 'bl', 'ye', 'p1', 'p2', 'p3', 'mt1', 'mt2'),
-              PAL['furn']))
 OL, WHITE, S1, S2, S3, SL1, SL2, SL3, G1, G2, G3, AU, AU2, WD, WD2 = PAL['stone']
 BLACK = (0, 0, 0)
 
@@ -901,6 +894,61 @@ def exterior_stamps():
     }
 
 
+def plaque(P, x, y, glass=False):
+    """A name plaque on a building's wall, in the bottom row beside a door (symmetric): a brass plate on stone, a
+    steel one on the glass buildings' white base."""
+    if glass:
+        frame, plate, line = GL['f3'], GL['f1'], GL['f2']
+    else:
+        frame, plate, line = AU2, AU, AU2
+    P.r(x + 3, y + 2, 10, 8, frame)
+    P.r(x + 4, y + 3, 8, 6, plate)
+    P.hl(x + 5, x + 10, y + 5, line)
+    P.hl(x + 6, x + 9, y + 7, line)
+    P.hl(x + 3, x + 12, y + 10, S3 if not glass else GL['f2'])
+
+
+def plain_wall_cell():
+    """The pixels of a plain stone wall cell in a facade's bottom row (no window), to find where plaques can go."""
+    P = Pic(3 * T, 2 * T)
+    wall(P, 0, 0, P.w, P.h)
+    plinth(P, 0, P.h - 4, P.w)
+    return P.im.crop((T, T, 2 * T, 2 * T)).tobytes()
+
+
+# Plaques: stamp -> the sides of each door that get one (the Literature & Library building: the outer sides only).
+# The glass buildings' plaques go on their white base, beside the door.
+PLAQUE_SIDES = {'HUMANITIES': [(-1,), (1,)]}
+GLASS_PLAQUES = {'GREENHOUSE': [(7, 8), (9, 8)], 'SCIENCE': [(5, 12), (7, 12)]}
+
+
+def add_plaques(stamps):
+    """Draws the plaques onto the door stamps; returns {stamp: [(col, row, door index)]}."""
+    plain = plain_wall_cell()
+    out = {}
+    for name, (pic, doors, *_rest) in stamps.items():
+        if not doors:
+            continue
+        cells = []
+        if name in GLASS_PLAQUES:
+            for (c, r) in GLASS_PLAQUES[name]:
+                plaque(pic, c * T, r * T, glass=True)
+                cells.append((c, r, 0))
+        else:
+            for k, (dc, dr) in enumerate(doors):
+                for side in (PLAQUE_SIDES.get(name, [(-1, 1)] * len(doors))[k]):
+                    c = dc + side
+                    while 0 < c < pic.w // T - 1:
+                        if pic.im.crop((c * T, dr * T, c * T + T, dr * T + T)).tobytes() == plain:
+                            break
+                        c += side
+                    assert 0 < c < pic.w // T - 1, 'no wall for a plaque on %s' % name
+                    plaque(pic, c * T, dr * T)
+                    cells.append((c, dr, k))
+        out[name] = cells
+    return out
+
+
 # --- Tileset writing -------------------------------------------------------------------------------------------------
 def behaviors():
     """MB_* name -> value, from the enum (counting entries as the compiler does)."""
@@ -1349,9 +1397,10 @@ CAMPUS_PATHS = [
 ]
 
 
-# Signposts (primary metatile 0x003): welcome, then one per building (texts: CeladonUniversity's Sign0-14)
-CAMPUS_SIGNS = [(34, 58), (36, 36), (23, 36), (49, 36), (59, 36), (13, 36), (7, 26), (18, 26), (62, 21), (18, 50),
-                (54, 48), (35, 17), (12, 16), (50, 17), (13, 47), (54, 58)]
+# Freestanding signposts (primary metatile 0x003), by their text (CeladonUniversity's Sign<n>), only where there's
+# no building to put a plaque on: the welcome by the gate, the stadium, the ranch, the pool. They stand on the lawn,
+# beside the paths. The buildings' names are plaques by their doors (add_plaques; build_university_maps.py).
+CAMPUS_SIGNS = {0: (34, 58), 12: (26, 15), 13: (47, 16), 14: (13, 47)}
 # Ground metatiles that block: forest, tree trunks, signs, fences
 SOLID_GROUND = {0x01C, 0x01D, 0x014, 0x015, 0x01E, 0x01F, 0x026, 0x027, 0x003, 0x0E7, 0x0F4, 0x0F5, 0x0EC, 0x0ED}
 
@@ -1363,8 +1412,9 @@ def campus_ground(st, reserve=()):
     g.forest(0, 0, CAMPUS_W, 4)
     g.forest(0, 0, 4, CAMPUS_H)
     g.forest(CAMPUS_W - 4, 0, CAMPUS_W, CAMPUS_H)
-    g.forest(0, CAMPUS_H - 4, 35, CAMPUS_H)     # From an even row, so the trees are whole
-    g.forest(41, CAMPUS_H - 4, CAMPUS_W, CAMPUS_H)
+    # From an even row and to an even column on each side of the gate, so every tree is whole (a tree is 2x2)
+    g.forest(0, CAMPUS_H - 4, 34, CAMPUS_H)
+    g.forest(42, CAMPUS_H - 4, CAMPUS_W, CAMPUS_H)
     for (x0, y0, x1, y1) in CAMPUS_PATHS:
         g.path(x0, y0, x1, y1)
     # Fill the lawn notches the paths leave (not under buildings, the ranch, the stadium or the signs), then pave
@@ -1372,7 +1422,7 @@ def campus_ground(st, reserve=()):
         g.block(x, y, st[name]['w'], st[name]['h'])
     g.block(48, 5, 10, 12)
     g.block(4, 4, 22, 12)
-    for (x, y) in CAMPUS_SIGNS:
+    for (x, y) in CAMPUS_SIGNS.values():
         g.used.add((x, y))
     g.fill_notches()
     g.lay({tuple(k.split(',')): v for k, v in st.get('PAVING', {}).items()})
@@ -1385,7 +1435,7 @@ def campus_ground(st, reserve=()):
                     stamp_solid[(x + c, y + r)] = s
     g.fence(48, 5, 58, 17, gap=(52, 54))
     g.block(4, 4, 22, 12)
-    for (x, y) in CAMPUS_SIGNS:
+    for (x, y) in CAMPUS_SIGNS.values():
         # On the paving, the sign stands on that cell's paving, edges and all (the primary's sign has grass under it)
         if (x, y) in g.paved:
             key = ','.join(g.pave_states[(x, y)])
@@ -1424,457 +1474,8 @@ def campus(ts, st):
 
 
 # --- Interiors ---------------------------------------------------------------------------------------------------------
-def room_size(w, h, d):
-    """The interior of a building w x h with its door at column d: 4 wider, 2 taller (11x9 at least, 21x15 at most),
-    widened evenly on both sides, so the door keeps its place: column d + 2."""
-    W, H = min(max(w + 4, 11), 21), min(max(h + 2, 9), 15)
-    return W, H, d + (W - w) // 2
-
-
-def back_wall(P, x0, w, rows, wainscot='slate'):
-    """Slate cornice, white plaster with a gold picture rail, a slate (or wood) wainscot, dark skirting."""
-    h = rows * T
-    lo = (SL1, SL2, SL3) if wainscot == 'slate' else (WD, WD, WD2)
-    ws = h - (14 if rows == 3 else 10)
-    for y in range(h):
-        for x in range(x0, x0 + w):
-            dx = x - x0
-            if y < 3:
-                c = (OL, SL3, SL2)[y]
-            elif y == 3:
-                c = WHITE
-            elif y == 4:
-                c = S2
-            elif y < ws - 1:
-                c = AU if y == 9 else AU2 if y == 10 else WHITE
-            elif y == ws - 1:
-                c = lo[0]
-            elif y < h - 2:
-                c = lo[2] if dx % 16 in (0, 15) or y == ws else lo[1]
-            elif y == h - 2:
-                c = lo[2]
-            else:
-                c = OL
-            P.p(x, y, c)
-
-
-def walls_around(P, w, h):
-    """Dark slate wall tops down both sides; the front wall's edge on the last row, black below."""
-    for x0 in (0, (w - 1) * T):
-        for y in range((h - 1) * T):
-            for k in range(T):
-                outer = k == (0 if x0 == 0 else T - 1)
-                inner = k == (T - 1 if x0 == 0 else 0)
-                P.p(x0 + k, y, OL if outer or inner else SL3 if k in (1, 14) else SL2)
-        P.hl(x0, x0 + T - 1, 0, OL)
-    for x in range(w * T):
-        for y in range((h - 1) * T, h * T):
-            P.p(x, y, OL)     # Below the front wall: dark, like FireRed's rooms
-        for k, c in enumerate((OL, SL3, SL2, OL)):
-            P.p(x, (h - 1) * T + k, c)
-
-
-def marble(P, x0, y0, w, h):
-    for y in range(y0, y0 + h):
-        for x in range(x0, x0 + w):
-            lx, ly = (x - x0) % 16, (y - y0) % 16
-            light = ((x - x0) // 16 + (y - y0) // 16) % 2 == 0
-            c = FL['m2'] if lx == 15 or ly == 15 else FL['m0'] if light else FL['m1']
-            P.p(x, y, c)
-
-
-def parquet(P, x0, y0, w, h):
-    for y in range(y0, y0 + h):
-        for x in range(x0, x0 + w):
-            dx, dy = x - x0, y - y0
-            board = dy // 4
-            if dy % 4 == 3 or (dx + (board % 4) * 4) % 16 == 0:
-                c = FL['pq3']
-            else:
-                c = FL['pq1'] if dy % 4 == 0 or (dx * 3 + board * 5) % 11 else FL['pq2']
-            P.p(x, y, c)
-
-
-def flagstone(P, x0, y0, w, h):
-    """The greenhouse's stone path (and the lab's tiles): big pale flags with grout."""
-    for y in range(y0, y0 + h):
-        for x in range(x0, x0 + w):
-            lx, ly = (x - x0) % 16, (y - y0) % 16
-            c = FL['m2'] if lx in (0, 8) and ly < 8 or lx == 4 and ly >= 8 or ly in (0, 8) else FL['m1']
-            P.p(x, y, c)
-
-
-def runner(P, x0, y0, w, h):
-    for y in range(y0, y0 + h):
-        for x in range(x0, x0 + w):
-            dx = x - x0
-            c = FL['c2'] if (dx + y) % 8 else FL['c1']
-            if dx in (2, w - 3):
-                c = FL['au']
-            if dx in (0, 1, w - 2, w - 1):
-                c = FL['c3']
-            P.p(x, y, c)
-
-
-def rug(P, x0, y0, w, h):
-    for y in range(y0, y0 + h):
-        for x in range(x0, x0 + w):
-            dx, dy = x - x0, y - y0
-            c = FL['c2'] if (dx + dy) % 8 else FL['c1']
-            if dx in (2, w - 3) or dy in (2, h - 3):
-                c = FL['au']
-            if dx in (0, 1, w - 2, w - 1) or dy in (0, 1, h - 2, h - 1):
-                c = FL['c3']
-            P.p(x, y, c)
-
-
-def medallion(P, cx, cy, r=20):
-    """The emblem in the floor: Magikarp in a gold ring."""
-    P.ellipse(cx, cy, r, r, FL['au'], FL['au2'])
-    P.ellipse(cx, cy, r - 3, r - 3, FL['c3'])
-    P.ellipse(cx, cy, r - 5, r - 5, FL['m0'])
-    P.ellipse(cx, cy, 8, 6, FL['or'], FL['ol'])
-    for k in range(5):
-        P.vl(cx + 8 + k // 2, cy - 4 + k, cy + 4 - k, FL['rd'])
-    P.p(cx - 4, cy - 2, FL['m0'])
-    P.p(cx - 4, cy - 1, FL['ol'])
-    P.hl(cx - 3, cx + 2, cy - 7, FL['rd'])
-    P.hl(cx - 2, cx + 1, cy - 8, FL['rd'])
-    P.hl(cx - 6, cx - 4, cy + 3, FL['m0'])
-
-
-def doormat(P, x, y):
-    P.r(x + 1, y + 3, 14, 12, FL['c3'])
-    P.r(x + 2, y + 4, 12, 10, FL['c2'])
-    P.hl(x + 3, x + 12, y + 6, FL['au'])
-    P.hl(x + 3, x + 12, y + 11, FL['au'])
-
-
-def wall_clock(P, cx, cy, r=13):
-    P.ellipse(cx, cy, r, r, AU, AU2)
-    P.ellipse(cx, cy, r - 3, r - 3, WHITE, S2)
-    for (dx, dy) in ((0, -8), (-8, 0), (7, 0), (0, 7)):
-        P.p(cx + dx - (1 if dx <= 0 else 0), cy + dy, OL)
-    P.vl(cx - 1, cy - r + 5, cy, OL)
-    P.vl(cx, cy - r + 5, cy, OL)
-
-
-def banner(P, x, y, h=26):
-    P.hl(x - 1, x + 10, y, AU2)
-    for yy in range(y + 1, y + h):
-        for xx in range(x, x + 10):
-            P.p(xx, yy, OL if xx in (x, x + 9) else SL2)
-    for k in range(5):
-        P.hl(x + k, x + 9 - k, y + h + k, SL2)
-        P.p(x + k, y + h + k, OL)
-        P.p(x + 9 - k, y + h + k, OL)
-    P.ellipse(x + 5, y + 10, 3.5, 3.5, AU, AU2)
-
-
-def stairs_up(P, x, y, w=2, h=3):
-    """Stairs climbing into the back wall: white steps between wooden banisters."""
-    for yy in range(y, y + h * T):
-        dy = yy - y
-        for xx in range(x, x + w * T):
-            dx = xx - x
-            c = (WHITE, WHITE, S1, S1, S2, S3)[dy % 6] if dy >= 6 else (SL3 if dy < 4 else OL)
-            if dx < 3 or dx >= w * T - 3:
-                c = WD if dx in (1, w * T - 2) else WD2
-            P.p(xx, yy, c)
-
-
-def stairs_down(P, x, y, w=2):
-    """A stairwell going down: a dark opening with the top steps, a railing."""
-    P.r(x, y, w * T, T, SL3)
-    for k in range(4):
-        P.hl(x + 2, x + w * T - 3, y + 3 + k * 3, S2 if k % 2 else S1)
-    P.r(x, y, w * T, 2, WD)
-    P.vl(x, y, y + 15, WD2)
-    P.vl(x + w * T - 1, y, y + 15, WD2)
-
-
-def window_in(P, x, rows):
-    window(P, x, (rows - 2) * T)
-
-
-def plant(P, x, y):
-    P.r(x + 4, y + 22, 8, 8, FU['wd'])
-    P.hl(x + 3, x + 12, y + 21, FU['wd2'])
-    P.hl(x + 4, x + 11, y + 29, FU['wd2'])
-    P.hl(x + 5, x + 10, y + 23, FU['wd0'])
-    for (lx, ly, rx, ry) in ((8, 14, 6, 6), (4, 16, 4, 4), (12, 16, 4, 4), (6, 9, 3, 5), (10, 9, 3, 5), (8, 6, 2, 5)):
-        P.ellipse(x + lx, y + ly, rx, ry, FU['p2'], FU['p3'])
-    for (lx, ly) in ((6, 12), (10, 13), (8, 8), (4, 15), (12, 15)):
-        P.p(x + lx, y + ly, FU['p1'])
-
-
-def counter(P, x, y, w):
-    X = x + w * T
-    P.r(x, y + 2, w * T, 4, FU['w'])
-    P.hl(x, X - 1, y + 1, FU['ol'])
-    P.hl(x, X - 1, y + 6, FU['mt1'])
-    P.r(x, y + 7, w * T, 8, FU['wd'])
-    P.hl(x, X - 1, y + 15, FU['ol'])
-    P.vl(x, y + 1, y + 15, FU['ol'])
-    P.vl(X - 1, y + 1, y + 15, FU['ol'])
-    for k in range(x + 8, X - 4, 16):
-        P.r(k - 4, y + 9, 8, 4, FU['wd2'])
-        P.r(k - 3, y + 10, 6, 2, FU['wd0'])
-
-
-def bench_in(P, x, y, w=2):
-    X = x + w * T
-    P.r(x + 1, y + 5, w * T - 2, 6, FU['wd'])
-    P.hl(x + 1, X - 2, y + 4, FU['ol'])
-    P.hl(x + 1, X - 2, y + 6, FU['wd0'])
-    P.hl(x + 1, X - 2, y + 11, FU['wd2'])
-    P.vl(x + 1, y + 4, y + 11, FU['ol'])
-    P.vl(X - 2, y + 4, y + 11, FU['ol'])
-    for k in (x + 3, X - 5):
-        P.r(k, y + 12, 2, 3, FU['wd2'])
-
-
-def pillar(P, x, y):
-    column(P, x, y + 2, y + 31)
-    P.hl(x + 3, x + 12, y + 31, S3)
-
-
-def desk_row(P, x, y, w):
-    """A long desk (row y) with chairs on the row below."""
-    X = x + w * T
-    P.r(x + 1, y + 3, w * T - 2, 7, FU['wd0'])
-    P.hl(x + 1, X - 2, y + 2, FU['ol'])
-    P.r(x + 1, y + 10, w * T - 2, 4, FU['wd'])
-    P.hl(x + 1, X - 2, y + 14, FU['ol'])
-    P.vl(x + 1, y + 2, y + 14, FU['ol'])
-    P.vl(X - 2, y + 2, y + 14, FU['ol'])
-    for k in range(x, X, 16):
-        P.r(k + 5, y + 5, 6, 3, FU['w'])
-        P.r(k + 4, y + 18, 8, 6, FU['wd'])
-        P.hl(k + 4, k + 11, y + 17, FU['ol'])
-        P.hl(k + 4, k + 11, y + 24, FU['wd2'])
-        P.vl(k + 5, y + 25, y + 27, FU['wd2'])
-        P.vl(k + 10, y + 25, y + 27, FU['wd2'])
-
-
-def blackboard(P, x, y, w):
-    X = x + w * T
-    P.r(x, y + 4, w * T, 22, FU['wd'])
-    P.r(x + 2, y + 6, w * T - 4, 18, FU['bg1'])
-    P.hl(x, X - 1, y + 4, FU['ol'])
-    P.hl(x + 2, X - 3, y + 6, FU['bg2'])
-    P.hl(x, X - 1, y + 26, FU['ol'])
-    cx, cy = x + 24, y + 15
-    for (px, py) in ((cx, cy - 6), (cx - 7, cy + 5), (cx + 7, cy + 5)):
-        P.ellipse(px, py, 3, 3, FU['bg1'], FU['w'])
-    for t in range(1, 6):
-        P.p(cx - t, cy - 5 + 2 * t, FU['w'])
-        P.p(cx + t, cy - 5 + 2 * t, FU['w'])
-    mx, my = X - 30, y + 14
-    P.ellipse(mx, my, 7, 4, FU['bg1'], FU['w'])
-    P.vl(mx + 8, my - 3, my + 3, FU['w'])
-    for k in range(x + 44, X - 46, 3):
-        P.p(k, y + 10, FU['w'])
-        if k % 2:
-            P.p(k, y + 16, FU['w'])
-        if k % 5 < 3:
-            P.p(k, y + 20, FU['w'])
-
-
-def lectern(P, x, y):
-    P.r(x + 3, y + 4, 10, 11, FU['wd'])
-    P.r(x + 2, y + 2, 12, 3, FU['wd0'])
-    P.hl(x + 2, x + 13, y + 1, FU['ol'])
-    P.vl(x + 2, y + 2, y + 14, FU['ol'])
-    P.vl(x + 13, y + 2, y + 14, FU['ol'])
-    P.hl(x + 3, x + 12, y + 15, FU['ol'])
-    P.r(x + 5, y + 1, 6, 2, FU['w'])
-
-
-def bookshelf(P, x, y, w=1):
-    for k in range(w):
-        bx = x + k * T
-        P.r(bx, y + 2, T, 30, FU['wd2'])
-        P.hl(bx, bx + 15, y + 1, FU['ol'])
-        for sy in (y + 4, y + 15):
-            for i, c in enumerate(('rd', 'bl', 'ye', 'p2', 'bl', 'rd', 'mt1')):
-                P.r(bx + 2 + 2 * i, sy + (i % 3 == 1), 2, 9 - (i % 3 == 1), FU[c])
-            P.hl(bx + 1, bx + 14, sy + 9, FU['wd'])
-            P.hl(bx + 1, bx + 14, sy + 10, FU['wd0'])
-    P.vl(x, y + 1, y + 31, FU['ol'])
-    P.vl(x + w * T - 1, y + 1, y + 31, FU['ol'])
-
-
-def notice_board(P, x, y, w=2):
-    X = x + w * T
-    P.r(x + 1, y + 5, w * T - 2, 18, FU['wd'])
-    P.r(x + 3, y + 7, w * T - 6, 14, FU['wd0'])
-    for (px, py, c) in ((5, 8, 'w'), (13, 10, 'ye'), (20, 8, 'w'), (8, 15, 'bl'), (18, 15, 'w')):
-        if x + px + 6 < X - 2:
-            P.r(x + px, y + py, 6, 5, FU[c])
-            P.p(x + px + 2, y + py, FU['rd'])
-    P.hl(x + 1, X - 2, y + 4, FU['ol'])
-
-
-def mailboxes(P, x, y, w=3):
-    X = x + w * T
-    P.r(x + 1, y + 4, w * T - 2, 24, FU['wd'])
-    P.hl(x + 1, X - 2, y + 3, FU['ol'])
-    for row in range(3):
-        for col in range((w * T - 4) // 6):
-            bx, by = x + 3 + col * 6, y + 6 + row * 7
-            P.r(bx, by, 5, 5, FU['wd2'])
-            P.hl(bx + 1, bx + 3, by + 2, FU['mt1'])
-
-
-def sofa(P, x, y, w=3):
-    X = x + w * T
-    P.r(x + 1, y + 2, w * T - 2, 8, FU['rd'])
-    P.hl(x + 1, X - 2, y + 1, FU['ol'])
-    P.r(x + 1, y + 10, w * T - 2, 5, FU['wd2'])
-    P.hl(x + 3, X - 4, y + 9, FU['wd0'])
-    for k in range(x + 16, X - 4, 16):
-        P.vl(k, y + 3, y + 8, FU['wd2'])
-    P.vl(x + 1, y + 1, y + 15, FU['ol'])
-    P.vl(X - 2, y + 1, y + 15, FU['ol'])
-    P.hl(x + 1, X - 2, y + 15, FU['ol'])
-
-
-def low_table(P, x, y, w=2):
-    X = x + w * T
-    P.r(x + 3, y + 3, w * T - 6, 8, FU['wd0'])
-    P.hl(x + 3, X - 4, y + 2, FU['ol'])
-    P.hl(x + 3, X - 4, y + 11, FU['wd2'])
-    P.vl(x + 3, y + 2, y + 12, FU['ol'])
-    P.vl(X - 4, y + 2, y + 12, FU['ol'])
-    P.r(x + 8, y + 5, 5, 4, FU['w'])
-
-
-def vending(P, x, y):
-    P.r(x + 1, y + 1, 14, 30, FU['rd'])
-    P.vl(x + 1, y + 1, y + 30, FU['ol'])
-    P.vl(x + 14, y + 1, y + 30, FU['ol'])
-    P.hl(x + 1, x + 14, y + 1, FU['ol'])
-    P.r(x + 3, y + 4, 7, 14, FU['w'])
-    for k in range(3):
-        for j in range(2):
-            P.r(x + 4 + j * 3, y + 5 + k * 4, 2, 3, (FU['bl'], FU['ye'], FU['p2'])[k])
-    P.r(x + 3, y + 22, 10, 4, FU['ol'])
-
-
-def bed(P, x, y, blanket='bl'):
-    """A bed, 1x2: pillow at the top."""
-    P.r(x + 1, y + 2, 14, 29, FU['wd'])
-    P.hl(x + 1, x + 14, y + 1, FU['ol'])
-    P.vl(x + 1, y + 1, y + 30, FU['ol'])
-    P.vl(x + 14, y + 1, y + 30, FU['ol'])
-    P.hl(x + 1, x + 14, y + 31, FU['ol'])
-    P.r(x + 3, y + 4, 10, 6, FU['w'])
-    P.r(x + 2, y + 12, 12, 17, FU[blanket])
-    P.hl(x + 2, x + 13, y + 12, FU['w'])
-    P.hl(x + 2, x + 13, y + 28, FU['wd2'])
-
-
-def hospital_bed(P, x, y):
-    """A ward bed, 1x2 (accent: white sheets, pink blanket, steel frame)."""
-    P.r(x + 1, y + 2, 14, 29, AC['mt'])
-    P.hl(x + 1, x + 14, y + 1, AC['ol'])
-    P.vl(x + 1, y + 1, y + 30, AC['ol'])
-    P.vl(x + 14, y + 1, y + 30, AC['ol'])
-    P.hl(x + 1, x + 14, y + 31, AC['ol'])
-    P.r(x + 3, y + 3, 10, 7, AC['w'])
-    P.r(x + 2, y + 12, 12, 17, AC['pk'])
-    P.hl(x + 2, x + 13, y + 12, AC['w'])
-    P.r(x + 6, y + 18, 4, 4, AC['w'])
-
-
-def study_desk(P, x, y):
-    """A desk with a lamp and a book, 1x1."""
-    P.r(x + 1, y + 4, 14, 7, FU['wd0'])
-    P.hl(x + 1, x + 14, y + 3, FU['ol'])
-    P.r(x + 1, y + 11, 14, 4, FU['wd'])
-    P.hl(x + 1, x + 14, y + 15, FU['ol'])
-    P.r(x + 3, y + 5, 5, 4, FU['w'])
-    P.r(x + 10, y, 4, 3, FU['ye'])
-    P.vl(x + 11, y + 3, y + 6, FU['mt2'])
-
-
-def dining_table(P, x, y, w=2):
-    """A table with chairs above and below, w x 2."""
-    X = x + w * T
-    P.r(x + 2, y + 9, w * T - 4, 12, FU['wd0'])
-    P.hl(x + 2, X - 3, y + 8, FU['ol'])
-    P.hl(x + 2, X - 3, y + 21, FU['wd2'])
-    P.vl(x + 2, y + 8, y + 21, FU['ol'])
-    P.vl(X - 3, y + 8, y + 21, FU['ol'])
-    for k in range(x, X, 16):
-        P.r(k + 4, y + 1, 8, 6, FU['wd'])
-        P.r(k + 4, y + 24, 8, 6, FU['wd'])
-        P.hl(k + 4, k + 11, y + 30, FU['wd2'])
-        P.r(k + 5, y + 12, 6, 4, FU['w'])
-
-
-def kitchen(P, x, y, w=3):
-    """A kitchen counter with a sink and a stove, w x 2 (against the back wall)."""
-    X = x + w * T
-    P.r(x, y + 8, w * T, 6, FU['w'])
-    P.hl(x, X - 1, y + 7, FU['ol'])
-    P.r(x, y + 14, w * T, 17, FU['wd'])
-    P.hl(x, X - 1, y + 31, FU['ol'])
-    P.r(x + 4, y + 9, 10, 4, FU['mt1'])
-    for (sx, sy) in ((X - 14, y + 9), (X - 8, y + 11)):
-        P.ellipse(sx, sy, 3, 2, FU['mt2'], FU['ol'])
-    for k in range(x + 2, X - 2, 16):
-        P.r(k + 2, y + 17, 10, 11, FU['wd2'])
-        P.p(k + 10, y + 22, FU['ye'])
-
-
-def lab_bench(P, x, y, w=2):
-    """A lab bench with flasks and cabinets, w x 2 (all in the glass palette: steel and glassware)."""
-    X = x + w * T
-    P.r(x + 1, y + 12, w * T - 2, 5, GL['w'])
-    P.hl(x + 1, X - 2, y + 11, GL['ol'])
-    P.r(x + 1, y + 17, w * T - 2, 14, GL['f1'])
-    P.hl(x + 1, X - 2, y + 31, GL['ol'])
-    P.vl(x + 1, y + 11, y + 31, GL['ol'])
-    P.vl(X - 2, y + 11, y + 31, GL['ol'])
-    for k in range(x + 4, X - 10, 12):
-        P.r(k, y + 19, 8, 8, GL['f3'])
-    G = Pic(w * T, 16)
-    for (fx, c) in ((5, 'q1'), (13, 'pk'), (22, 'p1')):
-        if fx < w * T - 4:
-            G.ellipse(fx, 9, 3, 3, GL[c], GL['ol'])
-            G.r(fx - 1, 2, 2, 5, GL['q0'])
-    P.paste(G, x, y)
-
-
-def terminal(P, x, y):
-    """A research terminal, 1x2 (against a wall)."""
-    P.r(x + 1, y + 2, 14, 28, FU['mt1'])
-    P.hl(x + 1, x + 14, y + 1, FU['ol'])
-    P.vl(x + 1, y + 1, y + 30, FU['ol'])
-    P.vl(x + 14, y + 1, y + 30, FU['ol'])
-    P.hl(x + 1, x + 14, y + 30, FU['ol'])
-    P.r(x + 3, y + 4, 10, 9, FU['bg2'])
-    P.hl(x + 4, x + 9, y + 6, FU['p1'])
-    P.hl(x + 4, x + 11, y + 9, FU['p1'])
-    for k in range(4):
-        P.p(x + 4 + 2 * k, y + 18, (FU['rd'], FU['ye'], FU['p1'], FU['bl'])[k])
-
-
-def garden_bed(P, x, y, w=2):
-    """A raised flower bed under glass (glass palette), w x 1."""
-    X = x + w * T
-    P.r(x, y + 2, w * T, 14, GL['s1'])
-    P.hl(x, X - 1, y + 1, GL['ol'])
-    P.hl(x, X - 1, y + 15, GL['f2'])
-    L = leaves()
-    for yy in range(y + 3, y + 13):
-        for xx in range(x + 2, X - 2):
-            c = L[(yy - y) % 16][(xx - x) % 16]
-            P.p(xx, yy, c if c is not None else GL['p3'])
-
-
+# The rooms are drawn by draw_university_interiors.py (FireRed's interior look); it uses the campus's windows above
+# and this glass wall.
 def glass_wall(P, x0, w, rows):
     """The greenhouse's back wall from inside: glass panes in steel, leaves outside."""
     for y in range(rows * T):
@@ -1889,449 +1490,6 @@ def glass_wall(P, x0, w, rows):
             else:
                 c = GL['q0'] if y < 10 else GL['q1']
             P.p(x, y, c)
-
-
-def interior(w, h, wall_rows, floor, wainscot='slate'):
-    F, O = Pic(w * T, h * T), Pic(w * T, h * T)
-    floor(F, 0, wall_rows * T, w * T, (h - 1 - wall_rows) * T)
-    if wainscot == 'glass':
-        glass_wall(F, 0, w * T, wall_rows)
-    else:
-        back_wall(F, 0, w * T, wall_rows, wainscot)
-    walls_around(F, w, h)
-    return F, O
-
-
-def wall_block(P, x, y, w, h):
-    """A partition wall seen from above (dark slate, outlined), w x h metatiles."""
-    for yy in range(y * T, (y + h) * T):
-        for xx in range(x * T, (x + w) * T):
-            edge = xx in (x * T, (x + w) * T - 1) or yy in (y * T, (y + h) * T - 1)
-            P.p(xx, yy, OL if edge else SL3 if xx in (x * T + 1, (x + w) * T - 2) or yy == y * T + 1 else SL2)
-
-
-def picture_frame(P, x, y):
-    """A framed picture or plaque on the back wall (gold frame), on a 1x2 wall cell."""
-    P.r(x + 2, y + 6, 12, 12, AU2)
-    P.r(x + 3, y + 7, 10, 10, AU)
-    P.r(x + 4, y + 8, 8, 8, G1)
-    P.r(x + 4, y + 12, 8, 4, SL1)
-    P.p(x + 6, y + 10, WHITE)
-
-
-def screen(P, x, y, w):
-    """A projection screen across the back wall, w tiles."""
-    X = x + w * T
-    P.hl(x + 2, X - 3, y + 3, FU['mt2'])
-    P.r(x + 4, y + 4, w * T - 8, 20, FU['w'])
-    P.hl(x + 4, X - 5, y + 24, FU['mt1'])
-    P.vl(x + 4, y + 4, y + 24, FU['mt1'])
-    P.vl(X - 5, y + 4, y + 24, FU['mt1'])
-    P.r(x + 20, y + 9, w * T - 40, 10, FU['bl'])
-    P.ellipse(x + w * T // 2, y + 14, 6, 4, FU['ye'], FU['ol'])
-
-
-def exhibit(P, x, y, w, h, kind):
-    """A glass display case (glass palette): moon stones, or a model satellite."""
-    X, Y = x + w * T, y + h * T
-    P.r(x + 1, y + 2, w * T - 2, h * T - 3, GL['f1'])
-    P.r(x + 3, y + 4, w * T - 6, h * T - 10, GL['q0'])
-    P.hl(x + 1, X - 2, y + 1, GL['ol'])
-    P.hl(x + 1, X - 2, Y - 1, GL['ol'])
-    P.vl(x + 1, y + 1, Y - 1, GL['ol'])
-    P.vl(X - 2, y + 1, Y - 1, GL['ol'])
-    P.hl(x + 1, X - 2, Y - 6, GL['f3'])
-    if kind == 'stones':
-        for k in range(x + 6, X - 6, 9):
-            P.ellipse(k + 2, y + 9, 3, 2.5, GL['f2'], GL['f3'])
-            P.p(k + 1, y + 8, GL['w'])
-    else:
-        cx, cy = x + w * T // 2, y + h * T // 2 - 3
-        P.r(cx - 4, cy - 4, 8, 8, GL['f2'])
-        P.r(cx - 18, cy - 2, 12, 4, GL['q2'])
-        P.r(cx + 6, cy - 2, 12, 4, GL['q2'])
-        P.vl(cx, cy - 10, cy - 5, GL['f3'])
-        P.p(cx, cy - 11, GL['rd'])
-
-
-def stairs_hole(F, marks, x, y):
-    stairs_down(F, x * T, y * T)
-    marks[(x, y)] = marks[(x + 1, y)] = 'down'
-
-
-def stairs_upto(F, marks, x, wall_rows=2):
-    stairs_up(F, x * T, (wall_rows - 2) * T, 2, 3)
-    marks[(x, wall_rows)] = marks[(x + 1, wall_rows)] = 'up'
-
-
-def room(name, w, h, wall_rows, floor, wainscot, build, door=None):
-    F, O = interior(w, h, wall_rows, floor, wainscot)
-    marks, solid, people = {}, set(), []
-    if door is not None:
-        doormat(F, door * T, (h - 2) * T)
-        marks[(door, h - 2)] = 'mat'
-    build(F, O, marks, solid, people)
-    return {'F': F, 'O': O, 'marks': marks, 'solid': solid, 'people': people, 'wall_rows': wall_rows}
-
-
-def main_hall_1f(F, O, marks, solid, people):
-    runner(F, 8 * T, 3 * T, 3 * T, 9 * T)
-    medallion(F, 9 * T + 8, 8 * T + 8, 21)
-    for c in (4, 6, 12, 14):
-        window_in(F, c * T, 3)
-    wall_clock(F, 9 * T + 8, 18, 14)
-    banner(F, 7 * T + 3, 4)
-    banner(F, 11 * T + 3, 4)
-    stairs_upto(F, marks, 1, 3)
-    stairs_upto(F, marks, 16, 3)
-    counter(O, 7 * T, 5 * T, 5)
-    for (x, y) in ((4, 5), (14, 5), (4, 8), (14, 8)):
-        pillar(O, x * T, (y - 1) * T)
-    for x in (1, 17):
-        plant(O, x * T, 9 * T)
-    bench_in(O, 1 * T, 6 * T)
-    bench_in(O, 16 * T, 6 * T)
-    notice_board(O, 3 * T, 12, 1)
-    notice_board(O, 15 * T, 12, 1)
-    people += [('people/youngster_frlg', 9, 4, DOWN), (PLAYER, 9, 10, UP), ('people/lass_frlg', 3, 8, LEFT)]
-
-
-def main_hall_2f(F, O, marks, solid, people):
-    for c in (4, 6, 12, 14):
-        window_in(F, c * T, 3)
-    wall_clock(F, 9 * T + 8, 22, 18)
-    banner(F, 7 * T + 3, 4)
-    banner(F, 11 * T + 3, 4)
-    stairs_hole(F, marks, 1, 3)
-    stairs_hole(F, marks, 16, 3)
-    rug(F, 6 * T, 5 * T, 7 * T, 5 * T)
-    exhibit(O, 3 * T, 6 * T, 2, 1, 'stones')
-    exhibit(O, 13 * T, 6 * T, 3, 2, 'satellite')
-    bench_in(O, 8 * T, 9 * T, 3)
-    for x in (1, 17):
-        plant(O, x * T, 10 * T)
-    people += [('people/scientist', 9, 4, DOWN), (PLAYER, 14, 9, UP)]
-
-
-def lecture_a(F, O, marks, solid, people):
-    for c in (2, 12):
-        window_in(F, c * T, 2)
-    blackboard(O, 4 * T, 0, 7)
-    lectern(O, 7 * T, 2 * T)
-    bookshelf(O, 1 * T, 0, 1)
-    bookshelf(O, 13 * T, 0, 1)
-    for y in (3, 5):
-        desk_row(O, 1 * T, y * T, 5)
-        desk_row(O, 9 * T, y * T, 5)
-    plant(O, 1 * T, 7 * T)
-    plant(O, 13 * T, 7 * T)
-    people += [('people/scientist', 8, 2, DOWN), ('people/lass_frlg', 3, 4, UP), ('people/youngster_frlg', 10, 6, UP),
-               ('people/camper_frlg', 12, 4, UP), (PLAYER, 7, 8, UP)]
-
-
-def lecture_b(F, O, marks, solid, people):
-    screen(O, 4 * T, 0, 7)
-    lectern(O, 7 * T, 2 * T)
-    bookshelf(O, 1 * T, 0, 2)
-    bookshelf(O, 12 * T, 0, 2)
-    for y in (3, 5):
-        desk_row(O, 1 * T, y * T, 5)
-        desk_row(O, 9 * T, y * T, 5)
-    plant(O, 1 * T, 7 * T)
-    plant(O, 13 * T, 7 * T)
-
-
-def faculty(F, O, marks, solid, people):
-    bookshelf(O, 1 * T, 0, 2)
-    bookshelf(O, 10 * T, 0, 2)
-    window_in(F, 5 * T, 2)
-    window_in(F, 7 * T, 2)
-    counter(O, 5 * T, 3 * T, 3)
-    study_desk(O, 1 * T, 4 * T)
-    study_desk(O, 11 * T, 4 * T)
-    sofa(O, 8 * T, 6 * T, 3)
-    low_table(O, 8 * T, 7 * T, 3)
-    plant(O, 1 * T, 6 * T)
-
-
-def cafeteria(F, O, marks, solid, people):
-    kitchen(O, 1 * T, 0, 5)
-    counter(O, 1 * T, 3 * T, 5)
-    window_in(F, 8 * T, 2)
-    window_in(F, 10 * T, 2)
-    for (x, y) in ((7, 3), (10, 3), (7, 6), (10, 6)):
-        dining_table(O, x * T, y * T, 2)
-    plant(O, 1 * T, 6 * T)
-
-
-def literature(F, O, marks, solid, people):
-    bookshelf(O, 1 * T, 0, 2)
-    bookshelf(O, 12 * T, 0, 2)
-    notice_board(O, 6 * T, 0, 3)
-    window_in(F, 4 * T, 2)
-    window_in(F, 10 * T, 2)
-    dining_table(O, 6 * T, 4 * T, 3)
-    sofa(O, 2 * T, 7 * T, 3)
-    study_desk(O, 10 * T, 7 * T)
-    study_desk(O, 12 * T, 7 * T)
-    plant(O, 1 * T, 3 * T)
-    plant(O, 13 * T, 3 * T)
-
-
-def library(F, O, marks, solid, people):
-    bookshelf(O, 1 * T, 0, 4)
-    bookshelf(O, 10 * T, 0, 4)
-    bookshelf(O, 1 * T, 4 * T, 4)
-    bookshelf(O, 10 * T, 4 * T, 4)
-    window_in(F, 7 * T, 2)
-    counter(O, 6 * T, 3 * T, 3)
-    dining_table(O, 6 * T, 6 * T, 3)
-    plant(O, 1 * T, 7 * T)
-    plant(O, 13 * T, 7 * T)
-
-
-def dorm_lobby(F, O, marks, solid, people):
-    stairs_upto(F, marks, 1)
-    for c in (5, 15):
-        window_in(F, c * T, 2)
-    rug(F, 12 * T, 5 * T, 7 * T, 4 * T)
-    mailboxes(O, 7 * T, 0, 3)
-    notice_board(O, 11 * T, 0, 2)
-    bookshelf(O, 16 * T, 0, 2)
-    vending(O, 19 * T, 1 * T)
-    counter(O, 3 * T, 5 * T, 4)
-    sofa(O, 13 * T, 5 * T, 5)
-    low_table(O, 14 * T, 7 * T, 3)
-    plant(O, 4 * T, 1 * T)
-    plant(O, 1 * T, 8 * T)
-    plant(O, 19 * T, 8 * T)
-    people += [('people/old_woman_frlg', 5, 4, DOWN), (PLAYER, 10, 9, UP), ('people/lass_frlg', 13, 8, UP)]
-
-
-def mirror_stand(P, x, y):
-    """A standing mirror, 1x2, the course schedule taped to it."""
-    P.r(x + 3, y + 2, 10, 26, FU['wd'])
-    P.hl(x + 3, x + 12, y + 1, FU['ol'])
-    P.vl(x + 3, y + 1, y + 27, FU['ol'])
-    P.vl(x + 12, y + 1, y + 27, FU['ol'])
-    P.r(x + 5, y + 4, 6, 20, FU['mt1'])
-    P.r(x + 6, y + 5, 2, 8, FU['w'])
-    P.r(x + 8, y + 14, 3, 4, FU['ye'])
-    P.r(x + 4, y + 28, 8, 3, FU['wd2'])
-
-
-def photo_stand(P, x, y):
-    """A low cabinet with a framed photo on it, 1x1."""
-    P.r(x + 1, y + 8, 14, 7, FU['wd'])
-    P.hl(x + 1, x + 14, y + 7, FU['ol'])
-    P.hl(x + 1, x + 14, y + 15, FU['ol'])
-    P.vl(x + 7, y + 9, y + 14, FU['wd2'])
-    P.r(x + 4, y, 8, 7, FU['ye'])
-    P.r(x + 5, y + 1, 6, 5, FU['p1'])
-    P.r(x + 5, y + 4, 6, 2, FU['p2'])
-    P.p(x + 7, y + 2, FU['w'])
-
-
-def dorm_floor(top):
-    """A dorm floor, 21x12: a corridor along the back wall (rows 2-3) with the stairs, three bedrooms below behind a
-    partition (row 4, doorways at 3, 10, 16; walls at 7 and 13), a bed and a desk in each. On 2F the third room is
-    the player's (Act 2 starts at (15,6)): the bed, a mirror with the schedule, the desk, a photo from home, a shelf of
-    textbooks."""
-    def build(F, O, marks, solid, people):
-        if top:
-            stairs_hole(F, marks, 18, 2)
-            plant(O, 1 * T, 2 * T)
-        else:
-            stairs_hole(F, marks, 1, 2)
-            stairs_upto(F, marks, 18)
-        notice_board(O, 9 * T, 0, 2)
-        for c in (5, 13):
-            window_in(F, c * T, 2)
-        for x in range(1, 20):
-            if x not in (3, 10, 16):
-                wall_block(F, x, 4, 1, 1)
-                solid.add((x, 4))
-        for x in (7, 13):
-            wall_block(F, x, 5, 1, 6)
-            for y in range(5, 11):
-                solid.add((x, y))
-        rooms = ((1, 5), (8, 11)) if not top else ((1, 5), (8, 11), (14, 18))
-        for (bx, dx) in rooms:
-            bed(O, bx * T, 5 * T, 'bl' if bx == 1 else 'rd' if bx == 8 else 'p2')
-            study_desk(O, dx * T, 5 * T)
-            plant(O, dx * T, 8 * T)
-        if not top:
-            bed(O, 14 * T, 5 * T, 'p2')
-            mirror_stand(O, 17 * T, 5 * T)
-            study_desk(O, 18 * T, 5 * T)
-            photo_stand(O, 19 * T, 5 * T)
-            bookshelf(O, 19 * T, 7 * T, 1)
-            rug(F, 15 * T, 7 * T, 3 * T, 3 * T)
-            people += [(PLAYER, 15, 6, DOWN)]
-    return build
-
-
-def study_hall(F, O, marks, solid, people):
-    """The Study Hall (the small building by the dorms), 15x10: study tables, shelves of old exam papers, a notice
-    board, a lounge corner with a sofa and a vending machine."""
-    bookshelf(O, 1 * T, 0, 2)
-    bookshelf(O, 12 * T, 0, 2)
-    notice_board(O, 6 * T, 0, 3)
-    window_in(F, 4 * T, 2)
-    window_in(F, 10 * T, 2)
-    dining_table(O, 2 * T, 3 * T, 3)
-    dining_table(O, 2 * T, 6 * T, 3)
-    rug(F, 9 * T, 4 * T, 5 * T, 4 * T)
-    sofa(O, 9 * T, 4 * T, 4)
-    low_table(O, 10 * T, 6 * T, 2)
-    vending(O, 13 * T, 2 * T)
-    plant(O, 1 * T, 7 * T)
-    people += [('people/youngster_frlg', 5, 4, LEFT), ('people/lass_frlg', 3, 5, UP), (PLAYER, 7, 7, UP)]
-
-
-def home_ec(F, O, marks, solid, people):
-    notice_board(O, 4 * T, 0, 1)
-    notice_board(O, 16 * T, 0, 1)
-    for (x, y) in ((2, 3), (5, 3), (14, 3), (17, 3), (2, 6), (5, 6), (14, 6), (17, 6)):
-        garden_bed(O, x * T, y * T, 2)
-    dining_table(O, 9 * T, 3 * T, 3)
-    plant(O, 1 * T, 8 * T)
-    plant(O, 19 * T, 8 * T)
-
-
-def institute(F, O, marks, solid, people):
-    runner(F, 7 * T, 2 * T, 3 * T, 11 * T)
-    stairs_upto(F, marks, 14)
-    picture_frame(F, 4 * T, 0)
-    notice_board(O, 12 * T, 0, 1)
-    for c in (2, 6, 10):
-        window_in(F, c * T, 2)
-    lab_bench(O, 1 * T, 4 * T, 3)
-    lab_bench(O, 13 * T, 4 * T, 3)
-    for (x, y) in ((1, 11), (15, 11)):
-        plant(O, x * T, (y - 1) * T)
-    people += [('people/gentleman_frlg', 8, 9, DOWN), ('people/camper_frlg', 7, 10, UP),
-               ('people/picnicker_frlg', 9, 10, UP), (PLAYER, 8, 12, UP)]
-
-
-def lounge(F, O, marks, solid, people):
-    stairs_hole(F, marks, 14, 2)
-    stairs_upto(F, marks, 1)
-    for c in (5, 8, 11):
-        window_in(F, c * T, 2)
-    rug(F, 4 * T, 5 * T, 9 * T, 5 * T)
-    sofa(O, 5 * T, 5 * T, 4)
-    low_table(O, 6 * T, 7 * T, 3)
-    sofa(O, 10 * T, 5 * T, 2)
-    vending(O, 15 * T, 6 * T)
-    bookshelf(O, 4 * T, 0, 1)
-    plant(O, 1 * T, 11 * T)
-    plant(O, 15 * T, 11 * T)
-
-
-def research(F, O, marks, solid, people):
-    stairs_hole(F, marks, 1, 2)
-    stairs_upto(F, marks, 14)
-    terminal(O, 8 * T, 0)
-    terminal(O, 4 * T, 0)
-    terminal(O, 11 * T, 0)
-    lab_bench(O, 11 * T, 7 * T, 3)
-    lab_bench(O, 3 * T, 9 * T, 3)
-    lab_bench(O, 11 * T, 10 * T, 3)
-    plant(O, 15 * T, 4 * T)
-    people += [(PLAYER, 8, 2, UP), ('people/camper_frlg', 7, 3, UP), ('people/picnicker_frlg', 9, 3, UP)]
-
-
-def experiment(F, O, marks, solid, people):
-    stairs_hole(F, marks, 14, 2)
-    terminal(O, 3 * T, 0)
-    terminal(O, 5 * T, 0)
-    for c in (8, 10):
-        window_in(F, c * T, 2)
-    lab_bench(O, 2 * T, 5 * T, 3)
-    lab_bench(O, 7 * T, 5 * T, 3)
-    lab_bench(O, 2 * T, 9 * T, 3)
-    lab_bench(O, 7 * T, 9 * T, 3)
-    plant(O, 15 * T, 11 * T)
-
-
-def hospital_1f(F, O, marks, solid, people):
-    stairs_upto(F, marks, 14)
-    for c in (3, 5, 11):
-        window_in(F, c * T, 2)
-    counter(O, 6 * T, 4 * T, 5)
-    bench_in(O, 1 * T, 6 * T, 2)
-    bench_in(O, 1 * T, 8 * T, 2)
-    plant(O, 15 * T, 8 * T)
-
-
-def hospital_2f(F, O, marks, solid, people):
-    stairs_hole(F, marks, 14, 2)
-    for c in (8, 11):
-        window_in(F, c * T, 2)
-    for x in (1, 3, 5):
-        hospital_bed(O, x * T, 2 * T)
-    for x in (1, 3, 5):
-        hospital_bed(O, x * T, 7 * T)
-    plant(O, 15 * T, 8 * T)
-
-
-# The rooms: name (as the layouts: LAYOUT_CELADON_UNIVERSITY_<name>) -> (size, wall rows, floor, wainscot, build,
-# door mat column, tileset). Sizes follow the room size rule (room_size()).
-ROOMS = {
-    'MAIN_HALL': (19, 13, 3, marble, 'slate', main_hall_1f, 9, 'academic'),
-    'MAIN_HALL_2F': (19, 13, 3, marble, 'slate', main_hall_2f, None, 'academic'),
-    'LECTURE_HALL_A': (15, 11, 2, parquet, 'wood', lecture_a, 7, 'academic'),
-    'LECTURE_HALL_B': (15, 11, 2, parquet, 'wood', lecture_b, 7, 'academic'),
-    'FACULTY_OFFICE': (13, 10, 2, parquet, 'wood', faculty, 6, 'academic'),
-    'CAFETERIA': (13, 10, 2, marble, 'slate', cafeteria, 6, 'academic'),
-    'LITERATURE': (15, 11, 2, parquet, 'wood', literature, 7, 'academic'),
-    'LIBRARY': (15, 11, 2, parquet, 'wood', library, 7, 'academic'),
-    'DORM_LOBBY': (21, 12, 2, parquet, 'wood', dorm_lobby, 10, 'academic'),
-    'DORM_2F': (21, 12, 2, parquet, 'wood', dorm_floor(False), None, 'academic'),
-    'DORM_3F': (21, 12, 2, parquet, 'wood', dorm_floor(True), None, 'academic'),
-    'STUDY_HALL': (15, 10, 2, parquet, 'wood', study_hall, 7, 'academic'),
-    'HOME_ECONOMICS': (21, 11, 2, flagstone, 'glass', home_ec, 10, 'academic'),
-    'SCIENCE_INSTITUTE': (17, 15, 2, marble, 'slate', institute, 8, 'lab'),
-    'SCIENCE_LOUNGE': (17, 15, 2, marble, 'slate', lounge, None, 'lab'),
-    'SCIENCE_RESEARCH_ROOM': (17, 15, 2, marble, 'slate', research, None, 'lab'),
-    'SCIENCE_EXPERIMENT_ROOM': (17, 15, 2, marble, 'slate', experiment, None, 'lab'),
-    'HOSPITAL': (17, 12, 2, marble, 'slate', hospital_1f, 8, 'lab'),
-    'HOSPITAL_2F': (17, 12, 2, marble, 'slate', hospital_2f, None, 'lab'),
-}
-
-
-def make_rooms():
-    out = {}
-    for name, (w, h, wall_rows, floor, wainscot, build, door, group) in ROOMS.items():
-        r = room(name, w, h, wall_rows, floor, wainscot, build, door)
-        r['group'] = group
-        out[name] = r
-    return out
-
-
-def cut_rooms(ts, rooms, MB):
-    """Each room -> metatile ids, collision (walls, furniture solid; floor, mats, stairs walkable) and its marks."""
-    out = {}
-    beh = {'mat': MB['MB_SOUTH_ARROW_WARP'], 'up': MB['MB_NON_ANIMATED_DOOR'], 'down': MB['MB_NON_ANIMATED_DOOR']}
-    for name, r in rooms.items():
-        F, O, marks = r['F'], r['O'], r['marks']
-        W, H = F.w // T, F.h // T
-        rows, solid = [], []
-        for y in range(H):
-            row, srow = [], []
-            for x in range(W):
-                row.append(ts.metatile(ts.quarter(F.im, x * T, y * T), ts.quarter(O.im, x * T, y * T),
-                                       beh.get(marks.get((x, y)), MB['MB_NORMAL'])))
-                cell = O.im.crop((x * T, y * T, x * T + T, y * T + T))
-                furniture = any(a for (_, _, _, a) in cell.getdata())
-                wall = y < r['wall_rows'] or x in (0, W - 1) or y == H - 1
-                srow.append(0 if (x, y) in marks else int(wall or furniture or (x, y) in r['solid']))
-            rows.append(row)
-            solid.append(srow)
-        out[name] = {'w': W, 'h': H, 'rows': rows, 'solid': solid,
-                     'marks': {'%d,%d' % k: v for k, v in marks.items()}}
-    return out
 
 
 # --- Mockups -----------------------------------------------------------------------------------------------------------
@@ -2363,16 +1521,10 @@ def render_stamp(ts, st, extra_rows=0):
     return g.render(ts)
 
 
-def outside_inside(name, ext_ts, st, int_ts, room, rst, out, footprint_top=0, s=3):
-    """The building (on grass) and its room side by side at the same scale; the door columns marked."""
+def outside_inside(name, ext_ts, st, img, rst, out, footprint_top=0, s=3):
+    """The building (on grass) and its room (img, rendered) side by side at the same scale; the door columns
+    marked."""
     ext = render_stamp(ext_ts, st)
-    people = room['people']
-    img = Image.new('RGBA', (rst['w'] * T, rst['h'] * T), (0, 0, 0, 255))
-    for r, row in enumerate(rst['rows']):
-        for c, mid in enumerate(row):
-            img.paste(int_ts.render(mid), (c * T, r * T))
-    for (spr, x, y, f) in people:
-        put(img, spr, x, y, f)
     ext_s, room_s = scaled(ext, s), scaled(img, s)
     pad, top = 24, 60
     ew, eh = st['w'], st['h'] - footprint_top
@@ -2413,7 +1565,11 @@ def main():
     grass = primary_entries('gTileset_General_Frlg', 0x008)
     ext = Tileset('gTileset_CeladonUniversity', os.path.join(ROOT, 'data/tilesets/secondary/celadon_university'),
                   EXTERIOR_PALS, 'gTileset_General_Frlg', grass)
-    ext_stamps = cut_exterior(ext, exterior_stamps(), MB)
+    stamps = exterior_stamps()
+    plaques = add_plaques(stamps)
+    ext_stamps = cut_exterior(ext, stamps, MB)
+    for name, cells in plaques.items():
+        ext_stamps[name]['plaques'] = cells
     # The paving's junctions, 1-wide stretches and ends: the mixes of quarters the campus needs
     g, _ = campus_ground(ext_stamps)
     pave = paving_metatiles(ext, g.pave_needed)
@@ -2425,26 +1581,12 @@ def main():
         ','.join(k): ext.metatile(paving_entries(ext, k), sign, behavior_of('gTileset_General_Frlg', 0x003),
                                   LAYER_COVERED) for k in sorted(g.sign_needed)}
 
-    # The room tilesets: the academic buildings and dorms; the Science Institute and the hospital
-    rooms = make_rooms()
-    room_sets = {
-        'academic': Tileset('gTileset_UniversityInterior',
-                            os.path.join(ROOT, 'data/tilesets/secondary/university_interior'),
-                            INTERIOR_PALS, 'gTileset_BuildingFrlg', None),
-        'lab': Tileset('gTileset_UniversityLab', os.path.join(ROOT, 'data/tilesets/secondary/university_lab'),
-                       INTERIOR_PALS, 'gTileset_BuildingFrlg', None),
-    }
-    room_stamps = {}
-    for group, ts in room_sets.items():
-        part = cut_rooms(ts, {n: r for n, r in rooms.items() if r['group'] == group}, MB)
-        for n in part:
-            part[n]['tileset'] = ts.symbol
-        room_stamps.update(part)
-
-    for ts in [ext] + list(room_sets.values()):
-        print(ts.budget())
-        assert len(ts.tiles) <= MAX_TILES and len(ts.metatiles) <= MAX_METATILES, 'over budget'
-        ts.write()
+    print(ext.budget())
+    assert len(ext.tiles) <= MAX_TILES and len(ext.metatiles) <= MAX_METATILES, 'over budget'
+    ext.write()
+    # The rooms and their tilesets (gTileset_UniversityClassroom, gTileset_UniversityDorm, gTileset_UniversityLab)
+    import draw_university_interiors as I
+    room_stamps, room_sets = I.build(MB)
     json.dump({'exterior': ext_stamps, 'interior': room_stamps}, open(STAMPS, 'w'), indent=None,
               separators=(',', ':'))
 
@@ -2462,17 +1604,18 @@ def main():
         if text:
             label(c2, text, (x * 32 + 6, (y + (5 if name == 'MAIN_HALL' else 0)) * 32 + 6), 14, bg=(40, 48, 72))
     c2.convert('RGB').save(os.path.join(OUT, 'mockup_campus.png'))
-    by_symbol = {ts.symbol: ts for ts in room_sets.values()}
     for (rname, sname, title, top) in (('MAIN_HALL', 'MAIN_HALL', 'Main Hall', 5),
                                        ('LECTURE_HALL_A', 'LECTURE_WING', 'Lecture Hall A', 0),
                                        ('DORM_LOBBY', 'DORM', 'Dorm lobby', 0)):
         rst = room_stamps[rname]
-        outside_inside(title, ext, ext_stamps[sname], by_symbol[rst['tileset']], rooms[rname], rst,
-                       os.path.join(OUT, 'mockup_%s.png' % rname.lower()), footprint_top=top)
+        img = room_sets[rst['tileset']].render_room(rst)
+        I.people(img, rname)
+        outside_inside(title, ext, ext_stamps[sname], img, rst, os.path.join(OUT, 'mockup_%s.png' % rname.lower()),
+                       footprint_top=top)
     sheet(ext, os.path.join(OUT, 'tiles_exterior.png'))
-    sheet(room_sets['academic'], os.path.join(OUT, 'tiles_interior.png'))
-    sheet(room_sets['lab'], os.path.join(OUT, 'tiles_lab.png'))
-
+    for ts in room_sets.values():
+        ts.sheet(os.path.join(OUT, 'tiles_%s.png' % ts.symbol.replace('gTileset_University', '').lower()))
+    I.mockups(room_stamps, room_sets)
 
 if __name__ == '__main__':
     main()

@@ -3,6 +3,7 @@
 #include "act2_story.h"
 #include "act2_road.h"
 #include "act2_night_bloom.h"
+#include "game_time.h"
 #include "battle.h"
 #include "battle_setup.h"
 #include "event_data.h"
@@ -22,6 +23,7 @@
 #include "constants/characters.h"
 #include "constants/metatile_labels.h"
 #include "constants/heal_locations.h"
+#include "constants/map_groups.h"
 #include "constants/pokeball.h"
 #include "constants/items.h"
 #include "constants/moves.h"
@@ -1206,3 +1208,35 @@ void Act2_StartPlaytest(void)
     WarpIntoMap();
 }
 #endif
+
+// Celadon University at night (docs/hack/celadon_university.md): classes are over, so the academic buildings are
+// locked (TryDoorWarp shows Act2_EventScript_LockedAtNight instead). The dorms, the Study Hall, the hospital and
+// the Science Research Institute (its lab and TM MACHINE) stay open; the club meets outdoors at the stadium.
+static const u16 sLockedAtNight[] =
+{
+    MAP_CELADON_UNIVERSITY_MAIN_HALL,
+    MAP_CELADON_UNIVERSITY_LECTURE_HALL_A,
+    MAP_CELADON_UNIVERSITY_LECTURE_HALL_B,
+    MAP_CELADON_UNIVERSITY_FACULTY_OFFICE,
+    MAP_CELADON_UNIVERSITY_CAFETERIA,
+    MAP_CELADON_UNIVERSITY_LITERATURE,
+    MAP_CELADON_UNIVERSITY_LIBRARY,
+    MAP_CELADON_UNIVERSITY_HOME_ECONOMICS,
+};
+
+bool32 University_IsDoorLockedAtNight(const struct WarpEvent *warp)
+{
+    u32 i;
+    u16 dest = (warp->mapGroup << 8) | warp->mapNum;
+
+    if (gSaveBlock1Ptr->location.mapGroup != MAP_GROUP(MAP_CELADON_UNIVERSITY)
+     || gSaveBlock1Ptr->location.mapNum != MAP_NUM(MAP_CELADON_UNIVERSITY)
+     || !GameTime_IsNight())
+        return FALSE;
+    for (i = 0; i < ARRAY_COUNT(sLockedAtNight); i++)
+    {
+        if (sLockedAtNight[i] == dest)
+            return TRUE;
+    }
+    return FALSE;
+}

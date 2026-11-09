@@ -30,18 +30,22 @@ Act2_EventScript_ShowObjectsTemp1::
 @ The campus: meeting the friends, and the club nights at the stadium
 
 @ FLAG_TEMP_2: the friends waiting at the Sports Complex on a club night,
-@ FLAG_TEMP_3: DALE on the third. FLAG_TEMP_4: the students there by day (gone at night).
+@ FLAG_TEMP_3: DALE on the third. FLAG_TEMP_4: the students out on the campus by day (in their rooms or the STUDY
+@ HALL at night). FLAG_TEMP_5: the night's people (a guard, a student on the way to the STUDY HALL).
+@ At night (GameTime_IsNight, club nights included) the campus has its night music (map.json night_music) and the
+@ academic buildings are locked (University_IsDoorLockedAtNight, Act2_EventScript_LockedAtNight).
 CeladonUniversity_OnTransition::
 	special Act2_GiveStartingKit
 	setflag FLAG_TEMP_2
 	setflag FLAG_TEMP_3
 	clearflag FLAG_TEMP_4
+	setflag FLAG_TEMP_5
 	call_if_eq VAR_ACT2_PROGRESS, ACT2_FIRE_INVITED, Act2_EventScript_ShowClubFriends
 	call_if_eq VAR_ACT2_PROGRESS, ACT2_WATER_INVITED, Act2_EventScript_ShowClubFriends
 	call_if_eq VAR_ACT2_PROGRESS, ACT2_GRASS_INVITED, Act2_EventScript_ShowClubFriends
 	call_if_eq VAR_ACT2_PROGRESS, ACT2_GRASS_INVITED, Act2_EventScript_ShowExaminer
-	specialvar VAR_RESULT, Act2_IsClubNight
-	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_HideDayStudents
+	specialvar VAR_RESULT, GameTime_IsNight
+	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_CampusAtNight
 	end
 
 Act2_EventScript_ShowClubFriends:
@@ -52,9 +56,21 @@ Act2_EventScript_ShowExaminer:
 	clearflag FLAG_TEMP_3
 	return
 
-Act2_EventScript_HideDayStudents:
+Act2_EventScript_CampusAtNight:
 	setflag FLAG_TEMP_4
+	clearflag FLAG_TEMP_5
 	return
+
+@ An academic building's door at night (TryDoorWarp, University_IsDoorLockedAtNight)
+Act2_EventScript_LockedAtNight::
+	lockall
+	msgbox Act2_Text_LockedAtNight
+	releaseall
+	end
+
+Act2_Text_LockedAtNight:
+	.string "It's locked.\n"
+	.string "Classes are over for the day.$"
 
 CeladonUniversity_OnFrame::
 	.2byte 0
@@ -366,7 +382,9 @@ Act2_EventScript_ClubTrainerCard:
 @ they'll see the player there (ACT2_WATER_INVITED, ACT2_GRASS_INVITED). Night lasts until the club battle
 @ (Act2_IsClubNight). ACT2_WATER_SEE_MINA and ACT2_GRASS_SEE_ROWAN are only for saves already at them.
 
+@ FLAG_TEMP_8: the students in the corridors by day (in their rooms at night)
 CeladonUniversity_Dorm2F_OnTransition::
+	call Act2_EventScript_DormCorridorAtNight
 	setflag FLAG_TEMP_5
 	setflag FLAG_TEMP_6
 	setvar VAR_0x8004, ACT2_FIRE_SEE_KAI
@@ -378,11 +396,22 @@ CeladonUniversity_Dorm2F_OnTransition::
 	end
 
 CeladonUniversity_Dorm3F_OnTransition::
+	call Act2_EventScript_DormCorridorAtNight
 	setflag FLAG_TEMP_5
 	setvar VAR_0x8004, ACT2_GRASS_SEE_ROWAN
 	call Act2_EventScript_CheckFriendInRoom
 	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_ShowTemp5
 	end
+
+Act2_EventScript_DormCorridorAtNight:
+	clearflag FLAG_TEMP_8
+	specialvar VAR_RESULT, GameTime_IsNight
+	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_HideDormCorridor
+	return
+
+Act2_EventScript_HideDormCorridor:
+	setflag FLAG_TEMP_8
+	return
 
 @ A friend is in their room on the night they asked the player over (VAR_0x8004), and once the courses are done
 Act2_EventScript_CheckFriendInRoom:

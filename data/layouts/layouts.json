@@ -10292,7 +10292,7 @@
       "border_width": 2,
       "border_height": 2,
       "primary_tileset": "gTileset_BuildingFrlg",
-      "secondary_tileset": "gTileset_UniversityInterior",
+      "secondary_tileset": "gTileset_UniversityClassroom",
       "border_filepath": "data/layouts/CeladonUniversity_MainHall/border.bin",
       "blockdata_filepath": "data/layouts/CeladonUniversity_MainHall/map.bin",
       "layout_version": "frlg"
@@ -10305,7 +10305,7 @@
       "border_width": 2,
       "border_height": 2,
       "primary_tileset": "gTileset_BuildingFrlg",
-      "secondary_tileset": "gTileset_UniversityInterior",
+      "secondary_tileset": "gTileset_UniversityClassroom",
       "border_filepath": "data/layouts/CeladonUniversity_MainHall2F/border.bin",
       "blockdata_filepath": "data/layouts/CeladonUniversity_MainHall2F/map.bin",
       "layout_version": "frlg"
@@ -10318,7 +10318,7 @@
       "border_width": 2,
       "border_height": 2,
       "primary_tileset": "gTileset_BuildingFrlg",
-      "secondary_tileset": "gTileset_UniversityInterior",
+      "secondary_tileset": "gTileset_UniversityClassroom",
       "border_filepath": "data/layouts/CeladonUniversity_LectureHallA/border.bin",
       "blockdata_filepath": "data/layouts/CeladonUniversity_LectureHallA/map.bin",
       "layout_version": "frlg"
@@ -10331,7 +10331,7 @@
       "border_width": 2,
       "border_height": 2,
       "primary_tileset": "gTileset_BuildingFrlg",
-      "secondary_tileset": "gTileset_UniversityInterior",
+      "secondary_tileset": "gTileset_UniversityClassroom",
       "border_filepath": "data/layouts/CeladonUniversity_LectureHallB/border.bin",
       "blockdata_filepath": "data/layouts/CeladonUniversity_LectureHallB/map.bin",
       "layout_version": "frlg"
@@ -10344,7 +10344,7 @@
       "border_width": 2,
       "border_height": 2,
       "primary_tileset": "gTileset_BuildingFrlg",
-      "secondary_tileset": "gTileset_UniversityInterior",
+      "secondary_tileset": "gTileset_UniversityDorm",
       "border_filepath": "data/layouts/CeladonUniversity_Cafeteria/border.bin",
       "blockdata_filepath": "data/layouts/CeladonUniversity_Cafeteria/map.bin",
       "layout_version": "frlg"
@@ -10357,7 +10357,7 @@
       "border_width": 2,
       "border_height": 2,
       "primary_tileset": "gTileset_BuildingFrlg",
-      "secondary_tileset": "gTileset_UniversityInterior",
+      "secondary_tileset": "gTileset_UniversityClassroom",
       "border_filepath": "data/layouts/CeladonUniversity_FacultyOffice/border.bin",
       "blockdata_filepath": "data/layouts/CeladonUniversity_FacultyOffice/map.bin",
       "layout_version": "frlg"
@@ -10370,7 +10370,7 @@
       "border_width": 2,
       "border_height": 2,
       "primary_tileset": "gTileset_BuildingFrlg",
-      "secondary_tileset": "gTileset_UniversityInterior",
+      "secondary_tileset": "gTileset_UniversityClassroom",
       "border_filepath": "data/layouts/CeladonUniversity_Literature/border.bin",
       "blockdata_filepath": "data/layouts/CeladonUniversity_Literature/map.bin",
       "layout_version": "frlg"
@@ -10383,7 +10383,7 @@
       "border_width": 2,
       "border_height": 2,
       "primary_tileset": "gTileset_BuildingFrlg",
-      "secondary_tileset": "gTileset_UniversityInterior",
+      "secondary_tileset": "gTileset_UniversityClassroom",
       "border_filepath": "data/layouts/CeladonUniversity_Library/border.bin",
       "blockdata_filepath": "data/layouts/CeladonUniversity_Library/map.bin",
       "layout_version": "frlg"
@@ -10474,7 +10474,7 @@
       "border_width": 2,
       "border_height": 2,
       "primary_tileset": "gTileset_BuildingFrlg",
-      "secondary_tileset": "gTileset_UniversityInterior",
+      "secondary_tileset": "gTileset_UniversityDorm",
       "border_filepath": "data/layouts/CeladonUniversity_DormLobby/border.bin",
       "blockdata_filepath": "data/layouts/CeladonUniversity_DormLobby/map.bin",
       "layout_version": "frlg"
@@ -10487,7 +10487,7 @@
       "border_width": 2,
       "border_height": 2,
       "primary_tileset": "gTileset_BuildingFrlg",
-      "secondary_tileset": "gTileset_UniversityInterior",
+      "secondary_tileset": "gTileset_UniversityDorm",
       "border_filepath": "data/layouts/CeladonUniversity_Dorm2F/border.bin",
       "blockdata_filepath": "data/layouts/CeladonUniversity_Dorm2F/map.bin",
       "layout_version": "frlg"
@@ -10500,7 +10500,7 @@
       "border_width": 2,
       "border_height": 2,
       "primary_tileset": "gTileset_BuildingFrlg",
-      "secondary_tileset": "gTileset_UniversityInterior",
+      "secondary_tileset": "gTileset_UniversityDorm",
       "border_filepath": "data/layouts/CeladonUniversity_Dorm3F/border.bin",
       "blockdata_filepath": "data/layouts/CeladonUniversity_Dorm3F/map.bin",
       "layout_version": "frlg"
@@ -10513,7 +10513,7 @@
       "border_width": 2,
       "border_height": 2,
       "primary_tileset": "gTileset_BuildingFrlg",
-      "secondary_tileset": "gTileset_UniversityInterior",
+      "secondary_tileset": "gTileset_UniversityLab",
       "border_filepath": "data/layouts/CeladonUniversity_StudyHall/border.bin",
       "blockdata_filepath": "data/layouts/CeladonUniversity_StudyHall/map.bin",
       "layout_version": "frlg"
@@ -10526,7 +10526,7 @@
       "border_width": 2,
       "border_height": 2,
       "primary_tileset": "gTileset_BuildingFrlg",
-      "secondary_tileset": "gTileset_UniversityInterior",
+      "secondary_tileset": "gTileset_UniversityLab",
       "border_filepath": "data/layouts/CeladonUniversity_HomeEconomics/border.bin",
       "blockdata_filepath": "data/layouts/CeladonUniversity_HomeEconomics/map.bin",
       "layout_version": "frlg"

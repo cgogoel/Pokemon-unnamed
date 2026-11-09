@@ -30,3 +30,7 @@ night?"); yes fades out, "{PLAYER} scrolled for hours…", and the map reloads w
 | `DOOM_SCROLL_STORY_TIME` | The story holds the time (a club night, the Grass trip) | "No time for scrolling now." |
 | `DOOM_SCROLL_TOO_EARLY` | Act 1, or Act 2 before `ACT2_FINAL_PROJECT` | "There's coursework to do." |
 | `DOOM_SCROLL_USABLE` | From the final project on, and in Act 3 | Wait until night / day |
+
+## Places that change at night
+
+- Celadon University: night music, locked academic buildings, a different crowd ([celadon_university.md](celadon_university.md), "Day and night").

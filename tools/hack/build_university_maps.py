@@ -46,12 +46,15 @@ OBJECTS = {
     'CeladonUniversity': {
         'CeladonUniversity_EventScript_Lass0': (34, 40), 'CeladonUniversity_EventScript_Youngster1': (37, 52),
         'LOCALID_CAMPUS_RUNNER': (12, 8), 'LOCALID_CAMPUS_STADIUM_STUDENT': (10, 12),
-        'CeladonUniversity_EventScript_Scientist4': (60, 22), 'CeladonUniversity_EventScript_Man5': (5, 30),
+        'CeladonUniversity_EventScript_Scientist4': (60, 22), 'CeladonUniversity_EventScript_Man5': (54, 18),
         'CeladonUniversity_EventScript_Ponyta6': (51, 12), 'CeladonUniversity_EventScript_Ponyta7': (55, 14),
         'CeladonUniversity_EventScript_SwimmerFWater8': (11, 46), 'CeladonUniversity_EventScript_Psyduck9': (12, 49),
         'CeladonUniversity_EventScript_Beauty10': (44, 18), 'CeladonUniversity_EventScript_Gentleman11': (30, 18),
         'CeladonUniversity_EventScript_Boy12': (44, 46), 'CeladonUniversity_EventScript_Woman213': (23, 51),
         'CeladonUniversity_EventScript_BaldingMan14': (39, 44),
+        # By night (FLAG_TEMP_5): a guard in front of the Main Hall, a student on the way to the Study Hall
+        'CeladonUniversity_EventScript_NightGuard': (40, 37),
+        'CeladonUniversity_EventScript_NightStudent': (59, 59),
         # The club, on the stadium's infield
         'LOCALID_CAMPUS_NIGHT_KAI': (15, 10), 'LOCALID_CAMPUS_NIGHT_MINA': (13, 11),
         'LOCALID_CAMPUS_NIGHT_ROWAN': (17, 11), 'LOCALID_CAMPUS_DALE': (15, 9),
@@ -107,16 +110,18 @@ OBJECTS = {
         'LOCALID_LOBBY_MINA': ((4, 3), 'MOVEMENT_TYPE_FACE_LEFT'),
     },
     'CeladonUniversity_Dorm2F': {
-        'CeladonUniversity_Dorm2F_EventScript_CooltrainerM0': (12, 3),
+        # The corridor's students stand on its back row (row 2), so its front row (3) is always clear to the
+        # bedrooms' doorways (3, 10, 16); by night they're in their rooms (FLAG_TEMP_8)
+        'CeladonUniversity_Dorm2F_EventScript_CooltrainerM0': ((6, 2), 'MOVEMENT_TYPE_FACE_DOWN'),
         # The player's room (the third): the LAPRAS doll on the rug
         'CeladonUniversity_Dorm2F_EventScript_LaprasDoll': (16, 9),
-        'CeladonUniversity_Dorm2F_EventScript_Lass1': (10, 3),
+        'CeladonUniversity_Dorm2F_EventScript_Lass1': ((13, 2), 'MOVEMENT_TYPE_FACE_DOWN'),
         'LOCALID_DORM_KAI': (3, 7), 'LOCALID_DORM_MINA': (10, 7),
     },
     'CeladonUniversity_Dorm3F': {
         'CeladonUniversity_Dorm3F_EventScript_Rocker0': (3, 7),
         'CeladonUniversity_Dorm3F_EventScript_PokeManiac1': (10, 7),
-        'CeladonUniversity_Dorm3F_EventScript_FatMan2': (10, 3),
+        'CeladonUniversity_Dorm3F_EventScript_FatMan2': ((6, 2), 'MOVEMENT_TYPE_LOOK_AROUND'),
         'LOCALID_DORM_ROWAN': (16, 7),
     },
     'CeladonUniversity_StudyHall': {
@@ -124,6 +129,10 @@ OBJECTS = {
         'CeladonUniversity_StudyHall_EventScript_Lass': (3, 5),
         'CeladonUniversity_StudyHall_EventScript_CooltrainerF': (11, 5),
         'CeladonUniversity_StudyHall_EventScript_FatMan': (12, 3),
+        # By night (FLAG_TEMP_1)
+        'CeladonUniversity_StudyHall_EventScript_NightOwl': (5, 7),
+        'CeladonUniversity_StudyHall_EventScript_AllNighter': (9, 5),
+        'CeladonUniversity_StudyHall_EventScript_Asleep': (1, 5),
     },
     'CeladonUniversity_HomeEconomics': {
         'Act2_EventScript_ProfFern': (10, 2),
@@ -176,7 +185,8 @@ OBJECTS = {
 
 # Signs: script -> cells (every bg event of that script is replaced)
 SIGNS = {
-    'CeladonUniversity': {'CeladonUniversity_EventScript_Sign%d' % i: [xy] for i, xy in enumerate(D.CAMPUS_SIGNS)},
+    # The freestanding signposts; the buildings' plaques are added from the stamps (PLAQUE_SIGNS)
+    'CeladonUniversity': {'CeladonUniversity_EventScript_Sign%d' % i: [xy] for i, xy in D.CAMPUS_SIGNS.items()},
     'CeladonUniversity_MainHall': {'CeladonUniversity_MainHall_EventScript_Sign0': [(3, 2), (15, 2)]},
     'CeladonUniversity_MainHall2F': {
         'CeladonUniversity_MainHall2F_EventScript_Sign0': [(3, 6), (4, 6)],
@@ -216,6 +226,20 @@ SIGNS = {
         'CeladonUniversity_ScienceResearchRoom_EventScript_Sign0': [(4, 1), (8, 1)],
         'CeladonUniversity_ScienceResearchRoom_EventScript_TmMachine': [(11, 1)]},
 }
+
+# The buildings' name plaques (by their doors): sign number (CeladonUniversity's Sign<n>) -> (stamp index in D.CAMPUS,
+# door index)
+PLAQUE_SIGNS = {1: (7, 0), 2: (6, 0), 3: (8, 0), 4: (9, 0), 5: (5, 0), 6: (1, 0), 7: (1, 1), 8: (4, 0), 9: (12, 0),
+                10: (15, 0), 11: (2, 0), 15: (16, 0)}
+# The campus students who are out only by day (in their rooms or the Study Hall at night)
+DAY_ONLY = ['CeladonUniversity_EventScript_Lass0', 'CeladonUniversity_EventScript_Youngster1',
+            'CeladonUniversity_EventScript_CooltrainerM2', 'CeladonUniversity_EventScript_CooltrainerF3',
+            'CeladonUniversity_EventScript_Scientist4', 'CeladonUniversity_EventScript_SwimmerFWater8',
+            'CeladonUniversity_EventScript_Beauty10', 'CeladonUniversity_EventScript_Gentleman11',
+            'CeladonUniversity_EventScript_Boy12', 'CeladonUniversity_EventScript_Woman213',
+            'CeladonUniversity_EventScript_BaldingMan14']
+# The campus by night: a calm track (FRLG's Six and Seven Island theme)
+CAMPUS_NIGHT_MUSIC = 'MUS_RG_SEVII_67'
 
 # Triggers: map -> list of (cells, var, value, script)
 STADIUM_GATE = [(x, 15) for x in range(5, 25)]
@@ -295,7 +319,11 @@ def main():
         json.dump(layouts_doc, f, indent=2, ensure_ascii=False)
         f.write('\n')
 
-    # Events
+    # Events (the plaques' signs first)
+    for n, (i, k) in PLAQUE_SIGNS.items():
+        name, x, y = D.CAMPUS[i]
+        SIGNS['CeladonUniversity']['CeladonUniversity_EventScript_Sign%d' % n] = [
+            (x + c, y + r) for (c, r, door) in ext[name]['plaques'] if door == k]
     update_events('CeladonUniversity', campus_warps, CAMPUS_SOLID)
     for room in rooms:
         update_events(map_folder(room), room_warps[room])
@@ -309,6 +337,11 @@ def update_events(folder, warps, _=None):
     path = os.path.join(ROOT, 'data/maps', folder, 'map.json')
     m = json.load(open(path))
     m['warp_events'] = warps
+    if folder == 'CeladonUniversity':
+        m['night_music'] = CAMPUS_NIGHT_MUSIC
+        for o in m['object_events']:
+            if o.get('script') in DAY_ONLY:
+                o['flag'] = 'FLAG_TEMP_4'
     table = OBJECTS.get(folder, {})
     for o in m.get('object_events') or []:
         key = o.get('local_id') if o.get('local_id') in table else o.get('script')

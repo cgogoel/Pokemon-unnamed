@@ -26,7 +26,25 @@ CeladonUniversity_EventScript_Scientist4::
 	end
 
 CeladonUniversity_EventScript_Man5::
-	msgbox CeladonUniversity_Text_Man5, MSGBOX_NPC
+	lock
+	faceplayer
+	specialvar VAR_RESULT, GameTime_IsNight
+	goto_if_eq VAR_RESULT, TRUE, CeladonUniversity_EventScript_Man5Night
+	msgbox CeladonUniversity_Text_Man5
+	release
+	end
+
+CeladonUniversity_EventScript_Man5Night:
+	msgbox CeladonUniversity_Text_Man5Night
+	release
+	end
+
+CeladonUniversity_EventScript_NightGuard::
+	msgbox CeladonUniversity_Text_NightGuard, MSGBOX_NPC
+	end
+
+CeladonUniversity_EventScript_NightStudent::
+	msgbox CeladonUniversity_Text_NightStudent, MSGBOX_NPC
 	end
 
 CeladonUniversity_EventScript_Ponyta6::
@@ -173,6 +191,22 @@ CeladonUniversity_Text_Man5::
 	.string "We study how POKéMON grow\n"
 	.string "when they're raised with care.$"
 
+CeladonUniversity_Text_Man5Night::
+	.string "Shh. The PONYTA are asleep.\p"
+	.string "Their manes burn low at night,\n"
+	.string "like campfires.\p"
+	.string "I check on them before I go home.$"
+
+CeladonUniversity_Text_NightGuard::
+	.string "Classes are over for the day.\n"
+	.string "The halls are locked till morning.\p"
+	.string "The dorms, the STUDY HALL and the\n"
+	.string "hospital stay open all night.$"
+
+CeladonUniversity_Text_NightStudent::
+	.string "Exams tomorrow. The STUDY HALL\n"
+	.string "is the only place still awake.$"
+
 CeladonUniversity_Text_Ponyta6::
 	.string "PONYTA: Neigh!$"
 
@@ -224,7 +258,8 @@ CeladonUniversity_Text_Sign2::
 	.string "LECTURE HALL A$"
 
 CeladonUniversity_Text_Sign3::
-	.string "AUDIOVISUAL CLASSROOM$"
+	.string "LECTURE HALL B\n"
+	.string "Audiovisual classroom$"
 
 CeladonUniversity_Text_Sign4::
 	.string "CAFETERIA\n"
@@ -254,8 +289,8 @@ CeladonUniversity_Text_Sign10::
 	.string "Residents only past the lobby.$"
 
 CeladonUniversity_Text_Sign11::
-	.string "DEPARTMENT OF POKéMON\n"
-	.string "HOME ECONOMICS$"
+	.string "GREENHOUSE\n"
+	.string "POKéMON Home Economics$"
 
 CeladonUniversity_Text_Sign12::
 	.string "SPORTS COMPLEX\n"

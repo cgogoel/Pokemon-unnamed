@@ -48,5 +48,6 @@ void Act2_ClearResearchFlag(void);
 void Act2_GivePlaytestParty(void);
 void Act2_StartPlaytest(void);
 void CB2_Act2PlaytestNewGame(void);
+bool32 University_IsDoorLockedAtNight(const struct WarpEvent *warp);
 
 #endif // GUARD_ACT2_STORY_H

@@ -40,6 +40,23 @@ door at the same place (column + 2).
 | Stadium (the Sports Complex) | outdoor | The club meets on the infield; triggers across its entrance (row 15) |
 | Ranch, pool, fountain, reflecting pools | outdoor | |
 
+## Day and night
+
+Time of day is the game's (docs/hack/time_of_day.md); club nights are night.
+
+- **Music**: the campus plays `MUS_RG_SEVII_67` at night (its map.json `night_music`).
+- **Locked buildings**: at night the academic buildings (Main Hall, Lecture Halls A and B, Faculty Office,
+  Cafeteria, Literature, Library, the Home Economics greenhouse) are locked: their doors say "It's locked. Classes are
+  over for the day." (`University_IsDoorLockedAtNight` in `src/act2_story.c`, checked in `TryDoorWarp`). Open all
+  night: the dorms, the Study Hall, the hospital, and the Science Research Institute (research doesn't stop at night,
+  and the TM MACHINE on 3F stays reachable in the final project).
+- **People**: the campus's students (`FLAG_TEMP_4`) are out only by day; by night a guard stands in front of the Main
+  Hall and a student heads for the Study Hall (`FLAG_TEMP_5`). The dorm corridors' students are in their rooms at
+  night (`FLAG_TEMP_8`); three more students cram in the Study Hall (its `FLAG_TEMP_1`). The ranch keeper by the
+  ranch's gate has a day line and a night one.
+- **Names**: the buildings have plaques beside their doors (bg events on the wall); freestanding signposts only for
+  the welcome by the gate, the stadium, the ranch and the pool, on the lawn beside the paths.
+
 ## Story spots
 
 - Act 2's start: the friends wait in the dorm lobby at the foot of the stairs ((3,3), (4,3), (3,4)), then head out the

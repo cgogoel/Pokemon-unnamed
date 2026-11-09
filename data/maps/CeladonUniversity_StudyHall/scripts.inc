@@ -1,7 +1,27 @@
 @ Celadon University: the Study Hall, in the small building by the dorms (Act 2, docs/hack/celadon_university.md).
 
 CeladonUniversity_StudyHall_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, CeladonUniversity_StudyHall_OnTransition
 	.byte 0
+
+@ By night, more students cram here (FLAG_TEMP_1 hides them by day)
+CeladonUniversity_StudyHall_OnTransition::
+	setflag FLAG_TEMP_1
+	specialvar VAR_RESULT, GameTime_IsNight
+	call_if_eq VAR_RESULT, TRUE, Act2_EventScript_ShowObjectsTemp1
+	end
+
+CeladonUniversity_StudyHall_EventScript_NightOwl::
+	msgbox CeladonUniversity_StudyHall_Text_NightOwl, MSGBOX_NPC
+	end
+
+CeladonUniversity_StudyHall_EventScript_AllNighter::
+	msgbox CeladonUniversity_StudyHall_Text_AllNighter, MSGBOX_NPC
+	end
+
+CeladonUniversity_StudyHall_EventScript_Asleep::
+	msgbox CeladonUniversity_StudyHall_Text_Asleep, MSGBOX_NPC
+	end
 
 CeladonUniversity_StudyHall_EventScript_Youngster::
 	msgbox CeladonUniversity_StudyHall_Text_Youngster, MSGBOX_NPC
@@ -56,3 +76,15 @@ CeladonUniversity_StudyHall_Text_NoticeBoard::
 CeladonUniversity_StudyHall_Text_Shelves::
 	.string "Old exam papers, worn soft from\n"
 	.string "years of last-minute studying.$"
+
+CeladonUniversity_StudyHall_Text_NightOwl::
+	.string "I study better at night.\n"
+	.string "Fewer people, more coffee.$"
+
+CeladonUniversity_StudyHall_Text_AllNighter::
+	.string "If I sleep now, I'll forget\n"
+	.string "every type matchup I just learned.$"
+
+CeladonUniversity_StudyHall_Text_Asleep::
+	.string "Zzz… Grass beats Water…\n"
+	.string "Zzz… Water beats… lunch…$"

@@ -901,6 +901,61 @@ def exterior_stamps():
     }
 
 
+def plaque(P, x, y, glass=False):
+    """A name plaque on a building's wall, in the bottom row beside a door (symmetric): a brass plate on stone, a
+    steel one on the glass buildings' white base."""
+    if glass:
+        frame, plate, line = GL['f3'], GL['f1'], GL['f2']
+    else:
+        frame, plate, line = AU2, AU, AU2
+    P.r(x + 3, y + 2, 10, 8, frame)
+    P.r(x + 4, y + 3, 8, 6, plate)
+    P.hl(x + 5, x + 10, y + 5, line)
+    P.hl(x + 6, x + 9, y + 7, line)
+    P.hl(x + 3, x + 12, y + 10, S3 if not glass else GL['f2'])
+
+
+def plain_wall_cell():
+    """The pixels of a plain stone wall cell in a facade's bottom row (no window), to find where plaques can go."""
+    P = Pic(3 * T, 2 * T)
+    wall(P, 0, 0, P.w, P.h)
+    plinth(P, 0, P.h - 4, P.w)
+    return P.im.crop((T, T, 2 * T, 2 * T)).tobytes()
+
+
+# Plaques: stamp -> the sides of each door that get one (the Literature & Library building: the outer sides only).
+# The glass buildings' plaques go on their white base, beside the door.
+PLAQUE_SIDES = {'HUMANITIES': [(-1,), (1,)]}
+GLASS_PLAQUES = {'GREENHOUSE': [(7, 8), (9, 8)], 'SCIENCE': [(5, 12), (7, 12)]}
+
+
+def add_plaques(stamps):
+    """Draws the plaques onto the door stamps; returns {stamp: [(col, row, door index)]}."""
+    plain = plain_wall_cell()
+    out = {}
+    for name, (pic, doors, *_rest) in stamps.items():
+        if not doors:
+            continue
+        cells = []
+        if name in GLASS_PLAQUES:
+            for (c, r) in GLASS_PLAQUES[name]:
+                plaque(pic, c * T, r * T, glass=True)
+                cells.append((c, r, 0))
+        else:
+            for k, (dc, dr) in enumerate(doors):
+                for side in (PLAQUE_SIDES.get(name, [(-1, 1)] * len(doors))[k]):
+                    c = dc + side
+                    while 0 < c < pic.w // T - 1:
+                        if pic.im.crop((c * T, dr * T, c * T + T, dr * T + T)).tobytes() == plain:
+                            break
+                        c += side
+                    assert 0 < c < pic.w // T - 1, 'no wall for a plaque on %s' % name
+                    plaque(pic, c * T, dr * T)
+                    cells.append((c, dr, k))
+        out[name] = cells
+    return out
+
+
 # --- Tileset writing -------------------------------------------------------------------------------------------------
 def behaviors():
     """MB_* name -> value, from the enum (counting entries as the compiler does)."""
@@ -1349,9 +1404,10 @@ CAMPUS_PATHS = [
 ]
 
 
-# Signposts (primary metatile 0x003): welcome, then one per building (texts: CeladonUniversity's Sign0-14)
-CAMPUS_SIGNS = [(34, 58), (36, 36), (23, 36), (49, 36), (59, 36), (13, 36), (7, 26), (18, 26), (62, 21), (18, 50),
-                (54, 48), (35, 17), (12, 16), (50, 17), (13, 47), (54, 58)]
+# Freestanding signposts (primary metatile 0x003), by their text (CeladonUniversity's Sign<n>), only where there's
+# no building to put a plaque on: the welcome by the gate, the stadium, the ranch, the pool. They stand on the lawn,
+# beside the paths. The buildings' names are plaques by their doors (add_plaques; build_university_maps.py).
+CAMPUS_SIGNS = {0: (34, 58), 12: (26, 15), 13: (47, 16), 14: (13, 47)}
 # Ground metatiles that block: forest, tree trunks, signs, fences
 SOLID_GROUND = {0x01C, 0x01D, 0x014, 0x015, 0x01E, 0x01F, 0x026, 0x027, 0x003, 0x0E7, 0x0F4, 0x0F5, 0x0EC, 0x0ED}
 
@@ -1363,8 +1419,9 @@ def campus_ground(st, reserve=()):
     g.forest(0, 0, CAMPUS_W, 4)
     g.forest(0, 0, 4, CAMPUS_H)
     g.forest(CAMPUS_W - 4, 0, CAMPUS_W, CAMPUS_H)
-    g.forest(0, CAMPUS_H - 4, 35, CAMPUS_H)     # From an even row, so the trees are whole
-    g.forest(41, CAMPUS_H - 4, CAMPUS_W, CAMPUS_H)
+    # From an even row and to an even column on each side of the gate, so every tree is whole (a tree is 2x2)
+    g.forest(0, CAMPUS_H - 4, 34, CAMPUS_H)
+    g.forest(42, CAMPUS_H - 4, CAMPUS_W, CAMPUS_H)
     for (x0, y0, x1, y1) in CAMPUS_PATHS:
         g.path(x0, y0, x1, y1)
     # Fill the lawn notches the paths leave (not under buildings, the ranch, the stadium or the signs), then pave
@@ -1372,7 +1429,7 @@ def campus_ground(st, reserve=()):
         g.block(x, y, st[name]['w'], st[name]['h'])
     g.block(48, 5, 10, 12)
     g.block(4, 4, 22, 12)
-    for (x, y) in CAMPUS_SIGNS:
+    for (x, y) in CAMPUS_SIGNS.values():
         g.used.add((x, y))
     g.fill_notches()
     g.lay({tuple(k.split(',')): v for k, v in st.get('PAVING', {}).items()})
@@ -1385,7 +1442,7 @@ def campus_ground(st, reserve=()):
                     stamp_solid[(x + c, y + r)] = s
     g.fence(48, 5, 58, 17, gap=(52, 54))
     g.block(4, 4, 22, 12)
-    for (x, y) in CAMPUS_SIGNS:
+    for (x, y) in CAMPUS_SIGNS.values():
         # On the paving, the sign stands on that cell's paving, edges and all (the primary's sign has grass under it)
         if (x, y) in g.paved:
             key = ','.join(g.pave_states[(x, y)])
@@ -2413,7 +2470,11 @@ def main():
     grass = primary_entries('gTileset_General_Frlg', 0x008)
     ext = Tileset('gTileset_CeladonUniversity', os.path.join(ROOT, 'data/tilesets/secondary/celadon_university'),
                   EXTERIOR_PALS, 'gTileset_General_Frlg', grass)
-    ext_stamps = cut_exterior(ext, exterior_stamps(), MB)
+    stamps = exterior_stamps()
+    plaques = add_plaques(stamps)
+    ext_stamps = cut_exterior(ext, stamps, MB)
+    for name, cells in plaques.items():
+        ext_stamps[name]['plaques'] = cells
     # The paving's junctions, 1-wide stretches and ends: the mixes of quarters the campus needs
     g, _ = campus_ground(ext_stamps)
     pave = paving_metatiles(ext, g.pave_needed)

@@ -11,7 +11,8 @@ Mockups, rendered from the written tilesets by `tools/hack/draw_university_tiles
 - `mockup_main_hall.png`, `mockup_lecture_hall.png`, `mockup_dorm_lobby.png`: each building beside its room at the
   same scale, the room's top level with the building's footprint, the doors outlined in red (scale 3).
 - `mockup_room_kit.png`: the furniture kit for the other rooms (bedroom, kitchen, dining, greenhouse garden, lab, ward).
-- `tiles_exterior.png`, `tiles_interior.png`: every metatile of the two tilesets.
+- `tiles_exterior.png`: every metatile of the campus tileset. The rooms: `interior_art.md` (their look, mockups and
+  tilesets).
 
 ## One material kit, outside and inside
 
@@ -53,27 +54,17 @@ the tile deduplication gets for free. One window, one door, one dormer, one roof
 
 ## Interiors
 
-Rooms are bigger than their buildings in proportion (`plan.md`). Back walls are 3 rows in the Main Hall and 2
-elsewhere: slate cornice, white plaster with a gold picture rail, then the wainscot (slate or wood) and a dark
-skirting. Side walls are dark slate wall tops; the door mat is in the door's column on the row above the front wall.
-
-- **Main Hall** (19x13): marble, a blue runner from the door to the reception counter, the emblem in the floor, the
-  clock under the tower, banners, columns, benches, stairs up to the gallery on both sides.
-- **Lecture hall** (15x11): parquet, wood wainscot, the chalkboard (Fire-Water-Grass triangle, a Magikarp sketch),
-  the lectern, two rows of desks either side of the aisle, bookshelves, plants.
-- **Dorm lobby** (21x12): planks, wood wainscot, stairs up, mailboxes, notice board, bookshelf, vending machine, the
-  warden's counter, a lounge with a rug, sofa and coffee table.
+Redone in FireRed's own interior look, with the campus's windows: see `interior_art.md`. (The first version's rooms,
+drawn in the campus palettes below, are gone.)
 
 ## Palettes (GBA 5-bit colors; secondary palettes from 7)
 
 | Palette | In | Colors (after transparent) |
 |---|---|---|
-| `stone` | both tilesets (slot 7) | outline `#283048`, white `#F8F8F0`, stone `#E0E0D0` `#C0C0B0` `#909080`, slate `#98A8C8` `#7080A8` `#485880`, glass `#C8E8F8` `#78B0E0` `#4070A8`, gold `#F8D058` `#C08828`, wood `#A86838` `#684028` |
-| `glass` | both (8 outside, 10 inside) | outline, white, stone, steel x3, glass x4, leaves x3, pink, red |
+| `stone` | campus (slot 7) | outline `#283048`, white `#F8F8F0`, stone `#E0E0D0` `#C0C0B0` `#909080`, slate `#98A8C8` `#7080A8` `#485880`, glass `#C8E8F8` `#78B0E0` `#4070A8`, gold `#F8D058` `#C08828`, wood `#A86838` `#684028` |
+| `glass` | campus (8) | outline, white, stone, steel x3, glass x4, leaves x3, pink, red |
 | `water` | campus (9) | outline, white, stone x3, water x3, Gyarados blue x2, cream, red, Magikarp orange, gold |
-| `accent` | both (10 outside, 11 inside) | outline, white, stone x3, track red x2, seat blue x2, reds x2, pink, green, steel, yellow |
-| `floor` | rooms (8) | outline, marble x3, wood x3, carpet blue x3, gold x2, orange, red |
-| `furn` | rooms (9) | outline, white, wood x3, board green x2, red, blue, yellow, leaves x3, metal x2 |
+| `accent` | campus (10) | outline, white, stone x3, track red x2, seat blue x2, reds x2, pink, green, steel, yellow |
 
 ## The budget
 
@@ -82,6 +73,6 @@ FRLG secondary tilesets (`include/fieldmap.h`): **384 tiles, 384 metatiles, pale
 | Tileset | Tiles | Metatiles | Palettes |
 |---|---|---|---|
 | `gTileset_CeladonUniversity` (every campus building and decoration) | 357 / 384 | 347 / 384 | 4 / 6 |
-| `gTileset_UniversityInterior` (three rooms + the kit) | 310 / 384 | 188 / 384 | 5 / 6 |
+| The rooms' three tilesets | see `interior_art.md` | | |
 
 The script stops if a tileset goes over, and reports any tile that doesn't fit one palette (none now).

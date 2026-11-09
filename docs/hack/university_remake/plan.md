@@ -47,7 +47,7 @@ Walls: 3 rows at the back for the three-storey Main Hall, 2 elsewhere; one colum
 | Output | What |
 |---|---|
 | `data/tilesets/secondary/celadon_university/` | `gTileset_CeladonUniversity` (over `gTileset_General_Frlg`): **357/384 tiles, 347/384 metatiles**, palettes 7-10 (stone, glass, water, accent) |
-| `data/tilesets/secondary/university_interior/` | `gTileset_UniversityInterior` (over `gTileset_BuildingFrlg`): **310/384 tiles, 188/384 metatiles**, palettes 7-11 (stone, floor, furn, glass, accent) |
+| `data/tilesets/secondary/university_{classroom,dorm,lab}/` | The rooms, since redone in FireRed's interior look: `interior_art.md` |
 | `src/data/tilesets/{headers,graphics,metatiles}.h` | Both registered (not used by any layout yet). Both ROMs build. |
 | `tools/hack/university_stamps.json` | Every building, room and the furniture kit as a grid of metatile ids (null = keep the ground), with door/warp cells: what the layout scripts will stamp |
 | `docs/hack/university_remake/mockup_*.png` | Rendered from the written tilesets (not from the drawings), so they show what the game will |

@@ -11,10 +11,13 @@ University lore art: white stone buildings with slate roofs in a forest (the rem
 
 ## How it's built
 
-- `tools/hack/draw_university_tiles.py` draws the art and writes the tilesets: `gTileset_CeladonUniversity` (the
-  campus), `gTileset_UniversityInterior` (the academic buildings and dorms), `gTileset_UniversityLab` (the Science
-  Institute and the hospital), and `tools/hack/university_stamps.json` (every building and room as metatile ids with
-  collision). Needs Pillow.
+- `tools/hack/draw_university_tiles.py` draws the campus and writes `gTileset_CeladonUniversity`, then has
+  `tools/hack/draw_university_interiors.py` compose the rooms in FireRed's interior look
+  ([university_remake/interior_art.md](university_remake/interior_art.md)) and write their tilesets, all over
+  `gTileset_BuildingFrlg`: `gTileset_UniversityClassroom` (Main Hall, lecture halls, Faculty Office, Literature,
+  Library), `gTileset_UniversityDorm` (dorm lobby and floors, cafeteria), `gTileset_UniversityLab` (Science Institute,
+  hospital, Study Hall, greenhouse); and `tools/hack/university_stamps.json` (every building and room as metatile ids
+  with collision). Needs Pillow.
 - `tools/hack/build_university_maps.py` lays out the campus and every room from the stamps and places every warp,
   person, sign and trigger (its tables are the source of truth). Re-running it overwrites the layouts, so after
   editing them in Porymap, don't; move events in Porymap or in its tables.

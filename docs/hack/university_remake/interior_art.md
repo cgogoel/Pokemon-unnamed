@@ -1,18 +1,20 @@
-# Celadon University remake: interior art, v2 (draft)
+# Celadon University remake: interior art (FireRed's look)
 
-Feedback on v1: the interiors "look more like gen 2 tiles"; the palette should match the rest of the game in tone and
-the furniture (desks etc.) is too low detail. This is the design pass. Nothing in the game changes yet: the draft tool
-`tools/hack/draw_university_interiors_v2.py` composes three rooms and writes mockups, no tileset.
+Feedback on the first interiors: they "look more like gen 2 tiles"; the palette should match the rest of the game in
+tone and the furniture (desks etc.) is too low detail. The rooms are now redone in FireRed's own interior look (you
+approved the three-room mockups and option (a), a few tilesets by look), with the campus's own windows.
 
-| Mockup | What |
+`tools/hack/draw_university_interiors.py` composes every room (FireRed metatiles where one fits, new art by FireRed's
+rules where not) and writes the three tilesets; `draw_university_tiles.py` runs it, and `build_university_maps.py`
+lays the rooms out from `university_stamps.json` as before.
+
+| Image | What |
 |---|---|
+| `interiors.png` | Every room, as the game draws it (rendered from the written tilesets), with its people |
+| `interiors_before_after.png` | Every room: the first version (left) and now (right) |
+| `interior_<room>.png` | One room each (scale 2) |
 | `interior_v2_reference.png` | The FireRed rooms the look comes from: Viridian School, Cinnabar Lab lounge, the Copycat's bedroom, a house |
-| `interior_v2_lecture_hall_a.png`, `..._compare.png` | Lecture Hall A, 15x11: the School's classroom, grown up |
-| `interior_v2_dorm_2f.png`, `..._compare.png` | Dorm 2F, 21x12: the corridor and three bedrooms in FireRed's house set |
-| `interior_v2_study_hall.png`, `..._compare.png` | Study Hall, 15x10: the Cinnabar Lab lounge's look |
-
-The compare images put the current room (rendered from the layout, as the game draws it) next to the redo, same
-people in both. All three rooms are at their current size, with every solid and walkable cell where it is now.
+| `tiles_classroom.png`, `tiles_dorm.png`, `tiles_lab.png` | Every metatile of the three tilesets |
 
 ## What's off in v1
 
@@ -77,6 +79,29 @@ it need no palette slot. New art uses only these colors.
 9. Shading ramps of 3-4 colors per material, pale and slightly desaturated; nothing at full saturation except tiny
    accents (book spines, the mat).
 
+## Windows: the campus's own
+
+The rooms' windows are the buildings' windows seen from inside: the campus art (`window()`, `sqwindow()` and
+`glass_wall()` in `draw_university_tiles.py`), only recolored to the interiors' colors (the outline `#52526A`, the
+Lab's glass blues `#BDE6FF` `#83BDDE` `#5294C5`, light greys for the sill), on the wall's last two rows. They stand
+in the columns of the building's windows outside (room column = building column + 2, the room size rule), where
+nothing else hangs there:
+
+| Room | Windows (room columns) | Outside (building columns) |
+|---|---|---|
+| Main Hall 1F/2F | arched 5, 7, 11, 13 (the clock at 9 under the tower, notices at 3, 15) | every other column |
+| Lecture Halls A/B | arched 3, 11 (the board or screen between) | every other column |
+| Faculty Office | arched 4, 6, 8 | 2, 4, 6 |
+| Cafeteria | arched 6, 8 (the kitchen along 1-5) | 2, 4, 6 |
+| Literature | arched 4, 10 (notices at 6-8) | 2, 8 (and 5 over the door) |
+| Library | arched 4, 7, 10 (shelves 1-3, 11-13) | 13, 16, 19 of the building |
+| Study Hall | square 3, 5, 9, 11 | every other column |
+| Dorm lobby | square 4, 13 | every third column |
+| Dorm 2F/3F | square 4, 7, 13, 16 (notices at 9-10) | every third column |
+| Hospital 1F | square 4, 6, 10, 12 (the healing machine at 8-9) | 2, 4, 6, 8, 10 |
+| Hospital 2F | square 4, 6, 8, 10, 12 | 2, 4, 6, 8, 10 |
+| Science Institute floors, Home Economics | the glass wall across the back | the glass tower, the greenhouse |
+
 ## What to reuse vs redraw
 
 The university rooms already use `gTileset_BuildingFrlg` as their primary, and its furniture (palettes 0-5) works
@@ -85,84 +110,64 @@ under any secondary, so FireRed's whole house set is free. Other FireRed seconda
 
 | Piece | Source (metatile ids) | Cost |
 |---|---|---|
-| Plank floor, shaded column, house plaster, windows, notices, desks, PC desk, drawers, bookshelf, palms, rug, stairs (up and down), the door's void row | `gTileset_BuildingFrlg`: 0x0A9 / 0x0B1, 0x0A8 / 0x0B0, 0x0B8 / 0x0C0, 0x0D6, 0x289 / 0x291 and 0x28F / 0x290 (GenericBuilding1's desk tiles are primary tiles), 0x0BB, 0x0B6 / 0x0BE, 0x0F5 / 0x0FD, 0x0C3-0x0D5, 0x015 / 0x005-0x00E, 0x0EA / 0x0DA-0x0E3, 0x01A-0x01C | free |
+| Plank and parquet floors and their shaded columns, house plaster, notices, the little desk, drawers, bookshelf, palms, rug, kitchen, stairs (up and down), the door's void row | `gTileset_BuildingFrlg`: 0x0A9 / 0x0B1, 0x001 / 0x009, 0x0A8 / 0x0B0, 0x0D6, 0x030, 0x0BB, 0x0B6 / 0x0BE, 0x08C / 0x094, 0x0C3-0x0D5, 0x031-0x037, 0x076, 0x015 / 0x005-0x00E, 0x0EA / 0x0DA-0x0E3, 0x01A-0x01C | free |
+| The player's PC desk, the bed's blanket and pillow | `gTileset_GenericBuilding1` 0x28F, 0x294, 0x287 | copied |
+| Lab desks with PCs, PCs, the TM machine, consoles, picture | `gTileset_Lab_Frlg` 0x305-0x30F, 0x062 / 0x30B, 0x2A6 / 0x2B6, 0x320-0x32A, 0x324 / 0x325 | copied |
+| Hospital: wall, counter, healing machine | `gTileset_PokemonCenterFrlg` 0x284 / 0x2AC, 0x2B9-0x2BD (one row), 0x2AA-0x2B3 | copied |
 | White tile floor and shaded column | `gTileset_BuildingFrlg` 0x081 / 0x082 | free |
-| Classroom: plaster, windows, skirting, board + tray, bookcase, tables, desk books, stools, palms, mat | `gTileset_School` 0x283, 0x285-0x28F, 0x293-0x297, 0x29B-0x29C / 0x2A3-0x2A4, 0x2AA-0x2AB, 0x299, 0x288, 0x281 / 0x289, 0x2A5-0x2A7 | copied |
+| Classroom: plaster, skirting, board + tray, bookcase, tables, desk books, stools, mat | `gTileset_School` 0x283, 0x28E, 0x296, 0x28B-0x28C / 0x293-0x294, 0x29B-0x29C / 0x2A3-0x2A4, 0x2AA-0x2AB, 0x299, 0x288, 0x2A5-0x2A7 | copied |
 | Lab wall with its rail, wall bookshelves | `gTileset_BuildingFrlg` 0x069 / 0x071 / 0x079, 0x073-0x07C (used by the Lab) | free |
-| Lounge: small windows, notices, rug, straw tables, orange stools, mat | `gTileset_Lab_Frlg` 0x314 / 0x31C, 0x28D / 0x295, 0x2EC-0x2F7, 0x2E0-0x2F2, 0x2CB, 0x290-0x292 | copied |
-| Sofa | `gTileset_Condominiums` 0x2E0-0x2E2 (widened) | copied |
-| Vending machine | `gTileset_DepartmentStore` 0x325 / 0x32D (the roof's) | copied |
+| Lounge: notices, rug, straw tables, orange stools, mat | `gTileset_Lab_Frlg` 0x28D / 0x295, 0x2EC-0x2F7, 0x2E0-0x2F2, 0x2CB, 0x290-0x292 | copied |
+| Sofa | `gTileset_Condominiums` 0x2E0-0x2E2 (widened, moved into the Lab's blues) | copied |
+| Vending machine | `gTileset_DepartmentStore` 0x325 / 0x32D (the roof's, in the Lab's colors) | copied |
 | Widened pieces (a 7-cell board, 5-cell desks, a 1-cell bookcase or window, a 4-cell sofa) | FireRed's piece sliced: its ends kept, its middle columns repeated (`hslice`) | copied |
-| **New art** (no FireRed equivalent) | the board's chalk (Fire-Water-Grass triangle, notes), the lectern, bed head cells (FireRed's blanket 0x294 + pillow 0x287 under a new headboard; blankets recolored per room), the standing mirror with the schedule, the photo of home, the wall-top bands, partitions, the solid edge columns | drawn in the palettes above |
+| **New art** (no FireRed equivalent) | the board's chalk (Fire-Water-Grass triangle, notes), the projection screen, the lectern, counters, benches, pillars, the clock and banners, the floor emblem, display cases, mailboxes, planters, bed head cells (blankets recolored per room; the ward's pink with steel frames), the standing mirror with the schedule, the photo of home, the wall-top bands, partitions, the solid edge columns | drawn in the palettes above |
 
 Rule of thumb for the rest: use a FireRed piece when one exists, even if it needs widening; draw only what's
 specific to the university, and draw it by the rules above.
 
-### Sources for the other rooms (phase 2)
+### The rooms
 
-| Room | FireRed source |
-|---|---|
-| Lecture Hall B (audiovisual) | School + Silph Co.'s projector screen / Condominiums' TV wall |
-| Faculty Office | Silph Co. offices (desks with PCs, phones, plants; `gTileset_SilphCo` uses the Condominiums' gfx) |
-| Cafeteria | Celadon Restaurant (`gTileset_RestaurantHotel`: chairs, round tables, the counter, kitchen) |
-| Literature, Library | Lab and Museum bookcases, Pokémon Mansion shelves, the School's map |
-| Main Hall 1F/2F | Museum (`gTileset_Museum`: columns, display cases, the reception) and the Department Store's marble |
-| Dorm lobby | House set + the Celadon Hotel's counter |
-| Home Economics | Primary kitchen (sink/stove 0x031-0x032, fridge) + our greenhouse glass |
-| Science Institute floors, Hospital | `gTileset_Lab_Frlg` (research benches, machines, PCs) and the Pokémon Center (`gTileset_PokemonCenterFrlg`) |
+| Room | Look | Tileset |
+|---|---|---|
+| Main Hall 1F | Lab plaster (three rows) over white tiles; a blue runner with the school emblem to the reception counter, four pillars, benches, palms, the clock between two banners | Classroom |
+| Main Hall 2F | The same hall; a rug, display cases (moon stones; a model satellite), a bench | Classroom |
+| Lecture Halls A, B | The School: cream plaster, plank floor, long desks with books, stools, the lectern; A's chalkboard, B's projection screen | Classroom |
+| Faculty Office, Literature, Library | Lab plaster over parquet: bookshelves (the Library's also freestanding), counters, straw tables, the little desks, sofas | Classroom |
+| Dorm lobby, 2F, 3F | The houses: grey-green plaster, planks, beds, desks, rugs; mailboxes, the warden's counter, a lounge | Dorm |
+| Cafeteria | Lab plaster over white tiles: the house kitchen, a serving counter, tables with plates | Dorm |
+| Science Institute 1F-4F | The glass wall over white tiles: the Lab's desks, PCs, consoles, the TM machine, rug, sofas | Lab |
+| Hospital 1F, 2F | The Pokemon Center's wall and counter with its healing machine; a ward of six beds | Lab |
+| Study Hall | The Lab lounge | Lab |
+| Home Economics | The greenhouse's glass wall; planters, the tasting table | Lab |
 
 ## GBA budget
 
-Secondary tilesets (FRLG, `include/fieldmap.h`): 384 tiles, 384 metatiles, palettes 7-12 (6 slots). The draft
-tool's budget counts both layers' 8x8 tiles deduplicated with flips, with tiles identical to a
-`gTileset_BuildingFrlg` tile free, and packs the rest into palettes (a primary palette when one holds the tile,
-else 15-color secondary slots, near-identical whites/greys merged):
+Secondary tilesets (FRLG, `include/fieldmap.h`): 384 tiles, 384 metatiles, palettes 7-12 (6 slots). All three are
+over `gTileset_BuildingFrlg` (the pairing the rooms already had, which is what makes FireRed's house furniture, floors
+and the door row free). The writer counts both layers' 8x8 tiles deduplicated with flips, references any tile
+identical to a primary one, gives a tile a primary palette when one holds its colors, and packs the rest into
+secondary palettes (near-identical whites and greys merged); it stops if a tileset goes over.
 
-| Rooms | New tiles | Metatiles | Secondary palettes |
-|---|---|---|---|
-| Lecture Hall A | 58 | 45 | 2 |
-| Dorm 2F | 57 | 55 | 3 |
-| Study Hall | 26 | 53 | 2 |
-| Lecture Hall A + Study Hall | 82 | 90 | 4 |
-| Dorm 2F + 3F | 57 | 55 | 3 |
-| **All three** | **137** | **140** | **6 of 6** |
+| Tileset | Rooms | Tiles | Metatiles | Secondary palettes |
+|---|---|---|---|---|
+| `gTileset_UniversityClassroom` | Main Hall 1F/2F, Lecture Halls A/B, Faculty Office, Literature, Library | 195 / 384 | 184 / 384 | 6 / 6 |
+| `gTileset_UniversityDorm` | Dorm lobby, 2F, 3F, Cafeteria | 117 / 384 | 111 / 384 | 5 / 6 |
+| `gTileset_UniversityLab` | Science Institute 1F-4F, Hospital 1F/2F, Study Hall, Home Economics | 108 / 384 | 117 / 384 | 5 / 6 |
 
-(v1's `gTileset_UniversityInterior` holds 13 rooms in 310 tiles and 5 palettes.)
-
-Findings:
-
-- **Tiles and metatiles aren't the problem; palettes are.** Copying from several FireRed tilesets brings several
-  15-color palettes, and three rooms already fill all six slots.
-- **The pairing stays** `gTileset_BuildingFrlg` (primary) + our secondary: it's what the rooms use now, and it's what
-  makes FireRed's house furniture, floors and the door row free.
-- So split the interiors by look into a few secondaries, each drawing on one or two FireRed sources:
-  - `gTileset_UniversityClassroom` (School + Lab lounge looks: both lecture halls, Study Hall, Literature, Library,
-    Faculty Office): about 4 palettes for the first two rooms; the rest reuse them.
-  - `gTileset_UniversityDorm` (the house set: lobby, 2F, 3F, maybe the Cafeteria): mostly free, 3 palettes.
-  - `gTileset_UniversityLab` (Science floors and Hospital: `gTileset_Lab_Frlg` + Pokémon Center), as now.
-  - The Main Hall (Museum look) and Home Economics (greenhouse) with whichever of these has room, or their own.
-- Alternatives, for you to choose:
-  - **(a) Split secondaries as above** (recommended): authentic pieces plus our own touches, a palette budget per look.
-  - **(b) One secondary, palettes fixed first**: pick 6 palettes (e.g. School 7, Lab 7, Lab 8, Condominiums 9, our
-    accent, a spare) and remap every copied piece's colors into them; one tileset for all academic rooms, at the cost
-    of slight color shifts on copied pieces.
-  - **(c) Use FireRed's secondaries directly** for the plainest rooms (e.g. the Study Hall on `gTileset_Lab_Frlg`):
-    zero new tiles, but nothing custom (no board triangle, no lectern, no partitions) and the rooms look exactly like
-    Cinnabar's.
+Palettes are what fills up (copying from several FireRed tilesets brings several 15-color palettes): the Classroom
+set has none left, so new pieces for its rooms should reuse its colors (`fit()` moves a piece into colors already
+used) or go in the Dorm or Lab set. The first version's `gTileset_UniversityInterior` is gone.
 
 ## Layout compatibility
 
-The redo keeps every cell's collision: walls and the edge columns solid, the door mat walkable with the warp in the
-same cell, furniture in the same cells as v1 (bg events on bookcases, the board, desks, beds still point at them).
-Differences: the last row is FireRed's black void instead of a front wall (solid either way); the Dorm's stairs are
-FireRed's (drawn over rows 0-2, the warp cells (1-2,2) and (18-19,2) unchanged); the door mat is FireRed's 3-cell mat
-(only its middle cell warps, as now).
-
-## Next (phase 2, after you pick)
-
-1. Pick the tileset split (a, b or c) and the source look for each remaining room.
-2. Move the v2 pieces into the real writer: a FireRed-metatile copier (tiles + palettes into our secondary) next to
-   v1's `Tileset`, a palette plan per secondary, and the rooms rebuilt on it in `draw_university_tiles.py` (the
-   campus tileset doesn't change).
-3. Redo the other rooms by the same rules; rewrite `university_stamps.json`; rebuild the layouts with
-   `build_university_maps.py`; build both ROMs; screen-dump each room.
+Every room keeps its size, collision, door mat, stairs and events: `COLLISION` in the tool is the layouts' collision
+and marks from before the redo, and every piece stands on the cells the first version's did (bg events on
+bookcases, boards, desks, beds and the TM machine still point at them). Rebuilt with `build_university_maps.py`, the
+layouts differ from before only in their metatiles: the collision and elevation bits of every cell, every warp,
+person, sign and trigger are unchanged, so the scripted walks and the brief, lab and club scenes are as before. The
+tool also prints any cell where the picture and the collision disagree (furniture on a walkable cell, a solid cell
+with nothing on it); none now. Visible differences: the last row is FireRed's black void instead of a front wall
+(solid either way); the stairs are FireRed's house stairs (drawn over the wall's rows, the warp cells unchanged); the
+door mat is FireRed's 3-cell mat (only its middle cell warps, as before); the Library's wall shelves are 1-3 and 11-13
+(were 1-4, 10-13) to make room for its windows (its signs at 2, 3, 11, 12 are still on shelves).

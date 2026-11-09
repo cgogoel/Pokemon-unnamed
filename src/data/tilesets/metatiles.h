@@ -359,8 +359,11 @@ const u16 gMetatileAttributes_RangerStationGrove[] = INCBIN_U16("data/tilesets/s
 const u16 gMetatiles_CeladonUniversity[] = INCBIN_U16("data/tilesets/secondary/celadon_university/metatiles.bin");
 const u16 gMetatileAttributes_CeladonUniversity[] = INCBIN_U16("data/tilesets/secondary/celadon_university/metatile_attributes.bin");
 
-const u16 gMetatiles_UniversityInterior[] = INCBIN_U16("data/tilesets/secondary/university_interior/metatiles.bin");
-const u16 gMetatileAttributes_UniversityInterior[] = INCBIN_U16("data/tilesets/secondary/university_interior/metatile_attributes.bin");
+const u16 gMetatiles_UniversityClassroom[] = INCBIN_U16("data/tilesets/secondary/university_classroom/metatiles.bin");
+const u16 gMetatileAttributes_UniversityClassroom[] = INCBIN_U16("data/tilesets/secondary/university_classroom/metatile_attributes.bin");
+
+const u16 gMetatiles_UniversityDorm[] = INCBIN_U16("data/tilesets/secondary/university_dorm/metatiles.bin");
+const u16 gMetatileAttributes_UniversityDorm[] = INCBIN_U16("data/tilesets/secondary/university_dorm/metatile_attributes.bin");
 
 const u16 gMetatiles_UniversityLab[] = INCBIN_U16("data/tilesets/secondary/university_lab/metatiles.bin");
 const u16 gMetatileAttributes_UniversityLab[] = INCBIN_U16("data/tilesets/secondary/university_lab/metatile_attributes.bin");

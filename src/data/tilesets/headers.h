@@ -1388,19 +1388,32 @@ const struct Tileset gTileset_CeladonUniversity =
     .callback = NULL,
 };
 
-// Celadon University's rooms (over gTileset_BuildingFrlg), tools/hack/draw_university_tiles.py
-const struct Tileset gTileset_UniversityInterior =
+// Celadon University: the academic buildings' rooms (over gTileset_BuildingFrlg), tools/hack/draw_university_interiors.py
+const struct Tileset gTileset_UniversityClassroom =
 {
     .isCompressed = TRUE,
     .isSecondary = TRUE,
-    .tiles = gTilesetTiles_UniversityInterior,
-    .palettes = gTilesetPalettes_UniversityInterior,
-    .metatiles = gMetatiles_UniversityInterior,
-    .metatileAttributes = gMetatileAttributes_UniversityInterior,
+    .tiles = gTilesetTiles_UniversityClassroom,
+    .palettes = gTilesetPalettes_UniversityClassroom,
+    .metatiles = gMetatiles_UniversityClassroom,
+    .metatileAttributes = gMetatileAttributes_UniversityClassroom,
     .callback = NULL,
 };
 
-// Celadon University's Science Institute and hospital (over gTileset_BuildingFrlg), tools/hack/draw_university_tiles.py
+// Celadon University: the dorm and the cafeteria (over gTileset_BuildingFrlg), tools/hack/draw_university_interiors.py
+const struct Tileset gTileset_UniversityDorm =
+{
+    .isCompressed = TRUE,
+    .isSecondary = TRUE,
+    .tiles = gTilesetTiles_UniversityDorm,
+    .palettes = gTilesetPalettes_UniversityDorm,
+    .metatiles = gMetatiles_UniversityDorm,
+    .metatileAttributes = gMetatileAttributes_UniversityDorm,
+    .callback = NULL,
+};
+
+// Celadon University: the Science Institute, the hospital, the Study Hall and the greenhouse (over
+// gTileset_BuildingFrlg), tools/hack/draw_university_interiors.py
 const struct Tileset gTileset_UniversityLab =
 {
     .isCompressed = TRUE,

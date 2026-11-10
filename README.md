@@ -1,5 +1,26 @@
 # Pokémon Unnamed (working title)
 
+> This README is AI generated. The creator's own notes are tagged *Chris' Note:*.
+
+*Chris' Note:* For years I have wanted to do a proper Pokemon ROM hack but hadn't found the personal time between
+work, a new family, and a new home. There was the steep learning curve of learning a new coding language and mass
+editing maps and images with all the quirks of building on a 20 year old game engine. Using Opus I've been able to skip
+the learning curve and get to the part I have wanted, the creative outlet. This project heavily uses AI (specifically
+Claude Opus) to modify the code-base, write new scripts, and edit maps and pixel art. I provide the direction in story,
+layout, design, and player experience through iterative testing and Opus builds. Essentially, I write a long brief,
+Opus builds a version, I play through it, make edits, rinse and repeat. This allows me to spend my time that I have
+fully in creative mode without the overhead of implementing my ideas by hand. Many people will have issues with this
+mode of building and that's OK, don't play this game. It's the only way I could make this happen and I'm enjoying the
+process.
+
+The story was inspired by an initial bout of writers block where I started the fork as "Unnamed" as I didn't have a
+good idea. That has morphed to telling the story of an everyday NPC who was also "Unnamed" in the initial Red/FireRed
+story, the Lab NPC who gifts the player a Lapras before fighting Giovanni in SilphCo. Exploring the idea of what is it
+like to be a side-character who isn't the chosen one? I intend this to be a roughly 7-10 hour experience in the end
+upon completion of all 3 acts, staying somewhat close to the canon but taking liberties around maps, adding
+characters, and introducing out of region pokemon to Kanto. If I get to the end and continue to be inspired I may make
+further editions exploring other "Unnamed" characters in the games, enjoy!
+
 A Pokémon ROM hack for the Game Boy Advance, set in Kanto and built on the FireRed mode of
 [`pokeemerald-expansion`](https://github.com/rh-hideout/pokeemerald-expansion).
 

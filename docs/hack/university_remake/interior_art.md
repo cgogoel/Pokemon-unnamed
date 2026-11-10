@@ -152,13 +152,13 @@ secondary palettes (near-identical whites and greys merged); it stops if a tiles
 
 | Tileset | Rooms | Tiles | Metatiles | Secondary palettes |
 |---|---|---|---|---|
-| `gTileset_UniversityClassroom` | Main Hall 1F/2F, Lecture Halls A/B, Faculty Office, Literature, Library | 218 / 384 | 208 / 384 | 5 / 6 |
-| `gTileset_UniversityDorm` | Dorm lobby, 2F, 3F, Cafeteria | 185 / 384 | 136 / 384 | 5 / 6 |
-| `gTileset_UniversityLab` | Science Institute 1F-4F, Hospital 1F/2F, Study Hall, Home Economics | 156 / 384 | 139 / 384 | 5 / 6 |
+| `gTileset_UniversityClassroom` | Main Hall 1F/2F, Lecture Halls A/B, Faculty Office, Literature, Library | 243 / 384 | 219 / 384 | 6 / 6 |
+| `gTileset_UniversityDorm` | Dorm lobby, 2F, 3F, Cafeteria | 210 / 384 | 144 / 384 | 6 / 6 |
+| `gTileset_UniversityLab` | Science Institute 1F-4F, Hospital 1F/2F, Study Hall, Home Economics | 165 / 384 | 139 / 384 | 5 / 6 |
 
-Palettes are what fills up (copying from several FireRed tilesets brings several 15-color palettes): each set has
-one slot left, so new pieces should reuse a set's colors where they can (`fit()` moves a piece into colors already
-used). The first version's `gTileset_UniversityInterior` is gone.
+Palettes are what fills up (copying from several FireRed tilesets brings several 15-color palettes): the Classroom and
+Dorm sets have none left, so new pieces there must reuse their colors (`fit()` moves a piece into colors already used)
+or go in the Lab set. The first version's `gTileset_UniversityInterior` is gone.
 
 ## Layout compatibility
 
@@ -215,3 +215,36 @@ chalk notes and the screen's slide) read as 1-2 row line jumps; the stairs' land
 and shadow; the chalk tray's floor is the board's shadow, as in the School (0x293-0x294); a few table legs and the
 narrowed bookcases differ from the source at their joins without a visible seam. Collision, elevation and every event
 were checked unchanged cell by cell after the rebuild.
+
+## Stairs and whole pieces (v3)
+
+**Stairs.** FireRed's house staircase rises sideways into the corner with its rail drawn across the front of the steps;
+in our rooms that read as steps blocked by the rail and climbing into the outer wall. Every staircase is now a straight
+flight in an opening in the back wall, two cells wide (`stairwell`), the way FireRed's Pokemon Center and Department
+Store stairs go up into the wall:
+- up: risers facing the room and lit treads, each step a little narrower further up, the bottom riser on the floor
+  line (the player steps onto it from the warp cells, which are unchanged), the top tread arriving at the upper floor
+  (a strip of the room's own floor in shadow across the top of the opening);
+- down: the top tread level with the floor line, clear floor in front of it (the warp cells), the flight descending
+  away into the dark, each lower tread a shade darker and narrower;
+- the rail is a banister down the open side only (away from the room's outer wall; both sides if the stairs stood
+  free), beside the treads, never over them; the treads keep 2 px off the outer wall.
+The warps and collision didn't need to move. `audit()` flags a rail over a tread (`rail`) and a top step against the
+outer side wall (`wallside`). `audit/21_stairs_straight.png`: all 16, before | after.
+
+**Whole pieces.** Several FireRed pieces were placed with one of their cells: the dorms' and offices' desks (0x030
+is a cabinet whose feet are the cell below), the player's PC desk (0x28F without its chair half 0x290), the photo's
+drawers (0x0BB without 0x0B3), the lobby's palm (0x094 without 0x08C), the Science floors' PCs (0x062 and 0x30B
+without the top 0x304) and consoles (without their top row), the healing machine (its foot cropped). Where a room has
+one cell for them they are now whole one-cell pieces drawn to match (`desk_1x1`: a desk with a book or a PC, low
+drawers; `small_plant`), the PCs and consoles FireRed's whole two-cell machines from Oak's lab (0x2AD/0x2B5,
+0x2A6/0x2B6, 0x2A7/0x2B7), the healing machine whole. `PIECES` lists every multi-cell FireRed piece used; `audit()`
+flags any placed without all its cells (`partial`). `audit/22-29_*.png`: before | after.
+
+**The campus's trees.** The north forest ended on its lower row (crowns' bottoms with the next row's tips), so a
+row of tree tips without trees showed along its edge above the stadium, the greenhouse's grove and the ranch; it now
+ends on the lone tree's trunk row. The south forest began on crowns without tips: the lone tree's tips now stand on
+the lawn above it (the dorm and annex path stops a row short for them; the night student who stood on that row moved
+up one, to (59,58)). `tree_problems()` checks every tree on the campus (all four edges and every grove: halves paired,
+crown, tip and trunk in order, the map's top and bottom rows continued by the border) and finds none.
+`audit/30_campus_top.png`, `audit/31_campus_bottom.png`.

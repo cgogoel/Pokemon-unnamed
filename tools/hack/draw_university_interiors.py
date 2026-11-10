@@ -223,9 +223,42 @@ def narrow(im):
     return out
 
 
+# FireRed furniture that spans several cells: (source or None for gTileset_BuildingFrlg's own, rows of ids). A
+# piece placed with only some of its cells is cut off; audit() checks every placement against these
+PIECES = [
+    (None, [[0x030], [0x038]]),                     # The houses' little cabinet (its feet on the row below)
+    (None, [[0x0B3], [0x0BB]]),                     # Drawers
+    (None, [[0x0B6], [0x0BE]]),                     # Bookshelf
+    (None, [[0x08C], [0x094]]),                     # Potted palm
+    (None, [[0x0F5], [0x0FD]]),
+    (None, [[0x073, 0x074], [0x07B, 0x07C]]),       # The Lab's wall shelves
+    (None, [[0x140, 0x141], [0x148, 0x149]]),       # Sink and stove
+    (None, [[0x114, 0x115], [0x11C, 0x11D]]),       # Cupboard
+    (None, [[0x117], [0x11F]]),                     # Fridge
+    (None, [[0x062], [0x30B]]),
+    ('gTileset_GenericBuilding1', [[0x28F], [0x290]]),          # PC desk and its chair
+    ('gTileset_GenericBuilding1', [[0x289], [0x291]]),          # Desk
+    ('gTileset_GenericBuilding1', [[0x287], [0x294]]),          # Bed
+    ('gTileset_Lab_Frlg', [[0x304], [0x062], [0x30B]]),         # The tall PC
+    ('gTileset_Lab_Frlg', [[0x318, 0x319, 0x31A], [0x320, 0x321, 0x322], [0x328, 0x329, 0x32A]]),   # Consoles
+    ('gTileset_Lab_Frlg', [[0x305, 0x306, 0x307], [0x30D, 0x30E, 0x30F]]),   # Desk with a PC
+    ('gTileset_Lab_Frlg', [[0x2A6], [0x2B6]]), ('gTileset_Lab_Frlg', [[0x2A7], [0x2B7]]),
+    ('gTileset_Lab_Frlg', [[0x2AD], [0x2B5]]),                  # Machines
+    ('gTileset_Lab_Frlg', [[0x28D], [0x295]]),                  # Notice on its string
+    ('gTileset_Lab_Frlg', [[0x324], [0x325]]),                  # Picture
+    ('gTileset_School', [[0x29B, 0x29C], [0x2A3, 0x2A4]]),     # Bookcase
+    ('gTileset_School', [[0x28B, 0x28C], [0x293, 0x294]]),     # Board and tray
+    ('gTileset_DepartmentStore', [[0x325], [0x32D]]),          # Vending machine
+    ('gTileset_PokemonCenterFrlg', [[0x2AA, 0x2AB], [0x2B2, 0x2B3]]),     # Healing machine
+]
+BUILDING = None                     # The room being composed (strip() records its pieces there)
+
+
 def strip(source, mids, top_only=False):
     """FireRed metatiles side by side (a row of ids, or rows), flattened (or only their top layers)."""
     rows = [mids] if isinstance(mids[0], int) else mids
+    if BUILDING is not None:
+        BUILDING.strips.append((source, {m for row in rows for m in row if m is not None}))
     im = Image.new('RGBA', (len(rows[0]) * T, len(rows) * T), (0, 0, 0, 0))
     for y, row in enumerate(rows):
         for x, mid in enumerate(row):
@@ -286,11 +319,17 @@ class Room:
         self.walls = set()          # Solid cells drawn in the bottom layer (partitions, wall pieces)
         self.stairs = []            # The stairs' left columns
         self.stairs_down = []
+        self.placed = {}            # (x, y) -> (source, metatile) placed cell by cell
+        self.strips = []            # (source, ids) placed together as one picture
+        self.rail_px, self.tread_px, self.top_step = set(), set(), {}
+        global BUILDING
+        BUILDING = self
         self.wall_rows = 3 if name.startswith('MAIN_HALL') else 2
 
     def fr(self, x, y, source, mid, mode='both'):
         """FireRed metatile `mid` of `source` at cell (x, y): both layers, its bottom, or only its top layer."""
         b, t = Source(source).cell(mid)
+        self.placed[(x, y)] = (source, mid)
         if mode in ('both', 'bottom'):
             self.F.paste(b, (x * T, y * T))
         if mode in ('both', 'top'):
@@ -762,80 +801,98 @@ def door_mat(room, style='lab'):
 STAIRWELL_GREY = hx('7B7B7B')      # The houses' stairwell behind the steps (0x0DA's backdrop)
 
 
-# Stairs down: treads seen from above, from the floor line down into the dark (FireRed's Department Store and
-# Rocket Hideout stairs down): the top tread at the floor, each one below it a shade darker
+# The flights' colors: treads lit (FireRed's house stairs' straw), risers a shade down, nosings outlined
+TREAD, TREAD2, RISER, RISER2 = hx('F6EE94'), hx('D5C56A'), hx('AC9441'), hx('837310')
 TREADS = [(hx('F6EE94'), hx('D5C56A')), (hx('D5C56A'), hx('AC9441')), (hx('AC9441'), hx('837310')),
           (hx('837310'), OL)]
 
 
-def stairwell(room, x, rail, steps, floors, down=False):
-    """A staircase in an opening in this room's wall: a dark doorway (outlined, the wall's white edge round it) from
-    the wall's top band down to the floor line, over the stairs' two columns, so every flight ends in it.
-    Up: FireRed's house staircase (the wall's last row and the first floor row, the warp cells) climbs into it, the
-    house's grey stairwell behind the steps (reached from their top edge) now the opening's dark, the white rail in
-    front. Down: the flight starts at the floor line and goes down into the dark: treads seen from above (the top one
-    level with the floor, each lower one a shade darker), the rail's post down its side; the landing (the warp
-    cells) is floor. The landing is on the room's floor either way."""
+def stairwell(room, x, down=False):
+    """A straight flight in an opening in the back wall, two cells wide (FireRed draws its stairs straight up into
+    the wall the same way at the Pokemon Center and the Department Store): a dark doorway, outlined, the wall's white
+    edge round it, from right under the wall's top band down to the floor line.
+
+    Up: the flight rises straight away from the player into the opening: risers facing the room, lit treads, each step
+    a little narrower further up, the bottom riser on the floor line (the player steps onto it from the warp cells
+    below), the top tread arriving at the upper floor, a strip of the room's own floor in shadow across the opening.
+    Down: the top tread is level with the floor line (clear floor in front of it: the warp cells), the flight going
+    down away from the player into the dark, each lower tread a shade darker and narrower.
+    The rail runs down the flight's open side (the side away from the room's outer wall; both sides when it stands
+    free), beside the treads, never across them; on the wall side the treads keep 2 px off the outer wall."""
     y = room.wall_rows
-    X0, X1 = x * T, (x + 2) * T            # The opening's inside: the stairs' two columns
-    top, line = WALL_TOP, y * T            # From under the top band to the floor line
+    X0, X1 = x * T, (x + 2) * T
+    top, line = WALL_TOP, y * T
     px = room.F.load()
+    sides = ['right'] if x == 1 else ['left'] if x + 2 == room.w - 1 else ['left', 'right']
+    t0 = X0 + (4 if 'left' in sides else 2)          # The treads' span: 4 px for a rail, 2 off a wall
+    t1 = X1 - (4 if 'right' in sides else 2)
+    for yy in range(top, line):
+        for xx in range(X0, X1):
+            px[xx, yy] = OL + (255,)
+    treads = set()
+
+    def band(y0, y1, c, inset):
+        for yy in range(y0, y1):
+            for xx in range(t0 + inset, t1 - inset):
+                px[xx, yy] = c + (255,)
+                treads.add((xx, yy))
     if not down:
-        room.fr(x, y - 2, HOME, rail, 'top')
-        room.fr_block(x, y - 1, HOME, steps)
-        block = Image.new('RGBA', (2 * T, 2 * T))
-        for r, row in enumerate(steps):
-            for c, mid in enumerate(row):
-                block.paste(Source(HOME).cell(mid)[0], (c * T, r * T))
-        bp = block.load()
-        grey = key(STAIRWELL_GREY)
-        seen, todo = set(), [(xx, 0) for xx in range(2 * T) if key(bp[xx, 0]) == grey]
-        while todo:
-            q = todo.pop()
-            if q in seen:
-                continue
-            seen.add(q)
-            qx, qy = q
-            for nx, ny in ((qx + 1, qy), (qx - 1, qy), (qx, qy + 1), (qx, qy - 1)):
-                if 0 <= nx < 2 * T and 0 <= ny < 2 * T and (nx, ny) not in seen and key(bp[nx, ny]) == grey:
-                    todo.append((nx, ny))
-        for yy in range(top, line - T):
+        steps = (line - top - 6) // 5
+        yb = line
+        for k in range(steps):                       # Bottom up: riser 2, nosing 1, tread 2
+            inset = k // 2
+            band(yb - 2, yb, RISER if k < steps // 2 else RISER2, inset)
+            band(yb - 3, yb - 2, OL, inset)
+            band(yb - 5, yb - 3, TREAD if k < steps // 2 else TREAD2, inset)
+            yb -= 5
+        top_y = yb
+        # The upper floor the flight arrives at: the room's floor, in shadow, across the opening
+        src, mid, shade, kind = room.floor_spec
+        floor = Source(src).flat(mid).load()
+        sh = {key(k): v for k, v in ramp(kind).items()}
+        for yy in range(top, top_y):
             for xx in range(X0, X1):
-                px[xx, yy] = OL + (255,)
-        for (qx, qy) in seen:
-            px[X0 + qx, line - T + qy] = OL + (255,)
-        for k in (0, 1):
-            refloor(room, x + k, y, HOME, floors)
+                c = floor[xx % T, (yy - top) % T][:3]
+                c = sh.get(key(c), c)
+                c = sh.get(key(c), c)
+                px[xx, yy] = tuple(c) + (255,)
+        for xx in range(X0, X1):
+            px[xx, top_y - 1] = OL + (255,)
+        room.top_step[x] = (top_y, t0 + (steps - 1) // 2, t1 - (steps - 1) // 2)
     else:
-        for yy in range(top, line):
-            for xx in range(X0, X1):
-                px[xx, yy] = OL + (255,)
         for k, (tread, edge) in enumerate(TREADS):     # 4 px a step: 3 of tread, its edge a shade down
             y0 = line - 4 * (k + 1)
-            inset = k                                   # Each lower step a little narrower, further away
-            for xx in range(X0 + 4 + inset, X1 - 1 - inset):
-                for yy in range(y0, y0 + 3):
-                    px[xx, yy] = tread + (255,)
-                px[xx, y0 + 3] = edge + (255,)
-        post = strip(HOME, [[rail, None], [steps[0][0], steps[0][1]], [steps[1][0], steps[1][1]]], True)
-        room.put(post.crop((0, 0, 5, 3 * T - 6)), X0, (y - 2) * T)
+            band(y0, y0 + 3, tread, k)
+            band(y0 + 3, y0 + 4, edge, k)
+        room.top_step[x] = (line - 4, t0, t1)
+    # The rail: a banister down the open side(s), from the top of the flight to a newel post on the floor line
+    rail_top = top if not down else line - 4 * len(TREADS) - 2
+    for side in sides:
+        rx = X0 if side == 'left' else X1 - 4
+        for yy in range(rail_top, line + 2):
+            for i, c in enumerate((OL, WH, GR1, OL)):
+                px[rx + i, yy] = c + (255,)
+                room.rail_px.add((rx + i, yy))
+        for i in range(4):                             # The newel's cap and foot
+            px[rx + i, line + 2] = OL + (255,)
+        px[rx + 1, rail_top] = WH + (255,)
     # The frame: the wall's white edge and an outline either side, down to the floor line
     for yy in range(top, line):
         for (xx, c) in ((X0 - 2, WH), (X0 - 1, OL), (X1, OL), (X1 + 1, WH)):
             if T <= xx < (room.w - 1) * T:
                 px[xx, yy] = c + (255,)
+    room.tread_px |= treads
     room.stairs.append(x)
-    room.stairs_down.append(x) if down else None
+    if down:
+        room.stairs_down.append(x)
 
 
 def stairs_up(room, x):
-    """The Copycat's stairs (rail 0x0EA, steps 0x0DA-0x0DB over 0x0E2-0x0E3), built into the wall."""
-    stairwell(room, x, 0x0EA, [[0x0DA, 0x0DB], [0x0E2, 0x0E3]], (PLANKS, PLANKS_SHADE))
+    stairwell(room, x)
 
 
 def stairs_down(room, x):
-    """The Pallet house's stairs (rail 0x015, steps 0x005-0x006 over 0x00D-0x00E), built into the wall."""
-    stairwell(room, x, 0x015, [[0x005, 0x006], [0x00D, 0x00E]], (PARQUET, PARQUET_SHADE), down=True)
+    stairwell(room, x, down=True)
 
 
 # --- FireRed furniture ------------------------------------------------------------------------------------------------
@@ -925,11 +982,61 @@ def lab_desk(room, x, y):
     room.fr_block(x, y, LAB, [[0x305, 0x306, 0x307], [0x30D, 0x30E, 0x30F]], 'top')
 
 
-def cabinet_desk(room, x, y, book=True):
-    """The houses' little desk (0x030's top layer: straw top, a drawer), 1x1, an open book on it."""
-    room.fr(x, y, HOME, 0x030, 'top')
-    if book:
-        room.put(Source(SCHOOL).cell(0x299)[1].crop((3, 0, 13, 7)), x * T + 3, y * T + 1)
+def desk_1x1(pc=False, book=True, drawers=False):
+    """A whole one-cell desk (FireRed's houses' desks are two cells; where the room has one, this one): a straw top
+    with a lit rim, a front with a drawer and its knob, legs; an open book, or a PC (grey case, dark screen with a
+    glint, keyboard); or low drawers (two drawers, no legs) for a photo to stand on."""
+    P = Pix(T, T)
+    if drawers:
+        P.box(1, 6, 14, 10, WOOD3)
+        P.hl(2, 13, 7, WOOD1)
+        P.r(2, 8, 12, 1, STRAW1)
+        for dy in (9, 12):
+            P.box(3, dy, 10, 3, WOOD2, WOOD4)
+            P.p(7, dy + 1, STRAW1)
+            P.p(8, dy + 1, STRAW1)
+        return P.im
+    P.box(0, 6, 16, 4, STRAW1)              # Top
+    P.hl(1, 14, 7, WH)
+    P.hl(1, 14, 8, STRAW2)
+    P.box(1, 9, 14, 4, WOOD3)               # Front, a drawer
+    P.box(5, 10, 6, 2, WOOD2, WOOD4)
+    P.p(7, 10, STRAW1)
+    P.vl(2, 13, 15, OL)                     # Legs
+    P.vl(3, 13, 15, WOOD4)
+    P.vl(12, 13, 15, WOOD4)
+    P.vl(13, 13, 15, OL)
+    if pc:
+        P.box(3, 0, 10, 7, GR1)             # The monitor
+        P.box(4, 1, 8, 5, hx('39394A'))
+        P.p(5, 2, WH)
+        P.hl(5, 10, 6, GR2)
+        P.box(4, 6, 8, 2, WH, GR2)          # Keyboard on the top
+    elif book:
+        P.im.alpha_composite(Source(SCHOOL).cell(0x299)[1].crop((3, 0, 13, 7)), (3, 2))
+    return P.im
+
+
+def cabinet_desk(room, x, y, book=True, pc=False):
+    """A desk in one cell (desk_1x1), an open book or a PC on it."""
+    room.put(desk_1x1(pc=pc, book=book), x * T, y * T)
+
+
+def small_plant(room, x, y):
+    """A whole one-cell potted plant (FireRed's palms are two cells): a white pot with a dark rim, leaves over it."""
+    P = Pix(T, T)
+    P.box(4, 9, 8, 6, WH)
+    P.hl(5, 10, 10, GR1)
+    P.vl(10, 10, 13, GR2)
+    P.hl(4, 11, 15, OL)
+    for (cx, cy, rx, ry) in ((8, 6, 6, 4), (5, 4, 3, 3), (11, 4, 3, 3), (8, 2, 2, 3)):
+        for yy in range(-ry, ry + 1):
+            for xx in range(-rx, rx + 1):
+                d = (xx / (rx + .5)) ** 2 + (yy / (ry + .5)) ** 2
+                if d <= 1:
+                    P.p(cx + xx, cy + yy, OL if d > .75 else P3['gn1'] if yy < 0 else P3['gn2'])
+    P.p(6, 3, WH)
+    room.put(P.im, x * T, y * T)
 
 
 def lab_rug(room, x, y, w, h, top=True, bottom=True):
@@ -1247,8 +1354,8 @@ def mirror(room, x, y):
 
 
 def photo_cabinet(room, x, y):
-    """The houses' low drawers (0x0BB's top layer) with a framed photo of home on top."""
-    room.fr(x, y, HOME, 0x0BB, 'top')
+    """Low drawers in one cell (desk_1x1) with a framed photo of home on top."""
+    room.put(desk_1x1(drawers=True), x * T, y * T)
     P = Pix(T, T)
     P.box(4, 0, 8, 7, STRAW2)
     P.r(5, 1, 6, 3, BLUE1)
@@ -1293,16 +1400,21 @@ def against_wall(room, x, im):
             room.decor.add((x + k, room.wall_rows))
 
 
+MACHINES = {'pc': (0x2AD, 0x2B5), 'tm': (0x2A6, 0x2B6), 'scope': (0x2A7, 0x2B7)}
+
+
 def terminal(room, x, kind='pc'):
-    """A computer against the wall: the Lab's PC (0x062 over 0x30B's top layers), or the TM MACHINE (the Lab's
-    analysis machine 0x2A6 over 0x2B6)."""
-    a, b = (0x062, 0x30B) if kind == 'pc' else (0x2A6, 0x2B6)
+    """A whole two-cell machine against the wall (Oak's lab): the terminal (0x2AD over 0x2B5), the TM MACHINE (the
+    analysis machine 0x2A6 over 0x2B6), or the analyser (0x2A7 over 0x2B7)."""
+    a, b = MACHINES[kind]
     against_wall(room, x, strip(LAB, [[a], [b]], True))
 
 
 def consoles(room, x):
-    """The Lab's experiment consoles (0x320-0x322 over 0x328-0x32A), 3 wide, against the wall."""
-    against_wall(room, x, strip(LAB, [[0x320, 0x321, 0x322], [0x328, 0x329, 0x32A]], True))
+    """A bank of three machines against the wall (the experiment room's consoles are three cells tall: they don't
+    fit under a two-row wall whole)."""
+    for k, kind in enumerate(('tm', 'scope', 'pc')):
+        terminal(room, x + k, kind)
 
 
 def picture(room, x):
@@ -1604,7 +1716,7 @@ def dorm_lobby():
     house_rug(r, 12, 5, 7, 4)
     sofa(r, 13, 5, 5)
     low_table(r, 14, 7, 3)
-    r.fr(4, 2, LAB, 0x094, 'top')           # A low palm under the window (the palm's pot cell alone), (4,2)
+    small_plant(r, 4, 2)                    # A small plant under the window, (4,2)
     palm(r, 1, 8)
     palm(r, 19, 8)
     door_mat(r)
@@ -1684,7 +1796,7 @@ def dorm_floor(top):
         r.drop_shadow(sh, 14, 5, 1, 2, below=3)
         house_rug(r, 15, 7, 3, 3)
         mirror(r, 17, 5)
-        r.fr(18, 5, HOME, 0x28F, 'top')
+        cabinet_desk(r, 18, 5, pc=True)
         photo_cabinet(r, 19, 5)
         r.drop_shadow(sh, 17, 5, 3, 1, below=2)
         r.fr(19, 7, HOME, 0x0B6, 'top')
@@ -1758,8 +1870,7 @@ def hospital(upstairs):
     else:
         square(r, 4, 6, 10, 12)
         stairs_up(r, 14)
-        machine = strip(CENTER, [[0x2AA, 0x2AB], [0x2B2, 0x2B3]], True)
-        against_wall(r, 8, machine.crop((0, 0, 2 * T, T + 9)))      # Its counter is the one in front
+        against_wall(r, 8, strip(CENTER, [[0x2AA, 0x2AB], [0x2B2, 0x2B3]], True))
         r.put(center_counter(5), 6 * T, 4 * T)
         r.drop_shadow(sh, 6, 4, 5, 1)
         for y in (6, 8):
@@ -1831,7 +1942,9 @@ def audit(room):
       wall foot that ends);
     - 'wall': another wall's colors in a staircase's wall cells (the houses' grey stairwell, plaster or skirting);
     - 'blank': plain wall left between a staircase's steps and the wall's top band (a flight ending mid-wall);
-    - 'down': a flight down whose top tread isn't at the floor line."""
+    - 'down': a flight down whose top tread isn't at the floor line;
+    - 'rail': a stair rail drawn over a tread; 'wallside': a flight's top step against the room's outer side wall;
+    - 'partial': a multi-cell FireRed piece (PIECES) placed without all its cells."""
     out = []
     src, mid, shade, kind = room.floor_spec
     sh = ramp(kind)
@@ -1875,8 +1988,13 @@ def audit(room):
                         break
     # Stairs: in their wall cells (the rail's row, the steps' row), no colors of another wall (the houses' grey
     # stairwell, their plaster and skirting) where the room's own wall is
+    src, mid, shade, kind = room.floor_spec
+    floor_cols = {key(c) for c in Source(src).flat(mid).getdata()}
+    floor_cols |= {key(ramp(kind).get(unkey(c), unkey(c))) for c in floor_cols}
+    floor_cols |= {key(ramp(kind).get(unkey(c), unkey(c))) for c in floor_cols}
+    stair_cols = {key(c) for c in (OL, WH, GR1, TREAD, TREAD2, RISER, RISER2)} | floor_cols
     foreign = ({key(STAIRWELL_GREY)} | {key(c) for m in (0x0A8, 0x0B0, 0x020, 0x028)
-                                         for c in Source(HOME).flat(m).getdata()}) - {key(OL)}
+                                         for c in Source(HOME).flat(m).getdata()}) - stair_cols
     wp = room.wall_plain.load()
     for sx in room.stairs:
         # Foreign pixels reached from the top of the steps' row (or under the wall's top band) through foreign pixels:
@@ -1910,9 +2028,39 @@ def audit(room):
     # band and the steps
     for sx in room.stairs:
         n = sum(1 for y in range(WALL_TOP, (room.wall_rows - 1) * T) for x in range(sx * T + 4, sx * T + 2 * T)
-                if px[x, y][:3] == wp[x, y][:3] and not O[x, y][3])
+                if px[x, y][:3] == wp[x, y][:3] and not O[x, y][3] and (x, y) not in room.rail_px)
         if n:
             out.append(('blank', sx, room.wall_rows - 1, n))
+    # Rails over treads; a flight's top step against the room's outer side wall
+    for (x, y) in sorted(room.rail_px & room.tread_px):
+        out.append(('rail', x // T, y // T, 'rail over a tread at %d,%d' % (x, y)))
+        break
+    for sx, (ty, a0, a1) in room.top_step.items():
+        if (sx == 1 and a0 < sx * T + 2) or (sx + 2 == room.w - 1 and a1 > (sx + 2) * T - 2):
+            out.append(('wallside', sx, ty // T, 'top step at x %d-%d' % (a0, a1)))
+    # Cut-off pieces: every multi-cell FireRed piece placed whole
+    for (cx, cy), (source, mid) in room.placed.items():
+        for (psrc, rows) in PIECES:
+            if psrc is not None and psrc != source and mid >= PRIMARY_BASE:
+                continue
+            cells = [(c, r, m) for r, row in enumerate(rows) for c, m in enumerate(row)]
+            for (c, r, m) in cells:
+                if m != mid:
+                    continue
+                ox, oy = cx - c, cy - r
+                missing = [hex(m2) for (c2, r2, m2) in cells
+                           if room.placed.get((ox + c2, oy + r2), (None, None))[1] != m2]
+                if missing:
+                    out.append(('partial', cx, cy, '%s without %s' % (hex(mid), ', '.join(missing))))
+    together = {}                       # A piece's rows may be drawn by separate strips: the room's union, by source
+    for (source, ids) in room.strips:
+        together.setdefault(source, set()).update(ids)
+    for source, ids in together.items():
+        for (psrc, rows) in PIECES:
+            group = {m for row in rows for m in row}
+            if (psrc is None or psrc == source) and ids & group and not group <= ids:
+                out.append(('partial', 0, 0, '%s placed without %s' % (sorted(hex(m) for m in ids & group),
+                                                                      sorted(hex(m) for m in group - ids))))
     for by in range((room.wall_rows + 1) * T, (room.h - 1) * T, T):
         for cx in range(1, room.w - 1):
             a = [key(F[cx * T + x, by - 1]) for x in range(T)]

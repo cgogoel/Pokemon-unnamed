@@ -1388,7 +1388,8 @@ CAMPUS_PATHS = [
     (32, 38, 45, 46),    # The fountain square
     (36, 46, 41, 59),    # The avenue down to the gate
     (27, 46, 36, 47), (27, 46, 29, 52), (13, 50, 29, 52),   # To the hospital's front
-    (41, 46, 47, 47), (45, 46, 47, 60), (45, 48, 66, 50), (45, 58, 63, 60),   # The dorm's and the annex's fronts
+    (41, 46, 47, 47), (45, 46, 47, 59), (45, 48, 66, 50), (45, 58, 63, 59),   # The dorm's and the annex's fronts
+    # (they stop a row short of the south forest: its trees' tips stand on the lawn in front of it)
     (4, 26, 31, 27), (4, 27, 6, 36),             # In front of Literature & Library, down to the street
     (26, 17, 28, 26), (26, 17, 58, 20),          # Behind the central building, the greenhouse's door
     (14, 16, 16, 17), (4, 16, 27, 17),           # The stadium's entrance
@@ -1452,12 +1453,64 @@ def campus_ground(st, reserve=()):
     g.flowers(4, 72, 38)
     g.flowers(4, 72, 35)
     g.grove(4, 4, 72, 61)
+    whole_trees(g)
     solid = {}
     for y in range(CAMPUS_H):
         for x in range(CAMPUS_W):
             m = g.g[y][x]
             solid[(x, y)] = stamp_solid[(x, y)] if (x, y) in stamp_solid else int(m in SOLID_GROUND)
     return g, solid
+
+
+FOREST_CROWN, FOREST_LOWER = (0x01C, 0x01D), (0x014, 0x015)     # A forest row: crowns; their lower halves + tips
+TREE_TIP, TREE_CROWN, TREE_TRUNK = (0x00E, 0x00F), (0x01E, 0x01F), (0x026, 0x027)   # A lone tree, top to bottom
+GRASS = (0x008, 0x009, 0x010, 0x011)
+
+
+def whole_trees(g):
+    """Every tree whole: a forest's last row (crowns' lower halves with the next row's tips) over something that
+    isn't forest gets the lone tree's trunk row instead (the crown's lower half on the lawn, no stray tips); a forest
+    row of crowns under lawn gets the lone tree's tips on the lawn above it. The map's top and bottom rows are left:
+    in the game the border (forest, the same 2x2 pattern) carries the trees on past the edge."""
+    for y in range(g.h - 1):
+        for x in range(g.w):
+            m = g.g[y][x]
+            if m in FOREST_LOWER and g.g[y + 1][x] not in FOREST_CROWN:
+                g.g[y][x] = TREE_TRUNK[FOREST_LOWER.index(m)]
+    for y in range(1, g.h):
+        for x in range(g.w):
+            m = g.g[y][x]
+            if m in FOREST_CROWN and g.g[y - 1][x] in GRASS and (x, y - 1) not in g.paved:
+                g.g[y - 1][x] = TREE_TIP[FOREST_CROWN.index(m)]
+
+
+def tree_problems(g):
+    """Cut-off trees on the campus: [(x, y, what)]. Halves must pair (left/right), a crown needs a tip or the
+    forest's lower row above it, a lower row needs crowns or a trunk below, a tip a crown below, a trunk a crown
+    above (the map's top and bottom rows count as continued by the border)."""
+    out = []
+    pairs = (FOREST_CROWN, FOREST_LOWER, TREE_TIP, TREE_CROWN, TREE_TRUNK)
+    for y in range(g.h):
+        for x in range(g.w):
+            m = g.g[y][x]
+            for pr in pairs:
+                if m == pr[0] and (x + 1 >= g.w or g.g[y][x + 1] != pr[1]):
+                    out.append((x, y, 'left half %03X without its right' % m))
+                if m == pr[1] and (x == 0 or g.g[y][x - 1] != pr[0]):
+                    out.append((x, y, 'right half %03X without its left' % m))
+            up = g.g[y - 1][x] if y else None
+            down = g.g[y + 1][x] if y + 1 < g.h else None
+            if m in FOREST_CROWN and y and up not in FOREST_LOWER + TREE_TIP + TREE_TRUNK:
+                out.append((x, y, 'forest crown without its tip'))
+            if m in FOREST_LOWER and down is not None and down not in FOREST_CROWN:
+                out.append((x, y, 'tips of trees that aren\'t there'))
+            if m in TREE_TIP and down not in TREE_CROWN + FOREST_CROWN:
+                out.append((x, y, 'tip without a crown'))
+            if m in TREE_CROWN and down not in TREE_TRUNK:
+                out.append((x, y, 'crown without its trunk'))
+            if m in TREE_TRUNK and up not in TREE_CROWN + FOREST_CROWN:
+                out.append((x, y, 'trunk without a crown'))
+    return out
 
 
 def campus(ts, st):
@@ -1613,6 +1666,9 @@ def main():
         outside_inside(title, ext, ext_stamps[sname], img, rst, os.path.join(OUT, 'mockup_%s.png' % rname.lower()),
                        footprint_top=top)
     sheet(ext, os.path.join(OUT, 'tiles_exterior.png'))
+    g, _ = campus_ground(ext_stamps)
+    for (x, y, what) in tree_problems(g):
+        print('campus tree at %d,%d: %s' % (x, y, what))
     for ts in room_sets.values():
         ts.sheet(os.path.join(OUT, 'tiles_%s.png' % ts.symbol.replace('gTileset_University', '').lower()))
     I.mockups(room_stamps, room_sets)

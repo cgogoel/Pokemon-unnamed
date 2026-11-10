@@ -54,7 +54,7 @@ OBJECTS = {
         'CeladonUniversity_EventScript_BaldingMan14': (39, 44),
         # By night (FLAG_TEMP_5): a guard in front of the Main Hall, a student on the way to the Study Hall
         'CeladonUniversity_EventScript_NightGuard': (40, 37),
-        'CeladonUniversity_EventScript_NightStudent': (59, 59),
+        'CeladonUniversity_EventScript_NightStudent': (59, 58),
         # The club, on the stadium's infield
         'LOCALID_CAMPUS_NIGHT_KAI': (15, 10), 'LOCALID_CAMPUS_NIGHT_MINA': (13, 11),
         'LOCALID_CAMPUS_NIGHT_ROWAN': (17, 11), 'LOCALID_CAMPUS_DALE': (15, 9),

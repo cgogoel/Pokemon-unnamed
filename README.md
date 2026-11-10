@@ -16,8 +16,8 @@
 >
 > The story was inspired by an initial bout of writers block where I started the fork as "Unnamed" as I didn't have a
 > good idea. That has morphed to telling the story of an everyday NPC who was also "Unnamed" in the initial Red/FireRed
-> story, the Lab NPC who gifts the player a Lapras before fighting Giovanni in SilphCo. Exploring the idea of what is it
-> like to be a side-character who isn't the chosen one. I intend this to be a roughly 7-10 hour experience in the end
+> story, the Lab NPC who gifts the player a Lapras before fighting Giovanni in SilphCo. This story explores the idea of what is it
+> like to be a side-character who isn't the "chosen one" as every Pokemon game and most hacks assume. I intend this to be a roughly 7-10 hour experience in the end
 > upon completion of all 3 acts, staying somewhat close to the canon but taking liberties around maps, adding
 > characters, and introducing out of region pokemon to Kanto. If I get to the end and continue to be inspired I may make
 > further editions exploring other "Unnamed" characters in the games, enjoy!

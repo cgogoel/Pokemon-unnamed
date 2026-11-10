@@ -126,14 +126,14 @@ Somewhere along the way, a brand-new move is invented, one no Pokémon game has 
 - **Remote Desktop:** opens the Pokémon Storage System from anywhere.
 - **Heal Dash:** returns the player to the last Pokémon Center they visited.
 
-  While it's part of the challenge of pokemon games to properly prepare for journeys many users (myself included)
+  *Chris' Note:* While it's part of the challenge of pokemon games to properly prepare for journeys many users (myself included)
   prefer to just walk back to the pokemon centers to reset. The game punishes you for this by making you walk both
   ways (back and forth) but I'm lessening the pain by only making you do one direction with a warp back to the latest
   pokemon center always available to you in Key Items.
 
 ### Speed
 
-I typically play most pokemon games and rom hacks with fast forward enabled but I find I miss the atmosphere from
+*Chris' Note:* I typically play most pokemon games and rom hacks with fast forward enabled but I find I miss the atmosphere from
 the audio. I've tweaked the default walk/run/animation/text speeds to roughly match a 2x emulation speed while preserving
 the audio. Hopefully best of both worlds.
 

@@ -1,4 +1,4 @@
-# Pokémon Unnamed (working title)
+# Pokémon Unnamed
 
 *This README is AI generated. The creator's own notes are marked **Chris' Note** in boxes like the one below.*
 

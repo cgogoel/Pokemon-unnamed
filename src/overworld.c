@@ -1804,9 +1804,7 @@ bool32 CurrentMapHasShadows(void)
 {
     // Add all conditionals here for maps that shouldn't have shadows
     // By default only cave maps are excluded from having shadows under object events
-    // The hack: none in Viridian Forest's night either, where sprites show beyond the light: a shadow there would
-    // be a pale ring on the black around them (src/act2_night_bloom.c)
-    return (gMapHeader.mapType != MAP_TYPE_UNDERGROUND) && !Act2_ShowSpritesInDark();
+    return (gMapHeader.mapType != MAP_TYPE_UNDERGROUND);
 }
 
 // Update & mix day / night bg palettes (into unfaded)
@@ -2541,9 +2539,6 @@ static void InitOverworldGraphicsRegisters(void)
     SetGpuReg(REG_OFFSET_MOSAIC, 0);
     SetGpuReg(REG_OFFSET_WININ, WININ_WIN0_BG_ALL | WININ_WIN0_OBJ | WININ_WIN1_BG_ALL | WININ_WIN1_OBJ);
     SetGpuReg(REG_OFFSET_WINOUT, WINOUT_WIN01_BG0 | WINOUT_WINOBJ_BG0);
-    // The hack: in Viridian Forest's night, sprites show beyond the light (src/act2_night_bloom.c)
-    if (Act2_ShowSpritesInDark())
-        SetGpuRegBits(REG_OFFSET_WINOUT, WINOUT_WIN01_OBJ);
     SetGpuReg(REG_OFFSET_WIN0H, 0xFF);
     SetGpuReg(REG_OFFSET_WIN0V, 0xFF);
     SetGpuReg(REG_OFFSET_WIN1H, 0xFFFF);
@@ -2565,6 +2560,13 @@ static void InitOverworldGraphicsRegisters(void)
     ChangeBgY(3, 0, BG_COORD_SET);
     SetGpuReg(REG_OFFSET_DISPCNT, DISPCNT_OBJ_ON | DISPCNT_WIN0_ON | DISPCNT_WIN1_ON
                                 | DISPCNT_OBJ_1D_MAP | DISPCNT_HBLANK_INTERVAL);
+    // The hack: in Viridian Forest's night, the spores show beyond the light, through their OBJ-window twins
+    // (src/act2_night_bloom.c, src/event_object_movement.c); nothing else does
+    if (Act2_ShowLightsInDark())
+    {
+        SetGpuRegBits(REG_OFFSET_DISPCNT, DISPCNT_OBJWIN_ON);
+        SetGpuRegBits(REG_OFFSET_WINOUT, WINOUT_WINOBJ_OBJ);
+    }
     ShowBg(0);
     ShowBg(1);
     ShowBg(2);

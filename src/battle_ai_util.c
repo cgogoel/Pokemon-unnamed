@@ -4185,6 +4185,8 @@ bool32 IsTargetingPartner(enum BattlerId battlerAtk, enum BattlerId battlerDef)
 {
     if (gAiThinkingStruct->aiFlags[battlerAtk] & AI_FLAG_ATTACKS_PARTNER)
         return FALSE;
+    if (IsTripleBattle()) // Either ally (the middle battlers aren't anyone's flank partner)
+        return battlerAtk != battlerDef && IsBattlerAlly(battlerAtk, battlerDef);
     return ((battlerAtk) == (battlerDef ^ BIT_FLANK));
 }
 

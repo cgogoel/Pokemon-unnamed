@@ -564,6 +564,83 @@ void RemoveUnreachableTripleMoveScores(enum BattlerId battlerAtk, enum BattlerId
     }
 }
 
+// AI: the most damage battler's foes can deal it with their DIRECT moves (direct = TRUE: what it risks standing in
+// front), or with their other moves, which reach it wherever it stands.
+static u32 GetTripleFoesDamageTo(enum BattlerId battler, bool32 direct)
+{
+    struct AiLogicData *aiData = gAiLogicData;
+    u32 best = 0;
+
+    for (enum BattlerId foe = 0; foe < gBattlersCount; foe++)
+    {
+        if (IsBattlerAlly(foe, battler) || !IsBattlerAlive(foe))
+            continue;
+        enum Move *moves = GetMovesArray(foe);
+        for (u32 i = 0; i < MAX_MON_MOVES; i++)
+        {
+            if (moves[i] == MOVE_NONE || IsMoveUnusable(i, moves[i], aiData->moveLimitations[foe])
+             || IsTripleDirectMove(foe, moves[i]) != direct)
+                continue;
+            best = max(best, AI_GetDamage(foe, battler, i, AI_DEFENDING, aiData));
+        }
+    }
+    return best;
+}
+
+// The nearest Pokémon still standing ahead of battler on its side, or MAX_BATTLERS_COUNT if it's in front.
+static enum BattlerId GetTripleAllyAhead(enum BattlerId battler)
+{
+    enum BattlerId ahead = MAX_BATTLERS_COUNT;
+
+    for (enum BattlerId ally = 0; ally < gBattlersCount; ally++)
+    {
+        if (ally == battler || !IsBattlerAlly(ally, battler) || !IsBattlerAlive(ally)
+         || GetTripleFormationRank(ally) >= GetTripleFormationRank(battler))
+            continue;
+        if (ahead == MAX_BATTLERS_COUNT || GetTripleFormationRank(ally) < GetTripleFormationRank(ahead))
+            ahead = ally;
+    }
+    return ahead;
+}
+
+// AI: a DIRECT move puts its user in front (TryMoveTripleUserToFront), where the foes' DIRECT moves reach it too.
+// Weigh that against the move: a user that the foes could then knock out, and couldn't where it stands, is discouraged
+// (TRIPLE_AI_STEP_UP_KO); one that would lose half its HP, a little; one sturdy enough is slightly encouraged when it
+// takes the place of a front ally the foes could knock out. Users already in front aren't affected, so a side's DIRECT
+// moves go to its sturdy or front Pokémon, and a frail one still steps up for a move worth more (a knockout).
+#define TRIPLE_AI_STEP_UP_KO     3 // Less than a knockout's bonus (AI_TryToFaint), so a knockout is still worth it
+#define TRIPLE_AI_STEP_UP_HURT   1
+#define TRIPLE_AI_STEP_UP_SHIELD 1
+void AdjustTripleStepForwardScores(enum BattlerId battlerAtk, enum BattlerId battlerDef, s32 *scores)
+{
+    enum BattlerId ahead = GetTripleAllyAhead(battlerAtk);
+    s32 adjust = 0;
+
+    // Every target, allies included: the move steps its user up whatever it's aimed at (and a FRONT move aimed at an
+    // ally hits the front foe), so the scores against allies mustn't stay ahead of the others
+    if (ahead == MAX_BATTLERS_COUNT)
+        return;
+
+    u32 hp = gBattleMons[battlerAtk].hp;
+    u32 whereItStands = GetTripleFoesDamageTo(battlerAtk, FALSE);
+    u32 inFront = max(whereItStands, GetTripleFoesDamageTo(battlerAtk, TRUE));
+
+    if (inFront >= hp && whereItStands < hp)
+        adjust = -TRIPLE_AI_STEP_UP_KO;
+    else if (inFront * 2 >= hp && whereItStands * 2 < hp)
+        adjust = -TRIPLE_AI_STEP_UP_HURT;
+    else if (inFront < hp && max(GetTripleFoesDamageTo(ahead, TRUE), GetTripleFoesDamageTo(ahead, FALSE)) >= gBattleMons[ahead].hp)
+        adjust = TRIPLE_AI_STEP_UP_SHIELD;
+    if (adjust == 0)
+        return;
+
+    for (u32 i = 0; i < MAX_MON_MOVES; i++)
+    {
+        if (scores[i] > 0 && IsTripleDirectMove(battlerAtk, gBattleMons[battlerAtk].moves[i]))
+            scores[i] = max(scores[i] + adjust, 1);
+    }
+}
+
 // 2-target moves: the main target takes full damage and the second takes half. 3-target moves: 75% each.
 uq4_12_t GetTripleTargetDamageModifier(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Move move, u32 targetCount)
 {

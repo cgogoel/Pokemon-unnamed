@@ -310,6 +310,17 @@ static u64 GetAiFlags(u16 trainerId, enum BattlerId battler)
     return flags;
 }
 
+static void SetupTripleMiddleAiFlags(void)
+{
+    // 3v3: the middle battlers think like the others on their side (the foe trainer's flags for the AI, the player's
+    // prediction flags for the player)
+    if (IsTripleBattle() && HasTripleMiddleBattlers())
+    {
+        gAiThinkingStruct->aiFlags[B_BATTLER_4] = gAiThinkingStruct->aiFlags[B_BATTLER_2];
+        gAiThinkingStruct->aiFlags[B_BATTLER_5] = gAiThinkingStruct->aiFlags[B_BATTLER_3];
+    }
+}
+
 void BattleAI_SetupFlags(void)
 {
     if (IsAiVsAiBattle())
@@ -321,6 +332,7 @@ void BattleAI_SetupFlags(void)
     {
         gAiThinkingStruct->aiFlags[B_BATTLER_1] = gDebugAIFlags;
         gAiThinkingStruct->aiFlags[B_BATTLER_3] = gDebugAIFlags;
+        SetupTripleMiddleAiFlags();
         return;
     }
 
@@ -365,6 +377,7 @@ void BattleAI_SetupFlags(void)
         gAiThinkingStruct->aiFlags[B_BATTLER_2] = aiFlags;
         gAiThinkingStruct->aiFlags[B_BATTLER_0] = aiFlags;
     }
+    SetupTripleMiddleAiFlags();
 }
 
 bool32 BattlerChooseNonMoveAction(void)
@@ -1048,7 +1061,10 @@ static struct ChosenAction ChooseMoveOrAction_Doubles(enum BattlerId battlerAtk)
         {
             DoAIScoreProcessing(battlerAtk, battlerDef);
             if (IsTripleBattle())
+            {
                 RemoveUnreachableTripleMoveScores(battlerAtk, battlerDef, gAiThinkingStruct->score);
+                AdjustTripleStepForwardScores(battlerAtk, battlerDef, gAiThinkingStruct->score);
+            }
 
             mostViableMovesScores[0] = gAiThinkingStruct->score[0];
             mostViableMovesIndices[0] = 0;

@@ -39,6 +39,11 @@ Custom battle mode for Act 2 onward. Not the Gen 5 Triple Battle: **only one Pok
   - It happens whenever the move is used, even if it then misses or fails (it lunged anyway). It doesn't when the
     Pokémon can't use the move (asleep, fully paralyzed, flinched, hit itself in confusion...), nor for a move bounced
     back by Magic Coat or snatched.
+  - The AI weighs it (`AdjustTripleStepForwardScores`): a DIRECT move that would put a Pokémon in front where the foes'
+    DIRECT moves could knock it out (and couldn't where it stands) loses 3 points, one that would cost it half its HP
+    loses 1, and a sturdy Pokémon gains 1 for stepping in front of an ally the foes could knock out. Pokémon already in
+    front aren't affected. So a side's DIRECT moves go to its sturdy or front Pokémon (KAI's direct style included),
+    and a frail one still steps up for a knockout (worth 4-6 points).
   - "Front" counts only Pokémon still standing: if every Pokémon ahead of the user has fainted, nothing changes and no
     message shows. When the user does step up, a fainted Pokémon's empty spot moves back along with the others, and its
     replacement comes in there. A user that faints from its own move (recoil) is replaced at the front.
@@ -95,10 +100,19 @@ In the move menu's info box (`ShowTripleMoveIndicator`, `src/triple_battle_ui.c`
   darker shades of the floor color (`sFloorShadeSteps`) in BG palette 7 (`TRIPLE_FLOOR_BG_PALETTE`).
 
 ### HP bars and name tags
-- A short HP bar floats over each Pokémon's head, with a small status pill (`triple_status_pills.png`) on its left when
-  it has a status condition. No HP numbers.
-- A name tag (name, level or status) pops up over the Pokémon choosing an action or move, and over the target under the
-  cursor. It's the compact 64x16 healthbox (`healthbox_triples.png`), hidden the rest of the time.
+Design "C, minimal capsule" (mockups: `docs/hack/hp_bar_mockups/`), drawn pixel by pixel into the sprites' tiles in
+`src/battle_interface.c` (`DrawTripleHealthbar`, `DrawTripleBadge`, `DrawTripleNameTag`):
+- A short HP bar floats over each Pokémon's head: a thin dark capsule track (34x5, with a lighter top edge) and a 32-pixel
+  fill in the HP color (green, yellow, red), dark at its left end and brightest at the HP edge, with a bright top row.
+  No HP numbers.
+- A small round badge at the bar's left end shows the level, or the status condition instead (SLP, PSN, BRN, FRZ, FRB,
+  PAR in the 3x5 letters of `sTripleTinyFont`, on the status color).
+- A name tag pops up over the Pokémon choosing an action or move, and over the target under the cursor: a dark capsule
+  with the name, just above the bar (below it near the top of the screen, `TRIPLE_NAME_TAG_BELOW_BAR`). It's drawn
+  into the compact 64x16 healthbox, hidden the rest of the time.
+- Colors: the bars, level badges and name tags share their own palette (`sTripleHealthbarPal`, loaded under
+  `TAG_HEALTHBAR_PAL` in triple battles); status badges use the healthbox palette, where each battler has a status
+  color. As with every healthbox (`B_HIDE_HEALTHBOX_IN_ANIMS`), they hide during move animations.
 - These keep sprite memory free for move animations: six full healthboxes left too little.
 
 ### Player controls (action menu)
@@ -168,7 +182,8 @@ The prompt reads "What will Pikachu do?" with a hint line: `L R Pick`, `SELECT O
 ## Status
 - [x] Phase 1 (engine supports 6 battlers; all existing tests pass)
 - [x] Phase 2 (engine rules, covered by test/battle/triple_battle.c)
-- [x] Phase 3 (AI picks its best actor; respects FRONT reach)
+- [x] Phase 3 (AI picks its best actor; respects FRONT reach; weighs stepping up for DIRECT moves. The middle battlers get
+  their side's AI flags, and `IsTargetingPartner` counts both allies in 3v3)
 - [ ] Phase 4 (in progress: diagonal field layout with depth scaling, oval floor, floating HP bars and name tags,
   controls, target selection, move indicator, the in-battle Pokémon menu and the animation check done)
 - [x] Phase 5 (`Battle Type: Triples`, the debug battle, Act gating, field size matching both sides, 2v2)

@@ -2737,6 +2737,17 @@ void GetFollowerAction(struct ScriptContext *ctx) // Essentially a big switch fo
                         gFollowerBasicMessages[emotion].script);
 }
 
+// The night bloom's spores blink in a row toward the next glowcap: every GLOWCAP_SPORE_BLINK_PERIOD frames the
+// trail's first spore blinks, then the next one GLOWCAP_SPORE_BLINK_STEP frames later, and so on to the one beside the
+// glowcap. Each blink lasts GLOWCAP_SPORE_BLINK_ON frames. All trails share the clock (gMain.vblankCounter1). A spore's
+// place in its trail is its template's movement range X (tools/hack/place_glowcap_spores.py, which also sets their
+// number and spacing: SPORE_SPACING).
+#define GLOWCAP_SPORE_BLINK_PERIOD 600 // 10 s
+#define GLOWCAP_SPORE_BLINK_STEP   60  // 1 s
+#define GLOWCAP_SPORE_BLINK_ON     36
+
+#define sLightOrder data[1] // The hack: a spore's place in its trail (0 first, farthest from the glowcap)
+
 #define sLightWindow data[2] // The hack: a spore's window twin (its sprite id + 1, 0 for none)
 #define sLightFlag data[4] // The hack: its template's flag; the light goes out when it's set
 #define sLightType data[5]
@@ -2829,7 +2840,9 @@ void UpdateLightSprite(struct Sprite *sprite)
     // The night bloom's spores twinkle, each in its own time (and their window twins with them)
     if (sprite->sLightType == LIGHT_TYPE_GLOWCAP_SPORE)
     {
-        sprite->invisible = ((sprite->data[3]++ + sprite->sLightXPos * 9 + sprite->sLightYPos * 5) & 63) < 14;
+        u32 phase = gMain.vblankCounter1 % GLOWCAP_SPORE_BLINK_PERIOD;
+        u32 start = sprite->sLightOrder * GLOWCAP_SPORE_BLINK_STEP;
+        sprite->invisible = !(phase >= start && phase < start + GLOWCAP_SPORE_BLINK_ON);
         SyncLightWindow(sprite);
         return;
     }
@@ -2860,7 +2873,7 @@ void UpdateLightSprite(struct Sprite *sprite)
 }
 
 // Spawn a light at a map coordinate
-static void SpawnLightSprite(s16 x, s16 y, s16 camX, s16 camY, u32 lightType, u32 flagId)
+static void SpawnLightSprite(s16 x, s16 y, s16 camX, s16 camY, u32 lightType, u32 flagId, u32 order)
 {
     struct Sprite *sprite;
     const struct SpriteTemplate *template;
@@ -2882,6 +2895,7 @@ static void SpawnLightSprite(s16 x, s16 y, s16 camX, s16 camY, u32 lightType, u3
     GetMapCoordsFromSpritePos(x + camX, y + camY, &sprite->x, &sprite->y);
     sprite->sLightType = lightType;
     sprite->sLightFlag = flagId;
+    sprite->sLightOrder = order;
     sprite->sLightXPos = x;
     sprite->sLightYPos = y;
     sprite->affineAnims = gDummySpriteAffineAnimTable;
@@ -2919,6 +2933,7 @@ static void SpawnLightSprite(s16 x, s16 y, s16 camX, s16 camY, u32 lightType, u3
 }
 
 #undef sLightWindow
+#undef sLightOrder
 #undef sLightType
 #undef sLightXPos
 #undef sLightYPos
@@ -2950,7 +2965,7 @@ void TrySpawnLightSprites(s16 camX, s16 camY)
          && left <= npcX && right >= npcX
          && !FlagGet(template->flagId)
          && template->graphicsId == OBJ_EVENT_GFX_LIGHT_SPRITE)  // event is light sprite instead
-            SpawnLightSprite(npcX, npcY, camX, camY, template->trainerRange_berryTreeId, template->flagId);
+            SpawnLightSprite(npcX, npcY, camX, camY, template->trainerRange_berryTreeId, template->flagId, template->movementRangeX);
     }
 }
 
@@ -2982,7 +2997,7 @@ void TrySpawnObjectEvents(s16 cameraX, s16 cameraY)
             if (top <= npcY && bottom >= npcY && left <= npcX && right >= npcX && !FlagGet(template->flagId))
             {
                 if (template->graphicsId == OBJ_EVENT_GFX_LIGHT_SPRITE)
-                    SpawnLightSprite(npcX, npcY, cameraX, cameraY, template->trainerRange_berryTreeId, template->flagId); // light sprite instead
+                    SpawnLightSprite(npcX, npcY, cameraX, cameraY, template->trainerRange_berryTreeId, template->flagId, template->movementRangeX); // light sprite instead
                 else
                     TrySpawnObjectEventTemplate(template, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, cameraX, cameraY);
             }

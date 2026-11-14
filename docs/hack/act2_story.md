@@ -129,7 +129,11 @@ dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_n
   the next glowcap** (the first not yet woken): a trail of twinkling spores, no glow on the glowcap itself (it keeps its dim look),
   leading to it from the last one (light sprites in the forest's map.json, `LIGHT_TYPE_GLOWCAP_SPORE`,
   `glowcap_spore.png`; `FLAG_TEMP_11-13` for glowcaps 1-3, `SetGlowcapTrail`); they go out when their flag is set
-  (`UpdateLightSprite`). A Grass move from a Grass Pokémon
+  (`UpdateLightSprite`). A spore every 6 squares along the way and one beside the glowcap (`SPORE_SPACING`,
+  `tools/hack/place_glowcap_spores.py`); they blink in a row toward the glowcap: every 10 s the
+  trail's first spore blinks, then the next 1 s later, and so on to the one beside the glowcap, each for 36 frames
+  (`GLOWCAP_SPORE_BLINK_PERIOD`/`_STEP`/`_ON`, `src/event_object_movement.c`; a spore's place in its trail is its
+  template's movement range X). A Grass move from a Grass Pokémon
   (`Act2_FindCourseMoveUser`) wakes one: it's swapped for its lit self (`OBJ_EVENT_GFX_GLOWCAP_LIT`, in the
   blend-immune `night_bloom.pal`, so it isn't dimmed by the night's tint), and the light widens on the spot
   (`Act2_BrightenForest`: `AnimateFlash` to the new level, then `SetFlashLevel`). All three: `ACT2_RESEARCH_PUZZLE_1`,

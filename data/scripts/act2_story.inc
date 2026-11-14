@@ -1785,12 +1785,14 @@ Act2_Text_ProfMarloweAfter:
 	.string "You never know what's out there.$"
 
 Act2_Text_ProfFernEarly:
-	.string "PROF. FERN: The GRASS course is\n"
-	.string "your third. I'll see you then.$"
+	.string "PROF. FERN: The GRASS course will\n"
+	.string "not start until you complete\l"
+	.string "FIRE and WATER. I'll see you then.$"
 
 Act2_Text_StartGrass:
 	.string "PROF. FERN: Welcome to the GRASS\n"
-	.string "course, your last one.\p"
+	.string "course, the last course before\l"
+	.string "your final exam.\p"
 	.string "GRASS POKéMON teach patience.\n"
 	.string "Nothing here can be rushed.\p"
 	.string "We leave for VIRIDIAN CITY at\n"
@@ -1801,21 +1803,29 @@ Act2_Text_StartGrass:
 Act2_Text_GrassBriefing:
 	.string "PROF. FERN: Welcome to VIRIDIAN\n"
 	.string "CITY, the gateway to the forests.\p"
+	.string "We are here for a very special\n"
+	.string "night.\p"
 	.string "Once a year, a flower called the\n"
 	.string "MOONVEIL blooms for a single\l"
 	.string "night in VIRIDIAN FOREST.\p"
-	.string "Tonight is that night. And nobody\n"
-	.string "has ever recorded where it grows.\p"
-	.string "Find the bloom, protect it until\n"
-	.string "dawn, and collect its dew.\p"
-	.string "Along the way, catch three\n"
-	.string "different GRASS POKéMON, and\l"
-	.string "record how GRASS moves work in\l"
-	.string "battle.\p"
+	.string "Tonight is that night and you are\n"
+	.string "going to record where it grows.\p"
+	.string "Beware, the bloom is said to\n"
+	.string "attract powerful POKéMON.\p"
+	.string "Find the bloom, protect it, and\n"
+	.string "collect its dew.\p"
+	.string "Along the way, fill out your\n"
+	.string "research sheet just as you have\l"
+	.string "for the previous courses.\p"
 	.string "The forest is north, past\n"
 	.string "ROUTE 2. It will be very dark.\p"
-	.string "Finish the sheet, and the dew may\n"
-	.string "just make a TM. You'll need these.$"
+	.string "Once you catch some GRASS\n"
+	.string "POKéMON they can help you by\l"
+	.string "lighting the GLOWCAP mushrooms\l"
+	.string "you'll find along the trail.\p"
+	.string "Finish the sheet, find the bloom,\n"
+	.string "and the dew may just make a new\l"
+	.string "powerful TM. You'll need these.$"
 
 Act2_Text_GrassSheetIntro:
 	.string "PROF. FERN: Let's see your research\n"
@@ -1824,7 +1834,8 @@ Act2_Text_GrassSheetIntro:
 Act2_Text_GrassHint:
 	.string "VIRIDIAN FOREST is pitch-dark\n"
 	.string "tonight. GLOWCAPS grow along its\l"
-	.string "trail. A GRASS move wakes them.$"
+	.string "trail. A GRASS move will help\l"
+	.string "them glow.$"
 
 Act2_Text_GrassHintOddish:
 	.string "The ODDISH know the forest's\n"
@@ -1845,7 +1856,8 @@ Act2_Text_GrassResearchDone:
 	.string "And this dew… It holds a whole\n"
 	.string "night's energy in a single drop.\p"
 	.string "Let's make a TM from it together:\n"
-	.string "GIGA DRAIN. It drinks the night.$"
+	.string "GIGA DRAIN. It absorbs the\l"
+	.string "essence deep within its target.$"
 
 Act2_Text_GrassTeachTM:
 	.string "The TM is yours to keep. Teach\n"
@@ -1863,8 +1875,9 @@ Act2_Text_FernDefeat:
 
 Act2_Text_GrassPassed:
 	.string "PROF. FERN: You pass!\p"
-	.string "That's every course. Back to the\n"
-	.string "university, everyone!$"
+	.string "That's all your base courses\n"
+	.string "complete. Back to the university,\l"
+	.string "everyone!$"
 
 Act2_Text_ProfFernAfter:
 	.string "PROF. FERN: Your GRASS POKéMON\n"

@@ -63,6 +63,8 @@ enum
 
 #define TAG_HEALTHBAR_PAL               TAG_HEALTHBAR_PLAYER1_TILE
 #define TAG_HEALTHBOX_PAL               TAG_HEALTHBOX_PLAYER1_TILE
+
+extern const struct SpritePalette gTripleHealthbarSpritePalette;
 #define TAG_SHADOW_PAL                  TAG_HEALTHBOX_PLAYER1_TILE
 
 #define TAG_SHADOW_TILE                 0xD759

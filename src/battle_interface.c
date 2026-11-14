@@ -626,16 +626,10 @@ static const union TextColor sHealthBoxTextColor =
 #define hBar_HealthBoxSpriteId      data[5]
 #define hBar_Data6                  data[6]
 
-// Compact triple battle healthbox: 64x16 in two 32x16 halves. Name on the left, level or status on the right
-// (drawn in the right half), HP bar below.
+// Triple battle name tag: 64x16 in two 32x16 halves (the healthbox), the HP bar below it. See DrawTripleNameTag.
 #define TRIPLE_HEALTHBOX_HALF_TILES 8
-#define TRIPLE_HEALTHBAR_X 0 // The 32-pixel fill (no "HP" label) is centred under the name tag
+#define TRIPLE_HEALTHBAR_X 0 // The 32-pixel fill is centred under the name tag
 #define TRIPLE_HEALTHBAR_Y TRIPLE_HEALTHBAR_OFFSET_Y
-#define TRIPLE_NAME_X 4
-#define TRIPLE_NAME_WIDTH 32
-#define TRIPLE_TEXT_Y 0
-#define TRIPLE_LEVEL_RIGHT 29 // In the right half
-#define TRIPLE_STATUS_TILE (TRIPLE_HEALTHBOX_HALF_TILES + 1) // The status icon (3 tiles) replaces the level in the right half's top row
 
 // This function is here to cover a specific case - one player's mon in a 2 vs 1 double battle. In this scenario - display singles layout.
 // The same goes for a 2 vs 1 where opponent has only one Pokémon.
@@ -847,8 +841,56 @@ static void SpriteCB_HealthBoxOther(struct Sprite *sprite)
     sprite->y2 = gSprites[healthboxMainSpriteId].y2;
 }
 
-// Triple battles: the healthbox is a name tag shown only over the battler being chosen or targeted (SetTripleNameTags).
-// The HP bar is always shown; its visibility is the healthbox's "shown" state.
+// Triple battles' floating HP bars (docs/hack/triple_battles.md): a thin dark capsule track with a gradient HP fill,
+// brightest at the HP edge, and a small round badge at its left end with the level, or the status condition instead.
+// The name tag is a dark capsule with the name above the bar, shown only over the battler being chosen or targeted
+// (SetTripleNameTags). They're drawn pixel by pixel into their sprites' tiles. The bars, the level badges and the name
+// tags use their own palette (loaded as TAG_HEALTHBAR_PAL in triple battles); status badges use the healthbox palette,
+// where each battler has its own status color.
+enum
+{
+    TRIPLE_BAR_COLOR_TRACK = 1,
+    TRIPLE_BAR_COLOR_TRACK_EDGE,
+    TRIPLE_BAR_COLOR_SLATE,       // Name tag and level badge
+    TRIPLE_BAR_COLOR_WHITE,
+    TRIPLE_BAR_COLOR_TEXT_SHADOW,
+    TRIPLE_BAR_COLOR_GREEN,       // 3 shades each, dark to bright
+    TRIPLE_BAR_COLOR_YELLOW = TRIPLE_BAR_COLOR_GREEN + 3,
+    TRIPLE_BAR_COLOR_RED = TRIPLE_BAR_COLOR_YELLOW + 3,
+};
+
+static const u16 sTripleHealthbarPal[16] =
+{
+    [TRIPLE_BAR_COLOR_TRACK]       = RGB(4, 5, 6),
+    [TRIPLE_BAR_COLOR_TRACK_EDGE]  = RGB(8, 9, 11),
+    [TRIPLE_BAR_COLOR_SLATE]       = RGB(5, 6, 8),
+    [TRIPLE_BAR_COLOR_WHITE]       = RGB(31, 31, 31),
+    [TRIPLE_BAR_COLOR_TEXT_SHADOW] = RGB(12, 13, 15),
+    [TRIPLE_BAR_COLOR_GREEN + 0]   = RGB(5, 17, 10),
+    [TRIPLE_BAR_COLOR_GREEN + 1]   = RGB(10, 25, 16),
+    [TRIPLE_BAR_COLOR_GREEN + 2]   = RGB(17, 31, 22),
+    [TRIPLE_BAR_COLOR_YELLOW + 0]  = RGB(22, 16, 1),
+    [TRIPLE_BAR_COLOR_YELLOW + 1]  = RGB(30, 24, 4),
+    [TRIPLE_BAR_COLOR_YELLOW + 2]  = RGB(31, 30, 16),
+    [TRIPLE_BAR_COLOR_RED + 0]     = RGB(19, 4, 4),
+    [TRIPLE_BAR_COLOR_RED + 1]     = RGB(28, 9, 6),
+    [TRIPLE_BAR_COLOR_RED + 2]     = RGB(31, 19, 16),
+};
+
+const struct SpritePalette gTripleHealthbarSpritePalette = { sTripleHealthbarPal, TAG_HEALTHBAR_PAL };
+
+#define TRIPLE_TRACK_X 15     // In the 64x8 bar sprite: the track's left end. The 32-pixel fill starts 1 pixel in.
+#define TRIPLE_TRACK_Y 1
+#define TRIPLE_TRACK_WIDTH 34
+#define TRIPLE_TRACK_HEIGHT 5
+#define TRIPLE_FILL_WIDTH 32
+#define TRIPLE_TAG_TOP 1      // Name tag capsule rows in the 64x16 healthbox
+#define TRIPLE_TAG_HEIGHT 11
+#define TRIPLE_TAG_NAME_Y 0   // Where the name is printed (the small font's letters start a few rows down)
+#define TRIPLE_TAG_PAD 4      // Between the capsule's ends and the name
+
+static EWRAM_DATA u8 sTripleBarFilled[MAX_BATTLERS_COUNT] = {0};
+static EWRAM_DATA u8 sTripleBarColor[MAX_BATTLERS_COUNT] = {0};
 static EWRAM_DATA u8 sTripleNameTagBattlers = 0;
 static EWRAM_DATA u8 sTripleStatusSpriteIds[MAX_BATTLERS_COUNT] = {0};
 
@@ -872,32 +914,114 @@ static void SpriteCB_HealthBoxOtherTriple(struct Sprite *sprite)
     main->invisible = !show;
 }
 
-// A small status pill (16x8, gTripleStatusPillsGfx) sits just left of the floating HP bar.
-#define sHasStatus data[0]
-#define sBarSpriteId data[1]
-
-enum
+// How far in from the ends a rounded capsule's row starts
+static u32 GetTripleCapsuleInset(u32 row, u32 height)
 {
-    TRIPLE_PILL_SLP,
-    TRIPLE_PILL_PSN,
-    TRIPLE_PILL_BRN,
-    TRIPLE_PILL_FRZ,
-    TRIPLE_PILL_FRB,
-    TRIPLE_PILL_PAR,
-    TRIPLE_PILL_NONE,
+    u32 fromEdge = min(row, height - 1 - row);
+    if (height <= 5)
+        return fromEdge == 0 ? 1 : 0;
+    return fromEdge >= 2 ? 0 : 2 - fromEdge;
+}
+
+// tiles: an image tilesPerRow tiles wide, tiles in rows (1D sprite tile order)
+static inline void PutTriplePixel(u32 *tiles, u32 tilesPerRow, u32 x, u32 y, u32 color)
+{
+    u32 *word = &tiles[((y / 8) * tilesPerRow + x / 8) * 8 + y % 8];
+    u32 shift = (x % 8) * 4;
+    *word = (*word & ~(0xFu << shift)) | (color << shift);
+}
+
+static void DrawTripleCapsule(u32 *tiles, u32 tilesPerRow, u32 x, u32 y, u32 width, u32 height, u32 color)
+{
+    for (u32 row = 0; row < height; row++)
+    {
+        u32 inset = GetTripleCapsuleInset(row, height);
+        for (u32 px = x + inset; px < x + width - inset; px++)
+            PutTriplePixel(tiles, tilesPerRow, px, y + row, color);
+    }
+}
+
+// 3x5 digits and letters for the badges: 3 bits per line, top line in the low bits. Indexed by plain ASCII.
+static const struct { char c; u16 glyph; } sTripleTinyFont[] =
+{
+    {'0', 0x7B6F}, {'1', 0x749A}, {'2', 0x73E7}, {'3', 0x79A7}, {'4', 0x49ED},
+    {'5', 0x79CF}, {'6', 0x7BCF}, {'7', 0x24A7}, {'8', 0x7BEF}, {'9', 0x79EF},
+    {'A', 0x5BEA}, {'B', 0x3AEB}, {'F', 0x12CF}, {'L', 0x7249}, {'N', 0x5FFD},
+    {'P', 0x12EB}, {'R', 0x5AEB}, {'S', 0x388E}, {'Z', 0x72A7},
 };
+
+static u32 DrawTripleTinyText(u32 *tiles, u32 tilesPerRow, u32 x, u32 y, const char *text, u32 color)
+{
+    for (; *text != '\0'; text++, x += 4)
+    {
+        u16 glyph = 0;
+        for (u32 i = 0; i < ARRAY_COUNT(sTripleTinyFont); i++)
+        {
+            if (sTripleTinyFont[i].c == *text)
+                glyph = sTripleTinyFont[i].glyph;
+        }
+        for (u32 row = 0; row < 5; row++)
+        {
+            for (u32 col = 0; col < 3; col++)
+            {
+                if (glyph & (1u << (row * 3 + col)))
+                    PutTriplePixel(tiles, tilesPerRow, x + col, y + row, color);
+            }
+        }
+    }
+    return x;
+}
+
+// The bar: the track, then the fill (3 rows) from dark at the left end to bright at the HP edge, with a bright top row.
+static void DrawTripleHealthbar(enum BattlerId battler, u32 healthbarSpriteId)
+{
+    u32 tiles[8 * TILE_SIZE_4BPP / 4] = {0};
+    u32 filled = sTripleBarFilled[battler];
+    u32 color = sTripleBarColor[battler];
+
+    DrawTripleCapsule(tiles, 8, TRIPLE_TRACK_X, TRIPLE_TRACK_Y, TRIPLE_TRACK_WIDTH, TRIPLE_TRACK_HEIGHT, TRIPLE_BAR_COLOR_TRACK);
+    for (u32 px = 2; px < TRIPLE_TRACK_WIDTH - 2; px++) // A faint top edge so the track reads on dark floors
+        PutTriplePixel(tiles, 8, TRIPLE_TRACK_X + px, TRIPLE_TRACK_Y, TRIPLE_BAR_COLOR_TRACK_EDGE);
+    for (u32 px = 0; px < filled; px++)
+    {
+        u32 shade = (px < filled / 4) ? 0 : 1; // Dark at the left end
+        if (px + 2 >= filled)
+            shade = 2; // Bright tip at the HP edge
+        for (u32 row = 0; row < 3; row++)
+        {
+            if (row != 1 && (px == 0 || px == TRIPLE_FILL_WIDTH - 1))
+                continue; // Rounded ends
+            PutTriplePixel(tiles, 8, TRIPLE_TRACK_X + 1 + px, TRIPLE_TRACK_Y + 1 + row, color + (row == 0 ? 2 : shade));
+        }
+    }
+    CpuCopy32(tiles, (void *)(OBJ_VRAM0 + gSprites[healthbarSpriteId].oam.tileNum * TILE_SIZE_4BPP), sizeof(tiles));
+}
+
+static void SetTripleHealthbarFill(enum BattlerId battler, u32 healthbarSpriteId, u32 filled, u32 hpBarLevel)
+{
+    sTripleBarFilled[battler] = min(filled, TRIPLE_FILL_WIDTH);
+    if (hpBarLevel == HP_BAR_YELLOW)
+        sTripleBarColor[battler] = TRIPLE_BAR_COLOR_YELLOW;
+    else if (hpBarLevel == HP_BAR_RED)
+        sTripleBarColor[battler] = TRIPLE_BAR_COLOR_RED;
+    else
+        sTripleBarColor[battler] = TRIPLE_BAR_COLOR_GREEN;
+    DrawTripleHealthbar(battler, healthbarSpriteId);
+}
+
+#define sBarSpriteId data[1]
 
 static void SpriteCB_TripleStatus(struct Sprite *sprite)
 {
     struct Sprite *bar = &gSprites[sprite->sBarSpriteId];
 
-    // The bar's fill starts at bar->x; the pill ends there.
-    sprite->x = bar->x - 8;
+    // The badge's right end is just left of the track's
+    sprite->x = bar->x - 9;
     sprite->y = bar->y + 4;
     sprite->x2 = bar->x2;
     sprite->y2 = bar->y2;
     sprite->oam.priority = bar->oam.priority;
-    sprite->invisible = bar->invisible || !sprite->sHasStatus;
+    sprite->invisible = bar->invisible;
 }
 
 static const u32 sTripleStatusBlankTiles[2 * TILE_SIZE_4BPP / 4] = {0};
@@ -915,7 +1039,7 @@ static void CreateTripleStatusSprite(enum BattlerId battler, u32 healthbarSprite
     struct SpriteTemplate template =
     {
         .tileTag = TAG_TRIPLE_STATUS_TILE + battler,
-        .paletteTag = TAG_HEALTHBOX_PAL,
+        .paletteTag = TAG_HEALTHBAR_PAL,
         .oam = &sOamData_TripleStatus,
         .anims = gDummySpriteAnimTable,
         .affineAnims = gDummySpriteAffineAnimTable,
@@ -926,43 +1050,97 @@ static void CreateTripleStatusSprite(enum BattlerId battler, u32 healthbarSprite
     LoadSpriteSheet(&sheet);
     spriteId = CreateSpriteAtEnd(&template, 0, 0, 0);
     gSprites[spriteId].sBarSpriteId = healthbarSpriteId;
-    gSprites[spriteId].sHasStatus = FALSE;
     gSprites[spriteId].invisible = TRUE;
     sTripleStatusSpriteIds[battler] = spriteId;
+    sTripleBarFilled[battler] = 0;
+    sTripleBarColor[battler] = TRIPLE_BAR_COLOR_GREEN;
+    DrawTripleHealthbar(battler, healthbarSpriteId);
 }
 
-// The pill's fill uses color 15, recolored to the battler's status color (statusColor).
-static void SetTripleStatusIcon(enum BattlerId battler, u32 pill, u32 statusColor)
+static const char *const sTripleStatusLabels[] = { "SLP", "PSN", "BRN", "FRZ", "FRB", "PAR" };
+
+// The badge: the level on a dark capsule, or the status condition on its color (statusColor, in the healthbox palette).
+static void DrawTripleBadge(enum BattlerId battler, u32 statusColor)
 {
     struct Sprite *sprite = &gSprites[sTripleStatusSpriteIds[battler]];
-    u32 words[2 * TILE_SIZE_4BPP / 4];
-    const u8 *src = (const u8 *)gTripleStatusPillsGfx + pill * 2 * TILE_SIZE_4BPP;
-    u8 *dst = (u8 *)words;
+    u32 tiles[2 * TILE_SIZE_4BPP / 4] = {0};
+    u32 status = GetMonData(GetBattlerMon(battler), MON_DATA_STATUS);
+    char text[4];
+    u32 fill, textColor, length = 0;
 
-    sprite->sHasStatus = (pill != TRIPLE_PILL_NONE);
-    if (pill == TRIPLE_PILL_NONE)
-        return;
-
-    for (u32 i = 0; i < sizeof(words); i++)
+    if (status & STATUS1_ANY)
     {
-        u8 pixels = src[i];
-        if ((pixels & 0xF) == 15)
-            pixels = (pixels & 0xF0) | statusColor;
-        if ((pixels >> 4) == 15)
-            pixels = (pixels & 0x0F) | (statusColor << 4);
-        dst[i] = pixels;
+        u32 label;
+        if (status & STATUS1_SLEEP)
+            label = 0;
+        else if (status & STATUS1_PSN_ANY)
+            label = 1;
+        else if (status & STATUS1_BURN)
+            label = 2;
+        else if (status & STATUS1_FREEZE)
+            label = 3;
+        else if (status & STATUS1_FROSTBITE)
+            label = 4;
+        else
+            label = 5;
+        for (length = 0; length < 3; length++)
+            text[length] = sTripleStatusLabels[label][length];
+        fill = statusColor;
+        // Dark letters on the light colors (sleep, paralysis, freeze), light ones on the dark ones
+        textColor = (label == 1 || label == 2) ? HEALTHBOX_BG_INDEX : 1;
+        sprite->oam.paletteNum = IndexOfSpritePaletteTag(TAG_HEALTHBOX_PAL);
     }
-    CpuCopy32(words, (void *)(OBJ_VRAM0 + sprite->oam.tileNum * TILE_SIZE_4BPP), sizeof(words));
+    else
+    {
+        u32 level = GetMonData(GetBattlerMon(battler), MON_DATA_LEVEL);
+        if (level >= 100)
+            text[length++] = '0' + level / 100;
+        if (level >= 10)
+            text[length++] = '0' + (level / 10) % 10;
+        text[length++] = '0' + level % 10;
+        fill = TRIPLE_BAR_COLOR_SLATE;
+        textColor = TRIPLE_BAR_COLOR_WHITE;
+        sprite->oam.paletteNum = IndexOfSpritePaletteTag(TAG_HEALTHBAR_PAL);
+    }
+    text[length] = '\0';
+    u32 width = 4 * length + 3;
+    DrawTripleCapsule(tiles, 2, 16 - width, 0, width, 7, fill);
+    DrawTripleTinyText(tiles, 2, 16 - width + 2, 1, text, textColor);
+    CpuCopy32(tiles, (void *)(OBJ_VRAM0 + sprite->oam.tileNum * TILE_SIZE_4BPP), sizeof(tiles));
 }
 
-// The floating HP bar has no "HP" label (the status pill sits there instead) and is only 32 pixels long (tiles 2-5).
+// The name tag: a dark capsule with the name, centred over the bar, across the healthbox's two 32x16 halves.
+static void DrawTripleNameTag(u8 healthboxSpriteId, const u8 *name)
+{
+    u32 wide[16 * TILE_SIZE_4BPP / 4] = {0}; // Drawn as one 64x16 image, then split into the halves' tiles
+    u32 tiles[16 * TILE_SIZE_4BPP / 4];
+    u32 rightSpriteId = gSprites[healthboxSpriteId].oam.affineParam;
+    u32 fontId = GetFontIdToFit(name, FONT_SMALL, 0, 64 - 2 * TRIPLE_TAG_PAD);
+    u32 width = GetStringWidth(fontId, name, 0) + 2 * TRIPLE_TAG_PAD;
+    static const union TextColor sTagTextColor = { .background = 0, .foreground = TRIPLE_BAR_COLOR_WHITE, .shadow = TRIPLE_BAR_COLOR_TEXT_SHADOW };
+
+    if (width > 64)
+        width = 64;
+    DrawTripleCapsule(wide, 8, (64 - width) / 2, TRIPLE_TAG_TOP, width, TRIPLE_TAG_HEIGHT, TRIPLE_BAR_COLOR_SLATE);
+    for (u32 tile = 0; tile < 16; tile++)
+    {
+        u32 tileX = tile % 8, tileY = tile / 8;
+        u32 dest = (tileX / 4) * 8 + tileY * 4 + tileX % 4;
+        for (u32 i = 0; i < 8; i++)
+            tiles[dest * 8 + i] = wide[tile * 8 + i];
+    }
+    CpuCopy32(tiles, (void *)(OBJ_VRAM0 + gSprites[healthboxSpriteId].oam.tileNum * TILE_SIZE_4BPP), sizeof(tiles));
+    gSprites[healthboxSpriteId].oam.paletteNum = IndexOfSpritePaletteTag(TAG_HEALTHBAR_PAL);
+    gSprites[rightSpriteId].oam.paletteNum = gSprites[healthboxSpriteId].oam.paletteNum;
+    AddSpriteTextPrinterParameterized6(healthboxSpriteId, fontId, (64 - width) / 2 + TRIPLE_TAG_PAD, TRIPLE_TAG_NAME_Y, 0, 0, sTagTextColor, 0, name);
+}
+
+// Something else wrote into the bar's tiles (the "HP" label of the normal bars): redraw it.
 static void ClearTripleHealthbarLabel(u32 healthbarSpriteId)
 {
-    CpuFill32(0, (void *)(OBJ_VRAM0 + gSprites[healthbarSpriteId].oam.tileNum * TILE_SIZE_4BPP), TILE_SIZE_4BPP * 2);
-    CpuFill32(0, (void *)(OBJ_VRAM0 + (gSprites[healthbarSpriteId].oam.tileNum + 6) * TILE_SIZE_4BPP), TILE_SIZE_4BPP * 2);
+    DrawTripleHealthbar(gSprites[gSprites[healthbarSpriteId].hBar_HealthBoxSpriteId].hMain_Battler, healthbarSpriteId);
 }
 
-#undef sHasStatus
 #undef sBarSpriteId
 
 void SetBattleBarStruct(enum BattlerId battler, u8 healthboxSpriteId, s32 maxVal, s32 oldVal, s32 receivedValue)
@@ -1201,11 +1379,9 @@ static void UpdateLvlInHealthbox(u8 healthboxSpriteId, u8 lvl)
 
     if (GetBattlerCoordsIndex(battler) == BATTLE_COORDS_TRIPLES)
     {
-        // A status condition takes the level's place
-        if (GetMonData(GetBattlerMon(battler), MON_DATA_STATUS) & STATUS1_ANY)
-            return;
-        FillSpriteRectColor(spriteId, TRIPLE_LEVEL_RIGHT - 24, TRIPLE_TEXT_Y + 3, 24, 9, HEALTHBOX_BG_INDEX);
-        AddSpriteTextPrinterParameterized6(spriteId, FONT_SMALL, TRIPLE_LEVEL_RIGHT - width, TRIPLE_TEXT_Y, 0, 0, sHealthBoxTextColor, 0, text);
+        // The level is in the badge by the bar (a status condition takes its place)
+        if (!(GetMonData(GetBattlerMon(battler), MON_DATA_STATUS) & STATUS1_ANY))
+            DrawTripleBadge(battler, 0);
     }
     else if (IsOnPlayerSide(battler))
     {
@@ -2147,11 +2323,9 @@ void UpdateNickInHealthbox(u8 healthboxSpriteId, struct Pokemon *mon)
 
     if (GetBattlerCoordsIndex(gSprites[healthboxSpriteId].hMain_Battler) == BATTLE_COORDS_TRIPLES)
     {
-        // No gender symbol, to leave room for the level
+        // The name alone, no gender symbol
         StringCopy(gDisplayedStringBattle, nickname);
-        fontId = GetFontIdToFit(gDisplayedStringBattle, FONT_SMALL, 0, TRIPLE_NAME_WIDTH);
-        FillSpriteRectColor(healthboxSpriteId, TRIPLE_NAME_X, TRIPLE_TEXT_Y + 3, TRIPLE_NAME_WIDTH, 9, HEALTHBOX_BG_INDEX);
-        AddSpriteTextPrinterParameterized6(healthboxSpriteId, fontId, TRIPLE_NAME_X, TRIPLE_TEXT_Y, 0, 0, sHealthBoxTextColor, 0, gDisplayedStringBattle);
+        DrawTripleNameTag(healthboxSpriteId, gDisplayedStringBattle);
     }
     else if (IsOnPlayerSide(gSprites[healthboxSpriteId].data[6]))
     {
@@ -2216,7 +2390,7 @@ static void UpdateStatusIconInHealthbox(u8 healthboxSpriteId)
     status = GetMonData(GetBattlerMon(battler), MON_DATA_STATUS);
     if (GetBattlerCoordsIndex(battler) == BATTLE_COORDS_TRIPLES)
     {
-        tileNumAdder = TRIPLE_STATUS_TILE;
+        tileNumAdder = 0; // The badge by the bar shows the status (DrawTripleBadge)
     }
     else if (IsOnPlayerSide(battler))
     {
@@ -2270,18 +2444,7 @@ static void UpdateStatusIconInHealthbox(u8 healthboxSpriteId)
     }
     else if (GetBattlerCoordsIndex(battler) == BATTLE_COORDS_TRIPLES)
     {
-        // Put the level back where the status icon was
-        u8 *healthboxGfx = Alloc(0x200);
-        if (healthboxGfx != NULL)
-        {
-            DecompressDataWithHeaderWram(gHealthboxTriplesGfx, healthboxGfx);
-            CpuCopy32(healthboxGfx + tileNumAdder * TILE_SIZE_4BPP, (void *)(OBJ_VRAM0 + (gSprites[healthboxSpriteId].oam.tileNum + tileNumAdder) * TILE_SIZE_4BPP), TILE_SIZE_4BPP * 3);
-            Free(healthboxGfx);
-        }
-        UpdateLvlInHealthbox(healthboxSpriteId, GetMonData(GetBattlerMon(battler), MON_DATA_LEVEL));
-        SetTripleStatusIcon(battler, TRIPLE_PILL_NONE, 0);
-        ClearTripleHealthbarLabel(healthBarSpriteId);
-        TryAddPokeballIconToHealthbox(healthboxSpriteId, TRUE);
+        DrawTripleBadge(battler, 0); // The level again
         return;
     }
     else
@@ -2301,13 +2464,16 @@ static void UpdateStatusIconInHealthbox(u8 healthboxSpriteId)
     // Each battler's status icon has its own palette color (12 + battler). The middle battlers of triple battles have
     // no icon of their own: they use battler 3's and are recolored to 10 and 11, the gender colors the compact healthbox doesn't use.
     u32 statusColor = (battler < B_BATTLER_4) ? battler + 12 : battler + 6;
-    if (GetBattlerCoordsIndex(battler) == BATTLE_COORDS_TRIPLES) // Clear the level the icon replaces
-        FillSpriteRectColor(gSprites[healthboxSpriteId].oam.affineParam, TRIPLE_LEVEL_RIGHT - 24, TRIPLE_TEXT_Y + 3, 24, 9, HEALTHBOX_BG_INDEX);
-    pltAdder = PLTT_ID(gSprites[healthboxSpriteId].oam.paletteNum);
+    pltAdder = PLTT_ID(IndexOfSpritePaletteTag(TAG_HEALTHBOX_PAL));
     pltAdder += statusColor;
 
     FillPalette(sStatusIconColors[statusPalId], OBJ_PLTT_OFFSET + pltAdder, PLTT_SIZEOF(1));
     CpuCopy16(&gPlttBufferUnfaded[OBJ_PLTT_OFFSET + pltAdder], (u16 *)OBJ_PLTT + pltAdder, PLTT_SIZEOF(1));
+    if (GetBattlerCoordsIndex(battler) == BATTLE_COORDS_TRIPLES)
+    {
+        DrawTripleBadge(battler, statusColor);
+        return;
+    }
     if (battler >= B_BATTLER_4)
     {
         u32 iconWords[TILE_SIZE_4BPP * 3 / 4];
@@ -2334,24 +2500,6 @@ static void UpdateStatusIconInHealthbox(u8 healthboxSpriteId)
             CpuCopy32(GetHealthboxElementGfxPtr(HEALTHBOX_GFX_0), (void *)(OBJ_VRAM0 + gSprites[healthBarSpriteId].oam.tileNum * TILE_SIZE_4BPP), 32);
             CpuCopy32(GetHealthboxElementGfxPtr(HEALTHBOX_GFX_65), (void *)(OBJ_VRAM0 + (gSprites[healthBarSpriteId].oam.tileNum + 1) * TILE_SIZE_4BPP), 32);
         }
-    }
-    if (GetBattlerCoordsIndex(battler) == BATTLE_COORDS_TRIPLES)
-    {
-        u32 pill;
-        if (status & STATUS1_SLEEP)
-            pill = TRIPLE_PILL_SLP;
-        else if (status & STATUS1_PSN_ANY)
-            pill = TRIPLE_PILL_PSN;
-        else if (status & STATUS1_BURN)
-            pill = TRIPLE_PILL_BRN;
-        else if (status & STATUS1_FREEZE)
-            pill = TRIPLE_PILL_FRZ;
-        else if (status & STATUS1_FROSTBITE)
-            pill = TRIPLE_PILL_FRB;
-        else
-            pill = TRIPLE_PILL_PAR;
-        SetTripleStatusIcon(battler, pill, statusColor);
-        ClearTripleHealthbarLabel(healthBarSpriteId);
     }
     TryAddPokeballIconToHealthbox(healthboxSpriteId, (B_HP_PERCENTAGE_DISPLAY && GetBattlerCoordsIndex(battler) == BATTLE_COORDS_SINGLES));
 }
@@ -2652,11 +2800,9 @@ static void MoveBattleBarGraphically(enum BattlerId battler, u8 whichBar)
             for (i = 0; i < 6; i++)
                 filled += array[i];
             filled = (filled * 32 + 47) / 48;
-            for (i = 0; i < 4; i++)
-            {
-                array[i] = (filled >= 8) ? 8 : filled;
-                filled -= array[i];
-            }
+            SetTripleHealthbarFill(battler, gSprites[gBattleSpritesDataPtr->battleBars[battler].healthboxSpriteId].hMain_HealthBarSpriteId,
+                                   filled, GetHPBarLevel(currValue, maxValue));
+            break;
         }
         for (i = 0; i < ((GetBattlerCoordsIndex(battler) == BATTLE_COORDS_TRIPLES) ? 4 : 6); i++)
         {

@@ -4,7 +4,8 @@
 Each trail leads from the last glowcap (or the forest's entrance) to the next one along the walkable way, a spore
 every SPORE_SPACING squares, and always one right beside the glowcap it leads to. The spores are light sprites
 (OBJ_EVENT_GFX_LIGHT_SPRITE, LIGHT_TYPE_GLOWCAP_SPORE) shown while their trail's flag is clear (SetGlowcapTrail in
-src/act2_night_bloom.c). Their twinkle is tuned in src/event_object_movement.c (GLOWCAP_SPORE_BLINK_*).
+src/act2_night_bloom.c). They blink in a row toward the glowcap: each spore's place in its trail goes in its movement
+range X (0 first), and the timing is src/event_object_movement.c's GLOWCAP_SPORE_BLINK_*.
 Re-running rewrites the forest's spores (they go at the end of its object events).
 
     python3 tools/hack/place_glowcap_spores.py
@@ -45,9 +46,9 @@ def spores(corners, last):
     return placed + [last]
 
 
-def light(x, y, flag):
+def light(x, y, flag, order):
     return {'type': 'object', 'graphics_id': 'OBJ_EVENT_GFX_LIGHT_SPRITE', 'x': x, 'y': y, 'elevation': 3,
-            'movement_type': 'MOVEMENT_TYPE_NONE', 'movement_range_x': 1, 'movement_range_y': 1,
+            'movement_type': 'MOVEMENT_TYPE_NONE', 'movement_range_x': order, 'movement_range_y': 1,
             'trainer_type': 'TRAINER_TYPE_NONE', 'trainer_sight_or_berry_tree_id': 'LIGHT_TYPE_GLOWCAP_SPORE',
             'script': '0', 'flag': flag}
 
@@ -56,8 +57,9 @@ def main():
     d = json.load(open(MAP))
     d['object_events'] = [o for o in d['object_events'] if o['graphics_id'] != 'OBJ_EVENT_GFX_LIGHT_SPRITE']
     for flag, corners, last in TRAILS:
-        for x, y in spores(corners, last):
-            d['object_events'].append(light(x, y, flag))
+        for order, (x, y) in enumerate(spores(corners, last)):
+            assert order < 16  # movement range X is 4 bits
+            d['object_events'].append(light(x, y, flag, order))
         print(flag, spores(corners, last))
     open(MAP, 'w').write(json.dumps(d, indent=2, ensure_ascii=False) + '\n')
 

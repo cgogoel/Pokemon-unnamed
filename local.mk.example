@@ -1,0 +1,5 @@
+# Copy to local.mk (not in git) for machine-local build settings.
+
+# Each built ROM (pokemon-unnamed.gba, pokemon-unnamed-act2.gba, ...) is also copied here, e.g. an iCloud folder
+# for playing on another device:
+# ROM_COPY_DIR := $(HOME)/Library/Mobile Documents/com~apple~CloudDocs/Pokemon Unnamed

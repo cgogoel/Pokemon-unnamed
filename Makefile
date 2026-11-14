@@ -72,6 +72,9 @@ endif
 
 include config.mk
 
+# Machine-local settings, not in git (see local.mk.example): e.g. ROM_COPY_DIR, a folder each built ROM is copied to
+-include local.mk
+
 # Default make rule
 all: rom
 
@@ -614,6 +617,9 @@ endif
 $(ROM): $(ELF)
 	$(OBJCOPY) -O binary $< $@
 	$(FIX) $@ -p --silent
+ifneq ($(ROM_COPY_DIR),)
+	@cp "$@" "$(ROM_COPY_DIR)/" && echo "Copied $@ to $(ROM_COPY_DIR)"
+endif
 
 emerald: all
 firered: all

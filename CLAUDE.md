@@ -24,6 +24,7 @@ Per-release notes live in `docs/changelogs/<X.Y.x>/` (`docs/CHANGELOG.md` is jus
 - Act 2 playtest build (a new game starts at Act 2): `make act2` (writes `pokemon-unnamed-act2.gba`). Build it
   alongside the normal ROM after each change.
 - Run expansion test suite: `make check`
+- Copying each built ROM elsewhere (e.g. iCloud): set `ROM_COPY_DIR` in an untracked `local.mk` (see `local.mk.example`).
 - Clean: `make clean`
 
 Always run a build after making changes and fix any errors before reporting a task

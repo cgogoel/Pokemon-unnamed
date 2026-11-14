@@ -1498,3 +1498,36 @@ void InitTilesetAnim_PokemonMansion(void)
     sSecondaryTilesetAnimCallback = TilesetAnim_PokemonMansion;
 }
 
+// Celadon University's Gyarados fountain (tools/hack/draw_university_tiles.py: fountain(phase)): the water's tiles
+// (the plume's glints rising, the spray, the arcs running down, the splashes, the basin's ripples spreading) are the
+// first of the campus tileset, one block; four frames, a step every 10 frames, Gyarados itself doesn't move.
+// The script checks this count against the tiles it reserves.
+#define CELADON_UNIVERSITY_FOUNTAIN_TILES 29
+
+static const u16 sTilesetAnims_CeladonUniversity_Fountain_Frame0[] = INCGFX_U16("data/tilesets/secondary/celadon_university/anim/fountain/0.png", ".4bpp");
+static const u16 sTilesetAnims_CeladonUniversity_Fountain_Frame1[] = INCGFX_U16("data/tilesets/secondary/celadon_university/anim/fountain/1.png", ".4bpp");
+static const u16 sTilesetAnims_CeladonUniversity_Fountain_Frame2[] = INCGFX_U16("data/tilesets/secondary/celadon_university/anim/fountain/2.png", ".4bpp");
+static const u16 sTilesetAnims_CeladonUniversity_Fountain_Frame3[] = INCGFX_U16("data/tilesets/secondary/celadon_university/anim/fountain/3.png", ".4bpp");
+
+static const u16 *const sTilesetAnims_CeladonUniversity_Fountain[] = {
+    sTilesetAnims_CeladonUniversity_Fountain_Frame0,
+    sTilesetAnims_CeladonUniversity_Fountain_Frame1,
+    sTilesetAnims_CeladonUniversity_Fountain_Frame2,
+    sTilesetAnims_CeladonUniversity_Fountain_Frame3
+};
+
+static void TilesetAnim_CeladonUniversity(u16 timer)
+{
+    if (timer % 10 == 0)
+        AppendTilesetAnimToBuffer(sTilesetAnims_CeladonUniversity_Fountain[timer / 10],
+                                  (u16 *)(BG_VRAM + TILE_OFFSET_4BPP(NUM_TILES_IN_PRIMARY_FRLG)),
+                                  CELADON_UNIVERSITY_FOUNTAIN_TILES * TILE_SIZE_4BPP);
+}
+
+void InitTilesetAnim_CeladonUniversity(void)
+{
+    sSecondaryTilesetAnimCounter = 0;
+    sSecondaryTilesetAnimCounterMax = 10 * ARRAY_COUNT(sTilesetAnims_CeladonUniversity_Fountain);
+    sSecondaryTilesetAnimCallback = TilesetAnim_CeladonUniversity;
+}
+

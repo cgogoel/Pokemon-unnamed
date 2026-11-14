@@ -185,9 +185,9 @@ void Act2_BrightenForest(void)
     SetFlashLevel(level);
 }
 
-// From InitOverworldGraphicsRegisters: in the dark forest, sprites show beyond the light (the flash darkness only
-// hides the map), so the glowcaps, their spores and the ODDISH can be seen in the dark
-bool32 Act2_ShowSpritesInDark(void)
+// From InitOverworldGraphicsRegisters: in the dark forest the spores show beyond the light (their OBJ-window twins,
+// src/event_object_movement.c); everything else stays hidden in the dark, as in a cave
+bool32 Act2_ShowLightsInDark(void)
 {
     return Act2_GetNightForestFlashLevel() != 0;
 }

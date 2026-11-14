@@ -2737,15 +2737,53 @@ void GetFollowerAction(struct ScriptContext *ctx) // Essentially a big switch fo
                         gFollowerBasicMessages[emotion].script);
 }
 
+#define sLightWindow data[2] // The hack: a spore's window twin (its sprite id + 1, 0 for none)
 #define sLightFlag data[4] // The hack: its template's flag; the light goes out when it's set
 #define sLightType data[5]
 #define sLightXPos data[6]
 #define sLightYPos data[7]
 
+// The hack: in the dark forest, the flash darkness hides every sprite outside the light (a window, as in a cave),
+// except the night bloom's spores. Each spore has a twin in OBJ-window mode at the same place: where the twin's pixels
+// are, outside the light, sprites are drawn again (WINOUT's OBJ-window bits, set by InitOverworldGraphicsRegisters in
+// the dark forest: Act2_ShowLightsInDark). So the spore shows in the black, and nothing else does.
+static void DestroyLightWindow(struct Sprite *sprite)
+{
+    if (sprite->sLightWindow != 0)
+    {
+        DestroySprite(&gSprites[sprite->sLightWindow - 1]);
+        sprite->sLightWindow = 0;
+    }
+}
+
+static void SyncLightWindow(struct Sprite *sprite)
+{
+    if (sprite->sLightWindow != 0)
+        gSprites[sprite->sLightWindow - 1].invisible = sprite->invisible;
+}
+
+static void CreateLightWindow(struct Sprite *sprite)
+{
+    u32 id = CreateSprite(gFieldEffectLightTemplates[sprite->sLightType], sprite->x, sprite->y, 0);
+    struct Sprite *window;
+    if (id == MAX_SPRITES)
+        return;
+    window = &gSprites[id];
+    window->callback = SpriteCallbackDummy;
+    window->oam = sprite->oam;
+    window->oam.objMode = ST_OAM_OBJ_WINDOW;
+    window->centerToCornerVecX = sprite->centerToCornerVecX;
+    window->centerToCornerVecY = sprite->centerToCornerVecY;
+    window->coordOffsetEnabled = TRUE;
+    window->invisible = sprite->invisible;
+    sprite->sLightWindow = id + 1;
+}
+
 static void DestroyLightSprite(struct Sprite *sprite)
 {
     u16 sheetTileStart = sprite->sheetTileStart;
     u32 paletteNum = sprite->oam.paletteNum;
+    DestroyLightWindow(sprite);
     DestroySprite(sprite);
     FieldEffectFreeTilesIfUnused(sheetTileStart);
     FieldEffectFreePaletteIfUnused(paletteNum);
@@ -2766,6 +2804,7 @@ void UpdateLightSprite(struct Sprite *sprite)
     {
         sheetTileStart = sprite->sheetTileStart;
         paletteNum = sprite->oam.paletteNum;
+        DestroyLightWindow(sprite);
         DestroySprite(sprite);
         FieldEffectFreeTilesIfUnused(sheetTileStart);
         FieldEffectFreePaletteIfUnused(paletteNum);
@@ -2783,13 +2822,15 @@ void UpdateLightSprite(struct Sprite *sprite)
     if (gTimeOfDay != TIME_NIGHT)
     {
         sprite->invisible = TRUE;
+        SyncLightWindow(sprite);
         return;
     }
 
-    // The night bloom's spores twinkle, each in its own time
+    // The night bloom's spores twinkle, each in its own time (and their window twins with them)
     if (sprite->sLightType == LIGHT_TYPE_GLOWCAP_SPORE)
     {
         sprite->invisible = ((sprite->data[3]++ + sprite->sLightXPos * 9 + sprite->sLightYPos * 5) & 63) < 14;
+        SyncLightWindow(sprite);
         return;
     }
 
@@ -2864,6 +2905,7 @@ static void SpawnLightSprite(s16 x, s16 y, s16 camX, s16 camY, u32 lightType, u3
         sprite->oam.priority = 1;
         sprite->x += 8;
         sprite->y += 8;
+        CreateLightWindow(sprite);
         break;
     case LIGHT_TYPE_PKMN_CENTER_SIGN:
     case LIGHT_TYPE_POKE_MART_SIGN:
@@ -2876,6 +2918,7 @@ static void SpawnLightSprite(s16 x, s16 y, s16 camX, s16 camY, u32 lightType, u3
     }
 }
 
+#undef sLightWindow
 #undef sLightType
 #undef sLightXPos
 #undef sLightYPos

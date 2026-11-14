@@ -9,7 +9,7 @@ void Act2_DrawForestOpening(void);
 bool16 Act2_WakeGlowcap(void);
 bool16 Act2_IsGlowcapLit(void);
 void Act2_BrightenForest(void);
-bool32 Act2_ShowSpritesInDark(void);
+bool32 Act2_ShowLightsInDark(void);
 bool16 Act2_FollowOddish(void);
 bool16 Act2_FindHoldStillMoveUser(void);
 bool16 Act2_FindHedgeMoveUser(void);

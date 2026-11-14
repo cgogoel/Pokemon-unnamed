@@ -121,10 +121,11 @@ dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_n
 - **1. Light the way.** The forest is pitch-dark: the flash darkness of a cave without FLASH. `SetDefaultFlashLevel`
   asks `Act2_GetNightForestFlashLevel`: on the trip's night, Viridian Forest's flash level follows the glowcaps
   awake (none 7, one 5, two 3, all three 1: each widens the circle of light). Three dim GLOWCAPS stand along the trail
-  ((31,58) just inside the south entrance, (39,45), (39,29); `OBJ_EVENT_GFX_GLOWCAP_DIM`). The darkness only hides
-  the map: in the dark forest, sprites show beyond the light (`Act2_ShowSpritesInDark` adds OBJ to `WINOUT` in
-  `InitOverworldGraphicsRegisters`), so the glowcaps, the ODDISH and the way can be seen in the dark. Nothing there gets a glow or a ring: objects have
-  no shadows in the dark forest (`CurrentMapHasShadows`), and the only lights are the lit glowcaps and the spores. **The way to
+  ((31,58) just inside the south entrance, (39,45), (39,29); `OBJ_EVENT_GFX_GLOWCAP_DIM`). The darkness hides
+  everything outside the light, sprites too, as in a cave; the only thing that shows in the black is the spore trail:
+  each spore has a twin in OBJ-window mode at the same place, and there (outside the light) sprites are drawn
+  (`DISPCNT_OBJWIN_ON` and `WINOUT_WINOBJ_OBJ`, set by `InitOverworldGraphicsRegisters` in the dark forest:
+  `Act2_ShowLightsInDark`). A sprite passing right over a spore can show through its few pixels. **The way to
   the next glowcap** (the first not yet woken): a trail of twinkling spores, no glow on the glowcap itself (it keeps its dim look),
   leading to it from the last one (light sprites in the forest's map.json, `LIGHT_TYPE_GLOWCAP_SPORE`,
   `glowcap_spore.png`; `FLAG_TEMP_11-13` for glowcaps 1-3, `SetGlowcapTrail`); they go out when their flag is set

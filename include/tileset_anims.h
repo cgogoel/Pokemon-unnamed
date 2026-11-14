@@ -39,6 +39,7 @@ void InitTilesetAnim_VermilionGym(void);
 void InitTilesetAnim_CeladonGym(void);
 void InitTilesetAnim_VermilionCity(void);
 void InitTilesetAnim_PokemonMansion(void);
+void InitTilesetAnim_CeladonUniversity(void);
 void InitTilesetAnim_SilphCo(void);
 void InitTilesetAnim_MtEmber(void);
 

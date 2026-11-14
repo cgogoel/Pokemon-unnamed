@@ -931,10 +931,15 @@ def gate():
     return P
 
 
-def fountain():
+FOUNTAIN_FRAMES = 4      # The fountain's animation (InitTilesetAnim_CeladonUniversity): its water moves, Gyarados not
+
+
+def fountain(phase=0):
     """The Gyarados fountain, 5x4: an oval white basin (its outer face shaded, its shadow on the paving, the rim's
     shadow on the water), Gyarados rising from the water lit from the upper left, a tall plume from its mouth (a
-    bright core, darker edges, a crown of spray) falling in arcs into the basin. The water is symmetric."""
+    bright core, darker edges, a crown of spray) falling in arcs into the basin. The water is symmetric. `phase`
+    (0 .. FOUNTAIN_FRAMES - 1) is the animation frame: the ripples spread, glints rise in the plume, the spray
+    flickers, the water runs down the arcs, the splashes bounce. Frame 0 is the tileset's own picture."""
     P = Pic(5 * T, 4 * T)
     cx = 40
     P.ellipse(cx, 46, 38, 17, WA['s3'])                  # Shadow on the paving
@@ -950,17 +955,17 @@ def fountain():
         for x in range(P.w):
             if P.get(x, y) == WA['a2']:
                 ring = math.hypot((x + .5 - cx) / 31, (y + .5 - 39) / 13)
-                if abs(ring * 6 % 2 - 1) < .16:
+                if abs((ring * 6 - phase * 2 / FOUNTAIN_FRAMES) % 2 - 1) < .16:     # The ripples, spreading
                     P.p(x, y, WA['a1'])
                 if math.hypot((x + .5 - cx) / 31, (y + .5 - 41) / 13) > 1:     # The rim's shadow on the water
                     P.p(x, y, WA['a3'])
-    fountain_plume(P, cx)
+    fountain_plume(P, cx, phase)
     return P
 
 
-def fountain_water(Q, cx, x0, y0, x1, y1):
-    """A falling stream from (x0, y0) to (x1, y1) on the left (mirrored by the caller): a bright core and darker
-    edges, droplets where it lands."""
+def fountain_water(Q, cx, x0, y0, x1, y1, phase=0):
+    """A falling stream from (x0, y0) to (x1, y1) on the left (mirrored by the caller): a bright core (its darker
+    dashes running down with `phase`) and darker edges, a splash where it lands (bouncing with `phase`)."""
     n = 40
     for k in range(n + 1):
         t = k / n
@@ -969,9 +974,11 @@ def fountain_water(Q, cx, x0, y0, x1, y1):
         xi, yi = int(round(x)), int(round(y))
         Q.p(xi + 1, yi, WA['a2'])
         Q.p(xi - 1, yi, WA['a2'])
-        Q.p(xi, yi, WA['w'] if k % 4 else WA['a1'])
+        Q.p(xi, yi, WA['w'] if (k - phase) % 4 else WA['a1'])
     xi, yi = int(round(x1)), int(round(y1))
-    for (dx, dy, c) in ((-3, 0, 'a1'), (-2, -1, 'w'), (2, -1, 'w'), (3, 0, 'a1'), (0, 1, 'a1')):
+    splash = (((-3, 0, 'a1'), (-2, -1, 'w'), (2, -1, 'w'), (3, 0, 'a1'), (0, 1, 'a1')) if phase % 2 == 0 else
+              ((-2, 0, 'a1'), (-1, -2, 'w'), (1, -2, 'w'), (2, 0, 'a1'), (-3, 1, 'a1'), (3, 1, 'a1')))
+    for (dx, dy, c) in splash:
         Q.p(xi + dx, yi + dy, WA[c])
 
 
@@ -1067,23 +1074,24 @@ def gyarados_head(P, cx, y):
         P.p(cx + 6 + ddx, y + 8 + ddy, cr)
 
 
-def fountain_plume(P, cx):
+def fountain_plume(P, cx, phase=0):
     """Gyarados rising from the water with a tall plume: a bright core, darker edges, the crown of spray, arcs
     falling into the basin with splashes."""
     Q = Pic(P.w, P.h)
     Q.ellipse(cx + 2, 41, 11, 4, WA['a3'])           # Its shadow on the water
-    for (dx, c) in ((-10, 'a1'), (9, 'a1')):          # Ripples where it meets the water
-        Q.hl(cx + dx - 2, cx + dx + 1, 39, WA[c])
+    for dx in (-10, 9):                               # Ripples where it meets the water, lapping
+        Q.hl(cx + dx - 2 - phase % 2 * (1 if dx < 0 else -1), cx + dx + 1 - phase % 2 * (1 if dx < 0 else -1), 39,
+             WA['a1'])
     # The plume and its arcs (symmetric)
     J = Pic(P.w, P.h)
     for y in range(0, 16):
         J.p(cx - 1, y, WA['w'])
-        J.p(cx - 2, y, WA['a1'] if y > 2 else WA['w'])
+        J.p(cx - 2, y, WA['w'] if y <= 2 or (y + 2 * phase) % 8 == 0 else WA['a1'])     # Glints rising
         J.p(cx - 3, y, WA['a2'] if 2 < y < 13 else None)
     for k in range(5):                                # The crown of spray
-        J.p(cx - 4 - k, 1 + k // 2, WA['a1'] if k % 2 else WA['w'])
+        J.p(cx - 4 - k, 1 + k // 2, WA['a1'] if (k + phase) % 2 else WA['w'])
     for (x0, x1, y1) in ((cx - 4, cx - 30, 40), (cx - 6, cx - 22, 42)):
-        fountain_water(J, cx, x0, 3, x1, y1)
+        fountain_water(J, cx, x0, 3, x1, y1, phase)
     J.mirror()
     Q.paste(J, 0, 0)
     gyarados(Q, cx, 15, 41)
@@ -1255,6 +1263,7 @@ class Tileset:
         self.tiles, self.lookup = [], {}
         self.metatiles, self.attrs, self.mlookup = [], [], {}
         self.off_palette = 0
+        self.anim, self.anim_lookup, self.anim_entries, self.anim_name = [], {}, {}, None
 
     def tile(self, pixels):
         """The metatile entry for an 8x8 RGB/None tile."""
@@ -1291,6 +1300,39 @@ class Tileset:
         self.tiles.append(idx)
         return PRIMARY + len(self.tiles) - 1
 
+    def animate(self, name, frames):
+        """Reserves the tiles of a stamp's animated 8x8 positions (`frames`: its pictures, frame 0 the stamp's own)
+        at the very start of the tileset: one contiguous block that the tileset's animation (InitTilesetAnim_*)
+        overwrites in VRAM. They're deduplicated only among themselves, by their whole sequence of frames (flips
+        included, so mirrored water still shares), and never with static art: a static tile equal to a frame gets its
+        own copy, or it would animate too. Call before anything else adds tiles."""
+        assert len(self.tiles) == len(self.anim), 'animated tiles go first'
+        self.anim_name = name.lower()
+        entries = self.anim_entries.setdefault(name, {})
+        for y in range(0, frames[0].h, 8):
+            for x in range(0, frames[0].w, 8):
+                seq = [tile_pixels(f.im, x, y) for f in frames]
+                if all(t == seq[0] for t in seq):
+                    continue
+                cols = {c for t in seq for row in t for c in row if c is not None}
+                fits = [i for i, (_, pal) in enumerate(self.pals) if cols <= set(pal)]
+                assert fits, 'animated tile at %d,%d of %s fits no palette' % (x, y, name)
+                p = fits[0]
+                pal = self.pals[p][1]
+                idx = tuple(tuple(tuple(0 if c is None else pal.index(c) + 1 for c in row) for row in t) for t in seq)
+                entry = None
+                for hf in (0, 1):
+                    for vf in (0, 1):
+                        f = tuple(tuple(tuple(r[::-1]) if hf else r for r in (t[::-1] if vf else t)) for t in idx)
+                        if entry is None and (p, f) in self.anim_lookup:
+                            entry = (PRIMARY + self.anim_lookup[(p, f)]) | hf << 10 | vf << 11 | (FIRST_PAL + p) << 12
+                if entry is None:
+                    self.anim_lookup[(p, idx)] = len(self.tiles)
+                    self.anim.append(idx)
+                    self.tiles.append(idx[0])
+                    entry = (PRIMARY + len(self.tiles) - 1) | (FIRST_PAL + p) << 12
+                entries[(x, y)] = entry
+
     def quarter(self, im, x, y):
         return [self.tile(tile_pixels(im, x + dx, y + dy)) for dy in (0, 8) for dx in (0, 8)]
 
@@ -1325,6 +1367,15 @@ class Tileset:
         with open(os.path.join(self.folder, 'metatile_attributes.bin'), 'wb') as f:
             for a in self.attrs:
                 f.write(struct.pack('<I', a))
+        if self.anim:   # anim/<name>/<frame>.png: the animated tiles of each frame, side by side
+            folder = os.path.join(self.folder, 'anim', self.anim_name)
+            os.makedirs(folder, exist_ok=True)
+            for n in range(len(self.anim[0])):
+                image = [[0] * (8 * len(self.anim)) for _ in range(8)]
+                for k, seq in enumerate(self.anim):
+                    for y in range(8):
+                        image[y][k * 8:k * 8 + 8] = seq[n][y]
+                write_png(os.path.join(folder, '%d.png' % n), 8 * len(self.anim), image, grey)
 
     def budget(self):
         return '%s: %d/%d tiles, %d/%d metatiles, %d palettes (%s), %d tiles off-palette' % (
@@ -1403,7 +1454,9 @@ def cut_exterior(ts, stamps, MB):
                     row.append(None)
                     solid[-1][c] = 0
                     continue
-                art = ts.quarter(pic.im, c * T, r * T)
+                anim = ts.anim_entries.get(name, {})     # The animated tiles reserved for it (Tileset.animate)
+                art = [anim[(c * T + dx, r * T + dy)] if (c * T + dx, r * T + dy) in anim else
+                       ts.tile(tile_pixels(pic.im, c * T + dx, r * T + dy)) for dy in (0, 8) for dx in (0, 8)]
                 beh = MB['MB_ANIMATED_DOOR'] if (c, r) in doors else MB['MB_SOUTH_ARROW_WARP'] if (c, r) in warps \
                     else MB['MB_NORMAL']
                 if (c, r) in above:
@@ -1890,6 +1943,12 @@ def main():
     grass = primary_entries('gTileset_General_Frlg', 0x008)
     ext = Tileset('gTileset_CeladonUniversity', os.path.join(ROOT, 'data/tilesets/secondary/celadon_university'),
                   EXTERIOR_PALS, 'gTileset_General_Frlg', grass)
+    # The fountain's water is animated: its moving tiles first, one block (src/tileset_anims.c)
+    ext.animate('FOUNTAIN', [fountain(p) for p in range(FOUNTAIN_FRAMES)])
+    anim_c = open(os.path.join(ROOT, 'src/tileset_anims.c')).read()
+    m = re.search(r'#define CELADON_UNIVERSITY_FOUNTAIN_TILES (\d+)', anim_c)
+    assert m and int(m.group(1)) == len(ext.anim), 'set CELADON_UNIVERSITY_FOUNTAIN_TILES to %d in ' \
+        'src/tileset_anims.c' % len(ext.anim)
     stamps = exterior_stamps()
     plaques = add_plaques(stamps)
     ext_stamps = cut_exterior(ext, stamps, MB)
@@ -1907,6 +1966,8 @@ def main():
                                   LAYER_COVERED) for k in sorted(g.sign_needed)}
 
     print(ext.budget())
+    print('  of which the fountain\'s animated tiles: %d (secondary tiles 0-%d), %d frames' % (
+        len(ext.anim), len(ext.anim) - 1, FOUNTAIN_FRAMES))
     assert len(ext.tiles) <= MAX_TILES and len(ext.metatiles) <= MAX_METATILES, 'over budget'
     ext.write()
     # The rooms and their tilesets (gTileset_UniversityClassroom, gTileset_UniversityDorm, gTileset_UniversityLab)

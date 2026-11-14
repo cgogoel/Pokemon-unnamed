@@ -1385,7 +1385,7 @@ const struct Tileset gTileset_CeladonUniversity =
     .palettes = gTilesetPalettes_CeladonUniversity,
     .metatiles = gMetatiles_CeladonUniversity,
     .metatileAttributes = gMetatileAttributes_CeladonUniversity,
-    .callback = NULL,
+    .callback = InitTilesetAnim_CeladonUniversity,       // The fountain's water
 };
 
 // Celadon University: the academic buildings' rooms (over gTileset_BuildingFrlg), tools/hack/draw_university_interiors.py

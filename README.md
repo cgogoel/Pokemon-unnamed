@@ -154,6 +154,12 @@ Somewhere along the way, a brand-new move is invented, one no Pokémon game has 
 > ways (back and forth) but I'm lessening the pain by only making you do one direction with a warp back to the latest
 > pokemon center always available to you in Key Items.
 
+### Fishing and surfing
+
+With a fishing rod in the bag, pressing A facing water offers SURF, FISH or CANCEL when Surf can be used (SURF
+first), or asks whether to fish when it can't. Fishing casts the best rod in the bag. Registering a rod to SELECT
+works as before.
+
 ### Speed
 
 > [!NOTE]

@@ -1082,6 +1082,13 @@ static const struct MenuAction sMultichoiceList_TrainerCardIconTint[] = {
 static const u8 sText_Eggs[] = _("EGGS");
 static const u8 sText_Victories[] = _("VICTORIES");
 
+// Pressing A facing water with a fishing rod, when SURF can be used too (EventScript_FishOrSurf)
+static const struct MenuAction sMultichoiceList_SurfFish[] = {
+    {COMPOUND_STRING("SURF")},
+    {COMPOUND_STRING("FISH")},
+    {gText_Cancel},
+};
+
 static const struct MenuAction sMultichoiceList_HOF_Quit[] = {
     {gText_HallOfFame},
     {gText_ShopQuit}
@@ -1294,6 +1301,7 @@ static const struct MultichoiceListStruct sMultichoiceLists[] =
     [MULTI_HOF_VICTORIES_QUIT]                         = MULTICHOICE(sMultichoiceList_HOF_Victories_Quit),
     [MULTI_EGGS_VICTORIES_QUIT]                        = MULTICHOICE(sMultichoiceList_Eggs_Victories_Quit),
     [MULTI_HOF_EGGS_VICTORIES_QUIT]                    = MULTICHOICE(sMultichoiceList_HOF_Eggs_Victories_Quit),
+    [MULTI_SURF_FISH]                                  = MULTICHOICE(sMultichoiceList_SurfFish),
 };
 
 const u8 *const gStdStrings[] =

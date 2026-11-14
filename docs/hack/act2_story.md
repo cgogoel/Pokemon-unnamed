@@ -244,6 +244,12 @@ In both builds, the Pokémon the player starts Act 2 with know the moves they'd 
   Teleport, to the front of the nurse in the last Pokémon Center they went into (the white-out respawn point). On a
   field trip it's always the trip town's Pokémon Center, visited or not (`Act2_GetTripHealLocation`). Given with the
   Remote Desktop; PROF. ASHFORD mentions it in his Cinnabar briefing.
+- **Fishing from the shore** (from the Good Rod on, in every act): with a rod in the bag, A facing water (on land)
+  offers SURF / FISH / CANCEL when SURF can be used (SURF first; `MULTI_SURF_FISH`), or "Fish with the GOOD ROD?"
+  when it can't (`EventScript_FishOrSurf`, `EventScript_AskToFish` in `data/scripts/fish_or_surf.inc`, from
+  `GetInteractedWaterScript`). The best rod in the bag casts (`GetBestFishingRodItem`, `StartFishingWithBestRod`,
+  `src/fishing.c`), once the script is over. Without a rod, A on water is the usual SURF prompt; a rod registered to
+  SELECT works as before.
 - **The time skip**: at the end of the prologue, the two Pokémon the player brought go up to level 10
   (`ACT2_START_LEVEL`) with the moves they'd know there (`Act2_RaisePartyLevels`). Blacking out returns the player
   to Celadon's Pokémon Center; on a field trip, to that city's.

@@ -1802,7 +1802,7 @@ Act2_Text_StartGrass:
 
 Act2_Text_GrassBriefing:
 	.string "PROF. FERN: Welcome to VIRIDIAN\n"
-	.string "CITY, the gateway to the forests.\p"
+	.string "FOREST, the oldest woods in KANTO.\p"
 	.string "We are here for a very special\n"
 	.string "night.\p"
 	.string "Once a year, a flower called the\n"
@@ -1817,8 +1817,8 @@ Act2_Text_GrassBriefing:
 	.string "Along the way, fill out your\n"
 	.string "research sheet just as you have\l"
 	.string "for the previous courses.\p"
-	.string "The forest is north, past\n"
-	.string "ROUTE 2. It will be very dark.\p"
+	.string "The forest is just through this\n"
+	.string "gate. It will be very dark.\p"
 	.string "Once you catch some GRASS\n"
 	.string "POKéMON they can help you by\l"
 	.string "lighting the GLOWCAP mushrooms\l"

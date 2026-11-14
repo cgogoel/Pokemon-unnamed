@@ -84,7 +84,7 @@ u32 Act2_GetNightForestFlashLevel(void)
     return Act2_GetNightFlashLevel(CountBits(GetBloom() & NIGHT_BLOOM_GLOWCAPS));
 }
 
-// The way to the next dim glowcap (the first not yet woken, in trail order): its trail of spores and the glint on it
+// The way to the next dim glowcap (the first not yet woken, in trail order): its trail of spores (no glow on the glowcap)
 // (light sprites in Viridian Forest's map.json, FLAG_TEMP_11-13 for glowcaps 1-3), at night only. Light sprites go
 // out when their flag is set (UpdateLightSprite).
 static void SetGlowcapTrail(void)

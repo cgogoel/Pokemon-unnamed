@@ -123,8 +123,9 @@ dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_n
   awake (none 7, one 5, two 3, all three 1: each widens the circle of light). Three dim GLOWCAPS stand along the trail
   ((31,58) just inside the south entrance, (39,45), (39,29); `OBJ_EVENT_GFX_GLOWCAP_DIM`). The darkness only hides
   the map: in the dark forest, sprites show beyond the light (`Act2_ShowSpritesInDark` adds OBJ to `WINOUT` in
-  `InitOverworldGraphicsRegisters`), so the glowcaps, the ODDISH and the way can be seen in the dark. **The way to
-  the next glowcap** (the first not yet woken): a glint on it (a ball of light) and a trail of twinkling spores
+  `InitOverworldGraphicsRegisters`), so the glowcaps, the ODDISH and the way can be seen in the dark. Nothing there gets a glow or a ring: objects have
+  no shadows in the dark forest (`CurrentMapHasShadows`), and the only lights are the lit glowcaps and the spores. **The way to
+  the next glowcap** (the first not yet woken): a trail of twinkling spores, no glow on the glowcap itself (it keeps its dim look),
   leading to it from the last one (light sprites in the forest's map.json, `LIGHT_TYPE_GLOWCAP_SPORE`,
   `glowcap_spore.png`; `FLAG_TEMP_11-13` for glowcaps 1-3, `SetGlowcapTrail`); they go out when their flag is set
   (`UpdateLightSprite`). A Grass move from a Grass Pokémon

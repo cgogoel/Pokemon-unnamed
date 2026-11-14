@@ -1804,7 +1804,9 @@ bool32 CurrentMapHasShadows(void)
 {
     // Add all conditionals here for maps that shouldn't have shadows
     // By default only cave maps are excluded from having shadows under object events
-    return (gMapHeader.mapType != MAP_TYPE_UNDERGROUND);
+    // The hack: none in Viridian Forest's night either, where sprites show beyond the light: a shadow there would
+    // be a pale ring on the black around them (src/act2_night_bloom.c)
+    return (gMapHeader.mapType != MAP_TYPE_UNDERGROUND) && !Act2_ShowSpritesInDark();
 }
 
 // Update & mix day / night bg palettes (into unfaded)

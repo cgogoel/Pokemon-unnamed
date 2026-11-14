@@ -7,14 +7,21 @@ north and east, are where the BUG POKéMON come in (a wave each); the south gap 
 
 Also writes src/data/night_bloom_layout.h, the squares the C side needs (src/act2_night_bloom.c):
     - the hedge each wave's gap gets when the player plants one (round bushes, 0x005);
-    - Viridian Forest's hidden opening: a tree column of its north edge that becomes a path once the third ODDISH
-      shows the way (x 39-41, rows 0-4; LAYOUT_VIRIDIAN_FOREST itself isn't changed).
+    - Viridian Forest's hidden opening: under a tree column of its north edge (x 39-41), the trunks and their
+      shadow give way to a dark hollow beneath the whole canopy once the third ODDISH shows the way (rows 3-4;
+      tools/hack/draw_forest_passage.py's metatiles; LAYOUT_VIRIDIAN_FOREST itself isn't changed).
+The glade's own way out (south, x 9-11) is the same hollow from the other side: its mouth, then dark ground between
+the trees. Run tools/hack/draw_forest_passage.py first.
 
     python3 tools/hack/compose_glade.py
 """
 import json
 import os
 import struct
+import sys
+
+sys.path.insert(0, os.path.dirname(__file__))
+from draw_forest_passage import PASSAGE_DARK, PASSAGE_MOUTH, PASSAGE_MOUTH_UP, PASSAGE_UNDER  # noqa: E402,F401
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
 SOLID = 1 << 10
@@ -31,7 +38,8 @@ HEDGES = {                              # A wave's gap: its hedge squares (inner
     3: [(18, 7), (18, 8)],              # East
 }
 HEDGE = 0x005
-FOREST_OPENING = (39, 0, 3, 5)          # x, y, width, height in Viridian Forest
+FOREST_OPENING = (39, 3)                # Viridian Forest: the column's bottom row (x 39-41); its mouth below
+GLADE_EXIT_MOUTH = 13                   # The glade: the hollow's mouth on the south way out; dark ground below
 
 TOP = [0x288, 0x299, 0x28A]
 CANOPY_A = [0x298, 0x299, 0x29A]
@@ -64,6 +72,10 @@ def column(x, y):
     """The block at (x, y): trees, or None for the clearing's grass."""
     c = x // 3
     if c == GAP_COLUMN:
+        if y == GLADE_EXIT_MOUTH:
+            return blk(PASSAGE_MOUTH_UP[x % 3])
+        if y > GLADE_EXIT_MOUTH:
+            return blk(PASSAGE_DARK)
         return None
     if c in (0, 6):
         top, bottom = SIDE_GAP_ROWS
@@ -110,8 +122,9 @@ def compose():
 
 
 def forest_opening():
-    x0, y0, w, h = FOREST_OPENING
-    return [(x0 + i, y0 + j, grass(x0 + i, y0 + j)) for j in range(h) for i in range(w)]
+    x0, y0 = FOREST_OPENING
+    return ([(x0 + i, y0, blk(PASSAGE_UNDER[i])) for i in range(3)]
+            + [(x0 + i, y0 + 1, blk(PASSAGE_MOUTH[i])) for i in range(3)])
 
 
 def write_layout(cells):

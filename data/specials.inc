@@ -679,7 +679,7 @@ gSpecials::
 	def_special Act2_BreakDawn
 	def_special Act2_GiveGladeMorelull
 	def_special StartAct2BloomWaveBattle
-	def_special Act2_SetupViridianObjects
+	def_special Act2_SetupForestGateObjects
 	def_special Act2_IsResearchDone
 	def_special Act2_IsReadyForTM
 	def_special Act2_BufferResearchSheet

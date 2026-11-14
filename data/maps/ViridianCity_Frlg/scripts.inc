@@ -1,12 +1,10 @@
 ViridianCity_Frlg_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, ViridianCity_OnTransition
-	map_script MAP_SCRIPT_ON_FRAME_TABLE, ViridianCity_OnFrame
 	.byte 0
 
 ViridianCity_OnTransition::
 	setworldmapflag FLAG_WORLD_MAP_VIRIDIAN_CITY
 	call ViridianCity_EventScript_SetOldManNormal
-	call ViridianCity_EventScript_Act2Objects
 	call_if_eq VAR_MAP_SCENE_VIRIDIAN_CITY_GYM_DOOR, 0, ViridianCity_EventScript_TryUnlockGym
 	end
 

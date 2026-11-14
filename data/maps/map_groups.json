@@ -797,8 +797,7 @@
     "RangerStation_B1F",
     "RangerStation_B2F",
     "RangerStation_B3F",
-    "RangerStation_B4F",
-    "ViridianForest_Glade"
+    "RangerStation_B4F"
   ],
   "gMapGroup_SpecialArea_Frlg": [
     "NavelRock_Exterior_Frlg",
@@ -860,7 +859,8 @@
     "BirthIsland_Exterior_Frlg",
     "OneIsland_KindleRoad_EmberSpa_Frlg",
     "BirthIsland_Harbor_Frlg",
-    "NavelRock_Harbor_Frlg"
+    "NavelRock_Harbor_Frlg",
+    "ViridianForest_Glade"
   ],
   "gMapGroup_TownsAndRoutes_Frlg": [
     "PalletTown_Frlg",

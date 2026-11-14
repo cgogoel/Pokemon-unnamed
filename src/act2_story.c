@@ -905,9 +905,9 @@ void Act2_SetupSiteObjects(void)
     }
 }
 
-// special Act2_SetupViridianObjects, on Viridian City's transition: the Grass trip's class (Act2_SetupSiteObjects);
-// PROF. FERN (FLAG_TEMP_9) waits by the west exit until dawn, then she's in the glade
-void Act2_SetupViridianObjects(void)
+// special Act2_SetupForestGateObjects, on the transition of Viridian Forest's south gate (Route 2), where the Grass
+// trip's class meets (Act2_SetupSiteObjects); PROF. FERN (FLAG_TEMP_9) waits there until dawn, then she's in the glade
+void Act2_SetupForestGateObjects(void)
 {
     gSpecialVar_0x8004 = ACT2_GRASS_TRIP;
     Act2_SetupSiteObjects();

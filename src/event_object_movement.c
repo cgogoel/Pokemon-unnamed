@@ -2737,9 +2737,19 @@ void GetFollowerAction(struct ScriptContext *ctx) // Essentially a big switch fo
                         gFollowerBasicMessages[emotion].script);
 }
 
+#define sLightFlag data[4] // The hack: its template's flag; the light goes out when it's set
 #define sLightType data[5]
 #define sLightXPos data[6]
 #define sLightYPos data[7]
+
+static void DestroyLightSprite(struct Sprite *sprite)
+{
+    u16 sheetTileStart = sprite->sheetTileStart;
+    u32 paletteNum = sprite->oam.paletteNum;
+    DestroySprite(sprite);
+    FieldEffectFreeTilesIfUnused(sheetTileStart);
+    FieldEffectFreePaletteIfUnused(paletteNum);
+}
 
 // Sprite callback for light sprites
 void UpdateLightSprite(struct Sprite *sprite)
@@ -2763,9 +2773,23 @@ void UpdateLightSprite(struct Sprite *sprite)
         return;
     }
 
+    // The hack: a light whose flag got set (the night bloom's trail, once its glowcap is awake) goes out
+    if (sprite->sLightFlag != 0 && FlagGet(sprite->sLightFlag))
+    {
+        DestroyLightSprite(sprite);
+        return;
+    }
+
     if (gTimeOfDay != TIME_NIGHT)
     {
         sprite->invisible = TRUE;
+        return;
+    }
+
+    // The night bloom's spores twinkle, each in its own time
+    if (sprite->sLightType == LIGHT_TYPE_GLOWCAP_SPORE)
+    {
+        sprite->invisible = ((sprite->data[3]++ + sprite->sLightXPos * 9 + sprite->sLightYPos * 5) & 63) < 14;
         return;
     }
 
@@ -2795,7 +2819,7 @@ void UpdateLightSprite(struct Sprite *sprite)
 }
 
 // Spawn a light at a map coordinate
-static void SpawnLightSprite(s16 x, s16 y, s16 camX, s16 camY, u32 lightType)
+static void SpawnLightSprite(s16 x, s16 y, s16 camX, s16 camY, u32 lightType, u32 flagId)
 {
     struct Sprite *sprite;
     const struct SpriteTemplate *template;
@@ -2816,6 +2840,7 @@ static void SpawnLightSprite(s16 x, s16 y, s16 camX, s16 camY, u32 lightType)
         UpdateSpritePaletteByTemplate(template, sprite);
     GetMapCoordsFromSpritePos(x + camX, y + camY, &sprite->x, &sprite->y);
     sprite->sLightType = lightType;
+    sprite->sLightFlag = flagId;
     sprite->sLightXPos = x;
     sprite->sLightYPos = y;
     sprite->affineAnims = gDummySpriteAffineAnimTable;
@@ -2832,6 +2857,13 @@ static void SpawnLightSprite(s16 x, s16 y, s16 camX, s16 camY, u32 lightType)
         sprite->oam.affineMode = ST_OAM_AFFINE_NORMAL;
         sprite->x += 8;
         sprite->y += 22 + sprite->centerToCornerVecY;
+        break;
+    case LIGHT_TYPE_GLOWCAP_SPORE:
+        sprite->centerToCornerVecX = -(16 >> 1);
+        sprite->centerToCornerVecY = -(16 >> 1);
+        sprite->oam.priority = 1;
+        sprite->x += 8;
+        sprite->y += 8;
         break;
     case LIGHT_TYPE_PKMN_CENTER_SIGN:
     case LIGHT_TYPE_POKE_MART_SIGN:
@@ -2875,7 +2907,7 @@ void TrySpawnLightSprites(s16 camX, s16 camY)
          && left <= npcX && right >= npcX
          && !FlagGet(template->flagId)
          && template->graphicsId == OBJ_EVENT_GFX_LIGHT_SPRITE)  // event is light sprite instead
-            SpawnLightSprite(npcX, npcY, camX, camY, template->trainerRange_berryTreeId);
+            SpawnLightSprite(npcX, npcY, camX, camY, template->trainerRange_berryTreeId, template->flagId);
     }
 }
 
@@ -2907,7 +2939,7 @@ void TrySpawnObjectEvents(s16 cameraX, s16 cameraY)
             if (top <= npcY && bottom >= npcY && left <= npcX && right >= npcX && !FlagGet(template->flagId))
             {
                 if (template->graphicsId == OBJ_EVENT_GFX_LIGHT_SPRITE)
-                    SpawnLightSprite(npcX, npcY, cameraX, cameraY, template->trainerRange_berryTreeId); // light sprite instead
+                    SpawnLightSprite(npcX, npcY, cameraX, cameraY, template->trainerRange_berryTreeId, template->flagId); // light sprite instead
                 else
                     TrySpawnObjectEventTemplate(template, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, cameraX, cameraY);
             }

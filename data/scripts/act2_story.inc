@@ -683,9 +683,10 @@ Act2_EventScript_StartGrass:
 	setvar VAR_ACT2_RESEARCH, 0
 	setvar VAR_ACT2_MOVE_SEEN_1, MOVE_NONE
 	setvar VAR_ACT2_MOVE_SEEN_2, MOVE_NONE
+	setvar VAR_ACT2_NIGHT_BLOOM, 0
 	setvar VAR_ACT2_PROGRESS, ACT2_GRASS_TRIP
 	setrespawn HEAL_LOCATION_VIRIDIAN_CITY
-	warp MAP_VIRIDIAN_CITY, 4, 17
+	warp MAP_ROUTE2_VIRIDIAN_FOREST_SOUTH_ENTRANCE, 7, 5
 	waitstate
 	release
 	end
@@ -847,7 +848,7 @@ Route6_OnFrame::
 	map_script_2 VAR_TEMP_2, 1, Route6_EventScript_DockFireAlarm
 	.2byte 0
 
-ViridianCity_OnFrame::
+Route2_ViridianForest_SouthEntrance_OnFrame::
 	map_script_2 VAR_TEMP_1, 1, Act2_EventScript_GrassBriefing
 	.2byte 0
 
@@ -863,7 +864,7 @@ Act2_EventScript_FireBriefing::
 	releaseall
 	end
 
-@ Vermilion: PROF. MARLOWE stands left of the arrival spot, Viridian: PROF. FERN too
+@ Vermilion: PROF. MARLOWE stands left of the arrival spot; the forest's south gate: PROF. FERN in front
 Act2_EventScript_WaterBriefing::
 	lockall
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
@@ -879,8 +880,8 @@ Act2_EventScript_WaterBriefing::
 
 Act2_EventScript_GrassBriefing::
 	lockall
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
-	applymovement LOCALID_VIRIDIAN_PROF, Common_Movement_WalkInPlaceFasterRight
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
+	applymovement LOCALID_FOREST_GATE_PROF, Common_Movement_WalkInPlaceFasterDown
 	waitmovement 0
 	msgbox Act2_Text_GrassBriefing
 	giveitem ITEM_POKE_BALL, 5
@@ -899,8 +900,8 @@ VermilionCity_EventScript_Act2Objects::
 	setvar VAR_0x8004, ACT2_WATER_TRIP
 	goto Act2_EventScript_CheckBriefing
 
-ViridianCity_EventScript_Act2Objects::
-	special Act2_SetupViridianObjects
+Route2_ViridianForest_SouthEntrance_EventScript_Act2Objects::
+	special Act2_SetupForestGateObjects
 	setvar VAR_0x8004, ACT2_GRASS_TRIP
 	goto Act2_EventScript_CheckBriefing
 

@@ -463,17 +463,39 @@ TEST("Act 2: the Water TM comes from the first three tasks; the sheet is done on
     MakePartyMon(2, SPECIES_GOLDEEN, 15);
     VarSet(VAR_ACT2_MOVE_SEEN_1, MOVE_WATER_GUN);
     VarSet(VAR_ACT2_MOVE_SEEN_2, MOVE_WATER_PULSE);
-    VarSet(VAR_ACT2_RESEARCH, ACT2_RESEARCH_USED_MOVE | ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_DOCK_FIRE
+    VarSet(VAR_ACT2_RESEARCH, ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_DOCK_FIRE
                             | ACT2_RESEARCH_PUZZLE_1 | ACT2_RESEARCH_PUZZLE_2);
     EXPECT(Act2_IsReadyForTM());
     EXPECT(!Act2_IsResearchDone()); // The big fire still burns
     VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_PUZZLE_3 | ACT2_RESEARCH_PUZZLE_DONE);
     EXPECT(Act2_IsResearchDone());
 
-    // The other courses still need all four tasks for their TM
+    // The other courses still need all three tasks for their TM
     VarSet(VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP);
-    VarSet(VAR_ACT2_RESEARCH, ACT2_RESEARCH_USED_MOVE | ACT2_RESEARCH_MOVES_DONE);
+    VarSet(VAR_ACT2_RESEARCH, ACT2_RESEARCH_MOVES_DONE);
     EXPECT(!Act2_IsReadyForTM());
+    ZeroPlayerPartyMons();
+}
+
+TEST("Act 2: the sheet doesn't ask the player's Pokémon to use a move: wild ones' moves are recorded too")
+{
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP);
+    ZeroPlayerPartyMons();
+    MakePartyMon(0, SPECIES_GROWLITHE, 15);
+    MakePartyMon(1, SPECIES_PONYTA, 15);
+    MakePartyMon(2, SPECIES_VULPIX, 15);
+    VarSet(VAR_ACT2_RESEARCH, ACT2_RESEARCH_PUZZLE_ALL | ACT2_RESEARCH_PUZZLE_DONE);
+    VarSet(VAR_ACT2_MOVE_SEEN_1, MOVE_NONE);
+    VarSet(VAR_ACT2_MOVE_SEEN_2, MOVE_NONE);
+    // All three from the opponent's side (battler 1)
+    Act2_RecordMoveUse(1, MOVE_EMBER);
+    Act2_RecordMoveUse(1, MOVE_FLAME_WHEEL);
+    EXPECT(!Act2_IsReadyForTM());
+    Act2_RecordMoveUse(1, MOVE_FIRE_SPIN);
+    EXPECT(Act2_TakeResearchMoveMessage());
+    EXPECT(Act2_IsReadyForTM());
+    EXPECT(Act2_IsResearchDone());
     ZeroPlayerPartyMons();
 }
 

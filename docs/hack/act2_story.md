@@ -36,8 +36,7 @@ After that, talking to the professor shows the **research sheet** (`Act2_BufferR
 
 1. Catch 3 different Pokémon (species) of the course's type: counted in the party and the PC, not the gifted Lapras or Morelull
    (`Act2_CountCaughtSpeciesOfType`).
-2. Use a move of that type in battle.
-3. Record 3 different moves of that type in battle: the player's Pokémon's or wild ones'
+2. Record 3 different moves of that type in battle: the player's Pokémon's or wild ones'
    (`Act2_RecordMoveUse`, from `Cmd_printattackstring`; the first two in `VAR_ACT2_MOVE_SEEN_1/2`, the third sets
    `ACT2_RESEARCH_MOVES_DONE`). So there are enough different ones without training up first, a wild Pokémon of the
    course's type on the trip also knows its type's moves from up to 8 levels ahead, in place of its other moves
@@ -45,14 +44,17 @@ After that, talking to the professor shows the **research sheet** (`Act2_BufferR
    made, not caught. In the trip areas, 35% of wild Pokémon are the type's basic Pokémon from beyond Kanto instead
    (`Act2_ChooseWildSpecies`, `sOtherRegionFire/Water/Grass`). Every fishing cast gets a bite (`I_FISHING_ALWAYS_BITE`). Caught, it skips those moves when it reaches their level:
    the level-up code passes over a move a Pokémon already knows (`MON_ALREADY_KNOWS_MOVE`).
-4. Solve the site's puzzle (below).
+3. Solve the site's puzzle (below).
 
-In battle, tasks 1 and 3 show their counter ("Research: 2 of 3 WATER moves recorded!" / "... POKéMON caught!") each
+The player's own Pokémon don't have to use a move of the type: there's no such task (a move a wild Pokémon uses is
+recorded all the same).
+
+In battle, tasks 1 and 2 show their counter ("Research: 2 of 3 WATER moves recorded!" / "... POKéMON caught!") each
 time they go up, until they're done: a new move once the move in progress is over (`MOVEEND_ACT2_RESEARCH`,
 `Act2_TakeResearchMoveMessage`), a new species after it's caught (`BS_Act2ResearchCatch` in
 `BattleScript_SuccessBallThrowEnd`, `Act2_BufferResearchCatchMessage`).
 
-With all four done, the professor makes the course's **TM** with the player (TMs are reusable: `I_REUSABLE_TMS`).
+With all three done, the professor makes the course's **TM** with the player (TMs are reusable: `I_REUSABLE_TMS`).
 Then the **exam**, a battle with the professor; any win passes. Progress is `VAR_ACT2_RESEARCH`
 (`ACT2_RESEARCH_*`), reset when a course starts.
 
@@ -69,7 +71,7 @@ to see it (`ACT2_RESEARCH_DOCK_FIRE_SEEN`, `_ARRIVING`). The fires are metatiles
 load while burning (`Act2_DrawDockFires`; art and flicker frames by `tools/hack/draw_dock_fire.py`, animated by `InitTilesetAnim_VermilionCity`), with a sign event on each square.
 The puzzle task needs all three fires out. The small ones go out with any WATER move; the big one, which cuts off
 the pier's west end, only with the TM move (`Act2_FindTmMoveUser`). So on the Water trip the TM is made from the
-other three tasks (`Act2_IsReadyForTM`), and the exam waits for all four (`Act2_IsResearchDone`). PROF. MARLOWE's
+other two tasks (`Act2_IsReadyForTM`), and the exam waits for all three (`Act2_IsResearchDone`). PROF. MARLOWE's
 lines follow the stage: the usual hint, then (fires started) the TM is urgent, then (TM made, big fire still
 burning) go put it out, a POKéMON is cowering there, then the exam. A save that left the trip without the Lapras
 finds it waiting by the pier for the rest of Act 2. When a puzzle's task is done, the message says whether the

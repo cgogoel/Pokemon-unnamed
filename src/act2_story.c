@@ -183,10 +183,9 @@ void Act2_RaisePartyLevels(void)
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-// The courses' research (docs/hack/act2_story.md). On a field trip, the professor's research sheet has four tasks:
-// catch a Pokémon of the course's type, use a move of that type, record three different moves of that type in
-// battle (the player's or wild Pokémon's), and finish the site's puzzle. Then the professor helps make the course's
-// TM, and the exam only counts if the player's Pokémon uses its move.
+// The courses' research (docs/hack/act2_story.md). On a field trip, the professor's research sheet has three tasks:
+// catch Pokémon of the course's type, record three different moves of that type in battle (the player's or wild
+// Pokémon's), and finish the site's puzzle. Then the professor helps make the course's TM, and gives the exam.
 
 #define RESEARCH_MOVES_TO_RECORD 3
 
@@ -272,7 +271,7 @@ static void BufferResearchMessage(const struct Act2Course *course, u32 count, co
     StringAppend(gStringVar1, what);
 }
 
-// From the battle, each time a Pokémon uses a move (Cmd_printattackstring)
+// From the battle, each time a Pokémon uses a move (Cmd_printattackstring): any Pokémon's, the player's or wild
 void Act2_RecordMoveUse(u32 battler, u32 move)
 {
     const struct Act2Course *course = GetCurrentCourse();
@@ -280,9 +279,6 @@ void Act2_RecordMoveUse(u32 battler, u32 move)
         return;
     if (RecordMoveSeen(move))
         sResearchMessagePending = TRUE;
-    if (!IsOnPlayerSide(battler))
-        return;
-    VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_USED_MOVE);
 }
 
 // On a field trip, the trip areas' wild Pokémon (Act 2 tables) are sometimes one of the type's Pokémon from
@@ -479,6 +475,12 @@ bool32 Act2_BufferResearchCatchMessage(u32 species)
     return TRUE;
 }
 
+// The research sheet's tasks (GetResearchDone)
+#define RESEARCH_TASK_CATCH  (1 << 0)
+#define RESEARCH_TASK_RECORD (1 << 1)
+#define RESEARCH_TASK_PUZZLE (1 << 2)
+#define RESEARCH_TASKS_ALL   (RESEARCH_TASK_CATCH | RESEARCH_TASK_RECORD | RESEARCH_TASK_PUZZLE)
+
 static u32 GetResearchDone(void)
 {
     const struct Act2Course *course = GetCurrentCourse();
@@ -486,30 +488,29 @@ static u32 GetResearchDone(void)
     if (course == NULL)
         return 0;
     if (Act2_CountCaughtSpeciesOfType(course->type) >= RESEARCH_SPECIES_TO_CATCH)
-        done |= 1 << 0;
-    if (research & ACT2_RESEARCH_USED_MOVE)
-        done |= 1 << 1;
+        done |= RESEARCH_TASK_CATCH;
     if (CountMovesRecorded() >= RESEARCH_MOVES_TO_RECORD)
-        done |= 1 << 2;
+        done |= RESEARCH_TASK_RECORD;
     if (research & ACT2_RESEARCH_PUZZLE_DONE)
-        done |= 1 << 3;
+        done |= RESEARCH_TASK_PUZZLE;
     return done;
 }
 
-// specialvar VAR_RESULT, Act2_IsResearchDone: all four tasks
+// specialvar VAR_RESULT, Act2_IsResearchDone: all three tasks
 bool16 Act2_IsResearchDone(void)
 {
-    return GetResearchDone() == 0xF;
+    return GetResearchDone() == RESEARCH_TASKS_ALL;
 }
 
-// specialvar VAR_RESULT, Act2_IsReadyForTM: the research the course's TM is made from. All four tasks, except on
-// the Water trip: there the TM is what puts out the big dock fire (the fourth task), so the other three are enough.
+// specialvar VAR_RESULT, Act2_IsReadyForTM: the research the course's TM is made from. All three tasks, except on
+// the Water trip: there the TM is what puts out the big dock fire (the puzzle task), so the other two are enough.
 bool16 Act2_IsReadyForTM(void)
 {
     const struct Act2Course *course = GetCurrentCourse();
+    u32 needed = RESEARCH_TASKS_ALL;
     if (course != NULL && course->tripStage == ACT2_WATER_TRIP)
-        return (GetResearchDone() & 0x7) == 0x7;
-    return GetResearchDone() == 0xF;
+        needed &= ~RESEARCH_TASK_PUZZLE;
+    return (GetResearchDone() & needed) == needed;
 }
 
 static const u8 sText_SheetTitle[] = _("RESEARCH SHEET: the ");
@@ -519,8 +520,6 @@ static const u8 sText_NotYet[] = _("Not yet.");
 static const u8 sText_Catch[] = _("Catch 3 different ");
 static const u8 sText_PokemonSuffix[] = _(" POKéMON.");
 static const u8 sText_Caught[] = _("Caught: ");
-static const u8 sText_Use[] = _("Use a ");
-static const u8 sText_MoveSuffix[] = _(" move in battle.");
 static const u8 sText_Record[] = _("Record 3 different ");
 static const u8 sText_Moves[] = _(" moves.");
 static const u8 sText_Recorded[] = _("Recorded: ");
@@ -557,7 +556,7 @@ void Act2_BufferResearchSheet(void)
     StringAppend(dest, course->typeName);
     StringAppend(dest, sText_Course);
     AppendTask(dest, sText_Catch, course->typeName, sText_PokemonSuffix);
-    if (done & (1 << 0))
+    if (done & RESEARCH_TASK_CATCH)
     {
         StringAppend(dest, sText_Done);
     }
@@ -568,10 +567,8 @@ void Act2_BufferResearchSheet(void)
         StringAppend(dest, count);
         StringAppend(dest, sText_OfThree);
     }
-    AppendTask(dest, sText_Use, course->typeName, sText_MoveSuffix);
-    StringAppend(dest, (done & (1 << 1)) ? sText_Done : sText_NotYet);
     AppendTask(dest, sText_Record, course->typeName, sText_Moves);
-    if (done & (1 << 2))
+    if (done & RESEARCH_TASK_RECORD)
     {
         StringAppend(dest, sText_Done);
     }
@@ -583,7 +580,7 @@ void Act2_BufferResearchSheet(void)
         StringAppend(dest, sText_OfThree);
     }
     AppendTask(dest, course->puzzleTask, NULL, NULL);
-    StringAppend(dest, (done & (1 << 3)) ? sText_Done : sText_NotYet);
+    StringAppend(dest, (done & RESEARCH_TASK_PUZZLE) ? sText_Done : sText_NotYet);
 }
 
 // ---------------------------------------------------------------------------------------------------------------

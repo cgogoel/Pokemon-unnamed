@@ -56,7 +56,7 @@ TEST("Quests: the menu is there from Act 2 on")
 TEST("Quests: a course counts its research, its puzzle, the TM and the exam")
 {
     struct QuestInfo info;
-    SetUpAct2(ACT2_WATER_TRIP, ACT2_RESEARCH_BRIEFED | ACT2_RESEARCH_USED_MOVE | ACT2_RESEARCH_MOVES_DONE
+    SetUpAct2(ACT2_WATER_TRIP, ACT2_RESEARCH_BRIEFED | ACT2_RESEARCH_MOVES_DONE
                              | ACT2_RESEARCH_DOCK_FIRE | ACT2_RESEARCH_PUZZLE_1);
     VarSet(VAR_ACT2_MOVE_SEEN_1, MOVE_WATER_GUN);
     VarSet(VAR_ACT2_MOVE_SEEN_2, MOVE_BUBBLE);
@@ -66,18 +66,17 @@ TEST("Quests: a course counts its research, its puzzle, the TM and the exam")
     EXPECT_EQ(Quests_GetCurrentIndex(), QUEST_WATER);
     Quests_Get(QUEST_WATER, &info);
     EXPECT_EQ(info.state, QUEST_CURRENT);
-    EXPECT_EQ(info.numTasks, 6);
+    EXPECT_EQ(info.numTasks, 5);
     EXPECT_EQ(info.tasks[0].count, 2); // Caught 2 of 3
     EXPECT(!info.tasks[0].done);
-    EXPECT(info.tasks[1].done);
-    EXPECT(info.tasks[2].done);
-    EXPECT_EQ(info.tasks[3].count, 1); // A small dock fire out
-    EXPECT_EQ(info.unitsDone, 7);      // 2 + 1 + 3 + 1
-    EXPECT_EQ(info.unitsTotal, 13);
-    EXPECT_EQ(Quests_GetPercent(&info), 53);
+    EXPECT(info.tasks[1].done);        // 3 moves recorded
+    EXPECT_EQ(info.tasks[2].count, 1); // A small dock fire out
+    EXPECT_EQ(info.unitsDone, 6);      // 2 + 3 + 1
+    EXPECT_EQ(info.unitsTotal, 12);
+    EXPECT_EQ(Quests_GetPercent(&info), 50);
     EXPECT_EQ(info.targetMapSec, MAPSEC_VERMILION_CITY);
-    // The finished quests before it, and the course: (100 + 100 + 100 + 53.8) / 9
-    EXPECT_EQ(Quests_GetActPercent(), 39);
+    // The finished quests before it, and the course: (100 + 100 + 100 + 50) / 9
+    EXPECT_EQ(Quests_GetActPercent(), 38);
     Quests_Get(QUEST_FIRE, &info);
     EXPECT_EQ(info.state, QUEST_DONE);
     EXPECT_EQ(Quests_GetPercent(&info), 100);
@@ -88,7 +87,7 @@ TEST("Quests: a course counts its research, its puzzle, the TM and the exam")
 TEST("Quests: the Water course's TM comes before the big fire, then the Lapras, then the exam")
 {
     struct QuestInfo info;
-    u32 research = ACT2_RESEARCH_BRIEFED | ACT2_RESEARCH_USED_MOVE | ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_DOCK_FIRE
+    u32 research = ACT2_RESEARCH_BRIEFED | ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_DOCK_FIRE
                  | ACT2_RESEARCH_PUZZLE_1 | ACT2_RESEARCH_PUZZLE_2;
     const u8 *afterSmallFires, *afterTM, *afterBigFire, *afterLapras;
     SetUpAct2(ACT2_WATER_TRIP, research);
@@ -110,7 +109,7 @@ TEST("Quests: the Water course's TM comes before the big fire, then the Lapras, 
     Quests_Get(QUEST_WATER, &info);
     afterLapras = info.next;
     FlagClear(FLAG_ACT2_GOT_LAPRAS);
-    EXPECT_EQ(Quests_GetPercent(&info), 92); // 12 of 13: all but the exam (the Lapras isn't a step)
+    EXPECT_EQ(Quests_GetPercent(&info), 91); // 11 of 12: all but the exam (the Lapras isn't a step)
     EXPECT(afterSmallFires != afterTM);
     EXPECT(afterTM != afterBigFire);
     EXPECT(afterBigFire != afterLapras);
@@ -179,12 +178,12 @@ TEST("Quests: every next step fits the quest menu's line")
 {
     static const u32 sResearch[] =
     {
-        0, ACT2_RESEARCH_BRIEFED, ACT2_RESEARCH_BRIEFED | ACT2_RESEARCH_USED_MOVE,
-        ACT2_RESEARCH_BRIEFED | ACT2_RESEARCH_USED_MOVE | ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_PUZZLE_1,
-        ACT2_RESEARCH_BRIEFED | ACT2_RESEARCH_USED_MOVE | ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_PUZZLE_ALL,
-        ACT2_RESEARCH_BRIEFED | ACT2_RESEARCH_USED_MOVE | ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_PUZZLE_1 | ACT2_RESEARCH_PUZZLE_2 | ACT2_RESEARCH_GOT_TM,
-        ACT2_RESEARCH_BRIEFED | ACT2_RESEARCH_USED_MOVE | ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_PUZZLE_ALL | ACT2_RESEARCH_PUZZLE_DONE,
-        ACT2_RESEARCH_BRIEFED | ACT2_RESEARCH_USED_MOVE | ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_PUZZLE_ALL | ACT2_RESEARCH_PUZZLE_DONE | ACT2_RESEARCH_GOT_TM,
+        0, ACT2_RESEARCH_BRIEFED, ACT2_RESEARCH_BRIEFED | ACT2_RESEARCH_MOVES_DONE,
+        ACT2_RESEARCH_BRIEFED | ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_PUZZLE_1,
+        ACT2_RESEARCH_BRIEFED | ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_PUZZLE_ALL,
+        ACT2_RESEARCH_BRIEFED | ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_PUZZLE_1 | ACT2_RESEARCH_PUZZLE_2 | ACT2_RESEARCH_GOT_TM,
+        ACT2_RESEARCH_BRIEFED | ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_PUZZLE_ALL | ACT2_RESEARCH_PUZZLE_DONE,
+        ACT2_RESEARCH_BRIEFED | ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_PUZZLE_ALL | ACT2_RESEARCH_PUZZLE_DONE | ACT2_RESEARCH_GOT_TM,
         ACT2_RESEARCH_CLUB_ARRIVED,
     };
     u32 stage = 0, research = 0, i, j, k;

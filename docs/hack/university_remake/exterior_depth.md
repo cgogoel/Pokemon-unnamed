@@ -5,8 +5,23 @@ shading. This compares our buildings with FRLG's at the pixel level, says what m
 options, each mocked up from a real (in-memory) build of the whole campus tileset so the budget numbers are honest.
 Nothing in `data/` is changed yet.
 
-Draft code: `tools/hack/draft_exterior_depth.py` (patches the kit of `draw_university_tiles.py` behind an option
-switch, builds the tileset in memory, never writes it). Run it with the Pillow venv.
+**Applied: option B** (with the clock and greenhouse fixes below). `draw_university_tiles.py` now draws the B kit;
+the draft that compared the options (`tools/hack/draft_exterior_depth.py`) is in this branch's history (commit
+"University exterior depth: FRLG comparison, three shading options"); the option mockups below are from it.
+
+## Applied (option B)
+
+| | |
+|---|---|
+| Campus tileset | **380/384 tiles, 346/384 metatiles, 4/6 palettes** (was 365 / 371 / 4) |
+| Recoveries | Science roof as a capsule, stadium track corners radius 32, pool ropes dashed every 4 px |
+| Clock tower | The tower's cornice was drawn over the top of the clock's rim; the clock now sits below it (center 16 px lower, radius 13): the whole gold rim, the face, the hour marks and the hands at noon (`after_b_tower.png`) |
+| Greenhouse | The mid-height band of leaf texture is gone: clear glass, the vault's lower panes bright with the light inside, a low planted bed with pink flowers behind the front glass. Trees inside the glass were tried and look livelier, but every tree cell is unique: 553/384 tiles, 169 over (`greenhouse_options.png`) |
+| Rooms | Unchanged: they keep the first windows as `room_window()` / `room_sqwindow()` and the glass palette's steels |
+| Maps | Collision, elevation and behaviors identical in all 4864 campus cells, no event moved; six stadium corner cells are now plain grass (the tighter track) |
+| Images | `after_b_section.png`, `after_b_tower.png`, `after_b_greenhouse.png`, `after_b_stadium.png`, `after_b_science_roof.png` (before / after), `campus_option_b.png` (the whole campus) |
+
+Differences from the B mockup: the plaques' shadow is under them (not offset), and the greenhouse changed (above).
 
 | Image | What |
 |---|---|

@@ -28,7 +28,7 @@ Mockups, rendered from the written tilesets by `tools/hack/draw_university_tiles
 | Greenhouse glass + leaves | Home Economics, the Science tower | Home Economics' glass wall and garden beds; lab glassware |
 | Accent (track red, seat blue, hospital red and pink) | Stadium, the hospital's crosses | Ward beds |
 
-The outline everywhere is a dark slate blue (`#283048`), never black, like FireRed's own buildings.
+The outline everywhere is FireRed's grey-violet `#52526A` (the same as the rooms), never black. Since the exterior depth pass (`exterior_depth.md`, option B) the buildings are shaded like FireRed's: the wall one step below white (white is for highlights), roofs in value planes, the cornice's shadow on the wall, recessed windows and doors, pilasters, light from the upper left on corners, columns and the spire, a ground shadow.
 
 ## Building language (simplified to fit one tileset)
 
@@ -61,7 +61,7 @@ drawn in the campus palettes below, are gone.)
 
 | Palette | In | Colors (after transparent) |
 |---|---|---|
-| `stone` | campus (slot 7) | outline `#283048`, white `#F8F8F0`, stone `#E0E0D0` `#C0C0B0` `#909080`, slate `#98A8C8` `#7080A8` `#485880`, glass `#C8E8F8` `#78B0E0` `#4070A8`, gold `#F8D058` `#C08828`, wood `#A86838` `#684028` |
+| `stone` | campus (slot 7) | outline `#52526A`, stone `#F6F6FF` `#DEDEE6` `#ACBDCD` `#7B7B83` (FRLG's neutrals; the last is also the shadow), slate: lit plane `#9CBDE6`, `#739CC5` `#5A7BB4` `#41629C` (the rooms' school slate; the last is also the glass's dark), glass `#9CD5FF` `#62A4DE`, gold `#F6E68B` `#D5AC4A`, wood `#C58341` `#8B5229` |
 | `glass` | campus (8) | outline, white, stone, steel x3, glass x4, leaves x3, pink, red |
 | `water` | campus (9) | outline, white, stone x3, water x3, Gyarados blue x2, cream, red, Magikarp orange, gold |
 | `accent` | campus (10) | outline, white, stone x3, track red x2, seat blue x2, reds x2, pink, green, steel, yellow |
@@ -72,7 +72,7 @@ FRLG secondary tilesets (`include/fieldmap.h`): **384 tiles, 384 metatiles, pale
 
 | Tileset | Tiles | Metatiles | Palettes |
 |---|---|---|---|
-| `gTileset_CeladonUniversity` (every campus building and decoration) | 357 / 384 | 347 / 384 | 4 / 6 |
+| `gTileset_CeladonUniversity` (every campus building and decoration) | 380 / 384 | 346 / 384 | 4 / 6 |
 | The rooms' three tilesets | see `interior_art.md` | | |
 
 The script stops if a tileset goes over, and reports any tile that doesn't fit one palette (none now).

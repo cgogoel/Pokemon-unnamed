@@ -16,9 +16,14 @@ and prints the tile budget (FRLG secondary: 384 tiles, 384 metatiles, palettes 7
 The look follows the Tamamushi University lore art: white stone with grey-blue slate mansard roofs, tall arched
 windows and gold trim, the clock tower over the Main Hall, the Gyarados fountain, the glass greenhouse, the glass
 Science tower, the stadium with its track and floodlights, all in dense forest. The rooms carry the same materials
-inside (draw_university_interiors.py: FireRed's interior look, with the campus's own windows). To fit one campus tileset the art is kept plain and is drawn on the metatile grid, in the palettes' colors only,
-and mirror-symmetric wherever it can be (the right half of a building is the left half flipped, which the tile
-deduplication gets for free).
+inside (draw_university_interiors.py: FireRed's interior look, with the campus's own windows).
+
+The buildings are shaded the way FireRed's are (docs/hack/university_remake/exterior_depth.md, option B): FRLG's
+outline and neutrals, the wall one step below white so white is left for highlights, roofs in value planes, the
+cornice's shadow on the wall, recessed windows and doors, a ground shadow; light from the upper left on the cues that
+repeat or matter (roof verges and wall corners, pilasters, columns, dormer caps, the spire). Everything else is
+symmetric within each 16-pixel cell, so flipped tiles still deduplicate: a lit-left cue costs the tiles of the right
+half it sits on, which is why the rest stays top-lit (the budget is near full).
 
 Metatiles: the campus art sits in the middle layer over the primary's grass (layer type COVERED, under the player);
 the clock tower's spire, which rises over the path behind the Main Hall, is in the top layer (NORMAL) so people walk
@@ -54,23 +59,25 @@ def gba(c):
 
 
 # --- Palettes ----------------------------------------------------------------------------------------------------------
-OL = (40, 48, 72)        # The outline: a dark slate blue, never black
-WHITE = (248, 248, 240)
-S1, S2, S3 = (224, 224, 208), (192, 192, 176), (144, 144, 128)    # White stone
-SL1, SL2, SL3 = (152, 168, 200), (112, 128, 168), (72, 88, 128)   # Slate (the school color)
-G1, G2, G3 = (200, 232, 248), (120, 176, 224), (64, 112, 168)     # Window glass
-AU, AU2 = (248, 208, 88), (192, 136, 40)                          # Gold
-WD, WD2 = (168, 104, 56), (104, 64, 40)                           # Wood
+# FireRed's own exterior ramps (exterior_depth.md): the outline of FRLG's buildings and rooms, the cool neutrals of
+# Celadon/Pewter/Saffron, the interiors' school slate (BuildingFrlg 3) with a lit plane, Celadon's window glass and
+# gold, the Lab's wood
+OL = (82, 82, 106)                                                 # #52526A
+WHITE, S1, S2, S3 = (246, 246, 255), (222, 222, 230), (172, 189, 205), (123, 123, 131)   # Stone (S3: shadow too)
+SLH, SL1, SL2, SL3 = (156, 189, 230), (115, 156, 197), (90, 123, 180), (65, 98, 156)     # Slate: lit plane, ramp
+G1, G2 = (156, 213, 255), (98, 164, 222)                           # Window glass (its dark is SL3)
+AU, AU2 = (246, 230, 139), (213, 172, 74)                          # Gold
+WD, WD2 = (197, 131, 65), (139, 82, 41)                            # Wood
 
 PAL = {
-    'stone': [OL, WHITE, S1, S2, S3, SL1, SL2, SL3, G1, G2, G3, AU, AU2, WD, WD2],
+    'stone': [OL, WHITE, S1, S2, S3, SLH, SL1, SL2, SL3, G1, G2, AU, AU2, WD, WD2],
     'glass': [OL, WHITE, S1, (200, 208, 216), (144, 152, 168), (88, 96, 112), (224, 248, 248), (168, 224, 224),
               (112, 192, 200), (64, 144, 160), (136, 200, 96), (72, 152, 64), (40, 96, 48), (248, 152, 176),
               (216, 72, 88)],
     'water': [OL, WHITE, S1, S2, S3, (176, 224, 248), (104, 176, 240), (56, 120, 208), (96, 152, 224), (40, 80, 160),
               (248, 232, 168), (224, 72, 56), (248, 136, 56), AU],
     'accent': [OL, WHITE, S1, S2, S3, (200, 96, 72), (152, 64, 56), (88, 120, 200), (48, 72, 144), (224, 56, 56),
-               (160, 32, 40), (248, 176, 192), (64, 160, 96), (104, 112, 128), (248, 216, 96)],
+               (160, 32, 40), (248, 176, 192), (64, 160, 96), (148, 164, 180), AU],
 }
 PAL = {k: [gba(c) for c in v] for k, v in PAL.items()}
 EXTERIOR_PALS = ('stone', 'glass', 'water', 'accent')
@@ -78,7 +85,8 @@ GL = dict(zip(('ol', 'w', 's1', 'f1', 'f2', 'f3', 'q0', 'q1', 'q2', 'q3', 'p1', 
 WA = dict(zip(('ol', 'w', 's1', 's2', 's3', 'a1', 'a2', 'a3', 'b1', 'b2', 'cr', 'rd', 'or', 'au'), PAL['water']))
 AC = dict(zip(('ol', 'w', 's1', 's2', 's3', 't1', 't2', 'b1', 'b2', 'rd', 'rd2', 'pk', 'gn', 'mt', 'ye'),
               PAL['accent']))
-OL, WHITE, S1, S2, S3, SL1, SL2, SL3, G1, G2, G3, AU, AU2, WD, WD2 = PAL['stone']
+OL, WHITE, S1, S2, S3, SLH, SL1, SL2, SL3, G1, G2, AU, AU2, WD, WD2 = PAL['stone']
+G3 = SL3
 BLACK = (0, 0, 0)
 
 
@@ -139,71 +147,161 @@ class Pic:
 
 # --- The stone kit (exteriors) ---------------------------------------------------------------------------------------
 def roof(P, x0, y0, w, h, dormers=(), drow=None):
-    """A slate mansard roof: a light ridge, 4-pixel shingle courses (every inner metatile the same), a white dentil
-    cornice as its last 8 rows."""
-    for y in range(h - 8):
+    """A slate mansard roof in value planes (docs/hack/university_remake/exterior_depth.md): ridge highlight, a lit
+    upper slope, the curb (a lit edge and its shadow), the steep slope in 8-pixel courses, a shaded lowest course,
+    then the cornice. Verges lit on the left, shaded on the right. The joints are symmetric in every 16-pixel cell,
+    so the flipped tiles deduplicate without mirroring the building."""
+    hr = h - 8
+    for y in range(hr):
         for x in range(w):
-            if y < 4:
-                c = (OL, SL1, WHITE, SL1)[y]
+            if y == 0:
+                col = OL
+            elif y == 1:
+                col = WHITE
+            elif y == 2:
+                col = S1
+            elif y < 14:                                  # The lit upper slope
+                col = SL1 if (y - 3) % 5 == 4 else SLH
+            elif y == 14:
+                col = WHITE                               # The curb: a lit edge, then its shadow
+            elif y == 15:
+                col = SL3
+            elif y >= hr - 3:                             # The shaded lowest course, over the cornice
+                col = SL3 if y >= hr - 2 else SL2
             else:
-                course, row = (y - 4) // 4, (y - 4) % 4
-                c = SL1 if row == 0 else SL3 if row == 3 else SL3 if (x + (course % 2) * 4) % 8 == 0 else SL2
-            P.p(x0 + x, y0 + y, c)
+                course, row = (y - 16) // 8, (y - 16) % 8
+                joint = x % 16 in ((0, 15) if course % 2 == 0 else (7, 8))
+                col = SL1 if row == 0 else SL3 if row == 7 or (joint and 1 <= row <= 5) else SL2
+            P.p(x0 + x, y0 + y, col)
+    for y in range(hr):
         P.p(x0, y0 + y, OL)
-        P.p(x0 + 1, y0 + y, SL3 if y else OL)
-        P.p(x0 + w - 2, y0 + y, SL3 if y else OL)
         P.p(x0 + w - 1, y0 + y, OL)
+        if y:
+            P.p(x0 + 1, y0 + y, WHITE)
+            P.p(x0 + 2, y0 + y, SLH)
+            P.p(x0 + w - 2, y0 + y, SL3)
+            P.p(x0 + w - 3, y0 + y, SL3)
     cornice(P, x0, y0 + h - 8, w)
-    for col in dormers:
-        dormer(P, x0 + col * T, y0 + (drow if drow is not None else h // T - 2) * T)
+    for col_ in dormers:
+        dormer(P, x0 + col_ * T, y0 + (drow if drow is not None else h // T - 2) * T)
 
 
 def cornice(P, x0, y, w):
+    """8 rows: the roof's edge, a lit top, the fascia, dentils, the shadowed underside (the wall below carries the
+    cast shadow); lit at its left end, shaded at its right."""
     for x in range(x0, x0 + w):
-        dx = (x - x0) % 8
-        dent = dx in (1, 6)
-        for k, c in enumerate((OL, WHITE, S1, WHITE, S3 if dent else WHITE, S3 if dent else S1, S2, S3)):
+        gap = (x - x0) % 8 in (3, 4)
+        for k, c in enumerate((OL, WHITE, S1, S2, S3 if gap else WHITE, S3 if gap else S1, S3, OL)):
             P.p(x, y + k, c)
     P.vl(x0, y, y + 7, OL)
     P.vl(x0 + w - 1, y, y + 7, OL)
+    P.vl(x0 + 1, y + 1, y + 6, WHITE)
+    P.vl(x0 + w - 2, y + 1, y + 6, S2)
 
 
 def dormer(P, x, y):
-    """A small arched dormer (one metatile, symmetric)."""
-    P.r(x + 3, y + 2, 10, 13, WHITE)
-    P.r(x + 3, y + 1, 10, 2, SL3)
+    """A dormer (one metatile): a little hipped cap shaded on its right slope, lit left cheek, graded glass, its
+    shadow on the roof below."""
+    P.r(x + 3, y + 3, 10, 12, S1)
+    P.vl(x + 3, y + 3, y + 14, WHITE)
+    P.vl(x + 12, y + 3, y + 14, S2)
+    P.vl(x + 2, y + 3, y + 14, OL)
+    P.vl(x + 13, y + 3, y + 14, OL)
     P.hl(x + 5, x + 10, y, OL)
-    P.p(x + 4, y + 1, OL)
-    P.p(x + 11, y + 1, OL)
-    P.vl(x + 2, y + 2, y + 14, OL)
-    P.vl(x + 13, y + 2, y + 14, OL)
-    P.hl(x + 2, x + 13, y + 15, SL3)
-    for yy in range(y + 4, y + 13):
+    P.hl(x + 3, x + 12, y + 1, SLH)
+    P.p(x + 4, y, OL)
+    P.p(x + 11, y, OL)
+    P.hl(x + 2, x + 13, y + 2, SL2)
+    P.hl(x + 8, x + 12, y + 1, SL2)
+    P.hl(x + 8, x + 13, y + 2, SL3)
+    P.p(x + 2, y + 1, OL)
+    P.p(x + 13, y + 1, OL)
+    for yy in range(y + 5, y + 13):
         for xx in range(x + 5, x + 11):
-            corner = yy == y + 4 and xx in (x + 5, x + 10)
-            P.p(xx, yy, WHITE if corner or xx in (x + 7, x + 8) else G1 if yy < y + 8 else G2 if yy < y + 11 else G3)
-    P.hl(x + 5, x + 10, y + 13, S2)
+            P.p(xx, yy, WHITE if xx in (x + 7, x + 8) else G3 if yy < y + 7 else G1 if yy < y + 9 else G2)
+    P.hl(x + 5, x + 10, y + 4, OL)
+    P.vl(x + 4, y + 4, y + 12, OL)
+    P.vl(x + 11, y + 4, y + 12, OL)
+    P.hl(x + 4, x + 11, y + 13, WHITE)
+    P.hl(x + 2, x + 13, y + 15, SL3)
+    P.hl(x + 3, x + 12, y + 15, OL)
 
 
 def wall(P, x0, y0, w, h):
-    """White stone in 8-pixel courses (horizontal joints only: plain, and the same flipped), outlined sides."""
+    """The stone one step down from white (white is for highlights), 8-pixel courses, the cornice's shadow across the
+    top two rows, quoins at the corners: lit on the left, in shadow on the right."""
     for y in range(y0, y0 + h):
+        dy = y - y0
         for x in range(x0, x0 + w):
-            P.p(x, y, S1 if (y - y0) % 8 == 7 else WHITE)
+            P.p(x, y, S3 if dy == 0 else S2 if dy == 1 or dy % 8 == 7 else S1)
         P.p(x0, y, OL)
         P.p(x0 + w - 1, y, OL)
+        if dy < 2:
+            continue
+        qw = 5 if (dy // 8) % 2 == 0 else 3
+        joint = dy % 8 == 7
+        for x in range(x0 + 1, x0 + 1 + qw):
+            P.p(x, y, S2 if joint else WHITE)
+        P.p(x0 + 1 + qw, y, S2)
+        for x in range(x0 + w - 1 - qw, x0 + w - 1):
+            P.p(x, y, S3 if joint else S2)
+        P.p(x0 + w - 2 - qw, y, S3)
 
 
 def plinth(P, x0, y, w):
-    for x in range(x0, x0 + w):
-        for k, c in enumerate((S2, S1, S2, S3)):
-            P.p(x, y + k, c)
-    P.vl(x0, y, y + 3, OL)
-    P.vl(x0 + w - 1, y, y + 3, OL)
+    """The base (y = the stamp's last 4 rows): a lit step, the plinth, its dark foot, the ground shadow on the
+    grass under it."""
+    yb = y + 4
+    for (yy, c) in ((yb - 6, WHITE), (yb - 5, S1), (yb - 4, S2), (yb - 3, S3), (yb - 2, OL)):
+        P.hl(x0, x0 + w - 1, yy, c)
+    P.vl(x0, yb - 6, yb - 2, OL)
+    P.vl(x0 + w - 1, yb - 6, yb - 2, OL)
+    P.hl(x0 + 1, x0 + w - 2, yb - 1, S3)
 
 
 def window(P, x, y):
-    """A tall arched window in a 16x32 cell, symmetric: slate outline, glass light above the transom, a white cross,
+    """A tall arched window in a 16x32 cell (symmetric): the arch's soffit in shadow, glass graded light to dark, a
+    white cross, a keystone, a lit sill with its shadow under it."""
+    L, Rr, top, bot = x + 3, x + 12, y + 5, y + 26
+    for yy in range(top, bot + 1):
+        inset = 3 if yy == top else 1 if yy == top + 1 else 0
+        for xx in range(L + inset, Rr - inset + 1):
+            if xx in (L + inset, Rr - inset) or yy in (top, bot):
+                c = OL
+            elif xx in (x + 7, x + 8) or yy == top + 8:
+                c = WHITE
+            elif yy <= top + 2:
+                c = G3
+            else:
+                c = G1 if yy < top + 8 else G3 if yy >= bot - 2 else G2
+            P.p(xx, yy, c)
+    P.r(x + 7, top - 2, 2, 2, WHITE)
+    P.hl(x + 2, x + 13, bot + 1, WHITE)
+    P.hl(x + 2, x + 13, bot + 2, S3)
+    P.hl(x + 2, x + 13, bot + 3, S2)
+
+
+def sqwindow(P, x, y):
+    """A square window (dorms, hospital) in a 16x32 cell (symmetric): a lit stone lintel, its shadow on the glass,
+    graded glass, a white cross, a lit sill and its shadow."""
+    P.hl(x + 2, x + 13, y + 6, WHITE)
+    P.hl(x + 2, x + 13, y + 7, S2)
+    P.r(x + 3, y + 8, 10, 14, OL)
+    P.r(x + 4, y + 9, 8, 12, G2)
+    P.r(x + 4, y + 9, 8, 2, G3)
+    P.r(x + 4, y + 11, 8, 3, G1)
+    P.r(x + 4, y + 18, 8, 3, G3)
+    P.vl(x + 7, y + 9, y + 20, WHITE)
+    P.vl(x + 8, y + 9, y + 20, WHITE)
+    P.hl(x + 4, x + 11, y + 14, WHITE)
+    P.hl(x + 2, x + 13, y + 22, WHITE)
+    P.hl(x + 2, x + 13, y + 23, S3)
+    P.hl(x + 2, x + 13, y + 24, S2)
+
+
+def room_window(P, x, y):
+    """The rooms' arched window (draw_university_interiors.py recolors it), the campus's first window: a 16x32 cell,
+    symmetric: slate outline, glass light above the transom, a white cross,
     a keystone and a sill."""
     L, Rr, top, bot = x + 3, x + 12, y + 5, y + 26
     for yy in range(top, bot + 1):
@@ -222,8 +320,8 @@ def window(P, x, y):
     P.hl(x + 2, x + 13, bot + 2, S3)
 
 
-def sqwindow(P, x, y):
-    """A square window (dorms, hospital) in a 16x32 cell, symmetric."""
+def room_sqwindow(P, x, y):
+    """The rooms' square window (draw_university_interiors.py recolors it): a 16x32 cell, symmetric."""
     P.r(x + 3, y + 8, 10, 14, OL)
     P.r(x + 4, y + 9, 8, 12, G2)
     P.r(x + 4, y + 9, 8, 4, G1)
@@ -236,39 +334,45 @@ def sqwindow(P, x, y):
 
 
 def door(P, x, y, glass=False):
-    """A 16x32 door cell (symmetric): an arched stone portal with a fanlight over a double door on the lower
-    metatile (the one a door animation would replace)."""
-    P.r(x + 1, y + 5, 14, 27, S2)
+    """A 16x32 door cell (symmetric): an arched stone portal, the soffit in deep shadow, the fanlight, the leaves
+    under the lintel's shadow (wood or glass), steps at the foot (the lower metatile is the one a door animation
+    would replace)."""
+    P.r(x + 1, y + 5, 14, 25, S1)
     P.hl(x + 4, x + 11, y + 3, OL)
     P.hl(x + 2, x + 13, y + 4, OL)
     P.p(x + 3, y + 4, OL)
-    P.vl(x + 1, y + 5, y + 31, OL)
-    P.vl(x + 14, y + 5, y + 31, OL)
-    P.vl(x + 2, y + 5, y + 31, WHITE)
-    P.vl(x + 13, y + 5, y + 31, WHITE)
+    P.vl(x + 1, y + 5, y + 29, OL)
+    P.vl(x + 14, y + 5, y + 29, OL)
+    P.vl(x + 2, y + 5, y + 29, WHITE)
+    P.vl(x + 13, y + 5, y + 29, WHITE)
+    P.hl(x + 4, x + 11, y + 5, WHITE)
     for yy in range(y + 7, y + 16):
         inset = 3 if yy == y + 7 else 1 if yy == y + 8 else 0
         for xx in range(x + 3 + inset, x + 13 - inset):
             edge = yy == y + 7 or xx in (x + 3 + inset, x + 12 - inset)
-            P.p(xx, yy, OL if edge else WHITE if xx in (x + 7, x + 8) else G1 if yy < y + 12 else G2)
-    for yy in range(y + 16, y + 31):
+            P.p(xx, yy, OL if edge else WHITE if xx in (x + 7, x + 8) else G3 if yy < y + 10 else
+                G1 if yy < y + 13 else G2)
+    for yy in range(y + 16, y + 29):
         for xx in range(x + 3, x + 13):
             if glass:
-                c = OL if xx in (x + 3, x + 12, x + 7, x + 8) else G1 if yy < y + 21 else G2
+                c = OL if xx in (x + 3, x + 12, x + 7, x + 8) else G3 if yy < y + 18 else G1 if yy < y + 22 else G2
             else:
-                c = WD2 if xx in (x + 3, x + 12, x + 7, x + 8) or yy in (y + 19, y + 26) else WD
+                c = WD2 if xx in (x + 3, x + 12, x + 7, x + 8) or yy in (y + 18, y + 25) else WD
             P.p(xx, yy, c)
     P.hl(x + 3, x + 12, y + 16, OL)
+    P.hl(x + 4, x + 11, y + 17, G3 if glass else OL)
     if not glass:
-        P.p(x + 6, y + 23, AU)
-        P.p(x + 9, y + 23, AU)
+        P.p(x + 6, y + 22, AU)
+        P.p(x + 9, y + 22, AU)
+    P.hl(x + 1, x + 14, y + 29, WHITE)
+    P.hl(x + 1, x + 14, y + 30, S2)
     P.hl(x + 1, x + 14, y + 31, S3)
 
 
 def column(P, x, y0, y1):
-    """A white column centered in the 16-wide cell at x (symmetric)."""
+    """A white column in the 16-wide cell at x: lit on the left, shaded on the right, a capital and a base."""
     for y in range(y0 + 3, y1 - 2):
-        for k, c in enumerate((OL, S1, WHITE, WHITE, S1, OL)):
+        for k, c in enumerate((OL, WHITE, WHITE, S1, S2, OL)):
             P.p(x + 5 + k, y, c)
     P.hl(x + 3, x + 12, y0, OL)
     P.hl(x + 3, x + 12, y0 + 1, WHITE)
@@ -277,10 +381,27 @@ def column(P, x, y0, y1):
     P.hl(x + 3, x + 12, y1 - 1, S2)
     P.p(x + 3, y1 - 1, OL)
     P.p(x + 12, y1 - 1, OL)
+    P.p(x + 12, y0 + 1, S1)
+    P.p(x + 11, y1 - 2, S1)
+
+
+def pilaster(P, x, y0, y1):
+    """A flat pier between two window bays (the Pewter Museum's): a lit left edge, its body, a shaded right edge and
+    its shadow on the wall; a capital under the cornice's shadow, a base on the plinth."""
+    for y in range(y0 + 2, y1):
+        P.p(x + 5, y, WHITE)
+        P.hl(x + 6, x + 9, y, S1)
+        P.p(x + 10, y, S2)
+        P.p(x + 11, y, S2)
+    P.hl(x + 4, x + 11, y0 + 2, WHITE)
+    P.hl(x + 4, x + 11, y0 + 3, S2)
+    P.hl(x + 4, x + 11, y1 - 2, WHITE)
+    P.hl(x + 4, x + 11, y1 - 1, S2)
 
 
 def pediment(P, c, base_y, half, height, emblem=True):
-    """A triangle pediment symmetric about the pixel boundary c."""
+    """A triangle pediment symmetric about the pixel boundary c: lit raking cornices, their shadow along the
+    tympanum, the tympanum one step down from white, the gold emblem."""
     for dy in range(height + 1):
         y = base_y - dy
         hw = half * (1 - dy / height)
@@ -288,16 +409,10 @@ def pediment(P, c, base_y, half, height, emblem=True):
             d = abs(x + .5 - c)
             if d > hw:
                 continue
-            if d > hw - 1.5 or dy == 0:
-                col = OL
-            elif d < hw - 5 and 2 < dy < height - 3:
-                col = S1
-            else:
-                col = WHITE
-            P.p(x, y, col)
+            P.p(x, y, OL if d > hw - 1.5 or dy == 0 else WHITE if d > hw - 3 else S2 if d > hw - 4.5 else S1)
+    P.hl(int(c - half) + 1, int(c + half) - 2, base_y - 1, S2)
     if emblem:
-        cy = base_y - int(height * .36)
-        P.ellipse(c, cy, 4.5, 4.5, AU, AU2)
+        P.ellipse(c, base_y - int(height * .36), 4.5, 4.5, AU, AU2)
 
 
 def has_window(c, w_tiles, spacing):
@@ -327,21 +442,23 @@ def facade(P, x0, y0, w_tiles, storeys, kind='arch', skip=(), spacing=2, columns
 
 
 def academic(w, roof_rows, storeys, doors, dormers=(), kind='arch', pediment_over=None, skip=(), spacing=2,
-             columns=None):
-    """The academic building: mansard roof, storeys of windows, doors (columns) on the ground storey, plinth.
-    Symmetric when the doors and dormers are."""
+             columns=None, portico=()):
+    """The academic building: mansard roof, storeys of windows, pilasters between the bays of regular arched
+    facades (not in `portico`), doors (columns) on the ground storey, the base. Symmetric where the light allows
+    (the lit-left cues cost the right half's tiles: exterior_depth.md)."""
     h = roof_rows + storeys * 2
     P = Pic(w * T, h * T)
     roof(P, 0, 0, P.w, roof_rows * T, dormers, roof_rows - 2)
     wall(P, 0, roof_rows * T, P.w, storeys * 2 * T)
+    if kind == 'arch' and columns is None and spacing == 2:
+        for c in range(1, w - 1):
+            if not has_window(c, w, spacing) and c not in doors and c not in portico:
+                pilaster(P, c * T, roof_rows * T, h * T - 6)
     facade(P, 0, roof_rows * T, w, storeys, kind, skip=[(d, storeys - 1) for d in doors] + list(skip), spacing=spacing,
            columns=columns)
+    plinth(P, 0, h * T - 4, P.w)
     for d in doors:
         door(P, d * T, (h - 2) * T, glass=kind != 'arch')
-    plinth(P, 0, h * T - 4, P.w)
-    for d in doors:  # The plinth stops at the door
-        P.r(d * T + 2, h * T - 4, 12, 3, S2)
-        P.hl(d * T + 1, d * T + 14, h * T - 1, S3)
     if pediment_over is not None:
         pediment(P, pediment_over * T + 8, roof_rows * T - 1, 30, 20)
     return P
@@ -350,104 +467,117 @@ def academic(w, roof_rows, storeys, doors, dormers=(), kind='arch', pediment_ove
 # --- The buildings ---------------------------------------------------------------------------------------------------
 def main_hall():
     """15x16: the Main Hall (15x11, rows 5-15) with the clock tower standing on its roof (rows 0-5, columns 5-9).
-    Mansard roof, three storeys, a portico of four columns under a pediment, the door at column 7."""
+    Mansard roof, three storeys, a portico of four columns under a pediment (its porch in shadow), the door at
+    column 7."""
     P = Pic(15 * T, 16 * T)
-    B = academic(15, 5, 3, doors=(7,), dormers=(2, 4, 10, 12), skip=[(c, s) for c in range(5, 10) for s in (0, 1)])
+    B = academic(15, 5, 3, doors=(7,), dormers=(2, 4, 10, 12), skip=[(c, s) for c in range(5, 10) for s in (0, 1)],
+                 portico=range(5, 10))
     P.paste(B, 0, 5 * T)
     y0 = 5 * T
-    # The portico: columns 5-9, rows 7-10 of the building; a shadowed hall behind columns
-    P.r(5 * T, y0 + 7 * T + 6, 5 * T, 4 * T - 10, S3)
-    for c in (5, 6, 8, 9):
-        P.r(c * T, y0 + 7 * T + 6, T, 4 * T - 10, S3)
+    top, bottom = y0 + 7 * T + 6, y0 + 11 * T - 6
+    P.r(5 * T, top, 5 * T, bottom - top, S2)
+    P.r(5 * T, top, 5 * T, 4, S3)
+    P.hl(5 * T, 10 * T - 1, top + 4, S3)
     door(P, 7 * T, y0 + 9 * T)
-    P.r(5 * T, y0 + 7 * T, 5 * T, 6, WHITE)
+    P.r(5 * T, top, T * 5, 2, OL)
+    P.r(5 * T, y0 + 7 * T, 5 * T, 6, WHITE)    # The entablature
     P.hl(5 * T, 10 * T - 1, y0 + 7 * T, OL)
+    P.hl(5 * T, 10 * T - 1, y0 + 7 * T + 3, S1)
     P.hl(5 * T, 10 * T - 1, y0 + 7 * T + 4, S2)
     P.hl(5 * T, 10 * T - 1, y0 + 7 * T + 5, OL)
     for c in (5, 6, 8, 9):
         column(P, c * T, y0 + 7 * T + 6, y0 + 11 * T - 4)
     pediment(P, 120, y0 + 7 * T, 40, 24)
-    for x in range(5 * T, 10 * T):
-        for k, c in enumerate((S1, WHITE, S2, S3)):
+    for x in range(5 * T, 10 * T):              # The porch's steps
+        for k, c in enumerate((WHITE, S2, OL, S3)):
             P.p(x, y0 + 11 * T - 4 + k, c)
     tower(P, 5 * T, 0)
-    P.mirror()
     return P
 
 
 def tower(P, x0, y0):
-    """The clock tower, 5x6 (its base row sits on the Main Hall's roof): balustrade, body with the clock at noon,
-    belfry, slate spire and gold finial. Drawn on the left half; main_hall() mirrors it."""
+    """The clock tower, 5x6 (its base row sits on the Main Hall's roof): a lit balustrade, the body with the belfry's
+    dark openings under a cornice, the whole clock (at noon) below the cornice, and the slate spire with two faces
+    (lit left, shaded right, a lit hip line) under a gold finial. Drawn on the left half and mirrored, then the spire
+    redrawn whole."""
     cx = x0 + 40
-    # Base: a balustrade (row 5)
     by = y0 + 5 * T
-    P.r(x0 + 2, by, 76, 16, WHITE)
-    for x in range(x0 + 2, x0 + 78):
+    for x in range(x0 + 2, x0 + 40):     # Balustrade
         P.p(x, by, OL)
         P.p(x, by + 1, WHITE)
-        P.p(x, by + 2, S2)
-        if (x - x0) % 4 == 2:
-            P.vl(x, by + 4, by + 10, S2)
-        P.p(x, by + 12, S1)
-        P.p(x, by + 13, S2)
-        P.p(x, by + 14, S3)
-        P.p(x, by + 15, S3)
+        P.p(x, by + 2, S1)
+        P.p(x, by + 3, S2)
+        for yy in range(by + 4, by + 12):
+            P.p(x, yy, (S2, WHITE, S1, S3)[(x - x0) % 4])
+        for k, c in enumerate((WHITE, S1, S2, S3)):
+            P.p(x, by + 12 + k, c)
     P.vl(x0 + 2, by, by + 15, OL)
-    # Body (rows 2-4), 48 wide
-    wall(P, x0 + 16, y0 + 2 * T, 48, 3 * T)
-    P.ellipse(cx, y0 + 3 * T + 12, 14, 14, AU, AU2)
-    P.ellipse(cx, y0 + 3 * T + 12, 11, 11, WHITE, S2)
-    for (dx, dy) in ((0, -9), (-9, 0), (0, 8), (-7, -6), (-7, 5)):
-        P.p(cx - 1 + dx if dx <= 0 else cx + dx, y0 + 3 * T + 12 + dy, OL)
-    P.vl(cx - 1, y0 + 3 * T + 5, y0 + 3 * T + 12, OL)
+    wall(P, x0 + 16, y0 + 2 * T, 48, 3 * T)     # Body (rows 2-4), 48 wide
     cornice(P, x0 + 14, y0 + 3 * T - 6, 52)
-    # Belfry (row 2): an arched opening
-    ox, oy = x0 + 24, y0 + 2 * T + 1
+    P.hl(x0 + 16, x0 + 63, y0 + 3 * T + 2, S3)   # The cornice's shadow
+    # The clock, below the cornice: gold rim, white face, the hour marks, the hands at noon
+    ccy = y0 + 4 * T
+    P.ellipse(cx, ccy, 13, 13, AU, AU2)
+    P.ellipse(cx, ccy, 10, 10, WHITE, S2)
+    for (dx, dy) in ((0, -8), (-8, 0), (0, 7), (-6, -5), (-6, 4)):
+        P.p(cx - 1 + dx, ccy + dy, OL)
+    P.vl(cx - 1, ccy - 7, ccy, OL)
+    ox, oy = x0 + 24, y0 + 2 * T + 1     # Belfry
     for yy in range(oy, oy + 8):
         inset = 1 if yy == oy else 0
         for xx in range(ox + inset, ox + 8 - inset):
-            P.p(xx, yy, OL if yy == oy or xx in (ox, ox + 7) else SL3)
+            P.p(xx, yy, OL if yy <= oy + 2 or xx in (ox, ox + 7) else SL3)
     P.hl(ox, ox + 7, oy + 8, WHITE)
-    # Spire (rows 0-1)
-    for dy in range(2 * T - 2):
-        y = y0 + 2 * T - 1 - dy
-        hw = 26 * (1 - dy / 30) + 1
-        for x in range(int(cx - hw), cx):
-            edge = x == int(cx - hw)
-            P.p(x, y, OL if edge else SL1 if dy % 3 == 0 else SL2)
-    P.hl(cx - 27, cx - 1, y0 + 2 * T - 1, OL)
-    P.vl(cx - 1, y0, y0 + 3, AU)
-    P.p(cx - 2, y0 + 1, AU2)
+    P.hl(ox, ox + 7, oy + 9, S3)
+
+    def spire(two_faces):
+        for dy in range(2 * T - 2):
+            y = y0 + 2 * T - 1 - dy
+            hw = 26 * (1 - dy / 30) + 1
+            for x in range(int(cx - hw), int(cx + hw) + 1 if two_faces else cx):
+                edge = x == int(cx - hw) or (two_faces and x == int(cx + hw))
+                if not two_faces:
+                    c = SL1 if dy % 3 == 0 else SL2
+                elif x < cx - 1:
+                    c = SL1 if dy % 3 == 0 else SLH
+                elif x == cx - 1:
+                    c = WHITE
+                else:
+                    c = SL3 if dy % 3 == 0 else SL2
+                P.p(x, y, OL if edge else c)
+        P.hl(cx - 27, cx + 26 if two_faces else cx - 1, y0 + 2 * T - 1, OL)
+        P.hl(cx - 26, cx + 25 if two_faces else cx - 1, y0 + 2 * T - 2, SL3)
+        P.vl(cx - 1, y0, y0 + 3, AU)
+        P.p(cx - 2, y0 + 1, AU2)
+        if two_faces:
+            P.vl(cx, y0, y0 + 3, AU2)
+            P.p(cx + 1, y0 + 1, AU2)
+    spire(False)
+    P.mirror(x0, 80, y0, 6 * T)
+    spire(True)
 
 
 def wing():
     """A lecture-hall wing, 11x9: two storeys, the door at column 5."""
-    P = academic(11, 5, 2, doors=(5,), dormers=(2, 8))
-    P.mirror()
-    return P
+    return academic(11, 5, 2, doors=(5,), dormers=(2, 8))
 
 
 def pavilion():
     """An end pavilion (Faculty Office, Cafeteria), 9x8: two storeys, a pediment over the cornice, door at 4."""
-    P = academic(9, 4, 2, doors=(4,), pediment_over=4)
-    P.mirror()
-    return P
+    return academic(9, 4, 2, doors=(4,), pediment_over=4)
 
 
 def humanities():
     """Literature & Library, 22x9: one building, two doors (columns 5 and 16)."""
     # Windows three columns either side of each door (2, 8 and 13, 19: just outside the end dormers, and under the
     # middle ones), one in the dead center (between columns 10 and 11), and one above each door
-    P = academic(22, 5, 2, doors=(5, 16), dormers=(3, 8, 13, 18), columns=(2, 5, 8, 10.5, 13, 16, 19))
-    P.mirror()
-    return P
+    return academic(22, 5, 2, doors=(5, 16), dormers=(3, 8, 13, 18), columns=(2, 5, 8, 10.5, 13, 16, 19))
 
 
 def dorm():
     """The dorm, 17x10: the same stone and slate, square windows, a glass door under a slate canopy (column 8)."""
     P = academic(17, 4, 3, doors=(8,), dormers=(2, 5, 11, 14), kind='square', spacing=3)
     canopy(P, 8, 8)
-    P.mirror()
     return P
 
 
@@ -455,96 +585,83 @@ def annex():
     """The dorm annex (the player's room), 11x8: two storeys, a wooden door (column 5)."""
     P = academic(11, 4, 2, doors=(5,), dormers=(2, 8), kind='square')
     door(P, 5 * T, 6 * T)
-    P.mirror()
     return P
 
 
 def canopy(P, col, row):
+    """A slate canopy: lit top, a shaded front edge, its shadow on the wall and door below."""
     x, y = col * T, row * T
-    P.r(x - 8, y, T + 16, 5, SL2)
+    P.hl(x - 7, x + T + 6, y + 6, S3)
+    P.hl(x - 6, x + T + 7, y + 7, S2)
+    P.r(x - 8, y, T + 16, 6, SL2)
     P.hl(x - 8, x + T + 7, y, OL)
+    P.hl(x - 7, x + T + 6, y + 1, SLH)
+    P.hl(x - 7, x + T + 6, y + 4, SL3)
     P.hl(x - 8, x + T + 7, y + 5, OL)
-    P.hl(x - 7, x + T + 6, y + 1, SL1)
+    P.vl(x - 8, y, y + 5, OL)
+    P.vl(x + T + 7, y, y + 5, OL)
 
 
 def hospital():
-    """The University Hospital, 13x10: a modern white block, flat roof with a red cross, three storeys of square
-    windows, a glass door under a canopy (column 6), the cross over it."""
+    """The University Hospital, 13x10: a modern white block; a flat gravel roof inside a parapet (its top lit, its
+    inner faces and their shadow on the gravel) with a big red cross; three storeys of square windows; a glass door
+    under a canopy (column 6), the cross sign over it."""
     w, h = 13, 10
     P = Pic(w * T, h * T)
-    # Flat roof (rows 0-3)
-    for y in range(4 * T):
+    rh = 4 * T
+    for y in range(rh):
         for x in range(P.w):
-            P.p(x, y, S2 if (x % 8 == 7 and y % 8 == 1) or (x % 8 == 3 and y % 8 == 5) else S1)
-    for y in range(4 * T):
-        P.p(0, y, OL)
-        P.p(1, y, S2)
-        P.p(2, y, WHITE)
+            P.p(x, y, S2 if (x % 8 in (3, 4) and y % 8 == 1) or (x % 8 in (0, 7) and y % 8 == 5) else S1)
     for x in range(P.w):
-        P.p(x, 0, OL)
-        P.p(x, 1, S2)
-        P.p(x, 2, WHITE)
-        for k, c in enumerate((WHITE, S1, S2, S3, OL)):
-            P.p(x, 4 * T - 5 + k, c)
-    # The cross on the roof (accent palette: a white square, red arms)
+        for k, c in enumerate((OL, WHITE, WHITE, S2, S3, S2 if x % 4 in (1, 2) else S1)):
+            P.p(x, k, c)
+    for y in range(rh - 5):
+        for x, c in ((0, OL), (1, WHITE), (2, WHITE), (P.w - 1, OL), (P.w - 2, WHITE), (P.w - 3, WHITE)):
+            P.p(x, y, c)
+        if y >= 3:
+            P.p(3, y, S2)
+            P.p(P.w - 4, y, S2)
+    for x in range(P.w):     # The front parapet: its inner face (lit), its top, its front (the cornice)
+        for k, c in enumerate((WHITE, WHITE, S1, S2, OL)):
+            P.p(x, rh - 5 + k, c)
+    P.vl(0, rh - 5, rh - 1, OL)
+    P.vl(P.w - 1, rh - 5, rh - 1, OL)
+    # The cross on the roof (accent palette: a white square with its shadow, red arms)
     cx, cy = P.w // 2, 2 * T
-    P.r(cx - 16, cy - 16, 16, 31, AC['w'])
-    P.r(cx - 16, cy - 16, 16, 1, AC['s2'])
-    P.vl(cx - 16, cy - 16, cy + 14, AC['s2'])
-    P.r(cx - 5, cy - 12, 5, 23, AC['rd'])
-    P.r(cx - 12, cy - 3, 12, 6, AC['rd'])
-    P.vl(cx - 5, cy - 12, cy + 10, AC['rd2'])
+    P.r(cx - 16, cy + 15, 32, 2, S2)
+    P.r(cx - 16, cy - 16, 32, 31, AC['w'])
+    P.hl(cx - 16, cx + 15, cy - 16, AC['s1'])
+    P.r(cx - 5, cy - 12, 10, 23, AC['rd'])
+    P.r(cx - 12, cy - 3, 24, 6, AC['rd'])
+    P.hl(cx - 12, cx + 11, cy + 2, AC['rd2'])
+    P.hl(cx - 5, cx + 4, cy + 10, AC['rd2'])
     # Facade
-    wall(P, 0, 4 * T, P.w, 6 * T)
+    wall(P, 0, rh, P.w, 6 * T)
+    plinth(P, 0, h * T - 4, P.w)
     # Two windows either side of the door (and one over the cross sign on the top storey)
-    facade(P, 0, 4 * T, w, 3, 'square', skip=[(6, 2), (6, 1)], columns=(2, 4, 6, 8, 10))
+    facade(P, 0, rh, w, 3, 'square', skip=[(6, 2), (6, 1)], columns=(2, 4, 6, 8, 10))
     door(P, 6 * T, 8 * T, glass=True)
     canopy(P, 6, 8)
-    # The cross sign over the door
-    sx, sy = 6 * T, 6 * T
-    P.r(sx + 2, sy + 10, 6, 16, AC['w'])
-    P.hl(sx + 2, sx + 7, sy + 9, AC['ol'])
+    sx, sy = 6 * T, 6 * T     # The cross sign over the door
+    P.r(sx + 2, sy + 10, 12, 16, AC['w'])
+    P.hl(sx + 2, sx + 13, sy + 9, AC['ol'])
     P.vl(sx + 2, sy + 9, sy + 26, AC['ol'])
-    P.hl(sx + 2, sx + 7, sy + 26, AC['ol'])
-    P.r(sx + 6, sy + 12, 2, 12, AC['rd'])
-    P.r(sx + 3, sy + 16, 5, 4, AC['rd'])
-    plinth(P, 0, h * T - 4, P.w)
-    P.r(6 * T + 2, h * T - 4, 6, 3, S2)
-    P.mirror()
+    P.vl(sx + 13, sy + 9, sy + 26, AC['ol'])
+    P.hl(sx + 2, sx + 13, sy + 26, AC['ol'])
+    P.hl(sx + 2, sx + 13, sy + 27, AC['s2'])
+    P.r(sx + 6, sy + 12, 4, 12, AC['rd'])
+    P.r(sx + 3, sy + 16, 10, 4, AC['rd'])
     return P
 
 
-LEAF = None
-
-
-def leaves():
-    """A 16x16 seamless leaf pattern (glass palette): None where the glass shows."""
-    global LEAF
-    if LEAF is None:
-        P = Pic(16, 16)
-        for (cx, cy, r) in ((4, 5, 4.5), (12, 3, 4), (9, 11, 5), (1, 13, 3.5), (17, 13, 3.5), (12, 19, 4),
-                            (4, 21, 4.5), (20, 5, 4.5)):
-            for y in range(16):
-                for x in range(16):
-                    for ox in (0, 16, -16):
-                        for oy in (0, 16, -16):
-                            dx, dy = x + .5 - cx - ox, y + .5 - cy - oy
-                            if dx * dx + dy * dy <= r * r:
-                                s = dx + dy
-                                P.p(x, y, GL['p1'] if s < -r / 2 else GL['p3'] if s > r / 2 else GL['p2'])
-        for (x, y, c) in ((11, 2, 'pk'), (4, 4, 'rd'), (9, 10, 'pk')):
-            P.p(x, y, GL[c])
-            P.p(x + 1, y, GL[c])
-        LEAF = [[P.get(x, y) for x in range(16)] for y in range(16)]
-    return LEAF
-
-
 def greenhouse():
-    """Home Economics: the glass greenhouse, 17x9: a vault of glass (6 rows) with rounded ends, leaves through the
-    lower panes, a glass front on a low white wall, glass doors at column 8. Symmetric."""
+    """Home Economics: the glass greenhouse, 17x9: a vault of clear glass (6 rows) with rounded ends, its lower panes
+    bright with the interior's light, over a glass front on a low white wall, glass doors at column 8; a low planted
+    bed with pink flowers behind the front glass. (Trees inside were tried: 170 tiles over the budget,
+    docs/hack/university_remake/greenhouse_options.png.)"""
     w, h = 17, 9
     P = Pic(w * T, h * T)
-    L, rh, W, r = leaves(), 6 * T, w * T, 24
+    rh, W, r = 6 * T, w * T, 24
     for y in range(rh):
         for x in range(W // 2 + 8):
             if x < r and y < r and (x + .5 - r) ** 2 + (y + .5 - r) ** 2 > r * r:
@@ -553,13 +670,10 @@ def greenhouse():
                 c = GL['f2']
             elif y % 16 == 0:
                 c = GL['f1']
-            elif y < 32:
-                c = GL['q0'] if y < 16 else GL['q1']
             else:
-                leaf = L[y % 16][x % 16]
-                c = leaf if leaf is not None and y >= 48 else GL['q2'] if y >= 48 else GL['q1']
+                c = GL['q0'] if y < 16 or y >= 48 else GL['q1']
             P.p(x, y, c)
-    for y in range(rh):  # The vault's outline
+    for y in range(rh):  # The vault's outline, a lit edge inside it
         xs = [x for x in range(W // 2) if P.get(x, y)]
         if xs:
             P.p(xs[0], y, GL['ol'])
@@ -569,6 +683,8 @@ def greenhouse():
         ys = [y for y in range(rh) if P.get(x, y)]
         if ys:
             P.p(x, ys[0], GL['ol'])
+            if ys[0] + 1 < rh and x > 1:
+                P.p(x, ys[0] + 1, GL['w'])
     P.hl(0, W - 1, rh - 2, GL['f3'])
     P.hl(0, W - 1, rh - 1, GL['ol'])
     for y in range(rh, h * T):
@@ -581,11 +697,29 @@ def greenhouse():
             elif x % 16 == 15 or dy % 16 == 1:
                 c = GL['f1']
             else:
-                leaf = L[dy % 16][x % 16]
-                c = leaf if leaf is not None and dy >= 16 else GL['q1']
+                c = GL['q1'] if dy < 24 else GL['q0']
             P.p(x, y, c)
         P.p(0, y, GL['ol'])
-    # The door (glass, framed) with a fanlight
+    P.mirror()
+    # What stands in front of the plants: the frames, outlines and the base wall
+    front = {(x, y) for y in range(P.h) for x in range(P.w)
+             if P.get(x, y) in (GL['f1'], GL['f2'], GL['f3'], GL['ol'], GL['w'], GL['s1'])}
+    plants = Pic(P.w, P.h)
+    # The bed along the front glass: a low hedge (repeating every 16 pixels, symmetric in each), pink flowers
+    base = rh + 39
+    for x in range(1, P.w - 1):
+        lx = x % 16
+        top = base - 7 + int(round(3 * abs(lx - 7.5) / 7.5))
+        for y in range(top, base + 1):
+            plants.p(x, y, GL['p1'] if y == top else GL['p3'] if y >= base - 1 else GL['p2'])
+        if lx in (4, 11):
+            plants.p(x, top + 1, GL['pk'])
+    for y in range(P.h):
+        for x in range(P.w):
+            c = plants.get(x, y)
+            if c is not None and (x, y) not in front and P.get(x, y) is not None:
+                P.p(x, y, c)
+    # The door (glass, framed) with a fanlight, the emblem over it
     dx, dy = 8 * T, 7 * T
     P.r(dx, dy, T, 2 * T, GL['f3'])
     for y in range(dy + 3, dy + 14):
@@ -596,8 +730,20 @@ def greenhouse():
             P.p(x, y, GL['f3'] if x in (dx + 7, dx + 8) else GL['q1'] if y < dy + 22 else GL['q2'])
     P.hl(dx, dx + 15, dy + 31, GL['f2'])
     P.ellipse(dx + 8, dy - 6, 4, 4, GL['pk'], GL['rd'])
-    P.mirror()
     return P
+
+
+def capsule(P, cx, cy, hw, ry, rx_end, col, outline=None):
+    """A capsule (two half-ellipses joined by a straight middle; symmetric about the pixel boundary cx): its middle
+    repeats, so it costs a few tiles where a long ellipse costs dozens."""
+    def inside(x, y):
+        dx = max(0.0, abs(x + .5 - cx) - (hw - rx_end))
+        return (dx / rx_end) ** 2 + ((y + .5 - cy) / ry) ** 2 <= 1
+    for y in range(int(cy - ry) - 1, int(cy + ry) + 2):
+        for x in range(int(cx - hw) - 1, int(cx + hw) + 2):
+            if inside(x, y):
+                edge = outline and not all(inside(x + dx, y + dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+                P.p(x, y, outline if edge else col)
 
 
 def science():
@@ -621,10 +767,10 @@ def science():
             else:
                 c = GL[shades[col]]
             P.p(x, y, c)
-    # The roof: a white disc (symmetric over the cylinder)
+    # The roof: a white capsule-shaped disc (symmetric over the cylinder)
     cap = Pic(9 * T, 2 * T)
-    cap.ellipse(72, 18, 72, 14, GL['s1'], GL['ol'])
-    cap.ellipse(72, 18, 50, 9, GL['w'], GL['f1'])
+    capsule(cap, 72, 18, 72, 14, 24, GL['s1'], GL['ol'])
+    capsule(cap, 72, 18, 54, 9, 16, GL['w'], GL['f1'])
     cap.ellipse(72, 18, 12, 4, GL['f2'])
     cap.mirror()
     P.paste(cap, 0, 0)
@@ -685,7 +831,7 @@ def stadium():
         P.p(0, y, AC['ol'])
     floodlight(P, 1 * T, 0)
     # Track: a rounded rectangle ring, 24 px wide, two lane lines
-    x0, y0, x1, y1, rad = 8, 3 * T + 4, P.w - 8, h * T - 4, 52
+    x0, y0, x1, y1, rad = 8, 3 * T + 4, P.w - 8, h * T - 4, 32   # (under ~28 the track fills the infield)
     for y in range(3 * T, h * T):
         for x in range(P.w // 2):
             px, py = x + .5, y + .5
@@ -738,7 +884,7 @@ def pool():
         P.p(T, y, WA['s3'])
     for y in range(T + 3, 7 * T):
         for x in (2 * T + 8, 2 * T + 9):
-            P.p(x, y, WA['rd'] if (y // 3) % 2 else WA['w'])
+            P.p(x, y, WA['rd'] if (y // 4) % 2 else WA['w'])
     P.hl(0, P.w - 1, 0, WA['ol'])
     P.hl(0, P.w - 1, P.h - 1, WA['ol'])
     P.vl(0, 0, P.h - 1, WA['ol'])
@@ -785,12 +931,18 @@ def gate():
 
 
 def fountain():
-    """The Gyarados fountain, 5x4: an oval white basin, Gyarados rising straight up from the pedestal, the jet
-    falling both ways (the noon signal). Symmetric (water palette)."""
+    """The Gyarados fountain, 5x4: an oval white basin (its outer face shaded, its shadow on the paving, the rim's
+    shadow on the water), Gyarados rising straight up from the pedestal, the jet falling both ways (the noon signal).
+    Symmetric (water palette)."""
     P = Pic(5 * T, 4 * T)
     cx = 40
-    P.ellipse(cx, 42, 38, 19, WA['s2'], WA['ol'])
-    P.ellipse(cx, 38, 38, 19, WA['w'], WA['ol'])
+    P.ellipse(cx, 46, 38, 17, WA['s3'])                  # Shadow on the paving
+    P.ellipse(cx, 42, 38, 19, WA['s2'], WA['ol'])        # Outer face, darker below
+    for y in range(47, P.h):
+        for x in range(P.w):
+            if P.get(x, y) == WA['s2']:
+                P.p(x, y, WA['s3'])
+    P.ellipse(cx, 38, 38, 19, WA['w'], WA['ol'])         # Rim
     P.ellipse(cx, 38, 34, 16, WA['s1'])
     P.ellipse(cx, 39, 31, 13, WA['a2'], WA['s3'])
     for y in range(P.h):
@@ -799,30 +951,34 @@ def fountain():
                 ring = math.hypot((x + .5 - cx) / 31, (y + .5 - 39) / 13)
                 if abs(ring * 6 % 2 - 1) < .16:
                     P.p(x, y, WA['a1'])
-    P.ellipse(cx, 42, 8, 4, WA['s2'], WA['ol'])
-    P.ellipse(cx, 40, 8, 4, WA['w'], WA['ol'])
-    # Gyarados: the body rising from the pedestal, fins either side, the head with an open mouth
+                if math.hypot((x + .5 - cx) / 31, (y + .5 - 41) / 13) > 1:     # The rim's shadow on the water
+                    P.p(x, y, WA['a3'])
+    # Gyarados: the body rising from the pedestal, fins either side, the head with an open mouth (left half)
+    Q = Pic(P.w, P.h)
+    Q.ellipse(cx, 42, 8, 4, WA['s2'], WA['ol'])
+    Q.ellipse(cx, 40, 8, 4, WA['w'], WA['ol'])
     for y in range(14, 41):
         sway = int(round(2 * math.sin((y - 14) / 5)))
         for x in range(cx - 5 + sway, cx + 5 + sway):
             edge = x in (cx - 5 + sway, cx + 4 + sway)
             belly = x in (cx - 1 + sway, cx + sway)
-            P.p(x, y, WA['ol'] if edge else WA['cr'] if belly else WA['b1'] if x < cx + sway else WA['b2'])
+            Q.p(x, y, WA['ol'] if edge else WA['cr'] if belly else WA['b1'] if x < cx + sway else WA['b2'])
     for (fy, fx) in ((30, -8), (22, -9)):
         for k in range(4):
-            P.hl(cx + fx + k, cx + fx + 3, fy + k, WA['rd'])
-    P.ellipse(cx, 11, 8, 6, WA['b1'], WA['ol'])
-    P.ellipse(cx, 13, 4, 2, WA['w'], WA['ol'])
-    P.p(cx - 5, 9, WA['ol'])
-    P.p(cx - 6, 8, WA['w'])
+            Q.hl(cx + fx + k, cx + fx + 3, fy + k, WA['rd'])
+    Q.ellipse(cx, 11, 8, 6, WA['b1'], WA['ol'])
+    Q.ellipse(cx, 13, 4, 2, WA['w'], WA['ol'])
+    Q.p(cx - 5, 9, WA['ol'])
+    Q.p(cx - 6, 8, WA['w'])
     for k in range(4):
-        P.p(cx - 3 - k, 4 - k // 2, WA['cr'])
+        Q.p(cx - 3 - k, 4 - k // 2, WA['cr'])
     # The jet: up and falling into the basin on both sides
-    P.vl(cx - 1, 0, 8, WA['w'])
+    Q.vl(cx - 1, 0, 8, WA['w'])
     for k in range(26):
         t = k / 25
-        P.p(int(cx - 2 - t * 26), int(1 + (t * 1.9 - .25) ** 2 * 16), WA['a1'] if k % 3 else WA['w'])
-    P.mirror()
+        Q.p(int(cx - 2 - t * 26), int(1 + (t * 1.9 - .25) ** 2 * 16), WA['a1'] if k % 3 else WA['w'])
+    Q.mirror()
+    P.paste(Q, 0, 0)
     return P
 
 
@@ -895,23 +1051,29 @@ def exterior_stamps():
 
 
 def plaque(P, x, y, glass=False):
-    """A name plaque on a building's wall, in the bottom row beside a door (symmetric): a brass plate on stone, a
-    steel one on the glass buildings' white base."""
+    """A name plaque on a building's wall, in the bottom row beside a door (symmetric): a brass plate with a lit top
+    and its shadow under it on stone, a steel one on the glass buildings' white base."""
     if glass:
         frame, plate, line = GL['f3'], GL['f1'], GL['f2']
+        P.hl(x + 3, x + 12, y + 10, GL['f2'])
     else:
         frame, plate, line = AU2, AU, AU2
+        P.hl(x + 3, x + 12, y + 10, S2)
     P.r(x + 3, y + 2, 10, 8, frame)
     P.r(x + 4, y + 3, 8, 6, plate)
+    if not glass:
+        P.hl(x + 4, x + 11, y + 3, WHITE)
     P.hl(x + 5, x + 10, y + 5, line)
     P.hl(x + 6, x + 9, y + 7, line)
-    P.hl(x + 3, x + 12, y + 10, S3 if not glass else GL['f2'])
 
 
-def plain_wall_cell():
-    """The pixels of a plain stone wall cell in a facade's bottom row (no window), to find where plaques can go."""
+def plain_wall_cell(pier=False):
+    """The pixels of a plain stone wall cell in a facade's bottom row (no window; or a pilaster), to find where
+    plaques can go."""
     P = Pic(3 * T, 2 * T)
-    wall(P, 0, 0, P.w, P.h)
+    wall(P, 0, 0, P.w, P.h + 32)
+    if pier:
+        pilaster(P, T, -64, P.h - 6)
     plinth(P, 0, P.h - 4, P.w)
     return P.im.crop((T, T, 2 * T, 2 * T)).tobytes()
 
@@ -924,7 +1086,7 @@ GLASS_PLAQUES = {'GREENHOUSE': [(7, 8), (9, 8)], 'SCIENCE': [(5, 12), (7, 12)]}
 
 def add_plaques(stamps):
     """Draws the plaques onto the door stamps; returns {stamp: [(col, row, door index)]}."""
-    plain = plain_wall_cell()
+    plain = {plain_wall_cell(), plain_wall_cell(pier=True)}     # Plaques hang on plain wall or on a pilaster
     out = {}
     for name, (pic, doors, *_rest) in stamps.items():
         if not doors:
@@ -939,7 +1101,7 @@ def add_plaques(stamps):
                 for side in (PLAQUE_SIDES.get(name, [(-1, 1)] * len(doors))[k]):
                     c = dc + side
                     while 0 < c < pic.w // T - 1:
-                        if pic.im.crop((c * T, dr * T, c * T + T, dr * T + T)).tobytes() == plain:
+                        if pic.im.crop((c * T, dr * T, c * T + T, dr * T + T)).tobytes() in plain:
                             break
                         c += side
                     assert 0 < c < pic.w // T - 1, 'no wall for a plaque on %s' % name

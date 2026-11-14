@@ -771,13 +771,13 @@ def campus_window(room, draw, sill, cut_at):
 def arched(room, *cols):
     """The stone buildings' tall arched window (the campus's window()), on the wall's last two rows."""
     for c in cols:
-        room.put(campus_window(room, U.window, 28, 14), c * T, (room.wall_rows - 2) * T, 'F')
+        room.put(campus_window(room, U.room_window, 28, 14), c * T, (room.wall_rows - 2) * T, 'F')
 
 
 def square(room, *cols):
     """The dorms' and the hospital's square window (the campus's sqwindow())."""
     for c in cols:
-        room.put(campus_window(room, U.sqwindow, 23, 15), c * T, (room.wall_rows - 2) * T, 'F')
+        room.put(campus_window(room, U.room_sqwindow, 23, 15), c * T, (room.wall_rows - 2) * T, 'F')
 
 
 MATS = {'school': (SCHOOL, (0x2A5, 0x2A6, 0x2A7)), 'lab': (LAB, (0x290, 0x291, 0x292))}

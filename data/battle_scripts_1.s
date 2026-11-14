@@ -6360,6 +6360,12 @@ BattleScript_Attackstring::
 	waitmessage B_WAIT_TIME_SHORT
 	return
 
+@ Triple battles: the user of a DIRECT move has moved to the front of its side
+BattleScript_TripleSteppedForward::
+	printstring STRINGID_TRIPLESTEPPEDFORWARD
+	waitmessage B_WAIT_TIME_SHORT
+	return
+
 BattleScript_SubmoveAttackstring::
 	printattackstring
 	pause B_WAIT_TIME_LONG

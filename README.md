@@ -75,7 +75,8 @@ the formation follows the party order: the first Pokémon is in front.
 Moves are either direct or indirect:
 
 - A **direct** attack travels out from the user or makes contact, so it hits the front Pokémon, which blocks the
-  others. Tackle is a direct attack.
+  others. Tackle is a direct attack. A Pokémon that uses a direct move steps up to the front of its own team for it,
+  and the Pokémon that were ahead of it move back one spot.
 - An **indirect** attack can be aimed at any of the three Pokémon. Electric, Psychic and Flying moves, sound moves
   and attacks from above or below are indirect. Thunder Shock is an indirect attack.
 

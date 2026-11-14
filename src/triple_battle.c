@@ -240,6 +240,46 @@ void UpdateTripleFormationGraphics(enum BattleSide side)
     }
 }
 
+// DIRECT moves: single or 2-target moves with reach FRONT that hit foes (the red badge in the move menu).
+bool32 IsTripleDirectMove(enum BattlerId battler, enum Move move)
+{
+    const struct TripleMoveInfo *info = GetTripleMoveInfo(move);
+    return info->aoe != 0 && info->aoe < 3 && info->reach == TRIPLE_REACH_FRONT
+        && IsFoeTargetingType(GetBattlerMoveTargetType(battler, move));
+}
+
+// A Pokémon using a DIRECT move steps to the front of its side: it takes the near spot and the Pokémon that were
+// ahead of it move one spot back, keeping their order (what pressing SELECT until it's in front does). Nothing happens
+// if no Pokémon still standing is ahead of it. Returns whether the formation changed.
+bool32 TryMoveTripleUserToFront(enum BattlerId battler, enum Move move)
+{
+    enum BattleSide side = GetBattlerSide(battler);
+    enum BattlerId battlers[TRIPLE_RANK_COUNT];
+    u32 size, rank, ranks[TRIPLE_RANK_COUNT] = {0};
+    bool32 blocked = FALSE;
+
+    if (!IsTripleBattle() || !IsBattlerAlive(battler) || !IsTripleDirectMove(battler, move))
+        return FALSE;
+
+    size = GetTripleSideBattlers(side, battlers);
+    rank = GetTripleFormationRank(battler);
+    for (u32 i = 0; i < size; i++)
+    {
+        ranks[i] = GetTripleFormationRank(battlers[i]);
+        if (battlers[i] == battler)
+            ranks[i] = TRIPLE_RANK_NEAR;
+        else if (ranks[i] < rank)
+        {
+            blocked |= IsBattlerAlive(battlers[i]);
+            ranks[i]++;
+        }
+    }
+    if (!blocked || !TrySetTripleFormation(side, TRIPLE_FORMATION_PACK(ranks[0], ranks[1], ranks[2])))
+        return FALSE;
+    UpdateTripleFormationGraphics(side);
+    return TRUE;
+}
+
 // Returns the alive foe of battlerAtk that is aliveIndex-th from the front, or MAX_BATTLERS_COUNT.
 enum BattlerId GetTripleFoeAtRank(enum BattlerId battlerAtk, u32 aliveIndex)
 {

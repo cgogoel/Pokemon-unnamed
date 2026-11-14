@@ -28,6 +28,20 @@ Custom battle mode for Act 2 onward. Not the Gen 5 Triple Battle: **only one Pok
     and fast contact moves that dart around the front (Quick Attack, Extreme Speed, Aerial Ace...).
 - **Reordering is free:** each turn, before choosing its action, a side may rearrange its 3 on-field Pokémon
   (near/middle/far) without giving up its attack. The new order applies before any moves that turn resolve.
+- **Using a DIRECT move steps the user to the front** (`TryMoveTripleUserToFront`, `src/triple_battle.c`, run by
+  `CANCELER_TRIPLE_STEP_FORWARD` in `src/battle_move_resolution.c`), for both sides: it takes the near spot and the
+  Pokémon that were ahead of it move back one spot, keeping their order (what pressing SELECT until it's in front does).
+  - DIRECT = the red badge: reach `FRONT`, 1 or 2 targets, aimed at foes. Status moves count (Sleep Powder, String
+    Shot...). INDIRECT and all-foe moves don't move the user.
+  - It happens right after "X used Y!", before the move's targets are picked and its animation plays, with the message
+    "X stepped up to the front!" and the sprites snapping to their new spots (as SELECT does). So the animation plays
+    from the front spot, and the foes' later moves that turn treat the user as the front Pokémon.
+  - It happens whenever the move is used, even if it then misses or fails (it lunged anyway). It doesn't when the
+    Pokémon can't use the move (asleep, fully paralyzed, flinched, hit itself in confusion...), nor for a move bounced
+    back by Magic Coat or snatched.
+  - "Front" counts only Pokémon still standing: if every Pokémon ahead of the user has fainted, nothing changes and no
+    message shows. When the user does step up, a fainted Pokémon's empty spot moves back along with the others, and its
+    replacement comes in there. A user that faints from its own move (recoil) is replaced at the front.
 - **Switching in from the bench costs the turn:** sending in a party Pokémon that isn't on the field is the side's one action.
 - Starting order follows party order; a fainted Pokémon's replacement takes its spot.
 

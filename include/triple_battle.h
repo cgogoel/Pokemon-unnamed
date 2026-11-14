@@ -60,6 +60,8 @@ enum BattlerId GetTripleScreenNeighbor(enum BattlerId battler, s32 step);
 u32 GetTripleScreenSpots(enum BattleSide side, enum BattlerPosition *spots);
 const struct UCoords8 *GetTripleSpotCoords(enum BattlerPosition layoutPosition);
 void UpdateTripleFormationGraphics(enum BattleSide side);
+bool32 IsTripleDirectMove(enum BattlerId battler, enum Move move);
+bool32 TryMoveTripleUserToFront(enum BattlerId battler, enum Move move);
 enum BattlerId GetTripleFoeAtRank(enum BattlerId battlerAtk, u32 aliveIndex);
 enum MoveTarget GetTripleMoveTargetType(enum Move move, enum MoveTarget canonTarget);
 u32 GetTripleSecondTargetChoices(enum BattlerId battlerAtk, enum BattlerId mainTarget, enum BattlerId *choices);

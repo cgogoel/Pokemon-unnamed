@@ -925,6 +925,7 @@ const u8 *const gBattleStringsTable[STRINGID_COUNT] =
     [STRINGID_BEFRIENDBLACKEDOUT] = COMPOUND_STRING("{B_DEF_NAME} slammed into you!\pYou blacked out!"),
     [STRINGID_ACT2RESEARCH] = COMPOUND_STRING("{B_COPY_VAR_1}"),
     [STRINGID_ACT2LEGENDSATTACK] = COMPOUND_STRING("HEATRAN, SUICUNE and VIRIZION\nattacked together!"),
+    [STRINGID_TRIPLESTEPPEDFORWARD] = COMPOUND_STRING("{B_ATK_NAME_WITH_PREFIX} stepped up\nto the front!"),
 };
 
 const u16 gTrainerUsedItemStringIds[] =

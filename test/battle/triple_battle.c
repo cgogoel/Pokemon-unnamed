@@ -672,3 +672,220 @@ TRIPLE_BATTLE_TEST("Battle anims: the arena's palettes and the floor ovals' blen
         EXPECT_EQ(GetBattlePalettesMask(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE), 0xE | (1 << TRIPLE_FLOOR_BG_PALETTE));
     }
 }
+
+// DIRECT moves: the user steps to the front of its side (docs/hack/triple_battles.md)
+#define RANK(battler) GetTripleFormationRank((battler) - gBattleMons)
+
+TRIPLE_BATTLE_TEST("Triple battles: a DIRECT move's user steps to the front, the others move back in order")
+{
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_POUND)->reach == TRIPLE_REACH_FRONT);
+        TRIPLE_PARTIES
+    } WHEN {
+        TURN { MOVE(playerMiddle, MOVE_POUND, target: opponentMiddle); }
+    } SCENE {
+        MESSAGE("Wobbuffet used Pound!");
+        MESSAGE("Wobbuffet stepped up\nto the front!");
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_POUND, playerMiddle);
+        HP_BAR(opponentLeft);
+    } THEN {
+        EXPECT_EQ(RANK(playerMiddle), TRIPLE_RANK_NEAR);
+        EXPECT_EQ(RANK(playerLeft), TRIPLE_RANK_MIDDLE);
+        EXPECT_EQ(RANK(playerRight), TRIPLE_RANK_FAR);
+        EXPECT_EQ(GetBattlerLayoutPosition(playerMiddle - gBattleMons), B_POSITION_PLAYER_RIGHT);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: a DIRECT move's user in the middle swaps with the front Pokémon")
+{
+    GIVEN {
+        TRIPLE_PARTIES
+    } WHEN {
+        TURN { MOVE(playerRight, MOVE_TACKLE, target: opponentLeft); }
+    } THEN {
+        EXPECT_EQ(RANK(playerRight), TRIPLE_RANK_NEAR);
+        EXPECT_EQ(RANK(playerLeft), TRIPLE_RANK_MIDDLE);
+        EXPECT_EQ(RANK(playerMiddle), TRIPLE_RANK_FAR);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: the opponent's DIRECT move user steps to the front too")
+{
+    GIVEN {
+        TRIPLE_PARTIES
+    } WHEN {
+        TURN { MOVE(opponentMiddle, MOVE_POUND, target: playerLeft); }
+    } SCENE {
+        MESSAGE("The opposing Wobbuffet stepped up\nto the front!");
+        HP_BAR(playerLeft);
+    } THEN {
+        EXPECT_EQ(RANK(opponentMiddle), TRIPLE_RANK_NEAR);
+        EXPECT_EQ(RANK(opponentLeft), TRIPLE_RANK_MIDDLE);
+        EXPECT_EQ(RANK(opponentRight), TRIPLE_RANK_FAR);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: a DIRECT move's user already in front doesn't move")
+{
+    GIVEN {
+        TRIPLE_PARTIES
+    } WHEN {
+        TURN { MOVE(playerLeft, MOVE_POUND, target: opponentLeft); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_POUND, playerLeft);
+        NOT MESSAGE("Wobbuffet stepped up\nto the front!");
+    } THEN {
+        EXPECT_EQ(RANK(playerLeft), TRIPLE_RANK_NEAR);
+        EXPECT_EQ(RANK(playerRight), TRIPLE_RANK_MIDDLE);
+        EXPECT_EQ(RANK(playerMiddle), TRIPLE_RANK_FAR);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: INDIRECT and all-foe moves don't move their user")
+{
+    enum Move move;
+    PARAMETRIZE { move = MOVE_THUNDERBOLT; }
+    PARAMETRIZE { move = MOVE_HYPER_VOICE; }
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_THUNDERBOLT)->reach == TRIPLE_REACH_ANY);
+        ASSUME(GetTripleMoveInfo(MOVE_HYPER_VOICE)->aoe == 3);
+        TRIPLE_PARTIES
+    } WHEN {
+        TURN { MOVE(playerMiddle, move, target: opponentLeft); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, move, playerMiddle);
+        NOT MESSAGE("Wobbuffet stepped up\nto the front!");
+    } THEN {
+        EXPECT_EQ(RANK(playerMiddle), TRIPLE_RANK_FAR);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: status and 2-target DIRECT moves move their user too")
+{
+    enum Move move;
+    PARAMETRIZE { move = MOVE_SLEEP_POWDER; }
+    PARAMETRIZE { move = MOVE_BUBBLE_BEAM; }
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_SLEEP_POWDER)->reach == TRIPLE_REACH_FRONT);
+        ASSUME(GetMoveCategory(MOVE_SLEEP_POWDER) == DAMAGE_CATEGORY_STATUS);
+        ASSUME(GetTripleMoveInfo(MOVE_BUBBLE_BEAM)->aoe == 2);
+        TRIPLE_PARTIES
+    } WHEN {
+        TURN { MOVE(playerMiddle, move, target: opponentLeft); }
+    } SCENE {
+        MESSAGE("Wobbuffet stepped up\nto the front!");
+        ANIMATION(ANIM_TYPE_MOVE, move, playerMiddle);
+    } THEN {
+        EXPECT_EQ(RANK(playerMiddle), TRIPLE_RANK_NEAR);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: a DIRECT move's user steps forward even if the move misses")
+{
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_MEGA_PUNCH)->reach == TRIPLE_REACH_FRONT);
+        ASSUME(GetMoveAccuracy(MOVE_MEGA_PUNCH) < 100);
+        TRIPLE_PARTIES
+    } WHEN {
+        TURN { MOVE(playerMiddle, MOVE_MEGA_PUNCH, target: opponentLeft, hit: FALSE); }
+    } SCENE {
+        MESSAGE("Wobbuffet stepped up\nto the front!");
+        NOT HP_BAR(opponentLeft);
+    } THEN {
+        EXPECT_EQ(RANK(playerMiddle), TRIPLE_RANK_NEAR);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: a Pokémon that can't use its DIRECT move doesn't step forward")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET) { Status1(STATUS1_SLEEP); }
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { MOVE(playerMiddle, MOVE_POUND, target: opponentLeft); }
+    } SCENE {
+        MESSAGE("Wobbuffet is fast asleep.");
+        NOT MESSAGE("Wobbuffet stepped up\nto the front!");
+    } THEN {
+        EXPECT_EQ(RANK(playerMiddle), TRIPLE_RANK_FAR);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: a Pokémon that stepped forward is the front foe for later moves that turn")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET) { Speed(50); }
+        PLAYER(SPECIES_WOBBUFFET) { Speed(50); }
+        PLAYER(SPECIES_WOBBUFFET) { Speed(100); }
+        OPPONENT(SPECIES_WOBBUFFET) { Speed(10); }
+        OPPONENT(SPECIES_WOBBUFFET) { Speed(10); }
+        OPPONENT(SPECIES_WOBBUFFET) { Speed(10); }
+    } WHEN {
+        TURN { MOVE(playerMiddle, MOVE_POUND, target: opponentLeft); MOVE(opponentLeft, MOVE_POUND, target: playerLeft); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_POUND, playerMiddle);
+        HP_BAR(opponentLeft);
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_POUND, opponentLeft);
+        HP_BAR(playerMiddle);
+        NOT HP_BAR(playerLeft);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: the first Pokémon still standing counts as the front")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET) { HP(1); Speed(10); }
+        PLAYER(SPECIES_WOBBUFFET) { Speed(50); }
+        PLAYER(SPECIES_WOBBUFFET) { Speed(50); }
+        OPPONENT(SPECIES_WOBBUFFET) { Speed(100); }
+        OPPONENT(SPECIES_WOBBUFFET) { Speed(100); }
+        OPPONENT(SPECIES_WOBBUFFET) { Speed(100); }
+    } WHEN {
+        TURN { MOVE(opponentLeft, MOVE_POUND, target: playerLeft); }
+        TURN { MOVE(playerRight, MOVE_POUND, target: opponentLeft); }
+        TURN { MOVE(playerMiddle, MOVE_POUND, target: opponentLeft); }
+    } SCENE {
+        MESSAGE("Wobbuffet fainted!");
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_POUND, playerRight);
+        NOT MESSAGE("Wobbuffet stepped up\nto the front!");
+        MESSAGE("Wobbuffet used Pound!");
+        MESSAGE("Wobbuffet stepped up\nto the front!");
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_POUND, playerMiddle);
+    } THEN {
+        // The middle Pokémon was already the first one standing, so it stayed put; the far one then steps in front,
+        // and the fainted one's empty spot moves back with the rest
+        EXPECT_EQ(RANK(playerMiddle), TRIPLE_RANK_NEAR);
+        EXPECT_EQ(RANK(playerLeft), TRIPLE_RANK_MIDDLE);
+        EXPECT_EQ(RANK(playerRight), TRIPLE_RANK_FAR);
+    }
+}
+
+TRIPLE_BATTLE_TEST("Triple battles: a DIRECT move's user that faints from recoil is replaced at the front")
+{
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_DOUBLE_EDGE)->reach == TRIPLE_REACH_FRONT);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET) { HP(1); }
+        PLAYER(SPECIES_WYNAUT);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { MOVE(playerMiddle, MOVE_DOUBLE_EDGE, target: opponentLeft); SEND_OUT(playerMiddle, 3); }
+    } SCENE {
+        MESSAGE("Wobbuffet stepped up\nto the front!");
+        MESSAGE("Wobbuffet fainted!");
+    } THEN {
+        EXPECT_EQ(playerMiddle->species, SPECIES_WYNAUT);
+        EXPECT_EQ(RANK(playerMiddle), TRIPLE_RANK_NEAR);
+        EXPECT_EQ(RANK(playerLeft), TRIPLE_RANK_MIDDLE);
+        EXPECT_EQ(RANK(playerRight), TRIPLE_RANK_FAR);
+    }
+}
+
+#undef RANK

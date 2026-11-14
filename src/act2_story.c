@@ -360,8 +360,74 @@ static void ForgetCourseTmMove(struct Pokemon *mon, u32 tmMove)
         SetMonMoveSlot(mon, i < count ? moves[i] : MOVE_NONE, i);
 }
 
-// From CreateWildMon: a course-type Pokémon's other moves make way for its course-type ones (learned or coming up),
-// and no wild Pokémon on the trip knows the course's TM move
+// On a field trip, each wild Pokémon of the course's type also knows one more move of the type from its trip's pool
+// (on top of its learnset's), preferably one not recorded yet, so a few battles show 3 different ones. Never the
+// course's TM move.
+static const u16 sCourseMovePoolFire[] =
+{
+    MOVE_EMBER, MOVE_FIRE_SPIN, MOVE_FLAME_CHARGE, MOVE_FLAME_WHEEL, MOVE_INCINERATE, MOVE_FLAME_BURST,
+    MOVE_FIRE_FANG, MOVE_WILL_O_WISP,
+};
+
+static const u16 sCourseMovePoolWater[] =
+{
+    MOVE_WATER_GUN, MOVE_BUBBLE, MOVE_AQUA_JET, MOVE_WATER_PULSE, MOVE_BRINE, MOVE_WHIRLPOOL, MOVE_CHILLING_WATER,
+    MOVE_WITHDRAW,
+};
+
+static const u16 sCourseMovePoolGrass[] =
+{
+    MOVE_ABSORB, MOVE_VINE_WHIP, MOVE_RAZOR_LEAF, MOVE_MEGA_DRAIN, MOVE_LEAFAGE, MOVE_MAGICAL_LEAF, MOVE_BULLET_SEED,
+    MOVE_LEECH_SEED,
+};
+
+static bool32 IsMoveRecorded(u32 move)
+{
+    return move != MOVE_NONE && (move == VarGet(VAR_ACT2_MOVE_SEEN_1) || move == VarGet(VAR_ACT2_MOVE_SEEN_2));
+}
+
+// The extra move: one from the pool the Pokémon doesn't know, unrecorded if any is left. It takes an empty slot, or
+// else one with a move of another type, or else one with a recorded move of the type (an unrecorded one stays).
+static void TeachCoursePoolMove(struct Pokemon *mon, const struct Act2Course *course)
+{
+    const u16 *pool;
+    u16 choices[16];
+    u32 count = 0, poolSize, i, slot, pass;
+    if (course->type == TYPE_FIRE)
+        pool = sCourseMovePoolFire, poolSize = ARRAY_COUNT(sCourseMovePoolFire);
+    else if (course->type == TYPE_WATER)
+        pool = sCourseMovePoolWater, poolSize = ARRAY_COUNT(sCourseMovePoolWater);
+    else
+        pool = sCourseMovePoolGrass, poolSize = ARRAY_COUNT(sCourseMovePoolGrass);
+    for (pass = 0; pass < 2 && count == 0; pass++)
+    {
+        for (i = 0; i < poolSize && count < ARRAY_COUNT(choices); i++)
+        {
+            if (pool[i] != course->tmMove && !MonKnowsMove(mon, pool[i]) && (pass == 1 || !IsMoveRecorded(pool[i])))
+                choices[count++] = pool[i];
+        }
+    }
+    if (count == 0)
+        return;
+    for (slot = 0; slot < MAX_MON_MOVES && GetMonData(mon, MON_DATA_MOVE1 + slot) != MOVE_NONE; slot++)
+        ;
+    for (i = 0; slot == MAX_MON_MOVES && i < MAX_MON_MOVES; i++)
+    {
+        if (GetMoveType(GetMonData(mon, MON_DATA_MOVE1 + i)) != course->type)
+            slot = i;
+    }
+    for (i = 0; slot == MAX_MON_MOVES && i < MAX_MON_MOVES; i++)
+    {
+        if (IsMoveRecorded(GetMonData(mon, MON_DATA_MOVE1 + i)))
+            slot = i;
+    }
+    if (slot == MAX_MON_MOVES)
+        return; // Four unrecorded moves of the type already
+    SetMonMoveSlot(mon, choices[Random() % count], slot);
+}
+
+// From CreateWildMon: a course-type Pokémon's other moves make way for its course-type ones (learned or coming up,
+// and one from the trip's pool), and no wild Pokémon on the trip knows the course's TM move
 void Act2_TeachWildCourseMoves(struct Pokemon *mon)
 {
     const struct Act2Course *course = GetCurrentCourse();
@@ -385,9 +451,10 @@ void Act2_TeachWildCourseMoves(struct Pokemon *mon)
                 break;
         }
         if (slot == MAX_MON_MOVES)
-            return;
+            break;
         SetMonMoveSlot(mon, move, slot);
     }
+    TeachCoursePoolMove(mon, course);
 }
 
 // From the battle, at the end of a move: TRUE when a new move was recorded (its counter is in gStringVar1)

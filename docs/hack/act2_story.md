@@ -40,9 +40,20 @@ After that, talking to the professor shows the **research sheet** (`Act2_BufferR
    (`Act2_RecordMoveUse`, from `Cmd_printattackstring`; the first two in `VAR_ACT2_MOVE_SEEN_1/2`, the third sets
    `ACT2_RESEARCH_MOVES_DONE`). So there are enough different ones without training up first, a wild Pokémon of the
    course's type on the trip also knows its type's moves from up to 8 levels ahead, in place of its other moves
-   (`Act2_TeachWildCourseMoves`, from `CreateWildMon`). None of them knows the course's TM move, so it can only be
-   made, not caught. In the trip areas, 35% of wild Pokémon are the type's basic Pokémon from beyond Kanto instead
-   (`Act2_ChooseWildSpecies`, `sOtherRegionFire/Water/Grass`). Every fishing cast gets a bite (`I_FISHING_ALWAYS_BITE`). Caught, it skips those moves when it reaches their level:
+   (`Act2_TeachWildCourseMoves`, from `CreateWildMon`), plus one more from the trip's pool, picked at random among
+   the ones not recorded yet (any of them once all are), in an empty slot, else over a move of another type, else
+   over a recorded one (`TeachCoursePoolMove`, `sCourseMovePoolFire/Water/Grass`):
+
+   | Trip | Pool |
+   |---|---|
+   | Fire | Ember, Fire Spin, Flame Charge, Flame Wheel, Incinerate, Flame Burst, Fire Fang, Will-O-Wisp |
+   | Water | Water Gun, Bubble, Aqua Jet, Water Pulse, Brine, Whirlpool, Chilling Water, Withdraw |
+   | Grass | Absorb, Vine Whip, Razor Leaf, Mega Drain, Leafage, Magical Leaf, Bullet Seed, Leech Seed |
+
+   So every wild Pokémon of the type brings a move the sheet hasn't got yet. None of them knows the course's TM
+   move, so it can only be made, not caught. In the trip areas, 35% of wild Pokémon are the type's basic Pokémon from beyond Kanto instead
+   (`Act2_ChooseWildSpecies`, `sOtherRegionFire/Water/Grass`). Every fishing cast gets a bite (`I_FISHING_ALWAYS_BITE`), and on an Act 2 table any of its 10 slots, equally
+   likely, whatever the rod (`GenerateFishingWildMon`; the Good Rod's own 3 slots were mostly Goldeen). Caught, it skips those moves when it reaches their level:
    the level-up code passes over a move a Pokémon already knows (`MON_ALREADY_KNOWS_MOVE`).
 3. Solve the site's puzzle (below).
 
@@ -208,13 +219,15 @@ In both builds, the Pokémon the player starts Act 2 with know the moves they'd 
   They're the `sAct2_*_FireRed` entries in `src/data/wild_encounters.json` (the name needs `FireRed`: a label
   without FireRed or LeafGreen is built for Emerald only). `GetCurrentMapWildMonHeaderId` tells them apart by their
   contents (`sAct2WildMonsInfos` in `src/wild_encounter.c`; add new ones there), since Porymap reorders the file.
-  Their encounter rates are half the usual ones (5 in the Mansion, 10 in grass, 5 fishing). Kanto's tables stay as
+  Their encounter rates are half the usual ones (5 in the Mansion, 10 in grass, 5 fishing). Fishing one picks any
+  of the table's 10 slots, whatever the rod. Kanto's tables stay as
   they were for Act 3.
 
   | Area | Pokémon | Levels |
   |---|---|---|
   | Pokémon Mansion, all floors | Growlithe (Flame Wheel from 12), Ponyta (Flame Charge at 15), Vulpix, Slugma, Magby and Charmander (rare); Rattata, Grimer, Koffing | 10-15 |
-  | Vermilion City (fishing) | Magikarp, Goldeen, Poliwag, Horsea, Krabby, Staryu, Shellder, Psyduck | 13-17 |
+  | Vermilion City (fishing) | Tentacool, Krabby, Horsea, Shellder, Staryu, Goldeen, Slowpoke, Poliwag, Psyduck, Magikarp (10% each) | 13-17 |
+  | Route 6 (fishing) | Poliwag, Goldeen, Psyduck, Slowpoke, Krabby, Seel, Horsea, Staryu, Shellder, Tentacool (10% each) | 13-17 |
   | Route 6 | Psyduck, Poliwag, Seel, Marill, Squirtle and Totodile (rare); Pidgey, Oddish, Abra | 13-16 |
   | Route 22 | Oddish, Bellsprout, Hoppip, Paras, Exeggcute, Bulbasaur and Chikorita (rare); Rattata, Spearow, Mankey | 16-19 |
   | Viridian Forest (Grass trip only) | Oddish (common), Bellsprout, Paras, Morelull, Phantump (rare); Hoothoot, Venonat | 16-19 |

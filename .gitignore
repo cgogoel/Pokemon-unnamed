@@ -67,3 +67,6 @@ tools/aif2pcm/aif2pcm
 *.smolTM
 __pycache__
 .map_version
+
+# Machine-local build settings (see local.mk.example)
+local.mk

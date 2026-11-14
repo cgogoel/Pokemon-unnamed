@@ -4,6 +4,8 @@
 #include "fieldmap.h"
 #include "field_effect_helpers.h"
 #include "field_player_avatar.h"
+#include "fishing.h"
+#include "item.h"
 #include "menu.h"
 #include "metatile_behavior.h"
 #include "random.h"
@@ -137,6 +139,54 @@ static bool32 (*const sFishingStateFuncs[])(struct Task *) =
 #define tMinRoundsRequired data[13]
 #define tPlayerGfxId       data[14]
 #define tFishingRod        data[15]
+
+// The best rod in the bag (ITEM_NONE without one): pressing A facing water fishes with it (EventScript_FishOrSurf)
+u16 GetBestFishingRodItem(void)
+{
+    if (CheckBagHasItem(ITEM_SUPER_ROD, 1))
+        return ITEM_SUPER_ROD;
+    if (CheckBagHasItem(ITEM_GOOD_ROD, 1))
+        return ITEM_GOOD_ROD;
+    if (CheckBagHasItem(ITEM_OLD_ROD, 1))
+        return ITEM_OLD_ROD;
+    return ITEM_NONE;
+}
+
+// On land, facing water a rod can be cast into (as the rod's own check, ItemUseOutOfBattle_Rod, sees it on land)
+bool32 CanFishFromWaterInFront(void)
+{
+    s16 x, y;
+    GetXYCoordsOneStepInFrontOfPlayer(&x, &y);
+    if (MetatileBehavior_IsWaterfall(MapGridGetMetatileBehaviorAt(x, y)))
+        return FALSE;
+    if (TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_SURFING | PLAYER_AVATAR_FLAG_UNDERWATER))
+        return FALSE;
+    return IsPlayerFacingSurfableFishableWater();
+}
+
+#define tRod data[0]
+
+// Casts once the script that asked is over (it unlocks the player's controls as it ends; fishing locks them again)
+static void Task_FishAfterScript(u8 taskId)
+{
+    if (ScriptContext_IsEnabled())
+        return;
+    StartFishing(gTasks[taskId].tRod);
+    DestroyTask(taskId);
+}
+
+#undef tRod
+
+// special StartFishingWithBestRod: a cast with the best rod in the bag, right after the script
+void StartFishingWithBestRod(void)
+{
+    u16 item = GetBestFishingRodItem();
+    u8 taskId;
+    if (item == ITEM_NONE)
+        return;
+    taskId = CreateTask(Task_FishAfterScript, 80);
+    gTasks[taskId].data[0] = GetItemSecondaryId(item);
+}
 
 void StartFishing(u8 rod)
 {

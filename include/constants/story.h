@@ -44,7 +44,7 @@
 #define ACT2_DONE                   17 // Tri-Blast made: Act 2 is over
 
 // The current course's research, in VAR_ACT2_RESEARCH (reset when a course starts)
-#define ACT2_RESEARCH_USED_MOVE     (1 << 0) // The player's Pokémon used a move of the course's type
+// (1 << 0) is free: it was "a move of the type used", a task no longer on the sheet
 #define ACT2_RESEARCH_PUZZLE_1      (1 << 1) // The site's puzzle, its three parts
 #define ACT2_RESEARCH_PUZZLE_2      (1 << 2)
 #define ACT2_RESEARCH_PUZZLE_3      (1 << 3)

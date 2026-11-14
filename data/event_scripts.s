@@ -1230,6 +1230,7 @@ EventScript_BackupMrBrineyLocation::
 	return
 
 	.include "data/scripts/surf.inc"
+	.include "data/scripts/fish_or_surf.inc"
 	.include "data/scripts/rival_graphics.inc"
 	.include "data/scripts/set_gym_trainers.inc"
 

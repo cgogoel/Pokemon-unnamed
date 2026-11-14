@@ -1,4 +1,4 @@
-# Pokémon Unnamed (working title)
+# Pokémon Unnamed
 
 *This README is AI generated. The creator's own notes are marked **Chris' Note** in boxes like the one below.*
 
@@ -16,8 +16,8 @@
 >
 > The story was inspired by an initial bout of writers block where I started the fork as "Unnamed" as I didn't have a
 > good idea. That has morphed to telling the story of an everyday NPC who was also "Unnamed" in the initial Red/FireRed
-> story, the Lab NPC who gifts the player a Lapras before fighting Giovanni in SilphCo. Exploring the idea of what is it
-> like to be a side-character who isn't the chosen one. I intend this to be a roughly 7-10 hour experience in the end
+> story, the Lab NPC who gifts the player a Lapras before fighting Giovanni in SilphCo. This story explores the idea of what is it
+> like to be a side-character who isn't the "chosen one" as every Pokemon game and most hacks assume. I intend this to be a roughly 7-10 hour experience in the end
 > upon completion of all 3 acts, staying somewhat close to the canon but taking liberties around maps, adding
 > characters, and introducing out of region pokemon to Kanto. If I get to the end and continue to be inspired I may make
 > further editions exploring other "Unnamed" characters in the games, enjoy!
@@ -103,7 +103,7 @@ When each side has only two Pokémon, the same rules apply with two Pokémon per
 ### University courses (Act 2)
 
 Each course (Fire, Water, Grass) is a field trip with a research sheet: catch three different Pokémon of the type,
-use and record moves of the type, and solve a puzzle at the site using a Pokémon of the type. Completing the sheet
+record moves of the type in battle, and solve a puzzle at the site using a Pokémon of the type. Completing the sheet
 lets the player make the course's TM (reusable, as are all TMs) and take the course exam.
 
 ### The friends' families (Act 2 on)
@@ -154,6 +154,12 @@ Somewhere along the way, a brand-new move is invented, one no Pokémon game has 
 > prefer to just walk back to the pokemon centers to reset. The game punishes you for this by making you walk both
 > ways (back and forth) but I'm lessening the pain by only making you do one direction with a warp back to the latest
 > pokemon center always available to you in Key Items.
+
+### Fishing and surfing
+
+With a fishing rod in the bag, pressing A facing water offers SURF, FISH or CANCEL when Surf can be used (SURF
+first), or asks whether to fish when it can't. Fishing casts the best rod in the bag. Registering a rod to SELECT
+works as before.
 
 ### Speed
 

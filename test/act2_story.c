@@ -432,6 +432,87 @@ TEST("Act 2: wild Pokémon on a field trip don't know the course's TM move")
     EXPECT(MonKnowsMoveForTest(mon, MOVE_BUBBLE_BEAM));
 }
 
+static bool32 KnowsUnrecordedWaterMove(struct Pokemon *mon)
+{
+    u32 i;
+    for (i = 0; i < MAX_MON_MOVES; i++)
+    {
+        u32 move = GetMonData(mon, MON_DATA_MOVE1 + i);
+        if (GetMoveType(move) == TYPE_WATER && move != MOVE_WATER_GUN && move != MOVE_WATER_PULSE && move != MOVE_NONE)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+TEST("Act 2: on the Water trip, every wild WATER Pokémon knows a WATER move not recorded yet")
+{
+    static const u16 sSpecies[] =
+    {
+        SPECIES_GOLDEEN, SPECIES_POLIWAG, SPECIES_PSYDUCK, SPECIES_KRABBY, SPECIES_HORSEA, SPECIES_STARYU,
+        SPECIES_SHELLDER, SPECIES_SLOWPOKE, SPECIES_TENTACOOL, SPECIES_MAGIKARP, SPECIES_SEEL, SPECIES_MARILL,
+    };
+    struct Pokemon *mon = &gParties[B_TRAINER_OPPONENT_A][0];
+    u32 i, j, extra[MOVES_COUNT / 32 + 1] = {0}, distinct = 0;
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_WATER_TRIP);
+    VarSet(VAR_ACT2_RESEARCH, 0);
+    VarSet(VAR_ACT2_MOVE_SEEN_1, MOVE_WATER_GUN);
+    VarSet(VAR_ACT2_MOVE_SEEN_2, MOVE_WATER_PULSE);
+    for (i = 0; i < ARRAY_COUNT(sSpecies); i++)
+    {
+        CreateWildMon(sSpecies[i], 15);
+        EXPECT(KnowsUnrecordedWaterMove(mon));
+        EXPECT(!MonKnowsMoveForTest(mon, MOVE_BUBBLE_BEAM)); // The TM's move, never
+    }
+    // Goldeen's learnset alone only has Water Pulse: the pool gives a spread of others
+    for (i = 0; i < 40; i++)
+    {
+        CreateWildMon(SPECIES_GOLDEEN, 15);
+        for (j = 0; j < MAX_MON_MOVES; j++)
+        {
+            u32 move = GetMonData(mon, MON_DATA_MOVE1 + j);
+            if (GetMoveType(move) == TYPE_WATER && move != MOVE_WATER_PULSE && !(extra[move / 32] & (1u << (move % 32))))
+            {
+                extra[move / 32] |= 1u << (move % 32);
+                distinct++;
+            }
+        }
+    }
+    EXPECT_GE(distinct, 4);
+    // Off the trip, nothing extra
+    VarSet(VAR_ACT2_PROGRESS, ACT2_START);
+    CreateWildMon(SPECIES_MAGIKARP, 15);
+    EXPECT(!KnowsUnrecordedWaterMove(mon));
+    VarSet(VAR_ACT2_MOVE_SEEN_1, MOVE_NONE);
+    VarSet(VAR_ACT2_MOVE_SEEN_2, MOVE_NONE);
+}
+
+TEST("Act 2: fishing on the Water trip turns up the whole table, whatever the rod")
+{
+    u32 i, species, goldeen = 0, distinct = 0;
+    u8 seen[NUM_SPECIES / 8 + 1] = {0};
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_WATER_TRIP);
+    ZeroPlayerPartyMons();
+    MakePartyMon(0, SPECIES_TEDDIURSA, 15);
+    gSaveBlock1Ptr->location.mapGroup = MAP_GROUP(MAP_VERMILION_CITY);
+    gSaveBlock1Ptr->location.mapNum = MAP_NUM(MAP_VERMILION_CITY);
+    for (i = 0; i < 300; i++)
+    {
+        species = GenerateCurrentMapFishingMon(GOOD_ROD);
+        EXPECT(GetSpeciesType(species, 0) == TYPE_WATER || GetSpeciesType(species, 1) == TYPE_WATER);
+        goldeen += species == SPECIES_GOLDEEN;
+        if (species <= SPECIES_MEW && !(seen[species / 8] & (1 << (species % 8))))
+        {
+            seen[species / 8] |= 1 << (species % 8);
+            distinct++;
+        }
+    }
+    EXPECT_GE(distinct, 8); // Kanto's: 10 in the table
+    EXPECT_LT(goldeen, 60); // About 20 (10% of the table, less the other regions' 35%)
+    ZeroPlayerPartyMons();
+}
+
 TEST("Act 2: on a field trip, some wild Pokémon are the type's Pokémon from other regions")
 {
     u32 i, swapped = 0, species;
@@ -463,17 +544,39 @@ TEST("Act 2: the Water TM comes from the first three tasks; the sheet is done on
     MakePartyMon(2, SPECIES_GOLDEEN, 15);
     VarSet(VAR_ACT2_MOVE_SEEN_1, MOVE_WATER_GUN);
     VarSet(VAR_ACT2_MOVE_SEEN_2, MOVE_WATER_PULSE);
-    VarSet(VAR_ACT2_RESEARCH, ACT2_RESEARCH_USED_MOVE | ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_DOCK_FIRE
+    VarSet(VAR_ACT2_RESEARCH, ACT2_RESEARCH_MOVES_DONE | ACT2_RESEARCH_DOCK_FIRE
                             | ACT2_RESEARCH_PUZZLE_1 | ACT2_RESEARCH_PUZZLE_2);
     EXPECT(Act2_IsReadyForTM());
     EXPECT(!Act2_IsResearchDone()); // The big fire still burns
     VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_PUZZLE_3 | ACT2_RESEARCH_PUZZLE_DONE);
     EXPECT(Act2_IsResearchDone());
 
-    // The other courses still need all four tasks for their TM
+    // The other courses still need all three tasks for their TM
     VarSet(VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP);
-    VarSet(VAR_ACT2_RESEARCH, ACT2_RESEARCH_USED_MOVE | ACT2_RESEARCH_MOVES_DONE);
+    VarSet(VAR_ACT2_RESEARCH, ACT2_RESEARCH_MOVES_DONE);
     EXPECT(!Act2_IsReadyForTM());
+    ZeroPlayerPartyMons();
+}
+
+TEST("Act 2: the sheet doesn't ask the player's Pokémon to use a move: wild ones' moves are recorded too")
+{
+    VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    VarSet(VAR_ACT2_PROGRESS, ACT2_FIRE_TRIP);
+    ZeroPlayerPartyMons();
+    MakePartyMon(0, SPECIES_GROWLITHE, 15);
+    MakePartyMon(1, SPECIES_PONYTA, 15);
+    MakePartyMon(2, SPECIES_VULPIX, 15);
+    VarSet(VAR_ACT2_RESEARCH, ACT2_RESEARCH_PUZZLE_ALL | ACT2_RESEARCH_PUZZLE_DONE);
+    VarSet(VAR_ACT2_MOVE_SEEN_1, MOVE_NONE);
+    VarSet(VAR_ACT2_MOVE_SEEN_2, MOVE_NONE);
+    // All three from the opponent's side (battler 1)
+    Act2_RecordMoveUse(1, MOVE_EMBER);
+    Act2_RecordMoveUse(1, MOVE_FLAME_WHEEL);
+    EXPECT(!Act2_IsReadyForTM());
+    Act2_RecordMoveUse(1, MOVE_FIRE_SPIN);
+    EXPECT(Act2_TakeResearchMoveMessage());
+    EXPECT(Act2_IsReadyForTM());
+    EXPECT(Act2_IsResearchDone());
     ZeroPlayerPartyMons();
 }
 

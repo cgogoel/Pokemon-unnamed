@@ -687,6 +687,8 @@ gSpecials::
 	def_special Act2_SetAsideClubBench
 	def_special Act2_RestoreClubBench
 	def_special Act2_DrawDockFires
+	def_special StartFishingWithBestRod
+	def_special GetBestFishingRodItem
 	def_special Act2_PutOutDockFire
 	def_special Act2_IsDockFireBurningSpecial
 	def_special Act2_IsDockFireAlarmDue

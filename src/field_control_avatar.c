@@ -15,6 +15,7 @@
 #include "event_object_movement.h"
 #include "event_scripts.h"
 #include "fieldmap.h"
+#include "fishing.h"
 #include "field_control_avatar.h"
 #include "field_message_box.h"
 #include "field_move.h"
@@ -655,11 +656,16 @@ static const u8 *GetInteractedMetatileScript(struct MapPosition *position, u8 me
 
 static const u8 *GetInteractedWaterScript(struct MapPosition *unused1, u8 metatileBehavior, enum Direction direction)
 {
+    bool32 canSurf;
+
     if (MetatileBehavior_IsFastWater(metatileBehavior) == TRUE && !TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_SURFING))
         return EventScript_CurrentTooFast;
-    if (IsFieldMoveUnlocked(FIELD_MOVE_SURF) && PartyHasMonWithSurf() == TRUE && IsPlayerFacingSurfableFishableWater() == TRUE
-     && CheckFollowerNPCFlag(FOLLOWER_NPC_FLAG_CAN_SURF)
-     )
+    canSurf = IsFieldMoveUnlocked(FIELD_MOVE_SURF) && PartyHasMonWithSurf() == TRUE && IsPlayerFacingSurfableFishableWater() == TRUE
+           && CheckFollowerNPCFlag(FOLLOWER_NPC_FLAG_CAN_SURF);
+    // With a fishing rod: SURF or FISH (SURF first), or just whether to fish when SURF can't be used
+    if (GetBestFishingRodItem() != ITEM_NONE && CanFishFromWaterInFront())
+        return canSurf ? EventScript_FishOrSurf : EventScript_AskToFish;
+    if (canSurf)
         return EventScript_UseSurf;
 
     if (MetatileBehavior_IsWaterfall(metatileBehavior) == TRUE

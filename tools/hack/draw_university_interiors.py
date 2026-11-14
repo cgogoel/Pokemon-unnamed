@@ -821,6 +821,8 @@ def stairwell(room, x, down=False):
         return stairwell_depth(room, x, down, rail=not down)
     if UP_FLAT_OR_FADE == 'fade':
         return stairwell_fade(room, x)
+    if UP_FLAT_OR_FADE == 'climb':
+        return stairwell_climb(room, x)
     y = room.wall_rows
     X0, X1 = x * T, (x + 2) * T
     top, line = WALL_TOP, y * T
@@ -852,7 +854,61 @@ def stairwell(room, x, down=False):
         room.stairs_down.append(x)
 
 
-UP_FLAT_OR_FADE = 'fade'          # Up flights: 'fade' (the down flights' design in light) or 'flat' (even steps, rails)
+UP_FLAT_OR_FADE = 'climb'         # Up flights: 'climb' (perspective, steps to the top), 'fade' or 'flat'
+
+
+def stairwell_climb(room, x):
+    """An up flight climbing away into the floor above (up_lit's perspective, without its rail and landing): in the
+    opening (framed in the wall as the down flights are), the stairwell's side walls close in as the flight rises (the
+    room's plaster, shaded, outlined where the steps meet them), and the steps run on right up to the top of the
+    opening, each shallower and lighter than the one below; no rail."""
+    y = room.wall_rows
+    X0, X1 = x * T, (x + 2) * T
+    top, line = WALL_TOP, y * T
+    H = line - top
+    px = room.F.load()
+    plaster = stairwell_walls(room, X0, X1, top, line)
+    dark = tuple(max(0, v - 56) for v in plaster)
+    treads = set()
+
+    def side(yy):                                   # The side walls' width at height yy: 2 px at the floor, 8 at the top
+        return 2 + (6 * (line - yy)) // H
+    for yy in range(top, line):
+        for xx in range(X0, X1):
+            px[xx, yy] = OL + (255,)
+    # Steps, bottom up: riser, nosing, tread; shallower and lighter as they climb, to the top of the opening
+    plan = [(3, 2), (3, 2), (2, 2), (2, 2), (2, 1), (1, 1)]
+    risers = [RISER2, RISER2, RISER, RISER, RISER, TREAD2]
+    tread_c = [TREAD2, TREAD2, TREAD2, TREAD, TREAD, TREAD]
+    yb, k = line, 0
+    while yb > top + 1:
+        i = min(k, len(plan) - 1)
+        rh, th = plan[i]
+        riser = risers[i] if k < len(plan) + 2 else TREAD2
+        tread = tread_c[i] if k < len(plan) + 2 else WH
+        for (h, c) in ((rh, riser), (1, OL), (th, tread)):
+            for yy in range(max(top + 1, yb - h), yb):
+                w = side(yy)
+                for xx in range(X0 + w, X1 - w):
+                    px[xx, yy] = c + (255,)
+                    treads.add((xx, yy))
+            yb -= h
+        k += 1
+    # Side walls in perspective: shaded plaster, an outline where the steps meet them
+    for yy in range(top + 1, line):
+        w = side(yy)
+        for xx in range(X0, X0 + w):
+            px[xx, yy] = (dark if xx < X0 + w - 1 else OL) + (255,)
+        for xx in range(X1 - w, X1):
+            px[xx, yy] = (dark if xx > X1 - w else OL) + (255,)
+            treads.discard((xx, yy))
+    for yy in range(top, line):                      # The frame: the wall's white edge and an outline either side
+        for (xx, c) in ((X0 - 2, WH), (X0 - 1, OL), (X1, OL), (X1 + 1, WH)):
+            if T <= xx < (room.w - 1) * T:
+                px[xx, yy] = c + (255,)
+    room.tread_px |= treads
+    room.top_step[x] = (top + 1, X0 + side(top + 1), X1 - side(top + 1))
+    room.stairs.append(x)
 # Going up: the down flight's treads mirrored in light: from the floor line up, each tread a shade lighter and a
 # little narrower, into a light opening (the floor above, lit)
 UP_TREADS = [(RISER, RISER2), (TREAD2, RISER), (TREAD, TREAD2), (WH, TREAD)]

@@ -152,9 +152,9 @@ secondary palettes (near-identical whites and greys merged); it stops if a tiles
 
 | Tileset | Rooms | Tiles | Metatiles | Secondary palettes |
 |---|---|---|---|---|
-| `gTileset_UniversityClassroom` | Main Hall 1F/2F, Lecture Halls A/B, Faculty Office, Literature, Library | 228 / 384 | 211 / 384 | 5 / 6 |
-| `gTileset_UniversityDorm` | Dorm lobby, 2F, 3F, Cafeteria | 196 / 384 | 138 / 384 | 6 / 6 |
-| `gTileset_UniversityLab` | Science Institute 1F-4F, Hospital 1F/2F, Study Hall, Home Economics | 153 / 384 | 133 / 384 | 5 / 6 |
+| `gTileset_UniversityClassroom` | Main Hall 1F/2F, Lecture Halls A/B, Faculty Office, Literature, Library | 226 / 384 | 209 / 384 | 6 / 6 |
+| `gTileset_UniversityDorm` | Dorm lobby, 2F, 3F, Cafeteria | 194 / 384 | 136 / 384 | 6 / 6 |
+| `gTileset_UniversityLab` | Science Institute 1F-4F, Hospital 1F/2F, Study Hall, Home Economics | 156 / 384 | 135 / 384 | 5 / 6 |
 
 Palettes are what fills up (copying from several FireRed tilesets brings several 15-color palettes): the Classroom and
 Dorm sets have none left, so new pieces there must reuse their colors (`fit()` moves a piece into colors already used)
@@ -284,3 +284,9 @@ instead (`stairwell_fade`, `UP_FLAT_OR_FADE = 'fade'`; the flat flight stays as 
 palest at the top (the floor above, lit), and the treads step up from the floor line, the bottom one widest, each
 higher one a shade lighter and a little narrower; no rail. `audit/37_stairs_up_fade_down_norail.png`: all 16,
 before (master) | after; `audit/38_stairs_up_down_closeup.png`: an up flight beside a down one (Dorm 2F).
+
+Second follow-up: the up flights go back to the perspective climb (the stairwell's side walls closing in, the steps
+shallower and lighter as they rise) without its rail and without the landing strip: the steps run on right up to the
+top of the opening (`stairwell_climb`, `UP_FLAT_OR_FADE = 'climb'`; 'fade' and 'flat' stay in the tool). Down
+flights unchanged. `audit/39_stairs_up_climb_down_norail.png`: all 16, before (the fade version) | after;
+`audit/38_stairs_up_down_closeup.png`: an up flight beside a down one (Dorm 2F).

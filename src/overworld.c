@@ -2539,6 +2539,9 @@ static void InitOverworldGraphicsRegisters(void)
     SetGpuReg(REG_OFFSET_MOSAIC, 0);
     SetGpuReg(REG_OFFSET_WININ, WININ_WIN0_BG_ALL | WININ_WIN0_OBJ | WININ_WIN1_BG_ALL | WININ_WIN1_OBJ);
     SetGpuReg(REG_OFFSET_WINOUT, WINOUT_WIN01_BG0 | WINOUT_WINOBJ_BG0);
+    // The hack: in Viridian Forest's night, sprites show beyond the light (src/act2_night_bloom.c)
+    if (Act2_ShowSpritesInDark())
+        SetGpuRegBits(REG_OFFSET_WINOUT, WINOUT_WIN01_OBJ);
     SetGpuReg(REG_OFFSET_WIN0H, 0xFF);
     SetGpuReg(REG_OFFSET_WIN0V, 0xFF);
     SetGpuReg(REG_OFFSET_WIN1H, 0xFFFF);

@@ -490,6 +490,7 @@ enum
 #define LIGHT_TYPE_BALL             0
 #define LIGHT_TYPE_PKMN_CENTER_SIGN 1
 #define LIGHT_TYPE_POKE_MART_SIGN   2
+#define LIGHT_TYPE_GLOWCAP_SPORE    3 // Act 2: the night bloom's trail toward the next glowcap
 
 #define FIRST_DECORATION_SPRITE_GFX OBJ_EVENT_GFX_PICHU_DOLL
 

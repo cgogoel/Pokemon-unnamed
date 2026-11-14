@@ -117,7 +117,7 @@ static const u8 sText_UseGrass[] = _("Use a GRASS move");
 static const u8 sText_RecordGrass[] = _("Record 3 GRASS moves");
 static const u8 sText_PuzzleGrass[] = _("Guard the MOONVEIL");
 static const u8 sText_NextIntroGrass[] = _("Go to HOME ECONOMICS on campus.");
-static const u8 sText_NextBriefGrass[] = _("Talk to PROF. FERN.");
+static const u8 sText_NextBriefGrass[] = _("Meet PROF. FERN at the forest gate.");
 static const u8 sText_NextCatchGrass[] = _("Catch GRASS POKéMON in VIRIDIAN FOREST.");
 static const u8 sText_NextUseGrass[] = _("Use a GRASS move in battle.");
 static const u8 sText_NextRecordGrass[] = _("Record GRASS moves in battle.");
@@ -153,7 +153,7 @@ static const struct QuestCourse sCourses[] =
     },
     {
         .tripStage = ACT2_GRASS_TRIP, .type = TYPE_GRASS,
-        .siteMapSec = MAPSEC_VIRIDIAN_FOREST, .profMapSec = MAPSEC_VIRIDIAN_CITY,
+        .siteMapSec = MAPSEC_VIRIDIAN_FOREST, .profMapSec = MAPSEC_VIRIDIAN_FOREST,
         .catchTask = sText_CatchGrass, .useTask = sText_UseGrass, .recordTask = sText_RecordGrass, .puzzleTask = sText_PuzzleGrass,
         .nextIntro = sText_NextIntroGrass, .nextBriefing = sText_NextBriefGrass, .nextCatch = sText_NextCatchGrass,
         .nextUse = sText_NextUseGrass, .nextRecord = sText_NextRecordGrass, .nextPuzzle = sText_NextPuzzleGrass,

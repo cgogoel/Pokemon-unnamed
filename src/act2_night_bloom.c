@@ -10,6 +10,7 @@
 #include "overworld.h"
 #include "pokemon.h"
 #include "string_util.h"
+#include "event_object_movement.h"
 #include "constants/map_event_ids.h"
 #include "constants/moves.h"
 #include "constants/species.h"
@@ -83,18 +84,44 @@ u32 Act2_GetNightForestFlashLevel(void)
     return Act2_GetNightFlashLevel(CountBits(GetBloom() & NIGHT_BLOOM_GLOWCAPS));
 }
 
+// The way to the next dim glowcap (the first not yet woken, in trail order): its trail of spores and the glint on it
+// (light sprites in Viridian Forest's map.json, FLAG_TEMP_11-13 for glowcaps 1-3), at night only. Light sprites go
+// out when their flag is set (UpdateLightSprite).
+static void SetGlowcapTrail(void)
+{
+    u32 bloom = GetBloom(), i;
+    for (i = 0; i < 3; i++)
+        FlagSet(FLAG_TEMP_11 + i);
+    if (!Act2_IsGrassTripNight())
+        return;
+    for (i = 0; i < 3; i++)
+    {
+        if (!(bloom & (NIGHT_BLOOM_GLOWCAP_1 << i)))
+        {
+            FlagClear(FLAG_TEMP_11 + i);
+            return;
+        }
+    }
+}
+
 // special Act2_SetupForestObjects, on Viridian Forest's transition. On the Grass trip's night, FLAG_TEMP_1 hides the
 // forest's people. On the trip: FLAG_TEMP_2-4 the dim glowcaps (until woken), FLAG_TEMP_5-7 the lit ones, FLAG_TEMP_8-10
-// the ODDISH (the one for the next leg, once the glowcaps are all lit). Off the trip, the forest is as usual.
+// the ODDISH (the one for the next leg, once the glowcaps are all lit), FLAG_TEMP_11-13 the way to the next glowcap,
+// FLAG_TEMP_14 PROF. FERN's assistants at the north exit (the class stays in the forest). Off the trip, the forest is
+// as usual.
 void Act2_SetupForestObjects(void)
 {
     u32 bloom = GetBloom(), i;
     for (i = 0; i < 10; i++)
         FlagSet(FLAG_TEMP_1 + i);
+    for (i = 0; i < 4; i++)
+        FlagSet(FLAG_TEMP_11 + i);
     if (!Act2_IsGrassTripNight())
         FlagClear(FLAG_TEMP_1);
     if (!Act2_IsGrassTrip())
         return;
+    FlagClear(FLAG_TEMP_14);
+    SetGlowcapTrail();
     for (i = 0; i < 3; i++)
         FlagClear(((bloom & (NIGHT_BLOOM_GLOWCAP_1 << i)) ? FLAG_TEMP_5 : FLAG_TEMP_2) + i);
     if ((bloom & NIGHT_BLOOM_GLOWCAPS) == NIGHT_BLOOM_GLOWCAPS)
@@ -135,6 +162,7 @@ bool16 Act2_WakeGlowcap(void)
     FlagClear(FLAG_TEMP_5 + n);
     gSpecialVar_0x8005 = LOCALID_FOREST_GLOWCAP_1 + n;
     gSpecialVar_0x8006 = LOCALID_FOREST_GLOWCAP_LIT_1 + n;
+    SetGlowcapTrail();
     if ((GetBloom() & NIGHT_BLOOM_GLOWCAPS) != NIGHT_BLOOM_GLOWCAPS)
         return FALSE;
     SetResearch(ACT2_RESEARCH_PUZZLE_1);
@@ -152,8 +180,16 @@ bool16 Act2_IsGlowcapLit(void)
 void Act2_BrightenForest(void)
 {
     u32 level = Act2_GetNightForestFlashLevel();
+    TrySpawnLightSprites(0, 0); // The way to the next glowcap
     AnimateFlash(level);
     SetFlashLevel(level);
+}
+
+// From InitOverworldGraphicsRegisters: in the dark forest, sprites show beyond the light (the flash darkness only
+// hides the map), so the glowcaps, their spores and the ODDISH can be seen in the dark
+bool32 Act2_ShowSpritesInDark(void)
+{
+    return Act2_GetNightForestFlashLevel() != 0;
 }
 
 // specialvar VAR_RESULT, Act2_FollowOddish with the ODDISH (1-3) in VAR_0x8004, once it's been held still: that leg

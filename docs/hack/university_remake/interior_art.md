@@ -152,9 +152,9 @@ secondary palettes (near-identical whites and greys merged); it stops if a tiles
 
 | Tileset | Rooms | Tiles | Metatiles | Secondary palettes |
 |---|---|---|---|---|
-| `gTileset_UniversityClassroom` | Main Hall 1F/2F, Lecture Halls A/B, Faculty Office, Literature, Library | 243 / 384 | 219 / 384 | 6 / 6 |
-| `gTileset_UniversityDorm` | Dorm lobby, 2F, 3F, Cafeteria | 210 / 384 | 144 / 384 | 6 / 6 |
-| `gTileset_UniversityLab` | Science Institute 1F-4F, Hospital 1F/2F, Study Hall, Home Economics | 165 / 384 | 139 / 384 | 5 / 6 |
+| `gTileset_UniversityClassroom` | Main Hall 1F/2F, Lecture Halls A/B, Faculty Office, Literature, Library | 242 / 384 | 216 / 384 | 6 / 6 |
+| `gTileset_UniversityDorm` | Dorm lobby, 2F, 3F, Cafeteria | 207 / 384 | 144 / 384 | 6 / 6 |
+| `gTileset_UniversityLab` | Science Institute 1F-4F, Hospital 1F/2F, Study Hall, Home Economics | 172 / 384 | 143 / 384 | 5 / 6 |
 
 Palettes are what fills up (copying from several FireRed tilesets brings several 15-color palettes): the Classroom and
 Dorm sets have none left, so new pieces there must reuse their colors (`fit()` moves a piece into colors already used)
@@ -248,3 +248,18 @@ the lawn above it (the dorm and annex path stops a row short for them; the night
 up one, to (59,58)). `tree_problems()` checks every tree on the campus (all four edges and every grove: halves paired,
 crown, tip and trunk in order, the map's top and bottom rows continued by the border) and finds none.
 `audit/30_campus_top.png`, `audit/31_campus_bottom.png`.
+
+## Up flights: climbing to the floor above
+
+The straight up flights still read oddly (a grey strip at the top, steps the same all the way up). Two variants were
+drawn for the dorm and compared with the current one (`audit/32_upstairs_variants.png`): A, a flight climbing away
+into the floor above, and B, a sideways flight in FireRed's own Department Store / Pokemon Center manner. A reads
+clearly as a route upstairs and is used for every up flight (`up_lit`, `UP_STYLE = 'lit'`; B stays as `up_side`):
+- the stairwell's side walls (the room's own wall, shaded, outlined where the steps meet them) close in as the
+  flight rises, 2 px at the floor to 8 px at the top;
+- the steps get shallower and lighter as they climb, from mid straw at the bottom to white at the top;
+- the top step reaches a lit landing, the room's floor at full brightness, under a strip of the upper floor's wall;
+- the banister climbs along the side wall's edge on the open side, from a newel post on the floor line.
+
+Down flights are unchanged, as are warps and collision. `audit/33_upstairs_all.png`: every up flight, before (master)
+and after.

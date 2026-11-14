@@ -812,9 +812,10 @@ def stairwell(room, x, down=False):
     the wall the same way at the Pokemon Center and the Department Store): a dark doorway, outlined, the wall's white
     edge round it, from right under the wall's top band down to the floor line.
 
-    Up: the flight rises straight away from the player into the opening: risers facing the room, lit treads, each step
-    a little narrower further up, the bottom riser on the floor line (the player steps onto it from the warp cells
-    below), the top tread arriving at the upper floor, a strip of the room's own floor in shadow across the opening.
+    Up (UP_STYLE, up_lit): the flight climbs away from the player into the floor above: the stairwell's side walls
+    close in as it rises, the steps get shallower and lighter toward a lit landing (the room's floor, bright, under a
+    strip of the upper wall), the banister climbs with them on the open side from a newel post on the floor line; the
+    bottom riser is on the floor line (the player steps onto it from the warp cells below).
     Down: the top tread is level with the floor line (clear floor in front of it: the warp cells), the flight going
     down away from the player into the dark, each lower tread a shade darker and narrower.
     The rail runs down the flight's open side (the side away from the room's outer wall; both sides when it stands
@@ -836,6 +837,11 @@ def stairwell(room, x, down=False):
             for xx in range(t0 + inset, t1 - inset):
                 px[xx, yy] = c + (255,)
                 treads.add((xx, yy))
+    if not down and UP_STYLE != 'flat':
+        UP_FLIGHTS[UP_STYLE](room, x, X0, X1, top, line, sides, px, treads)
+        room.tread_px |= treads
+        room.stairs.append(x)
+        return
     if not down:
         steps = (line - top - 6) // 5
         yb = line
@@ -885,6 +891,134 @@ def stairwell(room, x, down=False):
     room.stairs.append(x)
     if down:
         room.stairs_down.append(x)
+
+
+def stairwell_walls(room, X0, X1, top, line):
+    """The plain wall's plaster and its shaded tone, sampled from the room's own wall beside the opening (for the
+    stairwell's side walls)."""
+    wp = room.wall_plain.load()
+    sx = X0 - 4 if X0 - 4 >= T else X1 + 4
+    ys = range(top + 2, top + 10)
+    cols = [wp[sx, y][:3] for y in ys]
+    light = max(set(cols), key=cols.count)
+    return light
+
+
+def up_lit(room, x, X0, X1, top, line, sides, px, treads):
+    """Up, variant A: a straight flight climbing away into the floor above. The stairwell's side walls close in as the
+    flight rises (the room's plaster, shaded, outlined where the steps meet them); the steps get shallower and lighter
+    toward a lit landing at the top, the upper floor bright beyond it under a strip of the upper wall; the banister
+    climbs with the steps on the open side, from a newel post on the floor line."""
+    H = line - top
+    plaster = stairwell_walls(room, X0, X1, top, line)
+    dark = tuple(max(0, v - 56) for v in plaster)
+    src, mid, shade, kind = room.floor_spec
+    floor = Source(src).flat(mid).load()
+
+    def side(yy):                                   # The side walls' width at height yy: 2 px at the floor, 8 at the top
+        return 2 + (6 * (line - yy)) // H
+    # The upper wall and the lit landing
+    land_top, land_bot = top + 4, top + 9
+    for yy in range(top, line):
+        for xx in range(X0, X1):
+            px[xx, yy] = OL + (255,)
+    for yy in range(top, land_top):
+        for xx in range(X0, X1):
+            px[xx, yy] = (plaster if yy > top else OL) + (255,)
+    for yy in range(land_top, land_bot):
+        for xx in range(X0, X1):
+            px[xx, yy] = floor[xx % T, (yy - land_top) % T][:3] + (255,)
+    for xx in range(X0, X1):
+        px[xx, land_top] = OL + (255,)
+    # Steps, bottom up: riser then tread, each pair shallower and lighter
+    plan = [(3, 2), (3, 2), (2, 2), (2, 2), (2, 1), (1, 1), (1, 1), (1, 1), (1, 1), (1, 1)]
+    risers = [RISER2, RISER2, RISER, RISER, RISER, TREAD2, TREAD2, TREAD2, TREAD, TREAD]
+    tread_c = [TREAD2, TREAD2, TREAD2, TREAD, TREAD, TREAD, WH, WH, WH, WH]
+    yb, k = line, 0
+    while yb > land_bot and k < len(plan):
+        rh, th = plan[k]
+        for (h, c) in ((rh, risers[k]), (1, OL), (th, tread_c[k])):
+            for yy in range(max(land_bot, yb - h), yb):
+                w = side(yy)
+                for xx in range(X0 + w, X1 - w):
+                    px[xx, yy] = c + (255,)
+                    treads.add((xx, yy))
+            yb -= h
+        k += 1
+    for yy in range(land_bot, yb):               # Any gap up to the landing: the top tread, lit
+        w = side(yy)
+        for xx in range(X0 + w, X1 - w):
+            px[xx, yy] = WH + (255,)
+            treads.add((xx, yy))
+    # Side walls in perspective: shaded plaster, an outline where the steps meet them
+    for yy in range(land_top + 1, line):
+        w = side(yy)
+        for xx in range(X0, X0 + w):
+            px[xx, yy] = (dark if xx < X0 + w - 1 else OL) + (255,)
+        for xx in range(X1 - w, X1):
+            px[xx, yy] = (dark if xx > X1 - w else OL) + (255,)
+    # The banister on the open side(s): along the side wall's edge, rising with the steps, a newel post at the foot
+    for sd in sides:
+        for yy in range(land_bot - 1, line + 1):
+            w = side(min(yy, line - 1))
+            rx = X0 + w - 2 if sd == 'left' else X1 - w
+            for i, c in enumerate((WH, GR1)):
+                px[rx + i, yy] = c + (255,)
+                room.rail_px.add((rx + i, yy))
+            treads.discard((rx, yy))
+            treads.discard((rx + 1, yy))
+        nx = X0 if sd == 'left' else X1 - 4
+        for yy in range(line - 5, line + 3):
+            for i, c in enumerate((OL, WH, GR1, OL)):
+                px[nx + i, yy] = (OL if yy in (line - 5, line + 2) else c) + (255,)
+                room.rail_px.add((nx + i, yy))
+                treads.discard((nx + i, yy))
+    room.top_step[x] = (land_bot, X0 + side(land_bot), X1 - side(land_bot))
+
+
+def up_side(room, x, X0, X1, top, line, sides, px, treads):
+    """Up, variant B: FireRed's own way (the Department Store, the Pokemon Center): the flight climbs sideways in the
+    opening, from its low end on the room side up toward the far side, the steps' risers facing the room; the banister
+    runs diagonally along the steps' front edge from a newel post at the foot; the top step reaches a lit landing (the
+    upper floor) at the high end."""
+    H = line - top
+    src, mid, shade, kind = room.floor_spec
+    floor = Source(src).flat(mid).load()
+    rising_right = sides == ['right'] or len(sides) == 2      # Low end against the outer wall, rising into the room
+    for yy in range(top, line):
+        for xx in range(X0, X1):
+            px[xx, yy] = OL + (255,)
+    n = 6
+    sw = (X1 - X0 - 6) // n                          # Step width; the last 6 px are the landing
+    for k in range(n):
+        h = 4 + (k + 1) * (H - 8) // n               # Step k's height from the floor line
+        c0 = X0 + k * sw if rising_right else X1 - (k + 1) * sw
+        for xx in range(c0, c0 + sw):
+            for yy in range(line - h, line):
+                d = yy - (line - h)
+                c = OL if d == 0 else (TREAD if k > 2 else TREAD2) if d <= 2 else RISER if d < 6 else RISER2
+                if xx in (c0, c0 + sw - 1) and d > 2:
+                    c = OL if (xx == c0) == rising_right else c
+                px[xx, yy] = c + (255,)
+                treads.add((xx, yy))
+    lx0, lx1 = (X1 - 6, X1) if rising_right else (X0, X0 + 6)
+    for yy in range(top + 2, line):
+        for xx in range(lx0, lx1):
+            px[xx, yy] = floor[xx % T, yy % T][:3] + (255,)
+    # The banister: diagonal along the step noses, from the low end to the landing
+    for k in range(n * sw):
+        xx = (X0 + k) if rising_right else (X1 - 1 - k)
+        h = 4 + ((k // sw) + 1) * (H - 8) // n
+        yy = line - h - 3
+        for i, c in enumerate((OL, WH, GR1)):
+            px[xx, yy + i] = c + (255,)
+            room.rail_px.add((xx, yy + i))
+            treads.discard((xx, yy + i))
+    room.top_step[x] = (top + 4, lx0, lx1)
+
+
+UP_FLIGHTS = {'lit': up_lit, 'side': up_side}
+UP_STYLE = 'lit'
 
 
 def stairs_up(room, x):
@@ -2027,7 +2161,9 @@ def audit(room):
     # Every flight ends in its opening: no pixel of the plain wall left over the stairs' columns between the top
     # band and the steps
     for sx in room.stairs:
-        n = sum(1 for y in range(WALL_TOP, (room.wall_rows - 1) * T) for x in range(sx * T + 4, sx * T + 2 * T)
+        # (from the flight's top step down: above it, the upper floor's wall seen through the opening is meant)
+        y0 = room.top_step.get(sx, (WALL_TOP,))[0] if sx not in room.stairs_down else WALL_TOP
+        n = sum(1 for y in range(y0, (room.wall_rows - 1) * T) for x in range(sx * T + 4, sx * T + 2 * T)
                 if px[x, y][:3] == wp[x, y][:3] and not O[x, y][3] and (x, y) not in room.rail_px)
         if n:
             out.append(('blank', sx, room.wall_rows - 1, n))

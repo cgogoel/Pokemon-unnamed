@@ -75,14 +75,15 @@ PAL = {
               (112, 192, 200), (64, 144, 160), (136, 200, 96), (72, 152, 64), (40, 96, 48), (248, 152, 176),
               (216, 72, 88)],
     'water': [OL, WHITE, S1, S2, S3, (176, 224, 248), (104, 176, 240), (56, 120, 208), (96, 152, 224), (40, 80, 160),
-              (248, 232, 168), (224, 72, 56), (248, 136, 56), AU],
+              (248, 232, 168), (224, 72, 56), (248, 136, 56), AU, (104, 40, 56)],
     'accent': [OL, WHITE, S1, S2, S3, (200, 96, 72), (152, 64, 56), (88, 120, 200), (48, 72, 144), (224, 56, 56),
                (160, 32, 40), (248, 176, 192), (64, 160, 96), (148, 164, 180), AU],
 }
 PAL = {k: [gba(c) for c in v] for k, v in PAL.items()}
 EXTERIOR_PALS = ('stone', 'glass', 'water', 'accent')
 GL = dict(zip(('ol', 'w', 's1', 'f1', 'f2', 'f3', 'q0', 'q1', 'q2', 'q3', 'p1', 'p2', 'p3', 'pk', 'rd'), PAL['glass']))
-WA = dict(zip(('ol', 'w', 's1', 's2', 's3', 'a1', 'a2', 'a3', 'b1', 'b2', 'cr', 'rd', 'or', 'au'), PAL['water']))
+WA = dict(zip(('ol', 'w', 's1', 's2', 's3', 'a1', 'a2', 'a3', 'b1', 'b2', 'cr', 'rd', 'or', 'au', 'th'),
+              PAL['water']))   # th: Gyarados' throat
 AC = dict(zip(('ol', 'w', 's1', 's2', 's3', 't1', 't2', 'b1', 'b2', 'rd', 'rd2', 'pk', 'gn', 'mt', 'ye'),
               PAL['accent']))
 OL, WHITE, S1, S2, S3, SLH, SL1, SL2, SL3, G1, G2, AU, AU2, WD, WD2 = PAL['stone']
@@ -1004,25 +1005,66 @@ def gyarados(P, cx, y_top, y_base):
                 for j in range(n):
                     P.p(base + side * j, fy + k, orr if (side < 0 and j == n - 1 and k < 2) else rd)
                 P.p(base + side * n, fy + k, ol)
-    # The head: a lit crown, the shaded jaw, the eye, the open mouth (the jet comes out of it)
-    P.ellipse(cx, y_top + 5, 8, 6, mid, ol)
-    for y in range(y_top, y_top + 12):
-        for x in range(cx - 8, cx + 9):
-            if P.get(x, y) == mid:
-                s = (x - cx) / 8 + (y - y_top - 5) / 6
-                if s < -.6:
-                    P.p(x, y, hi)
-                elif s > .55:
-                    P.p(x, y, sh)
-    P.ellipse(cx, y_top + 7, 4, 2, WA['w'], ol)           # Mouth, open
-    P.p(cx - 1, y_top + 7, WA['a2'])
-    P.p(cx, y_top + 7, WA['a2'])
-    P.p(cx - 4, y_top + 3, ol)                             # Eyes
-    P.p(cx + 3, y_top + 3, ol)
-    P.p(cx - 5, y_top + 2, WA['w'])
-    for k in range(4):                                     # The crest (cream), lit
-        P.p(cx - 3 - k, y_top - k // 2, cr)
-        P.p(cx + 2 + k, y_top - k // 2, WA['s2'])
+    gyarados_head(P, cx, y_top - 1)
+
+
+def gyarados_head(P, cx, y):
+    """Gyarados' head, its top at y, over the body's column (cx - 8 .. cx + 7): the crown fin, an angry brow ridge
+    over each eye (white, a dark pupil, a highlight), the snout lit from the upper left, the mouth open upward with
+    fangs and a dark throat (the jet comes out of it), the cream underside of the jaw, the long barbels.
+    Facing us (a three-quarter view read as a fish and cost a tile: university_remake/fountain_face_options.png)."""
+    ol, hi, mid, sh, cr, w = WA['ol'], WA['a1'], WA['b1'], WA['b2'], WA['cr'], WA['w']
+    th = WA['th']
+
+    def shade(x0, x1, y0, y1, lx, ly, rx, ry):
+        for yy in range(y0, y1):
+            for xx in range(x0, x1):
+                if P.get(xx, yy) == mid:
+                    s = (xx - lx) / rx + (yy - ly) / ry
+                    P.p(xx, yy, hi if s < -.7 else sh if s > .6 else mid)
+
+    # The crown fin: three points, the middle one tallest, cream lit on the left, outlined
+    for (x0, top, lean) in ((cx - 5, y - 1, -1), (cx - 1, y - 4, 0), (cx + 3, y - 1, 1)):
+        for yy in range(top, y + 2):
+            k = (y + 1 - yy) // 2 * lean
+            P.p(x0 + k, yy, cr)
+            P.p(x0 + 1 + k, yy, WA['s2'])
+            P.p(x0 - 1 + k, yy, ol)
+            P.p(x0 + 2 + k, yy, ol)
+        P.hl(x0 + (y + 1 - top) // 2 * lean, x0 + 1 + (y + 1 - top) // 2 * lean, top - 1, ol)
+    # The skull: rounded on top, broad at the brow, narrowing to the snout
+    for i, hw in enumerate((5, 6, 7, 7, 7, 7, 6, 6, 5, 5, 4)):
+        yy = y + 2 + i
+        P.hl(cx - hw, cx + hw - 1, yy, mid)
+        P.p(cx - hw - 1, yy, ol)
+        P.p(cx + hw, yy, ol)
+    P.hl(cx - 5, cx + 4, y + 1, ol)
+    shade(cx - 8, cx + 8, y + 2, y + 13, cx - 1, y + 6, 6, 6)
+    # The brow ridges, angled down toward the middle (the scowl); the eyes glaring under them
+    for (bx, by) in ((cx - 6, y + 4), (cx - 5, y + 4), (cx - 4, y + 5), (cx - 3, y + 5)):
+        P.p(bx, by, ol)
+        P.p(2 * cx - 1 - bx, by, ol)
+    for (ex, ey, c) in ((cx - 6, y + 6, w), (cx - 5, y + 6, w), (cx - 4, y + 6, w), (cx - 6, y + 7, w),
+                        (cx - 5, y + 7, ol), (cx - 4, y + 7, ol)):
+        P.p(ex, ey, c)
+        P.p(2 * cx - 1 - ex, ey, c)
+    P.p(cx - 6, y + 6, hi)                                # The eye's highlight, toward the light
+    P.p(cx - 2, y + 8, ol)                                # Nostrils
+    P.p(cx + 1, y + 8, ol)
+    # The mouth open wide: fangs at the corners, small teeth, the dark throat; the cream jaw under it
+    P.hl(cx - 4, cx + 3, y + 9, ol)
+    P.hl(cx - 3, cx + 2, y + 10, th)
+    P.hl(cx - 3, cx + 2, y + 11, th)
+    for (fx, fy) in ((cx - 4, y + 10), (cx - 4, y + 11), (cx + 3, y + 10), (cx + 3, y + 11), (cx - 2, y + 10),
+                     (cx + 1, y + 10)):
+        P.p(fx, fy, w)
+    P.hl(cx - 4, cx - 1, y + 12, cr)
+    P.hl(cx, cx + 3, y + 12, WA['s2'])
+    P.hl(cx - 3, cx + 2, y + 13, ol)
+    # The barbels: long whiskers from the snout's sides, out and curling down
+    for (ddx, ddy) in ((0, 0), (1, 0), (2, 1), (3, 2), (3, 3), (2, 4), (2, 5)):
+        P.p(cx - 7 - ddx, y + 8 + ddy, cr)
+        P.p(cx + 6 + ddx, y + 8 + ddy, cr)
 
 
 def fountain_plume(P, cx):

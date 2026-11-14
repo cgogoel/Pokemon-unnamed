@@ -72,7 +72,7 @@ FRLG secondary tilesets (`include/fieldmap.h`): **384 tiles, 384 metatiles, pale
 
 | Tileset | Tiles | Metatiles | Palettes |
 |---|---|---|---|
-| `gTileset_CeladonUniversity` (every campus building and decoration) | 380 / 384 | 346 / 384 | 4 / 6 |
+| `gTileset_CeladonUniversity` (every campus building and decoration) | 384 / 384 | 334 / 384 | 4 / 6 |
 | The rooms' three tilesets | see `interior_art.md` | | |
 
 The script stops if a tileset goes over, and reports any tile that doesn't fit one palette (none now).

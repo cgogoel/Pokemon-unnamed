@@ -75,14 +75,15 @@ PAL = {
               (112, 192, 200), (64, 144, 160), (136, 200, 96), (72, 152, 64), (40, 96, 48), (248, 152, 176),
               (216, 72, 88)],
     'water': [OL, WHITE, S1, S2, S3, (176, 224, 248), (104, 176, 240), (56, 120, 208), (96, 152, 224), (40, 80, 160),
-              (248, 232, 168), (224, 72, 56), (248, 136, 56), AU],
+              (248, 232, 168), (224, 72, 56), (248, 136, 56), AU, (104, 40, 56)],
     'accent': [OL, WHITE, S1, S2, S3, (200, 96, 72), (152, 64, 56), (88, 120, 200), (48, 72, 144), (224, 56, 56),
                (160, 32, 40), (248, 176, 192), (64, 160, 96), (148, 164, 180), AU],
 }
 PAL = {k: [gba(c) for c in v] for k, v in PAL.items()}
 EXTERIOR_PALS = ('stone', 'glass', 'water', 'accent')
 GL = dict(zip(('ol', 'w', 's1', 'f1', 'f2', 'f3', 'q0', 'q1', 'q2', 'q3', 'p1', 'p2', 'p3', 'pk', 'rd'), PAL['glass']))
-WA = dict(zip(('ol', 'w', 's1', 's2', 's3', 'a1', 'a2', 'a3', 'b1', 'b2', 'cr', 'rd', 'or', 'au'), PAL['water']))
+WA = dict(zip(('ol', 'w', 's1', 's2', 's3', 'a1', 'a2', 'a3', 'b1', 'b2', 'cr', 'rd', 'or', 'au', 'th'),
+              PAL['water']))   # th: Gyarados' throat
 AC = dict(zip(('ol', 'w', 's1', 's2', 's3', 't1', 't2', 'b1', 'b2', 'rd', 'rd2', 'pk', 'gn', 'mt', 'ye'),
               PAL['accent']))
 OL, WHITE, S1, S2, S3, SLH, SL1, SL2, SL3, G1, G2, AU, AU2, WD, WD2 = PAL['stone']
@@ -661,7 +662,7 @@ def greenhouse():
     docs/hack/university_remake/greenhouse_options.png.)"""
     w, h = 17, 9
     P = Pic(w * T, h * T)
-    rh, W, r = 6 * T, w * T, 24
+    rh, W, r = 6 * T, w * T, 16
     for y in range(rh):
         for x in range(W // 2 + 8):
             if x < r and y < r and (x + .5 - r) ** 2 + (y + .5 - r) ** 2 > r * r:
@@ -831,7 +832,7 @@ def stadium():
         P.p(0, y, AC['ol'])
     floodlight(P, 1 * T, 0)
     # Track: a rounded rectangle ring, 24 px wide, two lane lines
-    x0, y0, x1, y1, rad = 8, 3 * T + 4, P.w - 8, h * T - 4, 32   # (under ~28 the track fills the infield)
+    x0, y0, x1, y1, rad = 8, 3 * T + 4, P.w - 8, h * T - 4, 28   # (under ~28 the track fills the infield)
     for y in range(3 * T, h * T):
         for x in range(P.w // 2):
             px, py = x + .5, y + .5
@@ -932,8 +933,8 @@ def gate():
 
 def fountain():
     """The Gyarados fountain, 5x4: an oval white basin (its outer face shaded, its shadow on the paving, the rim's
-    shadow on the water), Gyarados rising straight up from the pedestal, the jet falling both ways (the noon signal).
-    Symmetric (water palette)."""
+    shadow on the water), Gyarados rising from the water lit from the upper left, a tall plume from its mouth (a
+    bright core, darker edges, a crown of spray) falling in arcs into the basin. The water is symmetric."""
     P = Pic(5 * T, 4 * T)
     cx = 40
     P.ellipse(cx, 46, 38, 17, WA['s3'])                  # Shadow on the paving
@@ -953,33 +954,142 @@ def fountain():
                     P.p(x, y, WA['a1'])
                 if math.hypot((x + .5 - cx) / 31, (y + .5 - 41) / 13) > 1:     # The rim's shadow on the water
                     P.p(x, y, WA['a3'])
-    # Gyarados: the body rising from the pedestal, fins either side, the head with an open mouth (left half)
-    Q = Pic(P.w, P.h)
-    Q.ellipse(cx, 42, 8, 4, WA['s2'], WA['ol'])
-    Q.ellipse(cx, 40, 8, 4, WA['w'], WA['ol'])
-    for y in range(14, 41):
-        sway = int(round(2 * math.sin((y - 14) / 5)))
-        for x in range(cx - 5 + sway, cx + 5 + sway):
-            edge = x in (cx - 5 + sway, cx + 4 + sway)
-            belly = x in (cx - 1 + sway, cx + sway)
-            Q.p(x, y, WA['ol'] if edge else WA['cr'] if belly else WA['b1'] if x < cx + sway else WA['b2'])
-    for (fy, fx) in ((30, -8), (22, -9)):
-        for k in range(4):
-            Q.hl(cx + fx + k, cx + fx + 3, fy + k, WA['rd'])
-    Q.ellipse(cx, 11, 8, 6, WA['b1'], WA['ol'])
-    Q.ellipse(cx, 13, 4, 2, WA['w'], WA['ol'])
-    Q.p(cx - 5, 9, WA['ol'])
-    Q.p(cx - 6, 8, WA['w'])
-    for k in range(4):
-        Q.p(cx - 3 - k, 4 - k // 2, WA['cr'])
-    # The jet: up and falling into the basin on both sides
-    Q.vl(cx - 1, 0, 8, WA['w'])
-    for k in range(26):
-        t = k / 25
-        Q.p(int(cx - 2 - t * 26), int(1 + (t * 1.9 - .25) ** 2 * 16), WA['a1'] if k % 3 else WA['w'])
-    Q.mirror()
-    P.paste(Q, 0, 0)
+    fountain_plume(P, cx)
     return P
+
+
+def fountain_water(Q, cx, x0, y0, x1, y1):
+    """A falling stream from (x0, y0) to (x1, y1) on the left (mirrored by the caller): a bright core and darker
+    edges, droplets where it lands."""
+    n = 40
+    for k in range(n + 1):
+        t = k / n
+        x = x0 + (x1 - x0) * t
+        y = y0 + (y1 - y0) * t * t
+        xi, yi = int(round(x)), int(round(y))
+        Q.p(xi + 1, yi, WA['a2'])
+        Q.p(xi - 1, yi, WA['a2'])
+        Q.p(xi, yi, WA['w'] if k % 4 else WA['a1'])
+    xi, yi = int(round(x1)), int(round(y1))
+    for (dx, dy, c) in ((-3, 0, 'a1'), (-2, -1, 'w'), (2, -1, 'w'), (3, 0, 'a1'), (0, 1, 'a1')):
+        Q.p(xi + dx, yi + dy, WA[c])
+
+
+def gyarados(P, cx, y_top, y_base):
+    """Gyarados rising from y_base to its head at y_top: the body with a lit left side (pale blue), its middle, a
+    shaded right side, scales, a cream belly with shaded plates, red fins with an orange tip on the lit side, the head
+    lit on its crown and shaded on its jaw, the crest, an open mouth; outlined in FRLG's outline. Not mirrored: the
+    light is from the upper left. Everything stays inside the 16-pixel column of cells it stands in (tiles)."""
+    ol, hi, mid, sh, cr, rd, orr = WA['ol'], WA['a1'], WA['b1'], WA['b2'], WA['cr'], WA['rd'], WA['or']
+    for y in range(y_top + 8, y_base + 1):
+        sway = int(round(2 * math.sin((y - y_top) / 5)))     # It coils as it rises
+        x0, x1 = cx - 5 + sway, cx + 4 + sway
+        for x in range(x0, x1 + 1):
+            k = x - x0
+            c = ol if x in (x0, x1) else hi if k == 1 else cr if k in (4, 5) else sh if k >= 7 else mid
+            if k == 5 and c == cr:
+                c = WA['s2'] if y % 4 == 0 else cr          # The belly's plates, their shaded edge
+            P.p(x, y, c)
+        if (y - y_top) % 4 == 0:                           # Scales: a dark arc on the lit side
+            P.p(x0 + 2, y, sh)
+    # Fins on both sides (the left lit orange at its tip), kept inside the statue's 16-pixel column: tiles
+    for fy in (y_top + 12, y_top + 20):
+        for side in (-1, 1):
+            sway = int(round(2 * math.sin((fy - y_top) / 5)))
+            base = cx + sway + (-6 if side < 0 else 5)       # Against the body
+            room = base - (cx - 8) if side < 0 else (cx + 7) - base
+            for k in range(3):
+                n = min(max(1, 2 - k), room)
+                if n < 1:
+                    continue
+                for j in range(n):
+                    P.p(base + side * j, fy + k, orr if (side < 0 and j == n - 1 and k < 2) else rd)
+                P.p(base + side * n, fy + k, ol)
+    gyarados_head(P, cx, y_top - 1)
+
+
+def gyarados_head(P, cx, y):
+    """Gyarados' head, its top at y, over the body's column (cx - 8 .. cx + 7): the crown fin, an angry brow ridge
+    over each eye (white, a dark pupil, a highlight), the snout lit from the upper left, the mouth open upward with
+    fangs and a dark throat (the jet comes out of it), the cream underside of the jaw, the long barbels.
+    Facing us (a three-quarter view read as a fish and cost a tile: university_remake/fountain_face_options.png)."""
+    ol, hi, mid, sh, cr, w = WA['ol'], WA['a1'], WA['b1'], WA['b2'], WA['cr'], WA['w']
+    th = WA['th']
+
+    def shade(x0, x1, y0, y1, lx, ly, rx, ry):
+        for yy in range(y0, y1):
+            for xx in range(x0, x1):
+                if P.get(xx, yy) == mid:
+                    s = (xx - lx) / rx + (yy - ly) / ry
+                    P.p(xx, yy, hi if s < -.7 else sh if s > .6 else mid)
+
+    # The crown fin: three points, the middle one tallest, cream lit on the left, outlined
+    for (x0, top, lean) in ((cx - 5, y - 1, -1), (cx - 1, y - 4, 0), (cx + 3, y - 1, 1)):
+        for yy in range(top, y + 2):
+            k = (y + 1 - yy) // 2 * lean
+            P.p(x0 + k, yy, cr)
+            P.p(x0 + 1 + k, yy, WA['s2'])
+            P.p(x0 - 1 + k, yy, ol)
+            P.p(x0 + 2 + k, yy, ol)
+        P.hl(x0 + (y + 1 - top) // 2 * lean, x0 + 1 + (y + 1 - top) // 2 * lean, top - 1, ol)
+    # The skull: rounded on top, broad at the brow, narrowing to the snout
+    for i, hw in enumerate((5, 6, 7, 7, 7, 7, 6, 6, 5, 5, 4)):
+        yy = y + 2 + i
+        P.hl(cx - hw, cx + hw - 1, yy, mid)
+        P.p(cx - hw - 1, yy, ol)
+        P.p(cx + hw, yy, ol)
+    P.hl(cx - 5, cx + 4, y + 1, ol)
+    shade(cx - 8, cx + 8, y + 2, y + 13, cx - 1, y + 6, 6, 6)
+    # The brow ridges, angled down toward the middle (the scowl); the eyes glaring under them
+    for (bx, by) in ((cx - 6, y + 4), (cx - 5, y + 4), (cx - 4, y + 5), (cx - 3, y + 5)):
+        P.p(bx, by, ol)
+        P.p(2 * cx - 1 - bx, by, ol)
+    for (ex, ey, c) in ((cx - 6, y + 6, w), (cx - 5, y + 6, w), (cx - 4, y + 6, w), (cx - 6, y + 7, w),
+                        (cx - 5, y + 7, ol), (cx - 4, y + 7, ol)):
+        P.p(ex, ey, c)
+        P.p(2 * cx - 1 - ex, ey, c)
+    P.p(cx - 6, y + 6, hi)                                # The eye's highlight, toward the light
+    P.p(cx - 2, y + 8, ol)                                # Nostrils
+    P.p(cx + 1, y + 8, ol)
+    # The mouth open wide: fangs at the corners, small teeth, the dark throat; the cream jaw under it
+    P.hl(cx - 4, cx + 3, y + 9, ol)
+    P.hl(cx - 3, cx + 2, y + 10, th)
+    P.hl(cx - 3, cx + 2, y + 11, th)
+    for (fx, fy) in ((cx - 4, y + 10), (cx - 4, y + 11), (cx + 3, y + 10), (cx + 3, y + 11), (cx - 2, y + 10),
+                     (cx + 1, y + 10)):
+        P.p(fx, fy, w)
+    P.hl(cx - 4, cx - 1, y + 12, cr)
+    P.hl(cx, cx + 3, y + 12, WA['s2'])
+    P.hl(cx - 3, cx + 2, y + 13, ol)
+    # The barbels: long whiskers from the snout's sides, out and curling down
+    for (ddx, ddy) in ((0, 0), (1, 0), (2, 1), (3, 2), (3, 3), (2, 4), (2, 5)):
+        P.p(cx - 7 - ddx, y + 8 + ddy, cr)
+        P.p(cx + 6 + ddx, y + 8 + ddy, cr)
+
+
+def fountain_plume(P, cx):
+    """Gyarados rising from the water with a tall plume: a bright core, darker edges, the crown of spray, arcs
+    falling into the basin with splashes."""
+    Q = Pic(P.w, P.h)
+    Q.ellipse(cx + 2, 41, 11, 4, WA['a3'])           # Its shadow on the water
+    for (dx, c) in ((-10, 'a1'), (9, 'a1')):          # Ripples where it meets the water
+        Q.hl(cx + dx - 2, cx + dx + 1, 39, WA[c])
+    # The plume and its arcs (symmetric)
+    J = Pic(P.w, P.h)
+    for y in range(0, 16):
+        J.p(cx - 1, y, WA['w'])
+        J.p(cx - 2, y, WA['a1'] if y > 2 else WA['w'])
+        J.p(cx - 3, y, WA['a2'] if 2 < y < 13 else None)
+    for k in range(5):                                # The crown of spray
+        J.p(cx - 4 - k, 1 + k // 2, WA['a1'] if k % 2 else WA['w'])
+    for (x0, x1, y1) in ((cx - 4, cx - 30, 40), (cx - 6, cx - 22, 42)):
+        fountain_water(J, cx, x0, 3, x1, y1)
+    J.mirror()
+    Q.paste(J, 0, 0)
+    gyarados(Q, cx, 15, 41)
+    for dx in (-6, 5):                                # Where the body enters the water
+        Q.p(cx + dx, 41, WA['a3'])
+    P.paste(Q, 0, 0)
 
 
 def reflecting_pool():

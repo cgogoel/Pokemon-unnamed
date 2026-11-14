@@ -152,9 +152,9 @@ secondary palettes (near-identical whites and greys merged); it stops if a tiles
 
 | Tileset | Rooms | Tiles | Metatiles | Secondary palettes |
 |---|---|---|---|---|
-| `gTileset_UniversityClassroom` | Main Hall 1F/2F, Lecture Halls A/B, Faculty Office, Literature, Library | 242 / 384 | 216 / 384 | 6 / 6 |
-| `gTileset_UniversityDorm` | Dorm lobby, 2F, 3F, Cafeteria | 207 / 384 | 144 / 384 | 6 / 6 |
-| `gTileset_UniversityLab` | Science Institute 1F-4F, Hospital 1F/2F, Study Hall, Home Economics | 172 / 384 | 143 / 384 | 5 / 6 |
+| `gTileset_UniversityClassroom` | Main Hall 1F/2F, Lecture Halls A/B, Faculty Office, Literature, Library | 226 / 384 | 209 / 384 | 6 / 6 |
+| `gTileset_UniversityDorm` | Dorm lobby, 2F, 3F, Cafeteria | 194 / 384 | 136 / 384 | 6 / 6 |
+| `gTileset_UniversityLab` | Science Institute 1F-4F, Hospital 1F/2F, Study Hall, Home Economics | 156 / 384 | 135 / 384 | 5 / 6 |
 
 Palettes are what fills up (copying from several FireRed tilesets brings several 15-color palettes): the Classroom and
 Dorm sets have none left, so new pieces there must reuse their colors (`fit()` moves a piece into colors already used)
@@ -263,3 +263,30 @@ clearly as a route upstairs and is used for every up flight (`up_lit`, `UP_STYLE
 
 Down flights are unchanged, as are warps and collision. `audit/33_upstairs_all.png`: every up flight, before (master)
 and after.
+
+## Flat stairs
+
+Feedback: the up flights still looked bad and the down flights' rail looked off; no depth, just flat stairs. Every
+staircase (all 16) is now flat, in FireRed's plain manner (`stairwell`, `STAIR_STYLE = 'flat'`; the earlier depth
+design stays as `stairwell_depth`):
+- an even run of identical steps filling the opening from under the wall's top band to the floor line, the same
+  width and spacing top to bottom (4 px a step), no narrowing, side walls or lighting;
+- going up, each step shows its tread and the riser under it; going down, treads only, edge after edge, the top one
+  at the floor line;
+- a straight rail down each side of the opening (outline, white, light grey, outline), the same for up and down;
+- the opening framed in the room's wall as before; the landing (the warp cells) is the room's floor.
+Warps and collision are unchanged. `audit/34_stairs_flat_compare.png`: current | flat for a dorm up and down flight
+and the Main Hall's; `audit/35_stairs_flat_all.png`: all 16, before (master) | after.
+
+Follow-up: the down flights keep their earlier design (the treads stepping down from the floor line, each lower one
+darker and narrower, into the dark), without any rail. The up flights now use the same design fading to light
+instead (`stairwell_fade`, `UP_FLAT_OR_FADE = 'fade'`; the flat flight stays as 'flat'): the opening is light,
+palest at the top (the floor above, lit), and the treads step up from the floor line, the bottom one widest, each
+higher one a shade lighter and a little narrower; no rail. `audit/37_stairs_up_fade_down_norail.png`: all 16,
+before (master) | after; `audit/38_stairs_up_down_closeup.png`: an up flight beside a down one (Dorm 2F).
+
+Second follow-up: the up flights go back to the perspective climb (the stairwell's side walls closing in, the steps
+shallower and lighter as they rise) without its rail and without the landing strip: the steps run on right up to the
+top of the opening (`stairwell_climb`, `UP_FLAT_OR_FADE = 'climb'`; 'fade' and 'flat' stay in the tool). Down
+flights unchanged. `audit/39_stairs_up_climb_down_norail.png`: all 16, before (the fade version) | after;
+`audit/38_stairs_up_down_closeup.png`: an up flight beside a down one (Dorm 2F).

@@ -13,8 +13,10 @@ the draft that compared the options (`tools/hack/draft_exterior_depth.py`) is in
 
 | | |
 |---|---|
-| Campus tileset | **380/384 tiles, 346/384 metatiles, 4/6 palettes** (was 365 / 371 / 4) |
-| Recoveries | Science roof as a capsule, stadium track corners radius 32, pool ropes dashed every 4 px |
+| Campus tileset | **384/384 tiles, 334/384 metatiles, 4/6 palettes** (was 365 / 371 / 4; 380 before the fountain below): full, any new campus art needs tiles freed first |
+| Recoveries | Science roof as a capsule, stadium track corners radius 28 (the smallest that keeps the infield), pool ropes dashed every 4 px, the greenhouse vault's corners radius 16 |
+| Fountain | The basin as before; above it Gyarados rises from the water, coiling, lit on its left (pale blue edge, blue, a shaded right side, scales, cream belly plates, red fins with an orange tip on the lit side, the head lit on the crown and shaded on the jaw), its shadow and ripples on the water, a plume from its mouth (white core, pale and darker edges, a crown of spray) falling in two arcs on each side with splashes. 40 tiles (was 33). An upper bowl on a stem was tried too: it hides the body and costs 2 more (`fountain_options.png`, `after_fountain.png`) |
+| Gyarados' face | Facing us: a three-point crown fin, scowling brow ridges over glaring eyes (white, pupils, a lit highlight), nostrils, the mouth open wide with fangs and a dark throat (a 15th color in the water palette, `#682838`), the cream jaw, long curling barbels; the snout lit from the upper left. No tile cost: it redraws the head's own tiles (`fountain_face_options.png`, `after_fountain_face.png`) |
 | Clock tower | The tower's cornice was drawn over the top of the clock's rim; the clock now sits below it (center 16 px lower, radius 13): the whole gold rim, the face, the hour marks and the hands at noon (`after_b_tower.png`) |
 | Greenhouse | The mid-height band of leaf texture is gone: clear glass, the vault's lower panes bright with the light inside, a low planted bed with pink flowers behind the front glass. Trees inside the glass were tried and look livelier, but every tree cell is unique: 553/384 tiles, 169 over (`greenhouse_options.png`) |
 | Rooms | Unchanged: they keep the first windows as `room_window()` / `room_sqwindow()` and the glass palette's steels |

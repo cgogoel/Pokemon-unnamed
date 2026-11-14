@@ -643,6 +643,88 @@ AI_TRIPLE_BATTLE_TEST("Triple battles: a mixed trainer (DALE) attacks with eithe
     }
 }
 
+// The AI weighs that a DIRECT move steps its user to the front (AdjustTripleStepForwardScores). In these tests the
+// opponents' formation follows party order: opponentLeft front, opponentRight middle, opponentMiddle rear. With equal
+// scores the AI acts with the nearer one, so the middle one would act if stepping up weren't weighed. Abra is the frail
+// one: the player's Mega Punch (DIRECT) would knock it out in front; Snorlax shrugs it off.
+#define STEP_UP_PLAYERS \
+        PLAYER(SPECIES_MACHAMP) { Moves(MOVE_MEGA_PUNCH); } \
+        PLAYER(SPECIES_MACHAMP) { Moves(MOVE_MEGA_PUNCH); } \
+        PLAYER(SPECIES_MACHAMP) { Moves(MOVE_MEGA_PUNCH); }
+
+AI_TRIPLE_BATTLE_TEST("Triple battles: the AI doesn't step a frail Pokémon up to the front with a DIRECT move")
+{
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_TACKLE)->reach == TRIPLE_REACH_FRONT);
+        ASSUME(GetTripleMoveInfo(MOVE_MEGA_PUNCH)->reach == TRIPLE_REACH_FRONT);
+        AI_FLAGS(CLUB_AI_FLAGS);
+        STEP_UP_PLAYERS
+        OPPONENT(SPECIES_SNORLAX) { Moves(MOVE_CELEBRATE); }
+        OPPONENT(SPECIES_ABRA) { Moves(MOVE_TACKLE); }
+        OPPONENT(SPECIES_SNORLAX) { Moves(MOVE_TACKLE); }
+    } WHEN {
+        TURN { EXPECT_MOVE(opponentMiddle, MOVE_TACKLE, target: playerLeft); }
+    } SCENE {
+        MESSAGE("The opposing Snorlax stepped up\nto the front!");
+    }
+}
+
+AI_TRIPLE_BATTLE_TEST("Triple battles: a DIRECT trainer (KAI) keeps using DIRECT moves, from a sturdier Pokémon")
+{
+    u64 flags = 0;
+    PARAMETRIZE { flags = CLUB_AI_FLAGS | AI_FLAG_TRIPLE_DIRECT; }
+    PARAMETRIZE { flags = AI_FLAG_SMART_TRAINER | AI_FLAG_TARGET_THREAT | AI_FLAG_TRIPLE_DIRECT; }
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_TACKLE)->reach == TRIPLE_REACH_FRONT);
+        AI_FLAGS(flags);
+        STEP_UP_PLAYERS
+        OPPONENT(SPECIES_SNORLAX) { Moves(MOVE_CELEBRATE); }
+        OPPONENT(SPECIES_ABRA) { Moves(MOVE_TACKLE, MOVE_GROWL); }
+        OPPONENT(SPECIES_SNORLAX) { Moves(MOVE_TACKLE, MOVE_GROWL); }
+    } WHEN {
+        TURN { EXPECT_MOVE(opponentMiddle, MOVE_TACKLE, target: playerLeft); }
+    } SCENE {
+        MESSAGE("The opposing Snorlax used Tackle!");
+    }
+}
+
+AI_TRIPLE_BATTLE_TEST("Triple battles: a frail Pokémon still steps up for a DIRECT move that knocks a foe out")
+{
+    GIVEN {
+        AI_FLAGS(CLUB_AI_FLAGS);
+        PLAYER(SPECIES_MACHAMP) { HP(1); Moves(MOVE_MEGA_PUNCH); }
+        PLAYER(SPECIES_MACHAMP) { Moves(MOVE_MEGA_PUNCH); }
+        PLAYER(SPECIES_MACHAMP) { Moves(MOVE_MEGA_PUNCH); }
+        PLAYER(SPECIES_MACHAMP);
+        OPPONENT(SPECIES_SNORLAX) { Moves(MOVE_CELEBRATE); }
+        OPPONENT(SPECIES_ABRA) { Moves(MOVE_TACKLE); }
+        OPPONENT(SPECIES_SNORLAX) { Moves(MOVE_SAND_ATTACK, MOVE_GROWL); }
+    } WHEN {
+        TURN { EXPECT_MOVE(opponentRight, MOVE_TACKLE, target: playerLeft); SEND_OUT(playerLeft, 3); }
+    } SCENE {
+        MESSAGE("The opposing Abra stepped up\nto the front!");
+        MESSAGE("Machamp fainted!");
+    }
+}
+
+AI_TRIPLE_BATTLE_TEST("Triple battles: the AI steps a sturdy Pokémon up in place of a front ally the foes could knock out")
+{
+    GIVEN {
+        ASSUME(GetTripleMoveInfo(MOVE_THUNDER_SHOCK)->reach == TRIPLE_REACH_ANY);
+        AI_FLAGS(CLUB_AI_FLAGS);
+        STEP_UP_PLAYERS
+        OPPONENT(SPECIES_ABRA) { Moves(MOVE_CELEBRATE); }
+        OPPONENT(SPECIES_SNORLAX) { Moves(MOVE_THUNDER_SHOCK); }
+        OPPONENT(SPECIES_SNORLAX) { Moves(MOVE_TACKLE); }
+    } WHEN {
+        TURN { EXPECT_MOVE(opponentMiddle, MOVE_TACKLE, target: playerLeft); }
+    } SCENE {
+        MESSAGE("The opposing Snorlax used Tackle!");
+    }
+}
+
+#undef STEP_UP_PLAYERS
+
 // Animations that darken or tint the arena (F_PAL_BG: Absorb, Mega Drain...) blend the whole background: palettes 1-3,
 // and in 3v3 the floor ovals' palette. Singles once only got palette 2, leaving the platforms light.
 SINGLE_BATTLE_TEST("Battle anims: the arena's palettes all blend in single battles")

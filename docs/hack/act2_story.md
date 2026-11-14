@@ -61,7 +61,7 @@ Then the **exam**, a battle with the professor; any win passes. Progress is `VAR
 | Course | TM | Site | Puzzle (each part: a Pokémon of the type that knows a move of it, `Act2_FindCourseMoveUser`) | Its end |
 |---|---|---|---|---|
 | Fire | TM35 Flamethrower | Pokémon Mansion | Relight 3 cold furnaces on 1F (on the walls at (6,2), (31,2), (4,12); `METATILE_PokemonMansion_Furnace_Cold`, swapped for `_Lit` once relit, drawn by `tools/hack/draw_mansion_furnace.py`; the lit flames flicker, `InitTilesetAnim_PokemonMansion`). Until then, the statue switch is cold. | The switch opens the sealed room; the old research journal there (23,13), in it for the whole trip until read (readable once the furnaces are lit) |
-| Water | TM51 BubbleBeam (new: `FOREACH_TM` in `include/constants/tms_hms.h`) | Vermilion City | Put out the 2 small dock fires (2x2 at (30,28) and (35,25)) with any WATER move | The big fire (2x3 at (24,28), across the pier) needs BubbleBeam; behind it a young Lapras surfaces (21,29) and asks to come along (see below) |
+| Water | TM51 BubbleBeam (new: `FOREACH_TM` in `include/constants/tms_hms.h`) | Vermilion City | Put out the 2 small dock fires (2x2 at (30,28) and (35,25)) with any WATER move | The big fire (2x4 at (24,28), across the pier and its south edge) needs BubbleBeam; behind it a young Lapras surfaces (21,29) and asks to come along (see below) |
 | Grass | TM19 Giga Drain | Viridian Forest, at night | The night bloom (below): wake 3 glowcaps, follow 3 ODDISH to the glade, guard the MOONVEIL through 3 waves of BUG POKéMON | Dawn: the MOONVEIL opens and its dew is collected; a MORELULL comes along |
 
 **The dock fires.** The docks catch fire when the player catches a WATER Pokémon on the trip (`Act2_OnCaughtMon`,

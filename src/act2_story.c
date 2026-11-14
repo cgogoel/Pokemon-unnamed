@@ -929,7 +929,7 @@ static const struct DockFireSquare sDockFireSquares[] =
 {
     { 1, 30, 28 }, { 1, 31, 28 }, { 1, 30, 29 }, { 1, 31, 29 },
     { 2, 35, 25 }, { 2, 36, 25 }, { 2, 35, 26 }, { 2, 36, 26 },
-    { 3, 24, 28 }, { 3, 25, 28 }, { 3, 24, 29 }, { 3, 25, 29 }, { 3, 24, 30 }, { 3, 25, 30 },
+    { 3, 24, 28 }, { 3, 25, 28 }, { 3, 24, 29 }, { 3, 25, 29 }, { 3, 24, 30 }, { 3, 25, 30 }, { 3, 24, 31 }, { 3, 25, 31 },
 };
 
 // The planks with a burning version, in the order tools/hack/draw_dock_fire.py draws them (two looks each)

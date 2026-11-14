@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Places the night bloom's spore trails in Viridian Forest (Act 2's Grass course, docs/hack/act2_story.md).
 
-Each trail leads from the last glowcap (or the forest's entrance) to the next one along the walkable way, a spore
-every SPORE_SPACING squares, and always one right beside the glowcap it leads to. The spores are light sprites
+Each trail leads from the last glowcap (or the forest's entrance) to the next one along the walkable way, a few spores
+spread evenly, and always one right beside the glowcap it leads to. The spores are light sprites
 (OBJ_EVENT_GFX_LIGHT_SPRITE, LIGHT_TYPE_GLOWCAP_SPORE) shown while their trail's flag is clear (SetGlowcapTrail in
 src/act2_night_bloom.c). They blink in a row toward the glowcap: each spore's place in its trail goes in its movement
 range X (0 first), and the timing is src/event_object_movement.c's GLOWCAP_SPORE_BLINK_*.
@@ -16,13 +16,12 @@ import os
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
 MAP = os.path.join(ROOT, 'data/maps/ViridianForest_Frlg/map.json')
 
-SPORE_SPACING = 6  # Squares between spores along a trail
-
-# Each trail: its flag, the way (corners, walkable squares) and the square beside the glowcap it leads to
+# Each trail: its flag, the way (corners, walkable squares), the square beside the glowcap it leads to and how many
+# spores go along the way before that one (spread evenly)
 TRAILS = [
-    ('FLAG_TEMP_11', [(29, 61), (29, 59)], (31, 59)),                       # Entrance -> glowcap 1 (31,58)
-    ('FLAG_TEMP_12', [(31, 57), (41, 57), (41, 46)], (40, 46)),             # Glowcap 1 -> glowcap 2 (39,45)
-    ('FLAG_TEMP_13', [(41, 45), (41, 30)], (40, 30)),                       # Glowcap 2 -> glowcap 3 (39,29)
+    ('FLAG_TEMP_11', [(29, 61), (29, 59)], (31, 59), 0),                    # Entrance -> glowcap 1 (31,58)
+    ('FLAG_TEMP_12', [(31, 57), (41, 57), (41, 46)], (40, 46), 4),          # Glowcap 1 -> glowcap 2 (39,45)
+    ('FLAG_TEMP_13', [(41, 45), (41, 30)], (40, 30), 3),                    # Glowcap 2 -> glowcap 3 (39,29)
 ]
 
 
@@ -38,12 +37,10 @@ def walk(corners):
     return squares
 
 
-def spores(corners, last):
+def spores(corners, last, count):
     way = walk(corners)
-    placed = [way[i] for i in range(SPORE_SPACING - 1, len(way), SPORE_SPACING)]
-    # Not crowding the last one, beside the glowcap
-    placed = [s for s in placed if abs(s[0] - last[0]) + abs(s[1] - last[1]) > SPORE_SPACING // 2]
-    return placed + [last]
+    span = len(way) + 1  # Squares from the start to the one beside the glowcap
+    return [way[round(span * k / (count + 1)) - 1] for k in range(1, count + 1)] + [last]
 
 
 def light(x, y, flag, order):
@@ -56,11 +53,11 @@ def light(x, y, flag, order):
 def main():
     d = json.load(open(MAP))
     d['object_events'] = [o for o in d['object_events'] if o['graphics_id'] != 'OBJ_EVENT_GFX_LIGHT_SPRITE']
-    for flag, corners, last in TRAILS:
-        for order, (x, y) in enumerate(spores(corners, last)):
+    for flag, corners, last, count in TRAILS:
+        for order, (x, y) in enumerate(spores(corners, last, count)):
             assert order < 16  # movement range X is 4 bits
             d['object_events'].append(light(x, y, flag, order))
-        print(flag, spores(corners, last))
+        print(flag, spores(corners, last, count))
     open(MAP, 'w').write(json.dumps(d, indent=2, ensure_ascii=False) + '\n')
 
 

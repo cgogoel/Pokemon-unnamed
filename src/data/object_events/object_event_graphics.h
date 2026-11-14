@@ -213,6 +213,7 @@ const u32 gObjectEventPic_GlowcapDim[] = INCGFX_U32("graphics/object_events/pics
 const u32 gObjectEventPic_GlowcapLit[] = INCGFX_U32("graphics/object_events/pics/misc/glowcap_lit.png", ".4bpp");
 const u32 gObjectEventPic_MoonveilBud[] = INCGFX_U32("graphics/object_events/pics/misc/moonveil_bud.png", ".4bpp");
 const u32 gObjectEventPic_MoonveilBloom[] = INCGFX_U32("graphics/object_events/pics/misc/moonveil_bloom.png", ".4bpp");
+const u32 gFieldEffectObjectPic_GlowcapSpore[] = INCGFX_U32("graphics/object_events/pics/misc/glowcap_spore.png", ".4bpp");
 const u32 gObjectEventPic_WaterCushion[] = INCGFX_U32("graphics/object_events/pics/cushions/water_cushion.png", ".4bpp");
 const u32 gObjectEventPic_BigSnorlaxDoll[] = INCGFX_U32("graphics/object_events/pics/dolls/big_snorlax_doll.png", ".4bpp");
 const u32 gObjectEventPic_BigRhydonDoll[] = INCGFX_U32("graphics/object_events/pics/dolls/big_rhydon_doll.png", ".4bpp");

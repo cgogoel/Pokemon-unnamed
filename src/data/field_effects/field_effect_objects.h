@@ -67,10 +67,25 @@ const struct SpriteTemplate gFieldEffectObjectTemplate_MartLight = {
     .callback = UpdateLightSprite,
 };
 
+// The hack: the night bloom's spores, a trail toward the next glowcap (docs/hack/act2_story.md)
+static const struct SpriteFrameImage sPicTable_GlowcapSpore[] = {
+    obj_frame_tiles(gFieldEffectObjectPic_GlowcapSpore),
+};
+
+const struct SpriteTemplate gFieldEffectObjectTemplate_GlowcapSpore = {
+    .tileTag = OBJ_EVENT_PAL_TAG_NIGHT_BLOOM,
+    .paletteTag = OBJ_EVENT_PAL_TAG_NIGHT_BLOOM,
+    .oam = &gObjectEventBaseOam_16x16,
+    .anims = sAnimTable_Inanimate,
+    .images = sPicTable_GlowcapSpore,
+    .callback = UpdateLightSprite,
+};
+
 const struct SpriteTemplate *const gFieldEffectLightTemplates[] = {
     &gFieldEffectObjectTemplate_BallLight,
     &gFieldEffectObjectTemplate_PokeCenterLight,
     &gFieldEffectObjectTemplate_MartLight,
+    [LIGHT_TYPE_GLOWCAP_SPORE] = &gFieldEffectObjectTemplate_GlowcapSpore,
 };
 
 const struct SpriteTemplate gFieldEffectObjectTemplate_ShadowSmall = {

@@ -41,21 +41,20 @@ moved to 0x40.
 | # | Quest | Stages (`VAR_ACT2_PROGRESS`) | Steps |
 |---|---|---|---|
 | 1 | First day | `ACT2_START` | Meet the classmates (1) |
-| 2 | FIRE course | `ACT2_MET_FRIENDS` – `ACT2_FIRE_TRIP` | 13 (below) |
+| 2 | FIRE course | `ACT2_MET_FRIENDS` – `ACT2_FIRE_TRIP` | 12 (below) |
 | 3 | Club night 1 | `ACT2_FIRE_SEE_KAI` – `ACT2_FIRE_INVITED` | At the Sports Complex (`ACT2_RESEARCH_CLUB_ARRIVED`), the battle |
-| 4 | WATER course | `ACT2_CLUB_1_DONE` – `ACT2_WATER_TRIP` | 13 |
+| 4 | WATER course | `ACT2_CLUB_1_DONE` – `ACT2_WATER_TRIP` | 12 |
 | 5 | Club night 2 | `ACT2_WATER_SEE_MINA` – `ACT2_WATER_INVITED` | 2 |
-| 6 | GRASS course | `ACT2_CLUB_2_DONE` – `ACT2_GRASS_TRIP` | 13 |
+| 6 | GRASS course | `ACT2_CLUB_2_DONE` – `ACT2_GRASS_TRIP` | 12 |
 | 7 | Trainer Card | `ACT2_GRASS_SEE_ROWAN` – `ACT2_GRASS_INVITED` | At the Sports Complex, beat DALE |
 | 8 | Road home | `ACT2_GOT_TRAINER_CARD` – `ACT2_FINAL_PROJECT` | The brief, 6 stops, Mom and Dad (8) |
 | 9 | Eerie noise | `ACT2_PARENTS_TALKED` | 6 ranger station steps |
 
-**A course's 13 steps:**
+**A course's 12 steps:**
 
 | Steps | What counts |
 |---|---|
 | 3 | Pokémon caught (`Act2_CountCaughtSpeciesOfType`) |
-| 1 | A move of the type used |
 | 3 | Moves recorded |
 | 3 | Puzzle parts (`ACT2_RESEARCH_PUZZLE_1-3`) |
 | 1 | The puzzle's end (`_PUZZLE_DONE`) |
@@ -66,7 +65,7 @@ The exam doesn't need the TM's move. The next step is the first unfinished one, 
 
 1. Before the trip: the course's room on campus.
 2. Talk to the professor (`_BRIEFED`).
-3. Catch, use a move, record moves.
+3. Catch, record moves.
 4. The puzzle. On the Fire trip, after the furnaces: the statue switch.
 5. The TM.
 6. The exam.
@@ -75,8 +74,9 @@ The Water course follows `Act2_IsReadyForTM`: the small fires, then the TM, then
 the young Lapras (`FLAG_ACT2_GOT_LAPRAS`), then the exam. The place that blinks is the site (Cinnabar, Vermilion,
 Viridian Forest) or the professor's town (for the briefing).
 
-The Grass course follows the night bloom: the glowcaps, the ODDISH, guarding the MOONVEIL until dawn, then the TM and
-the exam, all at Viridian Forest (PROF. FERN is in its glade from dawn).
+The Grass course follows the night bloom: the briefing at the forest's south gate, the glowcaps, the ODDISH, guarding
+the MOONVEIL until dawn, then the TM and the exam, all blinking at Viridian Forest (PROF. FERN is in its glade from
+dawn).
 
 **The road home** takes either way: south (Vermilion, Route 11, Diglett's Cave) or north (Route 5, Cerulean, Mt. Moon,
 Pewter). It has six stops by distance:

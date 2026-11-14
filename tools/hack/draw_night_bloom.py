@@ -7,6 +7,8 @@
                         OBJ_EVENT_GFX_GLOWCAP_LIT, 16x16.
     moonveil_bud.png    The MOONVEIL, closed: a lavender-tipped bud on a leafy stem. OBJ_EVENT_GFX_MOONVEIL_BUD, 16x32.
     moonveil_bloom.png  The MOONVEIL open at dawn: white petals around a golden center. OBJ_EVENT_GFX_MOONVEIL_BLOOM.
+    glowcap_spore.png   A drifting spore, a speck of the glowcaps' light: the trail toward the next dim glowcap
+                        (a light sprite, LIGHT_TYPE_GLOWCAP_SPORE). 16x16.
 
 The lit glowcap and the MOONVEIL use their own palette, night_bloom.pal (OBJ_EVENT_PAL_TAG_NIGHT_BLOOM, blend-immune:
 the night's tint passes them by, so they glow in the dark). Re-running redraws all five files.
@@ -125,6 +127,26 @@ BLOOM = [
 ] + STEM
 
 
+SPORE = [
+    '................',
+    '................',
+    '................',
+    '................',
+    '.......C........',
+    '.......L........',
+    '.....CLWLC......',
+    '.......L........',
+    '.......C........',
+    '................',
+    '..........c.....',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+]
+
+
 def rows(art, keys, height):
     art = art + ['.' * 16] * (height - len(art))
     for row in art:
@@ -145,6 +167,7 @@ def main():
     write_png(os.path.join(PICS, 'glowcap_lit.png'), 16, rows(GLOWCAP, GLOW_KEYS, 16), plte(GLOW))
     write_png(os.path.join(PICS, 'moonveil_bud.png'), 16, rows(BUD, GLOW_KEYS, 32), plte(GLOW))
     write_png(os.path.join(PICS, 'moonveil_bloom.png'), 16, rows(BLOOM, GLOW_KEYS, 32), plte(GLOW))
+    write_png(os.path.join(PICS, 'glowcap_spore.png'), 16, rows(SPORE, GLOW_KEYS, 16), plte(GLOW))
     write_pal(os.path.join(PALETTES, 'night_bloom.pal'), GLOW)
 
 

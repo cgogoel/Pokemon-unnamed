@@ -75,7 +75,8 @@ the formation follows the party order: the first Pokémon is in front.
 Moves are either direct or indirect:
 
 - A **direct** attack travels out from the user or makes contact, so it hits the front Pokémon, which blocks the
-  others. Tackle is a direct attack.
+  others. Tackle is a direct attack. A Pokémon that uses a direct move steps up to the front of its own team for it,
+  and the Pokémon that were ahead of it move back one spot.
 - An **indirect** attack can be aimed at any of the three Pokémon. Electric, Psychic and Flying moves, sound moves
   and attacks from above or below are indirect. Thunder Shock is an indirect attack.
 
@@ -102,7 +103,7 @@ When each side has only two Pokémon, the same rules apply with two Pokémon per
 ### University courses (Act 2)
 
 Each course (Fire, Water, Grass) is a field trip with a research sheet: catch three different Pokémon of the type,
-use and record moves of the type, and solve a puzzle at the site using a Pokémon of the type. Completing the sheet
+record moves of the type in battle, and solve a puzzle at the site using a Pokémon of the type. Completing the sheet
 lets the player make the course's TM (reusable, as are all TMs) and take the course exam.
 
 ### The friends' families (Act 2 on)
@@ -153,6 +154,12 @@ Somewhere along the way, a brand-new move is invented, one no Pokémon game has 
 > prefer to just walk back to the pokemon centers to reset. The game punishes you for this by making you walk both
 > ways (back and forth) but I'm lessening the pain by only making you do one direction with a warp back to the latest
 > pokemon center always available to you in Key Items.
+
+### Fishing and surfing
+
+With a fishing rod in the bag, pressing A facing water offers SURF, FISH or CANCEL when Surf can be used (SURF
+first), or asks whether to fish when it can't. Fishing casts the best rod in the bag. Registering a rod to SELECT
+works as before.
 
 ### Speed
 

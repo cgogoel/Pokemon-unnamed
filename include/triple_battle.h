@@ -60,6 +60,8 @@ enum BattlerId GetTripleScreenNeighbor(enum BattlerId battler, s32 step);
 u32 GetTripleScreenSpots(enum BattleSide side, enum BattlerPosition *spots);
 const struct UCoords8 *GetTripleSpotCoords(enum BattlerPosition layoutPosition);
 void UpdateTripleFormationGraphics(enum BattleSide side);
+bool32 IsTripleDirectMove(enum BattlerId battler, enum Move move);
+bool32 TryMoveTripleUserToFront(enum BattlerId battler, enum Move move);
 enum BattlerId GetTripleFoeAtRank(enum BattlerId battlerAtk, u32 aliveIndex);
 enum MoveTarget GetTripleMoveTargetType(enum Move move, enum MoveTarget canonTarget);
 u32 GetTripleSecondTargetChoices(enum BattlerId battlerAtk, enum BattlerId mainTarget, enum BattlerId *choices);
@@ -74,6 +76,7 @@ u32 GetTripleTrainerBattleTypeFlags(u16 trainerId);
 u32 GetTripleBattleTypeFlagsForFoes(u32 foePartySize);
 u32 GetTripleAiSecondTargetByte(enum BattlerId battlerAtk, enum BattlerId mainTarget, u32 moveIndex);
 void RemoveUnreachableTripleMoveScores(enum BattlerId battlerAtk, enum BattlerId battlerDef, s32 *scores);
+void AdjustTripleStepForwardScores(enum BattlerId battlerAtk, enum BattlerId battlerDef, s32 *scores);
 // triple_battle_ui.c
 void ResetTripleMoveIndicator(void);
 void HideTripleMoveIndicator(void);
@@ -85,7 +88,7 @@ u32 GetTripleSpriteScale(enum BattlerId battler);
 u32 ScaleTripleMonPic(u8 *pic, enum BattlerId battler);
 #define TRIPLE_HEALTHBAR_OFFSET_Y 7 // From the healthbox to the HP bar under it
 #define TRIPLE_HEAD_GAP 6           // Between the top of the HP bar and the Pokémon's head
-#define TRIPLE_NAME_TAG_BELOW_BAR 16 // From the HP bar to the name tag when the tag goes under the bar
+#define TRIPLE_NAME_TAG_BELOW_BAR 14 // From the HP bar to the name tag when the tag goes under the bar
 void GetTripleHealthboxCoords(enum BattlerId battler, s16 *x, s16 *y);
 bool32 IsTripleNameTagBelowBar(enum BattlerId battler);
 void SetTripleNameTags(u32 battlerMask);

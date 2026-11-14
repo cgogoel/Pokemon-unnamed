@@ -172,3 +172,23 @@ TRIPLE_2V2_BATTLE_TEST("Triple battles 2v2: a switch updates the party menu orde
         EXPECT_EQ(memcmp(gBattleStruct->battlerPartyOrders[B_BATTLER_2], gBattleStruct->battlerPartyOrders[B_BATTLER_0], sizeof(gBattleStruct->battlerPartyOrders[0])), 0);
     }
 }
+
+TRIPLE_2V2_BATTLE_TEST("Triple battles 2v2: a DIRECT move's user in the rear steps to the front")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { MOVE(playerRight, MOVE_POUND, target: opponentLeft); MOVE(opponentRight, MOVE_POUND, target: playerLeft); }
+    } SCENE {
+        MESSAGE("Wobbuffet stepped up\nto the front!");
+        MESSAGE("The opposing Wobbuffet stepped up\nto the front!");
+    } THEN {
+        EXPECT_EQ(GetTripleFormationRank(playerRight - gBattleMons), TRIPLE_RANK_NEAR);
+        EXPECT_EQ(GetTripleFormationRank(playerLeft - gBattleMons), TRIPLE_RANK_MIDDLE);
+        EXPECT_EQ(GetTripleFormationRank(opponentRight - gBattleMons), TRIPLE_RANK_NEAR);
+        EXPECT_EQ(GetTripleFormationRank(opponentLeft - gBattleMons), TRIPLE_RANK_MIDDLE);
+    }
+}

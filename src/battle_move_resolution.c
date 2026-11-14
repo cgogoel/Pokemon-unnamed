@@ -660,6 +660,15 @@ static enum CancelerResult CancelerAttackstring(struct BattleCalcValues *cv)
     return CANCELER_RESULT_RUN_SCRIPT_AND_INCREMENT;
 }
 
+// Triple battles: a Pokémon using a DIRECT move steps to the front of its side's formation (docs/hack/triple_battles.md)
+static enum CancelerResult CancelerTripleStepForward(struct BattleCalcValues *cv)
+{
+    if (!TryMoveTripleUserToFront(cv->battlerAtk, gCurrentMove))
+        return CANCELER_RESULT_SUCCESS;
+    BattleScriptCall(BattleScript_TripleSteppedForward);
+    return CANCELER_RESULT_RUN_SCRIPT_AND_INCREMENT;
+}
+
 static enum CancelerResult CancelerPledgeAttack(struct BattleCalcValues *cv)
 {
     if (gBattleStruct->pledgeState == PLEDGE_COMBO_WAITING)
@@ -3120,6 +3129,7 @@ static enum CancelerResult (*const sMoveSuccessOrderCancelers[])(struct BattleCa
     [CANCELER_THAW] = CancelerThaw,
     [CANCELER_STANCE_CHANGE_2] = CancelerStanceChangeTwo,
     [CANCELER_ATTACKSTRING] = CancelerAttackstring,
+    [CANCELER_TRIPLE_STEP_FORWARD] = CancelerTripleStepForward,
     [CANCELER_PLEDGE_ATTACK] = CancelerPledgeAttack,
     [CANCELER_SET_TARGETS] = CancelerSetTargets,
     [CANCELER_PPDEDUCTION] = CancelerPPDeduction,

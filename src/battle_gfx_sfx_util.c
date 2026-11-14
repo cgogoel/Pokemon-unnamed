@@ -735,7 +735,8 @@ bool8 BattleLoadAllHealthBoxesGfx(u8 state)
     if (state == 1)
     {
         LoadSpritePalette(&sSpritePalettes_HealthBoxHealthBar[0]);
-        LoadSpritePalette(&sSpritePalettes_HealthBoxHealthBar[1]);
+        // Triple battles' floating bars and name tags have their own colors (src/battle_interface.c)
+        LoadSpritePalette(IsTripleBattle() ? &gTripleHealthbarSpritePalette : &sSpritePalettes_HealthBoxHealthBar[1]);
         CategoryIcons_LoadSpritesGfx();
     }
 

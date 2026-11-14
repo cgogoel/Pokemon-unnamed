@@ -21,7 +21,7 @@ Progress is `VAR_ACT2_PROGRESS`, with stages `ACT2_*` in `include/constants/stor
 | `ACT2_WATER_SEE_MINA` | Only saves already at it (MINA used to ask the player over) | MINA's room (2F, the second room): club night at the Sports Complex. |
 | `ACT2_WATER_INVITED` | Passing (MINA: see you at the meeting spot tonight, you know where it is): the player's room, at night | Night: MINA battles the player at the Sports Complex. |
 | `ACT2_CLUB_2_DONE` | | PROF. FERN (Home Economics) introduces the Grass course; the class leaves at dusk. On arrival she explains the assignment (the MOONVEIL) and gives 5 Poké Balls. |
-| `ACT2_GRASS_TRIP` | Warped to Viridian City (4,17), at dusk: night until dawn at the bloom | The research sheet (Viridian Forest's night bloom), the TM (Giga Drain) and the exam in the glade at sunrise. |
+| `ACT2_GRASS_TRIP` | Warped to Viridian Forest's south gate on Route 2 (7,5), at dusk: night until dawn at the bloom | The research sheet (Viridian Forest's night bloom), the TM (Giga Drain) and the exam in the glade at sunrise. |
 | `ACT2_GRASS_SEE_ROWAN` | Only saves already at it (ROWAN used to ask the player over) | ROWAN's room (3F, the last room): a League examiner is coming; battle for a real Trainer Card. |
 | `ACT2_GRASS_INVITED` | Passing (ROWAN: see you at the meeting spot tonight; someone special is coming): the player's room, at night | The friends and DALE, a Pokémon League examiner, wait at the Sports Complex. Beating him: the Trainer Card. |
 | `ACT2_GOT_TRAINER_CARD` | Winning | **Trainers battle the player again.** In the morning, the director's final project brief at the Science Research Institute. |
@@ -36,30 +36,43 @@ After that, talking to the professor shows the **research sheet** (`Act2_BufferR
 
 1. Catch 3 different Pokémon (species) of the course's type: counted in the party and the PC, not the gifted Lapras or Morelull
    (`Act2_CountCaughtSpeciesOfType`).
-2. Use a move of that type in battle.
-3. Record 3 different moves of that type in battle: the player's Pokémon's or wild ones'
+2. Record 3 different moves of that type in battle: the player's Pokémon's or wild ones'
    (`Act2_RecordMoveUse`, from `Cmd_printattackstring`; the first two in `VAR_ACT2_MOVE_SEEN_1/2`, the third sets
    `ACT2_RESEARCH_MOVES_DONE`). So there are enough different ones without training up first, a wild Pokémon of the
    course's type on the trip also knows its type's moves from up to 8 levels ahead, in place of its other moves
-   (`Act2_TeachWildCourseMoves`, from `CreateWildMon`). None of them knows the course's TM move, so it can only be
-   made, not caught. In the trip areas, 35% of wild Pokémon are the type's basic Pokémon from beyond Kanto instead
-   (`Act2_ChooseWildSpecies`, `sOtherRegionFire/Water/Grass`). Every fishing cast gets a bite (`I_FISHING_ALWAYS_BITE`). Caught, it skips those moves when it reaches their level:
-   the level-up code passes over a move a Pokémon already knows (`MON_ALREADY_KNOWS_MOVE`).
-4. Solve the site's puzzle (below).
+   (`Act2_TeachWildCourseMoves`, from `CreateWildMon`), plus one more from the trip's pool, picked at random among
+   the ones not recorded yet (any of them once all are), in an empty slot, else over a move of another type, else
+   over a recorded one (`TeachCoursePoolMove`, `sCourseMovePoolFire/Water/Grass`):
 
-In battle, tasks 1 and 3 show their counter ("Research: 2 of 3 WATER moves recorded!" / "... POKéMON caught!") each
+   | Trip | Pool |
+   |---|---|
+   | Fire | Ember, Fire Spin, Flame Charge, Flame Wheel, Incinerate, Flame Burst, Fire Fang, Will-O-Wisp |
+   | Water | Water Gun, Bubble, Aqua Jet, Water Pulse, Brine, Whirlpool, Chilling Water, Withdraw |
+   | Grass | Absorb, Vine Whip, Razor Leaf, Mega Drain, Leafage, Magical Leaf, Bullet Seed, Leech Seed |
+
+   So every wild Pokémon of the type brings a move the sheet hasn't got yet. None of them knows the course's TM
+   move, so it can only be made, not caught. In the trip areas, 35% of wild Pokémon are the type's basic Pokémon from beyond Kanto instead
+   (`Act2_ChooseWildSpecies`, `sOtherRegionFire/Water/Grass`). Every fishing cast gets a bite (`I_FISHING_ALWAYS_BITE`), and on an Act 2 table any of its 10 slots, equally
+   likely, whatever the rod (`GenerateFishingWildMon`; the Good Rod's own 3 slots were mostly Goldeen). Caught, it skips those moves when it reaches their level:
+   the level-up code passes over a move a Pokémon already knows (`MON_ALREADY_KNOWS_MOVE`).
+3. Solve the site's puzzle (below).
+
+The player's own Pokémon don't have to use a move of the type: there's no such task (a move a wild Pokémon uses is
+recorded all the same).
+
+In battle, tasks 1 and 2 show their counter ("Research: 2 of 3 WATER moves recorded!" / "... POKéMON caught!") each
 time they go up, until they're done: a new move once the move in progress is over (`MOVEEND_ACT2_RESEARCH`,
 `Act2_TakeResearchMoveMessage`), a new species after it's caught (`BS_Act2ResearchCatch` in
 `BattleScript_SuccessBallThrowEnd`, `Act2_BufferResearchCatchMessage`).
 
-With all four done, the professor makes the course's **TM** with the player (TMs are reusable: `I_REUSABLE_TMS`).
+With all three done, the professor makes the course's **TM** with the player (TMs are reusable: `I_REUSABLE_TMS`).
 Then the **exam**, a battle with the professor; any win passes. Progress is `VAR_ACT2_RESEARCH`
 (`ACT2_RESEARCH_*`), reset when a course starts.
 
 | Course | TM | Site | Puzzle (each part: a Pokémon of the type that knows a move of it, `Act2_FindCourseMoveUser`) | Its end |
 |---|---|---|---|---|
 | Fire | TM35 Flamethrower | Pokémon Mansion | Relight 3 cold furnaces on 1F (on the walls at (6,2), (31,2), (4,12); `METATILE_PokemonMansion_Furnace_Cold`, swapped for `_Lit` once relit, drawn by `tools/hack/draw_mansion_furnace.py`; the lit flames flicker, `InitTilesetAnim_PokemonMansion`). Until then, the statue switch is cold. | The switch opens the sealed room; the old research journal there (23,13), in it for the whole trip until read (readable once the furnaces are lit) |
-| Water | TM51 BubbleBeam (new: `FOREACH_TM` in `include/constants/tms_hms.h`) | Vermilion City | Put out the 2 small dock fires (2x2 at (30,28) and (35,25)) with any WATER move | The big fire (2x3 at (24,28), across the pier) needs BubbleBeam; behind it a young Lapras surfaces (21,29) and asks to come along (see below) |
+| Water | TM51 BubbleBeam (new: `FOREACH_TM` in `include/constants/tms_hms.h`) | Vermilion City | Put out the 2 small dock fires (2x2 at (30,28) and (35,25)) with any WATER move | The big fire (3x3 at (24,28), across the pier) needs BubbleBeam; behind it a young Lapras surfaces (21,29) and asks to come along (see below) |
 | Grass | TM19 Giga Drain | Viridian Forest, at night | The night bloom (below): wake 3 glowcaps, follow 3 ODDISH to the glade, guard the MOONVEIL through 3 waves of BUG POKéMON | Dawn: the MOONVEIL opens and its dew is collected; a MORELULL comes along |
 
 **The dock fires.** The docks catch fire when the player catches a WATER Pokémon on the trip (`Act2_OnCaughtMon`,
@@ -69,7 +82,7 @@ to see it (`ACT2_RESEARCH_DOCK_FIRE_SEEN`, `_ARRIVING`). The fires are metatiles
 load while burning (`Act2_DrawDockFires`; art and flicker frames by `tools/hack/draw_dock_fire.py`, animated by `InitTilesetAnim_VermilionCity`), with a sign event on each square.
 The puzzle task needs all three fires out. The small ones go out with any WATER move; the big one, which cuts off
 the pier's west end, only with the TM move (`Act2_FindTmMoveUser`). So on the Water trip the TM is made from the
-other three tasks (`Act2_IsReadyForTM`), and the exam waits for all four (`Act2_IsResearchDone`). PROF. MARLOWE's
+other two tasks (`Act2_IsReadyForTM`), and the exam waits for all three (`Act2_IsResearchDone`). PROF. MARLOWE's
 lines follow the stage: the usual hint, then (fires started) the TM is urgent, then (TM made, big fire still
 burning) go put it out, a POKéMON is cowering there, then the exam. A save that left the trip without the Lapras
 finds it waiting by the pier for the rest of Act 2. When a puzzle's task is done, the message says whether the
@@ -96,7 +109,11 @@ Grass trip leaves at dusk and runs at **night** (`Act2_IsGrassTripNight`, [time_
 dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_night_bloom.inc`, state:
 `VAR_ACT2_NIGHT_BLOOM` (`NIGHT_BLOOM_*`, reset with the course's research). Tests: `test/act2_night_bloom.c`.
 
-- **Viridian Forest at night**: the forest's people stay home (`FLAG_TEMP_1`, `Act2_SetupForestObjects`), and it has
+- **The class meets at the forest's south gate** (`MAP_ROUTE2_VIRIDIAN_FOREST_SOUTH_ENTRANCE`): PROF. FERN by the
+  door to the forest, KAI, MINA and ROWAN around the player (`Act2_SetupForestGateObjects`, the gate's frame script
+  for the briefing). The trip's Pokémon Center is still Viridian's.
+- **Viridian Forest at night**: the forest's people stay home (`FLAG_TEMP_1`, `Act2_SetupForestObjects`), two of
+  PROF. FERN's assistants block the north exit for the whole trip ((4,12) and (5,12), `FLAG_TEMP_14`), and it has
   its own wild Pokémon for the trip only (`sAct2_ViridianForest_FireRed`: Oddish, Hoothoot, Bellsprout, Venonat,
   Paras, Morelull, Phantump (rare); `onlyStage` in `sAct2WildTables`, `src/wild_encounter.c`), plus the usual 35%
   Grass Pokémon from other regions. Wild Grass Pokémon know their Grass moves from up to 8 levels ahead (Absorb,
@@ -104,7 +121,13 @@ dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_n
 - **1. Light the way.** The forest is pitch-dark: the flash darkness of a cave without FLASH. `SetDefaultFlashLevel`
   asks `Act2_GetNightForestFlashLevel`: on the trip's night, Viridian Forest's flash level follows the glowcaps
   awake (none 7, one 5, two 3, all three 1: each widens the circle of light). Three dim GLOWCAPS stand along the trail
-  ((38,55), (39,40), (39,29); `OBJ_EVENT_GFX_GLOWCAP_DIM`); a Grass move from a Grass Pokémon
+  ((31,58) just inside the south entrance, (39,45), (39,29); `OBJ_EVENT_GFX_GLOWCAP_DIM`). The darkness only hides
+  the map: in the dark forest, sprites show beyond the light (`Act2_ShowSpritesInDark` adds OBJ to `WINOUT` in
+  `InitOverworldGraphicsRegisters`), so the glowcaps, the ODDISH and the way can be seen in the dark. **The way to
+  the next glowcap** (the first not yet woken): a glint on it (a ball of light) and a trail of twinkling spores
+  leading to it from the last one (light sprites in the forest's map.json, `LIGHT_TYPE_GLOWCAP_SPORE`,
+  `glowcap_spore.png`; `FLAG_TEMP_11-13` for glowcaps 1-3, `SetGlowcapTrail`); they go out when their flag is set
+  (`UpdateLightSprite`). A Grass move from a Grass Pokémon
   (`Act2_FindCourseMoveUser`) wakes one: it's swapped for its lit self (`OBJ_EVENT_GFX_GLOWCAP_LIT`, in the
   blend-immune `night_bloom.pal`, so it isn't dimmed by the night's tint), and the light widens on the spot
   (`Act2_BrightenForest`: `AnimateFlash` to the new level, then `SetFlashLevel`). All three: `ACT2_RESEARCH_PUZZLE_1`,
@@ -112,11 +135,13 @@ dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_n
 - **2. Follow the ODDISH.** Too skittish to follow (it darts off and back), until a party Pokémon holds it still with
   SLEEP POWDER or STUN SPORE, or else any Grass status move (`Act2_FindHoldStillMoveUser`). Then it shakes off the
   powder and toddles along the next leg ((44,28) → (30,17) → (40,6)), where the next ODDISH waits. The third walks
-  into the trees at the north edge: a hidden opening, a tree column (x 39-41, rows 0-4) turned into a path
-  (`Act2_DrawForestOpening`, from `sForestOpening`), drawn on every load from then on. Its coord events lead into the
-  glade. All three: `ACT2_RESEARCH_PUZZLE_2`.
-- **3. Guard the bloom.** The glade (`MAP_VIRIDIAN_FOREST_GLADE`, Viridian Forest's map section, so the forest's area
-  level; laid out by `tools/hack/compose_glade.py`) is a moonlit clearing with the MOONVEIL's bud in the middle and a
+  into the trees at the north edge: a hidden opening, a dark hollow under a whole tree column (x 39-41): the trunks
+  and their shadow (rows 3-4) give way to darkness under the canopy (`Act2_DrawForestOpening`, from `sForestOpening`;
+  metatiles 0x2AB-0x2B4 by `tools/hack/draw_forest_passage.py`), drawn on every load from then on. Its coord events
+  (row 3) lead into the glade. All three: `ACT2_RESEARCH_PUZZLE_2`.
+- **3. Guard the bloom.** The glade (`MAP_VIRIDIAN_FOREST_GLADE`, in `gMapGroup_SpecialArea_Frlg`, Viridian Forest's
+  map section, so the forest's area level; laid out by `tools/hack/compose_glade.py`; its way back south is the same
+  dark hollow from the other side) is a moonlit clearing with the MOONVEIL's bud in the middle and a
   MORELULL glowing beside it. Arriving, the bud's scent draws hungry BUG POKéMON in three waves, through the west,
   north and east gaps. Before each, the player can plant a hedge in its gap with LEECH SEED or INGRAIN, or else any
   Grass move (`Act2_FindHedgeMoveUser`, `Act2_PlantHedge`: round bushes, redrawn on load) and skip it; otherwise it's
@@ -131,11 +156,14 @@ dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_n
 - **The MORELULL** that lit the glade all night asks to come along (no won't do, like the Lapras). It joins at
   level 18 (`ACT2_MORELULL_LEVEL`, `Act2_GiveGladeMorelull`), to the party or the PC; `FLAG_ACT2_GOT_MORELULL`. It's a
   gift (marked as a fateful encounter), so it doesn't count toward the sheet's catches; a wild Morelull does.
-- **PROF. FERN** runs up (she followed the glowcaps' light; `NIGHT_BLOOM_FERN`). She waits in Viridian until dawn
-  (`FLAG_TEMP_9`, `Act2_SetupViridianObjects`), then in the glade. With the sheet done, the dew makes TM GIGA DRAIN
+- **PROF. FERN** runs up (she followed the glowcaps' light; `NIGHT_BLOOM_FERN`). She waits at the forest's south gate
+  until dawn (`FLAG_TEMP_9`, `Act2_SetupForestGateObjects`), then in the glade. With the sheet done, the dew makes TM GIGA DRAIN
   ("it drinks the night"), and the exam is her battle in the glade at sunrise. Passing goes back to the dorms as
   usual (`ACT2_GRASS_INVITED`).
 - The glade off the trip: the bud, closed, and nothing else.
+- **Map groups**: a warp keeps the map's number in an s8, so a group holds at most 128 maps. The glade was first the
+  129th map of `gMapGroup_Dungeons_Frlg`: its number wrapped to -128 and warping in loaded a garbage map header (a
+  black screen and a freeze). It's in `gMapGroup_SpecialArea_Frlg` now; `test/map_groups.c` checks every group.
 
 ## The club's teams
 
@@ -206,13 +234,15 @@ In both builds, the Pokémon the player starts Act 2 with know the moves they'd 
   They're the `sAct2_*_FireRed` entries in `src/data/wild_encounters.json` (the name needs `FireRed`: a label
   without FireRed or LeafGreen is built for Emerald only). `GetCurrentMapWildMonHeaderId` tells them apart by their
   contents (`sAct2WildMonsInfos` in `src/wild_encounter.c`; add new ones there), since Porymap reorders the file.
-  Their encounter rates are half the usual ones (5 in the Mansion, 10 in grass, 5 fishing). Kanto's tables stay as
+  Their encounter rates are half the usual ones (5 in the Mansion, 10 in grass, 5 fishing). Fishing one picks any
+  of the table's 10 slots, whatever the rod. Kanto's tables stay as
   they were for Act 3.
 
   | Area | Pokémon | Levels |
   |---|---|---|
   | Pokémon Mansion, all floors | Growlithe (Flame Wheel from 12), Ponyta (Flame Charge at 15), Vulpix, Slugma, Magby and Charmander (rare); Rattata, Grimer, Koffing | 10-15 |
-  | Vermilion City (fishing) | Magikarp, Goldeen, Poliwag, Horsea, Krabby, Staryu, Shellder, Psyduck | 13-17 |
+  | Vermilion City (fishing) | Tentacool, Krabby, Horsea, Shellder, Staryu, Goldeen, Slowpoke, Poliwag, Psyduck, Magikarp (10% each) | 13-17 |
+  | Route 6 (fishing) | Poliwag, Goldeen, Psyduck, Slowpoke, Krabby, Seel, Horsea, Staryu, Shellder, Tentacool (10% each) | 13-17 |
   | Route 6 | Psyduck, Poliwag, Seel, Marill, Squirtle and Totodile (rare); Pidgey, Oddish, Abra | 13-16 |
   | Route 22 | Oddish, Bellsprout, Hoppip, Paras, Exeggcute, Bulbasaur and Chikorita (rare); Rattata, Spearow, Mankey | 16-19 |
   | Viridian Forest (Grass trip only) | Oddish (common), Bellsprout, Paras, Morelull, Phantump (rare); Hoothoot, Venonat | 16-19 |
@@ -229,6 +259,12 @@ In both builds, the Pokémon the player starts Act 2 with know the moves they'd 
   Teleport, to the front of the nurse in the last Pokémon Center they went into (the white-out respawn point). On a
   field trip it's always the trip town's Pokémon Center, visited or not (`Act2_GetTripHealLocation`). Given with the
   Remote Desktop; PROF. ASHFORD mentions it in his Cinnabar briefing.
+- **Fishing from the shore** (from the Good Rod on, in every act): with a rod in the bag, A facing water (on land)
+  offers SURF / FISH / CANCEL when SURF can be used (SURF first; `MULTI_SURF_FISH`), or "Fish with the GOOD ROD?"
+  when it can't (`EventScript_FishOrSurf`, `EventScript_AskToFish` in `data/scripts/fish_or_surf.inc`, from
+  `GetInteractedWaterScript`). The best rod in the bag casts (`GetBestFishingRodItem`, `StartFishingWithBestRod`,
+  `src/fishing.c`), once the script is over. Without a rod, A on water is the usual SURF prompt; a rod registered to
+  SELECT works as before.
 - **The time skip**: at the end of the prologue, the two Pokémon the player brought go up to level 10
   (`ACT2_START_LEVEL`) with the moves they'd know there (`Act2_RaisePartyLevels`). Blacking out returns the player
   to Celadon's Pokémon Center; on a field trip, to that city's.
@@ -261,7 +297,7 @@ From Act 2 on, the whole party gains experience from every battle, as with the E
 | KAI, MINA, ROWAN | Classmates: outside the dorm room at the start, on each field trip, KAI's room after the Fire course, the stadium at night | Camper, Picnicker, Boy |
 | PROF. ASHFORD | Lecture Hall A; Cinnabar | Scientist |
 | PROF. MARLOWE | Audiovisual classroom; Vermilion, by the harbor | Old man |
-| PROF. FERN | Home Economics; Viridian, at the west exit (until dawn), then the glade | Beauty |
+| PROF. FERN | Home Economics; Viridian Forest's south gate (until dawn), then the glade | Beauty |
 | DALE | The stadium, night 3 | Cooltrainer |
 | The director | Science Research Institute (7,7) | Gentleman |
 

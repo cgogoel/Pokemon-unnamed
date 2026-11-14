@@ -678,7 +678,9 @@ bool8 TryGenerateWildMon(const struct WildPokemonInfo *wildMonInfo, enum WildPok
 
 static u16 GenerateFishingWildMon(const struct WildPokemonInfo *wildMonInfo, u8 rod)
 {
-    u8 wildMonIndex = ChooseWildMonIndex_Fishing(rod);
+    // Act 2's fishing tables: any of the 10 slots, whatever the rod (the Good Rod's 3 slots alone were mostly one
+    // species), so a field trip's fishing turns up the whole table
+    u8 wildMonIndex = IsAct2WildMonsInfo(wildMonInfo) ? Random() % NUM_FISHING_MONS_ENCOUNTER_SLOTS : ChooseWildMonIndex_Fishing(rod);
     enum Species wildMonSpecies = wildMonInfo->wildPokemon[wildMonIndex].species;
     u8 level = ChooseWildMonLevel(wildMonInfo->wildPokemon, wildMonIndex, WILD_AREA_FISHING);
 
@@ -1041,12 +1043,18 @@ bool8 DoesCurrentMapHaveFishingMons(void)
         return FALSE;
 }
 
+// The current map's fishing table: creates the wild Pokémon a cast with this rod hooks, and returns its species
+u16 GenerateCurrentMapFishingMon(u8 rod)
+{
+    u32 headerId = GetCurrentMapWildMonHeaderId();
+    enum TimeOfDay timeOfDay = GetTimeOfDayForEncounters(headerId, WILD_AREA_FISHING);
+    return GenerateFishingWildMon(gWildMonHeaders[headerId].encounterTypes[timeOfDay].fishingMonsInfo, rod);
+}
+
 void FishingWildEncounter(u8 rod)
 {
     enum Species species;
-    u32 headerId;
     s16 x, y;
-    enum TimeOfDay timeOfDay;
 
     gIsFishingEncounter = TRUE;
     GetXYCoordsOneStepInFrontOfPlayer(&x, &y);
@@ -1059,9 +1067,7 @@ void FishingWildEncounter(u8 rod)
     }
     else
     {
-        headerId = GetCurrentMapWildMonHeaderId();
-        timeOfDay = GetTimeOfDayForEncounters(headerId, WILD_AREA_FISHING);
-        species = GenerateFishingWildMon(gWildMonHeaders[headerId].encounterTypes[timeOfDay].fishingMonsInfo, rod);
+        species = GenerateCurrentMapFishingMon(rod);
     }
 
     IncrementGameStat(GAME_STAT_FISHING_ENCOUNTERS);

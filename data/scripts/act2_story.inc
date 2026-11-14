@@ -498,8 +498,8 @@ Act2_EventScript_RoomPlateRowan::
 
 @ ---------------------------------------------------------------------------------------------------------------
 @ The courses. Each professor starts their course on campus: what to do, Poké Balls, then the field trip. There,
-@ the professor's research sheet: catch 3 different Pokémon of the type, use a move of it, record 3 different moves of it,
-@ and solve the site's puzzle. With all four done, the professor helps make the course's TM, then the exam
+@ the professor's research sheet: catch 3 different Pokémon of the type, record 3 different moves of it in battle,
+@ and solve the site's puzzle. With all three done, the professor helps make the course's TM, then the exam
 @ (src/act2_story.c tracks all this).
 
 @ Fire: PROF. ASHFORD, Lecture Hall A; field trip to Cinnabar Island
@@ -622,7 +622,7 @@ Act2_EventScript_WaterHintFire:
 	msgbox Act2_Text_WaterHintFire
 	return
 
-@ The TM is made from the first three tasks; it's what puts out the big dock fire, the last one
+@ The TM is made from the first two tasks; it's what puts out the big dock fire, the last one
 Act2_EventScript_WaterMakeTM:
 	msgbox Act2_Text_WaterResearchDone
 	giveitem ITEM_TM_BUBBLE_BEAM
@@ -683,9 +683,10 @@ Act2_EventScript_StartGrass:
 	setvar VAR_ACT2_RESEARCH, 0
 	setvar VAR_ACT2_MOVE_SEEN_1, MOVE_NONE
 	setvar VAR_ACT2_MOVE_SEEN_2, MOVE_NONE
+	setvar VAR_ACT2_NIGHT_BLOOM, 0
 	setvar VAR_ACT2_PROGRESS, ACT2_GRASS_TRIP
 	setrespawn HEAL_LOCATION_VIRIDIAN_CITY
-	warp MAP_VIRIDIAN_CITY, 4, 17
+	warp MAP_ROUTE2_VIRIDIAN_FOREST_SOUTH_ENTRANCE, 7, 5
 	waitstate
 	release
 	end
@@ -847,7 +848,7 @@ Route6_OnFrame::
 	map_script_2 VAR_TEMP_2, 1, Route6_EventScript_DockFireAlarm
 	.2byte 0
 
-ViridianCity_OnFrame::
+Route2_ViridianForest_SouthEntrance_OnFrame::
 	map_script_2 VAR_TEMP_1, 1, Act2_EventScript_GrassBriefing
 	.2byte 0
 
@@ -863,7 +864,7 @@ Act2_EventScript_FireBriefing::
 	releaseall
 	end
 
-@ Vermilion: PROF. MARLOWE stands left of the arrival spot, Viridian: PROF. FERN too
+@ Vermilion: PROF. MARLOWE stands left of the arrival spot; the forest's south gate: PROF. FERN in front
 Act2_EventScript_WaterBriefing::
 	lockall
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
@@ -879,8 +880,8 @@ Act2_EventScript_WaterBriefing::
 
 Act2_EventScript_GrassBriefing::
 	lockall
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
-	applymovement LOCALID_VIRIDIAN_PROF, Common_Movement_WalkInPlaceFasterRight
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
+	applymovement LOCALID_FOREST_GATE_PROF, Common_Movement_WalkInPlaceFasterDown
 	waitmovement 0
 	msgbox Act2_Text_GrassBriefing
 	giveitem ITEM_POKE_BALL, 5
@@ -899,8 +900,8 @@ VermilionCity_EventScript_Act2Objects::
 	setvar VAR_0x8004, ACT2_WATER_TRIP
 	goto Act2_EventScript_CheckBriefing
 
-ViridianCity_EventScript_Act2Objects::
-	special Act2_SetupViridianObjects
+Route2_ViridianForest_SouthEntrance_EventScript_Act2Objects::
+	special Act2_SetupForestGateObjects
 	setvar VAR_0x8004, ACT2_GRASS_TRIP
 	goto Act2_EventScript_CheckBriefing
 
@@ -1619,8 +1620,8 @@ Act2_Text_FireBriefing:
 	.string "it should be the perfect host for\l"
 	.string "our field assignment.\p"
 	.string "Catch three different FIRE\n"
-	.string "POKéMON. Battle with them, and\l"
-	.string "watch how FIRE moves work.\p"
+	.string "POKéMON, and record how FIRE\l"
+	.string "moves work in battle.\p"
 	.string "Inside the mansion, you may also\n"
 	.string "find some old research that will\l"
 	.string "help with your assignment.\p"
@@ -1707,8 +1708,8 @@ Act2_Text_WaterBriefing:
 	.string "POKéMON. A fine host for our field\l"
 	.string "assignment.\p"
 	.string "Catch three different WATER\n"
-	.string "POKéMON. Battle with them, and\l"
-	.string "watch how WATER moves work.\p"
+	.string "POKéMON, and record how WATER\l"
+	.string "moves work in battle.\p"
 	.string "Fish at the harbor, or look in the\n"
 	.string "grass on ROUTE 6, to the north.\p"
 	.string "Finish the sheet, and you may just\n"
@@ -1808,9 +1809,9 @@ Act2_Text_GrassBriefing:
 	.string "Find the bloom, protect it until\n"
 	.string "dawn, and collect its dew.\p"
 	.string "Along the way, catch three\n"
-	.string "different GRASS POKéMON. Battle\l"
-	.string "with them, and record how GRASS\l"
-	.string "moves work.\p"
+	.string "different GRASS POKéMON, and\l"
+	.string "record how GRASS moves work in\l"
+	.string "battle.\p"
 	.string "The forest is north, past\n"
 	.string "ROUTE 2. It will be very dark.\p"
 	.string "Finish the sheet, and the dew may\n"

@@ -79,47 +79,41 @@ struct QuestCourse
     enum Type type;
     u16 siteMapSec; // Where the Pokémon and the puzzle are
     u16 profMapSec; // Where the professor is on the trip
-    const u8 *catchTask, *useTask, *recordTask, *puzzleTask;
-    const u8 *nextIntro, *nextBriefing, *nextCatch, *nextUse, *nextRecord, *nextPuzzle, *nextTM, *nextExam;
+    const u8 *catchTask, *recordTask, *puzzleTask;
+    const u8 *nextIntro, *nextBriefing, *nextCatch, *nextRecord, *nextPuzzle, *nextTM, *nextExam;
 };
 
 static const u8 sText_MakeTM[] = _("Make the TM");
 static const u8 sText_PassExam[] = _("Pass the exam");
 
 static const u8 sText_CatchFire[] = _("Catch 3 FIRE POKéMON");
-static const u8 sText_UseFire[] = _("Use a FIRE move");
 static const u8 sText_RecordFire[] = _("Record 3 FIRE moves");
 static const u8 sText_PuzzleFire[] = _("Relight 3 furnaces");
 static const u8 sText_NextIntroFire[] = _("Go to LECTURE HALL A on campus.");
 static const u8 sText_NextBriefFire[] = _("Talk to PROF. ASHFORD.");
 static const u8 sText_NextCatchFire[] = _("Catch FIRE POKéMON in the MANSION.");
-static const u8 sText_NextUseFire[] = _("Use a FIRE move in battle.");
 static const u8 sText_NextRecordFire[] = _("Record FIRE moves in battle.");
 static const u8 sText_NextPuzzleFire[] = _("Relight the MANSION's cold furnaces.");
 static const u8 sText_NextTMFire[] = _("Show PROF. ASHFORD your research.");
 static const u8 sText_NextExamFire[] = _("Battle PROF. ASHFORD for the exam.");
 
 static const u8 sText_CatchWater[] = _("Catch 3 WATER POKéMON");
-static const u8 sText_UseWater[] = _("Use a WATER move");
 static const u8 sText_RecordWater[] = _("Record 3 WATER moves");
 static const u8 sText_PuzzleWater[] = _("Put out 3 dock fires");
 static const u8 sText_NextIntroWater[] = _("Go to the AUDIOVISUAL room on campus.");
 static const u8 sText_NextBriefWater[] = _("Talk to PROF. MARLOWE.");
 static const u8 sText_NextCatchWater[] = _("Fish at the harbor, or try ROUTE 6.");
-static const u8 sText_NextUseWater[] = _("Use a WATER move in battle.");
 static const u8 sText_NextRecordWater[] = _("Record WATER moves in battle.");
 static const u8 sText_NextPuzzleWater[] = _("Put out the fires on the docks.");
 static const u8 sText_NextTMWater[] = _("Show PROF. MARLOWE your research.");
 static const u8 sText_NextExamWater[] = _("Battle PROF. MARLOWE for the exam.");
 
 static const u8 sText_CatchGrass[] = _("Catch 3 GRASS POKéMON");
-static const u8 sText_UseGrass[] = _("Use a GRASS move");
 static const u8 sText_RecordGrass[] = _("Record 3 GRASS moves");
 static const u8 sText_PuzzleGrass[] = _("Guard the MOONVEIL");
 static const u8 sText_NextIntroGrass[] = _("Go to HOME ECONOMICS on campus.");
-static const u8 sText_NextBriefGrass[] = _("Talk to PROF. FERN.");
+static const u8 sText_NextBriefGrass[] = _("Meet PROF. FERN at the forest gate.");
 static const u8 sText_NextCatchGrass[] = _("Catch GRASS POKéMON in VIRIDIAN FOREST.");
-static const u8 sText_NextUseGrass[] = _("Use a GRASS move in battle.");
 static const u8 sText_NextRecordGrass[] = _("Record GRASS moves in battle.");
 static const u8 sText_NextPuzzleGrass[] = _("Wake the GLOWCAPS in VIRIDIAN FOREST.");
 static const u8 sText_NextOddishGrass[] = _("Follow the ODDISH to the MOONVEIL.");
@@ -138,25 +132,25 @@ static const struct QuestCourse sCourses[] =
     {
         .tripStage = ACT2_FIRE_TRIP, .type = TYPE_FIRE,
         .siteMapSec = MAPSEC_CINNABAR_ISLAND, .profMapSec = MAPSEC_CINNABAR_ISLAND,
-        .catchTask = sText_CatchFire, .useTask = sText_UseFire, .recordTask = sText_RecordFire, .puzzleTask = sText_PuzzleFire,
+        .catchTask = sText_CatchFire, .recordTask = sText_RecordFire, .puzzleTask = sText_PuzzleFire,
         .nextIntro = sText_NextIntroFire, .nextBriefing = sText_NextBriefFire, .nextCatch = sText_NextCatchFire,
-        .nextUse = sText_NextUseFire, .nextRecord = sText_NextRecordFire, .nextPuzzle = sText_NextPuzzleFire,
+        .nextRecord = sText_NextRecordFire, .nextPuzzle = sText_NextPuzzleFire,
         .nextTM = sText_NextTMFire, .nextExam = sText_NextExamFire,
     },
     {
         .tripStage = ACT2_WATER_TRIP, .type = TYPE_WATER,
         .siteMapSec = MAPSEC_VERMILION_CITY, .profMapSec = MAPSEC_VERMILION_CITY,
-        .catchTask = sText_CatchWater, .useTask = sText_UseWater, .recordTask = sText_RecordWater, .puzzleTask = sText_PuzzleWater,
+        .catchTask = sText_CatchWater, .recordTask = sText_RecordWater, .puzzleTask = sText_PuzzleWater,
         .nextIntro = sText_NextIntroWater, .nextBriefing = sText_NextBriefWater, .nextCatch = sText_NextCatchWater,
-        .nextUse = sText_NextUseWater, .nextRecord = sText_NextRecordWater, .nextPuzzle = sText_NextPuzzleWater,
+        .nextRecord = sText_NextRecordWater, .nextPuzzle = sText_NextPuzzleWater,
         .nextTM = sText_NextTMWater, .nextExam = sText_NextExamWater,
     },
     {
         .tripStage = ACT2_GRASS_TRIP, .type = TYPE_GRASS,
-        .siteMapSec = MAPSEC_VIRIDIAN_FOREST, .profMapSec = MAPSEC_VIRIDIAN_CITY,
-        .catchTask = sText_CatchGrass, .useTask = sText_UseGrass, .recordTask = sText_RecordGrass, .puzzleTask = sText_PuzzleGrass,
+        .siteMapSec = MAPSEC_VIRIDIAN_FOREST, .profMapSec = MAPSEC_VIRIDIAN_FOREST,
+        .catchTask = sText_CatchGrass, .recordTask = sText_RecordGrass, .puzzleTask = sText_PuzzleGrass,
         .nextIntro = sText_NextIntroGrass, .nextBriefing = sText_NextBriefGrass, .nextCatch = sText_NextCatchGrass,
-        .nextUse = sText_NextUseGrass, .nextRecord = sText_NextRecordGrass, .nextPuzzle = sText_NextPuzzleGrass,
+        .nextRecord = sText_NextRecordGrass, .nextPuzzle = sText_NextPuzzleGrass,
         .nextTM = sText_NextTMGrass, .nextExam = sText_NextExamGrass,
     },
 };
@@ -184,7 +178,6 @@ static void FillCourse(struct QuestInfo *info, u32 param, bool32 done)
     bool32 gotTM = (research & ACT2_RESEARCH_GOT_TM) != 0;
 
     AddTask(info, course->catchTask, caught, RESEARCH_TO_CATCH, caught >= RESEARCH_TO_CATCH);
-    AddTask(info, course->useTask, (research & ACT2_RESEARCH_USED_MOVE) != 0, 1, (research & ACT2_RESEARCH_USED_MOVE) != 0);
     AddTask(info, course->recordTask, recorded, RESEARCH_TO_RECORD, recorded >= RESEARCH_TO_RECORD);
     AddTask(info, course->puzzleTask, parts, PUZZLE_PARTS, puzzleDone);
     info->unitsDone += puzzleDone; // The puzzle's end is a step of its own
@@ -200,8 +193,6 @@ static void FillCourse(struct QuestInfo *info, u32 param, bool32 done)
         SetNext(info, course->nextBriefing, course->profMapSec);
     if (caught < RESEARCH_TO_CATCH)
         SetNext(info, course->nextCatch, course->siteMapSec);
-    if (!(research & ACT2_RESEARCH_USED_MOVE))
-        SetNext(info, course->nextUse, course->siteMapSec);
     if (recorded < RESEARCH_TO_RECORD)
         SetNext(info, course->nextRecord, course->siteMapSec);
     if (course->type == TYPE_WATER)

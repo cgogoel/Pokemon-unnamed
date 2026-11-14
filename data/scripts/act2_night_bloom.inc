@@ -64,6 +64,11 @@ Act2_EventScript_NightBloomRelease:
 	releaseall
 	end
 
+@ PROF. FERN's assistants at the north exit, for the whole trip (FLAG_TEMP_14)
+Act2_EventScript_ForestAssistant::
+	msgbox Act2_Text_ForestAssistant, MSGBOX_NPC
+	end
+
 @ Part 2, follow the ODDISH: too skittish to follow, until a POKéMON holds it still (SLEEP POWDER or STUN SPORE, or
 @ another GRASS status move: Act2_FindHoldStillMoveUser). Then it shakes it off and toddles along the next leg, and
 @ the next ODDISH waits where it stops. The third leads into the glade's hidden opening.
@@ -132,7 +137,7 @@ Act2_EventScript_OddishLeg3Text:
 	msgbox Act2_Text_OddishLeg3
 	return
 
-@ The legs (positions in Viridian Forest's map.json): (44,28) -> (30,17) -> (40,6) -> into the opening (40,1)
+@ The legs (positions in Viridian Forest's map.json): (44,28) -> (30,17) -> (40,6) -> into the hollow (40,3)
 Act2_EventScript_OddishLeg1:
 	applymovement LOCALID_FOREST_ODDISH_1, Act2_Movement_OddishLeg1
 	waitmovement 0
@@ -219,21 +224,19 @@ Act2_Movement_OddishLeg3:
 	walk_up
 	walk_up
 	walk_up
-	walk_up
-	walk_up
 	step_end
 
-@ The opening (coord events, row 1 of the gap) and the way back
+@ The opening (coord events in the dark hollow under the trees, row 3) and the way back (the glade's hollow, row 14)
 ViridianForest_EventScript_EnterGlade::
 	lockall
-	warp MAP_VIRIDIAN_FOREST_GLADE, 10, 13
+	warp MAP_VIRIDIAN_FOREST_GLADE, 10, 12
 	waitstate
 	releaseall
 	end
 
 ViridianForest_Glade_EventScript_ToForest::
 	lockall
-	warp MAP_VIRIDIAN_FOREST, 40, 2
+	warp MAP_VIRIDIAN_FOREST, 40, 4
 	waitstate
 	releaseall
 	end
@@ -482,6 +485,11 @@ ViridianForest_Glade_EventScript_Bug::
 	end
 
 @ ---------------------------------------------------------------------------------------------------------------
+
+Act2_Text_ForestAssistant:
+	.string "Sorry, the class stays in the\n"
+	.string "forest tonight. PROF. FERN's\l"
+	.string "orders!$"
 
 Act2_Text_GlowcapNeedsGrass:
 	.string "A mushroom, sleeping in the dark.\n"

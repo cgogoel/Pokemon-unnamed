@@ -510,15 +510,16 @@ Debug_EventScript_SkipToAct3::
 	waitstate
 	end
 
-@ Act 2's Grass course (the night bloom): arriving in Viridian at dusk, as PROF. FERN's trip does
+@ Act 2's Grass course (the night bloom): arriving at Viridian Forest's south gate at dusk, as PROF. FERN's trip does
 Debug_EventScript_SkipToGrassTrip::
 	setvar VAR_STORY_ACT, STORY_ACT_UNIVERSITY
 	setvar VAR_ACT2_RESEARCH, 0
 	setvar VAR_ACT2_MOVE_SEEN_1, MOVE_NONE
 	setvar VAR_ACT2_MOVE_SEEN_2, MOVE_NONE
+	setvar VAR_ACT2_NIGHT_BLOOM, 0
 	setvar VAR_ACT2_PROGRESS, ACT2_GRASS_TRIP
 	setrespawn HEAL_LOCATION_VIRIDIAN_CITY
-	warp MAP_VIRIDIAN_CITY, 4, 17
+	warp MAP_ROUTE2_VIRIDIAN_FOREST_SOUTH_ENTRANCE, 7, 5
 	waitstate
 	end
 

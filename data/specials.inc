@@ -679,7 +679,7 @@ gSpecials::
 	def_special Act2_BreakDawn
 	def_special Act2_GiveGladeMorelull
 	def_special StartAct2BloomWaveBattle
-	def_special Act2_SetupViridianObjects
+	def_special Act2_SetupForestGateObjects
 	def_special Act2_IsResearchDone
 	def_special Act2_IsReadyForTM
 	def_special Act2_BufferResearchSheet
@@ -687,6 +687,8 @@ gSpecials::
 	def_special Act2_SetAsideClubBench
 	def_special Act2_RestoreClubBench
 	def_special Act2_DrawDockFires
+	def_special StartFishingWithBestRod
+	def_special GetBestFishingRodItem
 	def_special Act2_PutOutDockFire
 	def_special Act2_IsDockFireBurningSpecial
 	def_special Act2_IsDockFireAlarmDue

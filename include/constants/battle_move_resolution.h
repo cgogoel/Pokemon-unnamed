@@ -64,6 +64,7 @@ enum CancelerState
     CANCELER_THAW,
     CANCELER_STANCE_CHANGE_2,
     CANCELER_ATTACKSTRING,
+    CANCELER_TRIPLE_STEP_FORWARD, // Triple battles: a DIRECT move's user moves to the front of its side
     CANCELER_PLEDGE_ATTACK,
     CANCELER_SET_TARGETS,
     CANCELER_PPDEDUCTION,

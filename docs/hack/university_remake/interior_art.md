@@ -152,9 +152,9 @@ secondary palettes (near-identical whites and greys merged); it stops if a tiles
 
 | Tileset | Rooms | Tiles | Metatiles | Secondary palettes |
 |---|---|---|---|---|
-| `gTileset_UniversityClassroom` | Main Hall 1F/2F, Lecture Halls A/B, Faculty Office, Literature, Library | 219 / 384 | 205 / 384 | 6 / 6 |
-| `gTileset_UniversityDorm` | Dorm lobby, 2F, 3F, Cafeteria | 191 / 384 | 135 / 384 | 6 / 6 |
-| `gTileset_UniversityLab` | Science Institute 1F-4F, Hospital 1F/2F, Study Hall, Home Economics | 148 / 384 | 130 / 384 | 5 / 6 |
+| `gTileset_UniversityClassroom` | Main Hall 1F/2F, Lecture Halls A/B, Faculty Office, Literature, Library | 228 / 384 | 211 / 384 | 5 / 6 |
+| `gTileset_UniversityDorm` | Dorm lobby, 2F, 3F, Cafeteria | 196 / 384 | 138 / 384 | 6 / 6 |
+| `gTileset_UniversityLab` | Science Institute 1F-4F, Hospital 1F/2F, Study Hall, Home Economics | 153 / 384 | 133 / 384 | 5 / 6 |
 
 Palettes are what fills up (copying from several FireRed tilesets brings several 15-color palettes): the Classroom and
 Dorm sets have none left, so new pieces there must reuse their colors (`fit()` moves a piece into colors already used)
@@ -277,3 +277,10 @@ design stays as `stairwell_depth`):
 - the opening framed in the room's wall as before; the landing (the warp cells) is the room's floor.
 Warps and collision are unchanged. `audit/34_stairs_flat_compare.png`: current | flat for a dorm up and down flight
 and the Main Hall's; `audit/35_stairs_flat_all.png`: all 16, before (master) | after.
+
+Follow-up: the down flights keep their earlier design (the treads stepping down from the floor line, each lower one
+darker and narrower, into the dark), without any rail. The up flights now use the same design fading to light
+instead (`stairwell_fade`, `UP_FLAT_OR_FADE = 'fade'`; the flat flight stays as 'flat'): the opening is light,
+palest at the top (the floor above, lit), and the treads step up from the floor line, the bottom one widest, each
+higher one a shade lighter and a little narrower; no rail. `audit/37_stairs_up_fade_down_norail.png`: all 16,
+before (master) | after; `audit/38_stairs_up_down_closeup.png`: an up flight beside a down one (Dorm 2F).

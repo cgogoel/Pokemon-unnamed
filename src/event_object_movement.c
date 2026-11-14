@@ -2737,6 +2737,12 @@ void GetFollowerAction(struct ScriptContext *ctx) // Essentially a big switch fo
                         gFollowerBasicMessages[emotion].script);
 }
 
+// The night bloom's spores twinkle: lit for GLOWCAP_SPORE_BLINK_ON frames out of every GLOWCAP_SPORE_BLINK_PERIOD,
+// each at its own moment (by its square), so only one or two of a trail are lit at once. Their number and spacing are
+// tools/hack/place_glowcap_spores.py's SPORE_SPACING.
+#define GLOWCAP_SPORE_BLINK_PERIOD 240
+#define GLOWCAP_SPORE_BLINK_ON     36
+
 #define sLightWindow data[2] // The hack: a spore's window twin (its sprite id + 1, 0 for none)
 #define sLightFlag data[4] // The hack: its template's flag; the light goes out when it's set
 #define sLightType data[5]
@@ -2829,7 +2835,8 @@ void UpdateLightSprite(struct Sprite *sprite)
     // The night bloom's spores twinkle, each in its own time (and their window twins with them)
     if (sprite->sLightType == LIGHT_TYPE_GLOWCAP_SPORE)
     {
-        sprite->invisible = ((sprite->data[3]++ + sprite->sLightXPos * 9 + sprite->sLightYPos * 5) & 63) < 14;
+        u32 phase = (sprite->data[3]++ + sprite->sLightXPos * 37 + sprite->sLightYPos * 23) % GLOWCAP_SPORE_BLINK_PERIOD;
+        sprite->invisible = phase >= GLOWCAP_SPORE_BLINK_ON;
         SyncLightWindow(sprite);
         return;
     }

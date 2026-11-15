@@ -327,13 +327,17 @@ ViridianForest_Glade_EventScript_BugGone:
 @ Beaten: they scatter, the player steps back out of the gap, and the MORELULL fills it with a hedge
 ViridianForest_Glade_EventScript_WaveWon:
 	specialvar VAR_0x8004, Act2_GetNextWave
-	removeobject VAR_0x8005
+	call ViridianForest_Glade_EventScript_RemoveWave
 	msgbox Act2_Text_WaveScattered
 	closemessage
 	call ViridianForest_Glade_EventScript_LeaveGap
 	call_if_eq VAR_0x8004, 1, ViridianForest_Glade_EventScript_FaceWest
 	call_if_eq VAR_0x8004, 2, ViridianForest_Glade_EventScript_FaceNorth
 	call_if_eq VAR_0x8004, 3, ViridianForest_Glade_EventScript_FaceEast
+	@ The MORELULL comes over to the gap
+	call_if_eq VAR_0x8004, 1, ViridianForest_Glade_EventScript_MorelullToWest
+	call_if_eq VAR_0x8004, 2, ViridianForest_Glade_EventScript_MorelullToNorth
+	call_if_eq VAR_0x8004, 3, ViridianForest_Glade_EventScript_MorelullToEast
 	playmoncry SPECIES_MORELULL, CRY_MODE_NORMAL
 	msgbox Act2_Text_MorelullIngrain
 	waitmoncry
@@ -342,7 +346,93 @@ ViridianForest_Glade_EventScript_WaveWon:
 	special DrawWholeMapView
 	msgbox Act2_Text_HedgeGrew
 	waitse
+	closemessage
+	@ and back to the bud
+	call_if_eq VAR_0x8004, 1, ViridianForest_Glade_EventScript_MorelullFromWest
+	call_if_eq VAR_0x8004, 2, ViridianForest_Glade_EventScript_MorelullFromNorth
+	call_if_eq VAR_0x8004, 3, ViridianForest_Glade_EventScript_MorelullFromEast
 	goto ViridianForest_Glade_EventScript_NextWave
+
+ViridianForest_Glade_EventScript_MorelullToWest:
+	applymovement LOCALID_GLADE_MORELULL, ViridianForest_Glade_Movement_MorelullToWest
+	waitmovement 0
+	return
+
+ViridianForest_Glade_EventScript_MorelullToNorth:
+	applymovement LOCALID_GLADE_MORELULL, ViridianForest_Glade_Movement_MorelullToNorth
+	waitmovement 0
+	return
+
+ViridianForest_Glade_EventScript_MorelullToEast:
+	applymovement LOCALID_GLADE_MORELULL, ViridianForest_Glade_Movement_MorelullToEast
+	waitmovement 0
+	return
+
+ViridianForest_Glade_EventScript_MorelullFromWest:
+	applymovement LOCALID_GLADE_MORELULL, ViridianForest_Glade_Movement_MorelullFromWest
+	waitmovement 0
+	return
+
+ViridianForest_Glade_EventScript_MorelullFromNorth:
+	applymovement LOCALID_GLADE_MORELULL, ViridianForest_Glade_Movement_MorelullFromNorth
+	waitmovement 0
+	return
+
+ViridianForest_Glade_EventScript_MorelullFromEast:
+	applymovement LOCALID_GLADE_MORELULL, ViridianForest_Glade_Movement_MorelullFromEast
+	waitmovement 0
+	return
+
+@ From beside the bud (11,9) to a few squares short of the gap, facing it: (6,8) west, (10,7) north, (14,8) east
+ViridianForest_Glade_Movement_MorelullToWest:
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_up
+	face_left
+	step_end
+
+ViridianForest_Glade_Movement_MorelullFromWest:
+	walk_down
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	face_down
+	step_end
+
+ViridianForest_Glade_Movement_MorelullToNorth:
+	walk_up
+	walk_up
+	walk_left
+	face_up
+	step_end
+
+ViridianForest_Glade_Movement_MorelullFromNorth:
+	walk_right
+	walk_down
+	walk_down
+	face_down
+	step_end
+
+ViridianForest_Glade_Movement_MorelullToEast:
+	walk_right
+	walk_right
+	walk_right
+	walk_up
+	face_right
+	step_end
+
+ViridianForest_Glade_Movement_MorelullFromEast:
+	walk_down
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
 
 ViridianForest_Glade_EventScript_LeaveGap:
 	specialvar VAR_RESULT, Act2_GetGapStepOut
@@ -392,12 +482,37 @@ ViridianForest_Glade_EventScript_ShowBug1:
 
 ViridianForest_Glade_EventScript_ShowBug2:
 	clearflag FLAG_TEMP_7
+	clearflag FLAG_TEMP_9
 	addobject LOCALID_GLADE_BUG_2
+	addobject LOCALID_GLADE_BUG_2B
 	return
 
 ViridianForest_Glade_EventScript_ShowBug3:
 	clearflag FLAG_TEMP_8
+	clearflag FLAG_TEMP_A
+	clearflag FLAG_TEMP_B
 	addobject LOCALID_GLADE_BUG_3
+	addobject LOCALID_GLADE_BUG_3B
+	addobject LOCALID_GLADE_BUG_3C
+	return
+
+@ The whole wave leaves (VAR_0x8004 the wave, VAR_0x8005 its first one)
+ViridianForest_Glade_EventScript_RemoveWave:
+	removeobject VAR_0x8005
+	call_if_eq VAR_0x8004, 2, ViridianForest_Glade_EventScript_RemoveWave2
+	call_if_eq VAR_0x8004, 3, ViridianForest_Glade_EventScript_RemoveWave3
+	return
+
+ViridianForest_Glade_EventScript_RemoveWave2:
+	setflag FLAG_TEMP_9
+	removeobject LOCALID_GLADE_BUG_2B
+	return
+
+ViridianForest_Glade_EventScript_RemoveWave3:
+	setflag FLAG_TEMP_A
+	setflag FLAG_TEMP_B
+	removeobject LOCALID_GLADE_BUG_3B
+	removeobject LOCALID_GLADE_BUG_3C
 	return
 
 ViridianForest_Glade_EventScript_Wave1Text:

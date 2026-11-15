@@ -272,13 +272,13 @@ bool16 Act2_FindHoldStillMoveUser(void)
 
 // special Act2_SetupGladeObjects, on the glade's transition: FLAG_TEMP_2 the MOONVEIL's bud (until dawn, and off the
 // trip), FLAG_TEMP_3 its bloom (from dawn, on the trip), FLAG_TEMP_4 the MORELULL (on the trip until it comes along),
-// FLAG_TEMP_5 PROF. FERN (once she's come, on the trip), FLAG_TEMP_6-8 the waves' BUG POKéMON (the wave at its gap,
-// from the arrival until it's beaten).
+// FLAG_TEMP_5 PROF. FERN (once she's come, on the trip), FLAG_TEMP_6-8 the waves' BUG POKéMON and FLAG_TEMP_9 (the
+// second's other), FLAG_TEMP_A-B (the third's others): the wave at its gap, from the arrival until it's beaten.
 void Act2_SetupGladeObjects(void)
 {
     u32 bloom = GetBloom(), i;
     bool32 trip = Act2_IsGrassTrip();
-    for (i = 0; i < 7; i++)
+    for (i = 0; i < 10; i++)
         FlagSet(FLAG_TEMP_2 + i);
     FlagClear((trip && (bloom & NIGHT_BLOOM_DAWN)) ? FLAG_TEMP_3 : FLAG_TEMP_2);
     if (trip && !FlagGet(FLAG_ACT2_GOT_MORELULL))
@@ -292,6 +292,13 @@ void Act2_SetupGladeObjects(void)
             if (!(bloom & (NIGHT_BLOOM_WAVE_1 << i)))
             {
                 FlagClear(FLAG_TEMP_6 + i);
+                if (i == 1)
+                    FlagClear(FLAG_TEMP_9);
+                if (i == 2)
+                {
+                    FlagClear(FLAG_TEMP_A);
+                    FlagClear(FLAG_TEMP_B);
+                }
                 break;
             }
         }
@@ -299,7 +306,8 @@ void Act2_SetupGladeObjects(void)
 }
 
 // specialvar VAR_RESULT, Act2_GetGapStepOut with the wave (1-3) in VAR_0x8004: the way to step (DIR_*) for the
-// player to be out of the wave's gap, where its hedge grows (west: x 3 on; north: y 5 on; east: x 17 back), or
+// player and the Pokémon following them to be out of the wave's gap, where its hedge grows (west: x 4 on;
+// north: y 6 on; east: x 16 back), or
 // DIR_NONE when they're clear of it
 u16 Act2_GetGapStepOut(void)
 {
@@ -310,11 +318,11 @@ u16 Act2_GetGapStepOut(void)
     switch (gSpecialVar_0x8004)
     {
     case 1:
-        return x < 3 ? DIR_EAST : DIR_NONE;
+        return x < 4 ? DIR_EAST : DIR_NONE;
     case 2:
-        return y < 5 ? DIR_SOUTH : DIR_NONE;
+        return y < 6 ? DIR_SOUTH : DIR_NONE;
     case 3:
-        return x > 17 ? DIR_WEST : DIR_NONE;
+        return x > 16 ? DIR_WEST : DIR_NONE;
     }
     return DIR_NONE;
 }

@@ -3562,6 +3562,9 @@ bool32 CanThrowLastUsedBall(void)
         return FALSE;
     if (gBattleTypeFlags & (BATTLE_TYPE_TRAINER | BATTLE_TYPE_FRONTIER))
         return FALSE;
+    // 2v2 and 3v3 (the hack's): L and R pick the Pokémon there, so Poké Balls only come from the BAG
+    if (gBattleTypeFlags & (BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE))
+        return FALSE;
     if (!CheckBagHasItem(gBallToDisplay, 1))
         return FALSE;
     if (IsVictoryCatch())

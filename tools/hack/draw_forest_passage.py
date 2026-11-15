@@ -46,6 +46,21 @@ CORNER = 39                             # The entrance's corners' radius, in pix
 # toward the passage), each row: left, the passage's three, right
 FOREST_ROWS = [[FIRST + r * 5 + i for i in range(5)] for r in range(5)]        # Rows 0-4, x 38-42
 GLADE_ROWS = [[FIRST + 25 + r * 5 + i for i in range(5)] for r in range(4)]    # Rows 12-15, x 8-12
+# The glade's three gaps where the BUG POKéMON come in (compose_glade.py): darkness from the forest beyond, round
+# the trunks and on the ground, fading into the clearing. Each: the cells (x, y) and their metatiles from GAP_FIRST
+GAP_FIRST = FIRST + 45
+GAP_CELLS = {
+    'north': [(x, y) for y in range(4) for x in range(8, 13)],      # A tree across its far end (x 9-11: crown, trunk,
+                                                                    # shadow), the trees either side darkening toward it
+    'west': [(x, y) for y in range(5, 10) for x in range(0, 3)],    # The trunks above it and the way out west
+    'east': [(x, y) for y in range(5, 10) for x in range(18, 21)],
+}
+GAP_IDS = {}
+for _name in ('north', 'west', 'east'):
+    for _cell in GAP_CELLS[_name]:
+        GAP_IDS[(_name, _cell)] = GAP_FIRST + len(GAP_IDS)
+SHADOW = {3, 4, 5}                      # The trunks' shadow's greens (TRUNK_2's), dark in the gaps
+GAP_FADE = 26                           # The gaps' fade from the forest's dark into the clearing, in pixels
 SIDE = 16                               # The neighbors' cells in the canvas either side of the passage
 OPEN = {0: {8, 9, 10, 11, 12, 13, 14, 15}, 8: {12, 13, 14, 15}}   # The grass's colors by palette (9 is all gap
                                         # shade): the open space; anything else (the dark green outline, leaves,
@@ -241,6 +256,92 @@ def main():
                 out_meta += struct.pack('<8H', *(quarters + [0, 0, 0, 0]))
                 out_attr += struct.pack('<I', LAYER_COVERED << 29)
 
+    # --- The gaps ------------------------------------------------------------------------------------------------
+    primary_meta = open(os.path.join(ROOT, 'data/tilesets/primary/general_frlg/metatiles.bin'), 'rb').read()
+    primary_attr = open(os.path.join(ROOT, 'data/tilesets/primary/general_frlg/metatile_attributes.bin'), 'rb').read()
+    GRASS_MT = [[0x008, 0x009], [0x010, 0x011]]
+
+    def entries_of(m):
+        if m < PRIMARY_TILES:
+            return list(struct.unpack_from('<8H', primary_meta, m * 16)), struct.unpack_from('<I', primary_attr, m * 4)[0]
+        return original(m), attrs_of(m)
+
+    def gap_source(name, x, y):
+        """What compose_glade.py has at (x, y) without the dark: the trees round the gap, or the grass."""
+        if name == 'north':
+            if x in (8, 12):                 # The top band's trees either side
+                return [CANOPY_A, CANOPY_B, CANOPY_A, TRUNK_1][y][x % 3]
+            row = [CANOPY_A, TRUNK_1, TRUNK_2][y] if y < 3 else None
+        else:
+            row = {5: TRUNK_1, 6: TRUNK_2}.get(y)
+            if y == 9 and x % 3 == 1:
+                return 0x281                 # The crown's tip of the tree below the gap
+        return row[x % 3] if row else GRASS_MT[y % 2][x % 2]
+
+    def ramp_at(dist, x, y):
+        d = max(0.0, dist) * RAMP_PX * len(RAMP) + (noise(x, y) % 3)
+        step, frac = int(d // RAMP_PX), (d % RAMP_PX) / RAMP_PX
+        if frac * 4 > BAYER[y % 2][x % 2] + 0.5:
+            step += 1
+        return RAMP[max(0, min(step, len(RAMP) - 1))]
+
+    def gap_dark(name, gx, gy):
+        """The dark at a gap's pixel (gx, gy from the gap's top left): deep at the forest's end, fading over GAP_FADE
+        into the clearing, rounded off at the open corners."""
+        if name == 'north':                  # 80 x 64 (the gap and a tree either side): the forest beyond at the top
+            e = 63.5 - gy - 8                                    # The last half row is the clearing's
+            side = (min(gx + 0.5, 79.5 - gx)) * GAP_FADE / 16     # Dark to the gap's edges, fading across the trees
+        else:                                # 48 x 80: the forest beyond at the map's edge; the clearing inward
+            e = (47.5 - gx if name == 'west' else gx + 0.5) - 4
+            side = 79.5 - gy + 10 if gy >= 32 else 999           # Rounded at the bottom; the trees above
+        c = 18
+        if e < c and side < c:
+            u, v = (c - e) / c, (c - side) / c
+            dist = (1 - (u * u + v * v) ** 0.5) * c / GAP_FADE
+        else:
+            dist = min(e, side) / GAP_FADE
+        return ramp_at(dist, gx, gy)
+
+    for name in ('north', 'west', 'east'):
+        cells = GAP_CELLS[name]
+        x0, y0 = cells[0]
+        for (x, y) in cells:
+            m = gap_source(name, x, y)
+            e, attr = entries_of(m)
+            out, any_change = list(e), False
+            for k in range(4):
+                px, changed = [], False
+                comp = [[None] * 8 for _ in range(8)]
+                for layer in (0, 1):
+                    p, src = any_px(e[layer * 4 + k])
+                    for yy in range(8):
+                        for xx in range(8):
+                            c = src[yy][xx]
+                            if c == 0 and not (layer == 0 and p != PAL):
+                                continue
+                            comp[yy][xx] = (p, c)
+                for yy in range(8):
+                    row = []
+                    for xx in range(8):
+                        p, c = comp[yy][xx] or (PAL, 13)
+                        gx, gy = (x - x0) * 16 + k % 2 * 8 + xx, (y - y0) * 16 + k // 2 * 8 + yy
+                        shadow = m in TRUNK_2 and p == PAL and c in SHADOW    # The trunks' shadow goes dark too
+                        if c in OPEN.get(p, ()) or p == 9 or shadow:
+                            dk = gap_dark(name, gx, gy)
+                            if dk != RAMP[0]:
+                                changed = True
+                                row.append(dk)
+                                continue
+                            row.append(c if p == PAL else nearest8(pals[p][c]))
+                        else:
+                            row.append(c if p == PAL else nearest8(pals[p][c]))
+                    px.append(row)
+                if changed:
+                    out[k], out[4 + k] = add(px), 0
+                    any_change = True
+            out_meta += struct.pack('<8H', *out)
+            out_attr += struct.pack('<I', attr if m >= PRIMARY_TILES else LAYER_COVERED << 29)
+
     tile_rows = (len(new_tiles) + per_row - 1) // per_row
     rows += [[0] * width for _ in range(tile_rows * 8)]
     for n, px in enumerate(new_tiles):
@@ -255,7 +356,7 @@ def main():
     for slot, rgb in NEW_COLORS.items():
         lines[3 + slot] = '%d %d %d' % rgb
     open(pal_path, 'w').write('\n'.join(lines))
-    print('passage: %d tiles, metatiles 0x%03X-0x%03X' % (len(new_tiles), FIRST, GLADE_ROWS[-1][-1]))
+    print('passage: %d tiles, metatiles 0x%03X-0x%03X' % (len(new_tiles), FIRST, GAP_FIRST + len(GAP_IDS) - 1))
 
 
 if __name__ == '__main__':

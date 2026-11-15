@@ -294,9 +294,6 @@ ViridianForest_Glade_EventScript_Arrival:
 ViridianForest_Glade_EventScript_NextWave:
 	specialvar VAR_0x8004, Act2_GetNextWave
 	goto_if_eq VAR_0x8004, 0, ViridianForest_Glade_EventScript_Dawn
-	call_if_eq VAR_0x8004, 1, ViridianForest_Glade_EventScript_ShowBug1
-	call_if_eq VAR_0x8004, 2, ViridianForest_Glade_EventScript_ShowBug2
-	call_if_eq VAR_0x8004, 3, ViridianForest_Glade_EventScript_ShowBug3
 	playse SE_PIN
 	call_if_eq VAR_0x8004, 1, ViridianForest_Glade_EventScript_Wave1Text
 	call_if_eq VAR_0x8004, 2, ViridianForest_Glade_EventScript_Wave2Text
@@ -304,11 +301,83 @@ ViridianForest_Glade_EventScript_NextWave:
 	releaseall
 	end
 
-@ The wave at its gap: the battle
+@ Walking up to a gap: if its wave is the one due, they come out of the trees and the battle starts
+ViridianForest_Glade_EventScript_ApproachWest::
+	setvar VAR_0x8006, 1
+	goto ViridianForest_Glade_EventScript_Approach
+
+ViridianForest_Glade_EventScript_ApproachNorth::
+	setvar VAR_0x8006, 2
+	goto ViridianForest_Glade_EventScript_Approach
+
+ViridianForest_Glade_EventScript_ApproachEast::
+	setvar VAR_0x8006, 3
+ViridianForest_Glade_EventScript_Approach:
+	specialvar VAR_RESULT, Act2_GetGladeScene
+	goto_if_ne VAR_RESULT, GLADE_SCENE_VIGIL, ViridianForest_Glade_EventScript_NoWaveHere
+	specialvar VAR_0x8004, Act2_GetNextWave
+	goto_if_ne VAR_0x8004, VAR_0x8006, ViridianForest_Glade_EventScript_NoWaveHere
+	lockall
+	call_if_eq VAR_0x8004, 1, ViridianForest_Glade_EventScript_EmergeWest
+	call_if_eq VAR_0x8004, 2, ViridianForest_Glade_EventScript_EmergeNorth
+	call_if_eq VAR_0x8004, 3, ViridianForest_Glade_EventScript_EmergeEast
+	goto ViridianForest_Glade_EventScript_WaveBattle
+
+ViridianForest_Glade_EventScript_NoWaveHere:
+	end
+
+@ Out of the dark between the trees, toward the player (unless they're out already: a battle run from)
+ViridianForest_Glade_EventScript_EmergeWest:
+	goto_if_unset FLAG_TEMP_6, Common_EventScript_NopReturn
+	call ViridianForest_Glade_EventScript_ShowBug1
+	playse SE_PIN
+	applymovement LOCALID_GLADE_BUG_1, ViridianForest_Glade_Movement_EmergeRight
+	waitmovement 0
+	return
+
+ViridianForest_Glade_EventScript_EmergeNorth:
+	goto_if_unset FLAG_TEMP_7, Common_EventScript_NopReturn
+	call ViridianForest_Glade_EventScript_ShowBug2
+	playse SE_PIN
+	applymovement LOCALID_GLADE_BUG_2, ViridianForest_Glade_Movement_EmergeDown
+	applymovement LOCALID_GLADE_BUG_2B, ViridianForest_Glade_Movement_EmergeDown
+	waitmovement 0
+	return
+
+ViridianForest_Glade_EventScript_EmergeEast:
+	goto_if_unset FLAG_TEMP_8, Common_EventScript_NopReturn
+	call ViridianForest_Glade_EventScript_ShowBug3
+	playse SE_PIN
+	applymovement LOCALID_GLADE_BUG_3, ViridianForest_Glade_Movement_EmergeLeft
+	applymovement LOCALID_GLADE_BUG_3B, ViridianForest_Glade_Movement_EmergeLeft
+	applymovement LOCALID_GLADE_BUG_3C, ViridianForest_Glade_Movement_EmergeLeft
+	waitmovement 0
+	return
+
+ViridianForest_Glade_Movement_EmergeRight:
+	walk_right
+	walk_right
+	walk_in_place_right
+	step_end
+
+ViridianForest_Glade_Movement_EmergeDown:
+	walk_down
+	walk_down
+	walk_in_place_down
+	step_end
+
+ViridianForest_Glade_Movement_EmergeLeft:
+	walk_left
+	walk_left
+	walk_in_place_left
+	step_end
+
+@ Talking to them, out at their gap (after a battle run from): the battle again
 ViridianForest_Glade_EventScript_Bug::
 	lockall
 	specialvar VAR_0x8004, Act2_GetNextWave
 	goto_if_eq VAR_0x8004, 0, ViridianForest_Glade_EventScript_BugGone
+ViridianForest_Glade_EventScript_WaveBattle:
 	msgbox Act2_Text_WaveBattle
 	closemessage
 	special StartAct2BloomWaveBattle

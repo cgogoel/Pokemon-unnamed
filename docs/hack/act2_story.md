@@ -151,8 +151,9 @@ dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_n
   dark passage between the trees from the other side) is a moonlit clearing with the MOONVEIL's bud in the middle and a
   MORELULL glowing beside it. Arriving, the bud's scent draws hungry BUG POKéMON in three waves, one gap at a time:
   west, north, east (each gap dark toward the forest beyond: the north one under a tree across its far end).
-  Each is announced ("Go stop it!") and waits at its gap, every Pokémon of it shown, walking in place
-  (`Act2_SetupGladeObjects`); the player goes there and fights it (`StartAct2BloomWaveBattle`): Venonat; Paras and
+  Each is announced ("Go stop it!") and hides in the dark trees beyond its gap; when the player walks up to the gap
+  (coord events: x 3, y 5 or x 17), every Pokémon of it comes out toward them and the battle starts (talking to them
+  after a battle run from starts it again; they walk in place while out) (`StartAct2BloomWaveBattle`): Venonat; Paras and
   Venonat; Venomoth, Beedrill and Venonat, at the area's level (+1, +2 for the last two), as many a side as both can
   field with the 3v3 rules. Winning (or catching) scatters them; the player steps back out of the gap far enough
   for their follower to clear it too (`Act2_GetGapStepOut`), the MORELULL walks over, uses INGRAIN and its roots

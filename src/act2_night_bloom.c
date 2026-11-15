@@ -272,8 +272,9 @@ bool16 Act2_FindHoldStillMoveUser(void)
 
 // special Act2_SetupGladeObjects, on the glade's transition: FLAG_TEMP_2 the MOONVEIL's bud (until dawn, and off the
 // trip), FLAG_TEMP_3 its bloom (from dawn, on the trip), FLAG_TEMP_4 the MORELULL (on the trip until it comes along),
-// FLAG_TEMP_5 PROF. FERN (once she's come, on the trip), FLAG_TEMP_6-8 the waves' BUG POKéMON and FLAG_TEMP_9 (the
-// second's other), FLAG_TEMP_A-B (the third's others): the wave at its gap, from the arrival until it's beaten.
+// FLAG_TEMP_5 PROF. FERN (once she's come, on the trip). FLAG_TEMP_6-8 the waves' BUG POKéMON and FLAG_TEMP_9 (the
+// second's other), FLAG_TEMP_A-B (the third's others) stay hidden in the trees: they come out when the player walks up
+// to the wave's gap (the Approach scripts).
 void Act2_SetupGladeObjects(void)
 {
     u32 bloom = GetBloom(), i;
@@ -285,24 +286,6 @@ void Act2_SetupGladeObjects(void)
         FlagClear(FLAG_TEMP_4);
     if (trip && (bloom & NIGHT_BLOOM_FERN))
         FlagClear(FLAG_TEMP_5);
-    if (trip && (bloom & NIGHT_BLOOM_ARRIVED) && (bloom & NIGHT_BLOOM_WAVES) != NIGHT_BLOOM_WAVES)
-    {
-        for (i = 0; i < 3; i++)
-        {
-            if (!(bloom & (NIGHT_BLOOM_WAVE_1 << i)))
-            {
-                FlagClear(FLAG_TEMP_6 + i);
-                if (i == 1)
-                    FlagClear(FLAG_TEMP_9);
-                if (i == 2)
-                {
-                    FlagClear(FLAG_TEMP_A);
-                    FlagClear(FLAG_TEMP_B);
-                }
-                break;
-            }
-        }
-    }
 }
 
 // specialvar VAR_RESULT, Act2_IsDewCollected: whether the player collected the MOONVEIL's dew (the puzzle's end)

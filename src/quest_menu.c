@@ -147,6 +147,8 @@ static const u8 sText_Hints[] = _("{A_BUTTON}MAP  {B_BUTTON}BACK");
 static const u8 sText_Act[] = _("ACT ");
 static const u8 sText_Percent[] = _("%");
 static const u8 sText_Locked[] = _("? ? ?");
+static const u8 sText_KindMain[] = _("MAIN");
+static const u8 sText_KindSide[] = _("SIDE");
 static const u8 sText_Cursor[] = _("▶");
 static const u8 sText_Next[] = _("NEXT:");
 static const u8 sText_Done[] = _("Done!");
@@ -247,7 +249,8 @@ static void CB2_QuestMenu(void)
     UpdatePaletteFade();
 }
 
-// The list's order: the quest under way, then the finished ones (newest first), then "? ? ?" for the rest
+// The list's order: the quest under way, the side quests open after it, then the finished ones (newest first), then
+// "? ? ?" for the rest
 static void BuildRows(void)
 {
     s32 current = Quests_GetCurrentIndex(), i;
@@ -258,6 +261,13 @@ static void BuildRows(void)
     sQuestMenu->moreLocked = FALSE;
     if (current >= 0)
         sQuestMenu->rows[sQuestMenu->numRows++] = current;
+    // Side quests are never the quest under way, so they get their own pass to sit under it while they're open
+    for (i = 0; i < (s32)count; i++)
+    {
+        Quests_Get(i, &info);
+        if (info.kind == QUEST_SIDE && info.state == QUEST_CURRENT && sQuestMenu->numRows < MAX_ROWS)
+            sQuestMenu->rows[sQuestMenu->numRows++] = i;
+    }
     for (i = count - 1; i >= 0; i--)
     {
         Quests_Get(i, &info);
@@ -481,6 +491,9 @@ static void DrawDetail(const struct QuestInfo *info)
         GetMapNameGeneric(text, info->targetMapSec);
         AddTextPrinterParameterized3(WIN_DETAIL, FONT_SMALL, 10, 14, sColorDark, TEXT_SKIP_DRAW, text);
     }
+    // MAIN or SIDE, right-aligned on the place's line
+    PrintRightAligned(WIN_DETAIL, FONT_SMALL, 144, 14, sColorGray,
+                      info->kind == QUEST_SIDE ? sText_KindSide : sText_KindMain);
     DrawBar(WIN_DETAIL, 0, 27, 144, 5, percent);
     for (i = 0; i < info->numTasks; i++)
         DrawTask(&info->tasks[i], 34 + i * 10);

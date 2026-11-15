@@ -28,6 +28,7 @@ FriendHomes_EventScript_Return::
 FriendHomes_EventScript_KaiDad::
 	lock
 	faceplayer
+	setflag FLAG_ACT2_VISITED_KAI_DADS @ The quest screen's side quest (src/quests.c)
 	call FriendHomes_EventScript_GetStage
 	goto_if_eq VAR_RESULT, FRIEND_HOMES_CHILDHOOD, FriendHomes_EventScript_KaiDadChildhood
 	goto_if_eq VAR_RESULT, FRIEND_HOMES_PROJECT, FriendHomes_EventScript_KaiDadProject
@@ -55,6 +56,7 @@ FriendHomes_EventScript_KaiDadLater::
 FriendHomes_EventScript_KaiPapa::
 	lock
 	faceplayer
+	setflag FLAG_ACT2_VISITED_KAI_DADS @ The quest screen's side quest (src/quests.c)
 	call FriendHomes_EventScript_GetStage
 	goto_if_eq VAR_RESULT, FRIEND_HOMES_CHILDHOOD, FriendHomes_EventScript_KaiPapaChildhood
 	goto_if_eq VAR_RESULT, FRIEND_HOMES_PROJECT, FriendHomes_EventScript_KaiPapaProject

@@ -15,7 +15,8 @@
 
 // The quest menu's content (docs/hack/quests.md)
 
-enum { QUEST_FIRST_DAY, QUEST_FIRE, QUEST_CLUB_1, QUEST_WATER, QUEST_CLUB_2, QUEST_GRASS, QUEST_CARD, QUEST_ROAD, QUEST_WOODS };
+enum { QUEST_FIRST_DAY, QUEST_FIRE, QUEST_CLUB_1, QUEST_WATER, QUEST_CLUB_2, QUEST_GRASS, QUEST_CARD, QUEST_ROAD, QUEST_WOODS,
+       QUEST_KAI_DADS };
 
 static void SetUpAct2(u32 stage, u32 research)
 {
@@ -27,6 +28,7 @@ static void SetUpAct2(u32 stage, u32 research)
     VarSet(VAR_ACT2_FINALE, 0);
     VarSet(VAR_QUEST_LOG, 0);
     FlagClear(FLAG_ACT2_GOT_LAPRAS);
+    FlagClear(FLAG_ACT2_VISITED_KAI_DADS);
     ZeroPlayerPartyMons();
     ResetPokemonStorageSystem();
 }
@@ -45,7 +47,7 @@ TEST("Quests: the menu is there from Act 2 on")
     EXPECT(!Quests_IsMenuAvailable());
     VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
     EXPECT(Quests_IsMenuAvailable());
-    EXPECT_EQ(Quests_Count(), 9);
+    EXPECT_EQ(Quests_Count(), 10); // 9 MAIN + the KAI's dads SIDE quest
     VarSet(VAR_STORY_ACT, STORY_ACT_WORKFORCE);
     EXPECT(Quests_IsMenuAvailable());
     EXPECT_EQ(Quests_Count(), 1);
@@ -75,7 +77,7 @@ TEST("Quests: a course counts its research, its puzzle, the TM and the exam")
     EXPECT_EQ(info.unitsTotal, 12);
     EXPECT_EQ(Quests_GetPercent(&info), 50);
     EXPECT_EQ(info.targetMapSec, MAPSEC_VERMILION_CITY);
-    // The finished quests before it, and the course: (100 + 100 + 100 + 50) / 9
+    // The finished quests before it, and the course: (100 + 100 + 100 + 50) / 9 (the SIDE quest is left out)
     EXPECT_EQ(Quests_GetActPercent(), 38);
     Quests_Get(QUEST_FIRE, &info);
     EXPECT_EQ(info.state, QUEST_DONE);
@@ -206,4 +208,56 @@ TEST("Quests: every next step fits the quest menu's line")
         EXPECT_LE(GetStringWidth(FONT_NORMAL, info.title, 0), 144 - 28);
     }
     VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+}
+
+TEST("Quests: KAI's dads is a SIDE quest, kept by its own flag")
+{
+    struct QuestInfo info;
+    SetUpAct2(ACT2_MET_FRIENDS, 0);
+
+    Quests_Get(QUEST_KAI_DADS, &info);
+    EXPECT_EQ(info.kind, QUEST_SIDE);
+    EXPECT_EQ(info.state, QUEST_CURRENT);
+    EXPECT_EQ(info.numTasks, 1);
+    EXPECT(!info.tasks[0].done);
+    EXPECT_EQ(info.targetMapSec, MAPSEC_CELADON_CITY);
+
+    // Calling on either dad sets the flag, and the quest reads as done from then on
+    FlagSet(FLAG_ACT2_VISITED_KAI_DADS);
+    Quests_Get(QUEST_KAI_DADS, &info);
+    EXPECT_EQ(info.state, QUEST_DONE);
+    EXPECT(info.tasks[0].done);
+    EXPECT_EQ(Quests_GetPercent(&info), 100);
+    FlagClear(FLAG_ACT2_VISITED_KAI_DADS);
+}
+
+TEST("Quests: the SIDE quest is locked before Act 2's friends are met")
+{
+    struct QuestInfo info;
+    SetUpAct2(ACT2_START, 0);
+
+    Quests_Get(QUEST_KAI_DADS, &info);
+    EXPECT_EQ(info.state, QUEST_LOCKED);
+}
+
+TEST("Quests: the main quests are MAIN, and the SIDE quest moves neither the act's % nor the marker")
+{
+    struct QuestInfo info;
+    u32 before, after, i;
+    SetUpAct2(ACT2_MET_FRIENDS, 0);
+
+    for (i = QUEST_FIRST_DAY; i <= QUEST_WOODS; i++)
+    {
+        Quests_Get(i, &info);
+        EXPECT_EQ(info.kind, QUEST_MAIN);
+    }
+
+    // The quest under way and the map marker stay on the main story while the side quest is open
+    EXPECT_EQ(Quests_GetCurrentIndex(), QUEST_FIRE);
+    before = Quests_GetActPercent();
+    FlagSet(FLAG_ACT2_VISITED_KAI_DADS);
+    after = Quests_GetActPercent();
+    EXPECT_EQ(Quests_GetCurrentIndex(), QUEST_FIRE);
+    EXPECT_EQ(before, after); // Finishing a SIDE quest doesn't move the act's %
+    FlagClear(FLAG_ACT2_VISITED_KAI_DADS);
 }

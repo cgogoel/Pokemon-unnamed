@@ -13,6 +13,14 @@ enum QuestState
     QUEST_DONE,
 };
 
+// MAIN quests follow the act's stages and count toward the act's %; SIDE ones are optional, are kept by their own
+// flag, and are left out of the act's % and of the quest under way (so the map marker stays on the main story).
+enum QuestKind
+{
+    QUEST_MAIN,
+    QUEST_SIDE,
+};
+
 struct QuestTask
 {
     const u8 *text;
@@ -28,6 +36,7 @@ struct QuestInfo
     const u8 *next;     // The next step
     u16 targetMapSec;   // What blinks on the map (MAPSEC_NONE: nothing)
     u8 state;           // enum QuestState
+    u8 kind;            // enum QuestKind
     u8 numTasks;
     u8 unitsDone;       // The quest's % is unitsDone / unitsTotal
     u8 unitsTotal;

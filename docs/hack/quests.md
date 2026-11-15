@@ -31,10 +31,24 @@ current quest's place (`Quests_GetTargetMapSec`) has the fly map's red outline b
 square with Route 11 (`RegionMap_IsCursorOnMapSec`). The name window is 18 tiles wide for this, and the frame's tiles
 moved to 0x40.
 
+## MAIN and SIDE
+
+Each quest is `QUEST_MAIN` or `QUEST_SIDE` (`enum QuestKind`, `include/quests.h`), shown as `MAIN` or `SIDE` on the
+right of the detail pane's place line. They differ in more than the label:
+
+| | MAIN | SIDE |
+|---|---|---|
+| State from | The act's stages (`firstStage`-`lastStage`) | Its own `doneFlag`, from `firstStage` on |
+| In the act's % | Yes | No — optional work can't hold the act back |
+| Can be the quest under way | Yes | No, so the map marker stays on the main story |
+| In the list | The one under way, first | Under it while open, with the finished ones once done |
+
+A side quest therefore needs a flag of its own, since nothing in the act's stages records it.
+
 ## Percentages
 
 - **A quest's %** = steps done / its steps, floored.
-- **The act's %** = the average of its quests' fractions.
+- **The act's %** = the average of its **MAIN** quests' fractions.
 
 ## Act 2's quests
 
@@ -49,6 +63,12 @@ moved to 0x40.
 | 7 | Trainer Card | `ACT2_GRASS_SEE_ROWAN` – `ACT2_GRASS_INVITED` | At the Sports Complex, beat DALE |
 | 8 | Road home | `ACT2_GOT_TRAINER_CARD` – `ACT2_FINAL_PROJECT` | The brief, 6 stops, Mom and Dad (8) |
 | 9 | Eerie noise | `ACT2_PARENTS_TALKED` | 6 ranger station steps |
+
+**Side quests** (`QUEST_SIDE`, below the main ones in the list):
+
+| Quest | Open from | Done when | Steps |
+|---|---|---|---|
+| KAI's dads | `ACT2_MET_FRIENDS` | `FLAG_ACT2_VISITED_KAI_DADS` | Call on them in the CELADON CONDOMINIUMS (1) |
 
 **A course's 12 steps:**
 

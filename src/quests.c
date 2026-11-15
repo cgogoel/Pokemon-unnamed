@@ -19,9 +19,11 @@ struct QuestDef
     const u8 *title;
     const u8 *listName;
     u8 firstStage; // Current from this VAR_ACT2_PROGRESS stage to lastStage, done after it
-    u8 lastStage;
+    u8 lastStage;  // A SIDE quest ignores this: it stays current from firstStage until its doneFlag is set
     void (*fill)(struct QuestInfo *info, u32 param, bool32 done);
     u8 param;
+    u8 kind;       // enum QuestKind
+    u16 doneFlag;  // SIDE only: set once the quest is done
 };
 
 static void AddTask(struct QuestInfo *info, const u8 *text, u32 count, u32 total, bool32 done)
@@ -438,6 +440,18 @@ static void FillAct3(struct QuestInfo *info, u32 param, bool32 done)
 }
 
 // ---------------------------------------------------------------------------------------------------------------
+// Side quest: calling on KAI's dads (data/scripts/friend_homes.inc), a suite in the CELADON CONDOMINIUMS
+
+static const u8 sText_VisitKaiDads[] = _("Call on KAI's dads");
+static const u8 sText_NextVisitKaiDads[] = _("Call on KAI's dads in the CONDOMINIUMS.");
+
+static void FillVisitKaiDads(struct QuestInfo *info, u32 param, bool32 done)
+{
+    AddTask(info, sText_VisitKaiDads, 0, 1, FALSE);
+    SetNext(info, sText_NextVisitKaiDads, MAPSEC_CELADON_CITY);
+}
+
+// ---------------------------------------------------------------------------------------------------------------
 
 static const u8 sText_TitleFirstDay[] = _("FIRST DAY");
 static const u8 sText_ListFirstDay[] = _("First day");
@@ -457,23 +471,27 @@ static const u8 sText_TitleRoad[] = _("THE ROAD HOME");
 static const u8 sText_ListRoad[] = _("Road home");
 static const u8 sText_TitleWoods[] = _("THE EERIE NOISE");
 static const u8 sText_ListWoods[] = _("Eerie noise");
+static const u8 sText_TitleKaiDads[] = _("KAI'S DADS");
+static const u8 sText_ListKaiDads[] = _("KAI's dads");
 
 static const struct QuestDef sAct2Quests[] =
 {
-    { sText_TitleFirstDay, sText_ListFirstDay, ACT2_START,            ACT2_START,         FillFirstDay, 0 },
-    { sText_TitleFire,     sText_ListFire,     ACT2_MET_FRIENDS,      ACT2_FIRE_TRIP,     FillCourse,   0 },
-    { sText_TitleClub1,    sText_ListClub1,    ACT2_FIRE_SEE_KAI,     ACT2_FIRE_INVITED,  FillClub,     0 },
-    { sText_TitleWater,    sText_ListWater,    ACT2_CLUB_1_DONE,      ACT2_WATER_TRIP,    FillCourse,   1 },
-    { sText_TitleClub2,    sText_ListClub2,    ACT2_WATER_SEE_MINA,   ACT2_WATER_INVITED, FillClub,     1 },
-    { sText_TitleGrass,    sText_ListGrass,    ACT2_CLUB_2_DONE,      ACT2_GRASS_TRIP,    FillCourse,   2 },
-    { sText_TitleCard,     sText_ListCard,     ACT2_GRASS_SEE_ROWAN,  ACT2_GRASS_INVITED, FillClub,     2 },
-    { sText_TitleRoad,     sText_ListRoad,     ACT2_GOT_TRAINER_CARD, ACT2_FINAL_PROJECT, FillRoadHome, 0 },
-    { sText_TitleWoods,    sText_ListWoods,    ACT2_PARENTS_TALKED,   ACT2_PARENTS_TALKED, FillWoods,   0 },
+    { sText_TitleFirstDay, sText_ListFirstDay, ACT2_START,            ACT2_START,         FillFirstDay, 0, QUEST_MAIN },
+    { sText_TitleFire,     sText_ListFire,     ACT2_MET_FRIENDS,      ACT2_FIRE_TRIP,     FillCourse,   0, QUEST_MAIN },
+    { sText_TitleClub1,    sText_ListClub1,    ACT2_FIRE_SEE_KAI,     ACT2_FIRE_INVITED,  FillClub,     0, QUEST_MAIN },
+    { sText_TitleWater,    sText_ListWater,    ACT2_CLUB_1_DONE,      ACT2_WATER_TRIP,    FillCourse,   1, QUEST_MAIN },
+    { sText_TitleClub2,    sText_ListClub2,    ACT2_WATER_SEE_MINA,   ACT2_WATER_INVITED, FillClub,     1, QUEST_MAIN },
+    { sText_TitleGrass,    sText_ListGrass,    ACT2_CLUB_2_DONE,      ACT2_GRASS_TRIP,    FillCourse,   2, QUEST_MAIN },
+    { sText_TitleCard,     sText_ListCard,     ACT2_GRASS_SEE_ROWAN,  ACT2_GRASS_INVITED, FillClub,     2, QUEST_MAIN },
+    { sText_TitleRoad,     sText_ListRoad,     ACT2_GOT_TRAINER_CARD, ACT2_FINAL_PROJECT, FillRoadHome, 0, QUEST_MAIN },
+    { sText_TitleWoods,    sText_ListWoods,    ACT2_PARENTS_TALKED,   ACT2_PARENTS_TALKED, FillWoods,   0, QUEST_MAIN },
+    { sText_TitleKaiDads,  sText_ListKaiDads,  ACT2_MET_FRIENDS,      0xFF,               FillVisitKaiDads, 0,
+      QUEST_SIDE, FLAG_ACT2_VISITED_KAI_DADS },
 };
 
 static const struct QuestDef sAct3Quests[] =
 {
-    { sText_TitleSilph, sText_ListSilph, 0, 0xFF, FillAct3, 0 },
+    { sText_TitleSilph, sText_ListSilph, 0, 0xFF, FillAct3, 0, QUEST_MAIN },
 };
 
 static const struct QuestDef *GetQuests(u32 *count)
@@ -528,8 +546,11 @@ void Quests_Get(u32 index, struct QuestInfo *info)
     quest = &quests[index];
     info->title = quest->title;
     info->listName = quest->listName;
+    info->kind = quest->kind;
     if (stage < quest->firstStage)
         info->state = QUEST_LOCKED;
+    else if (quest->kind == QUEST_SIDE)
+        info->state = FlagGet(quest->doneFlag) ? QUEST_DONE : QUEST_CURRENT;
     else if (stage > quest->lastStage)
         info->state = QUEST_DONE;
     else
@@ -539,14 +560,15 @@ void Quests_Get(u32 index, struct QuestInfo *info)
         FinishTasks(info);
 }
 
-// The quest under way (-1: none, the act's quests are all done)
+// The quest under way (-1: none, the act's quests are all done). SIDE quests are never it: the map marker and the
+// screen's opening selection follow the main story.
 s32 Quests_GetCurrentIndex(void)
 {
     u32 count, stage = GetActProgress(), i;
     const struct QuestDef *quests = GetQuests(&count);
     for (i = 0; i < count; i++)
     {
-        if (stage >= quests[i].firstStage && stage <= quests[i].lastStage)
+        if (quests[i].kind != QUEST_SIDE && stage >= quests[i].firstStage && stage <= quests[i].lastStage)
             return i;
     }
     return -1;
@@ -559,19 +581,20 @@ u32 Quests_GetPercent(const struct QuestInfo *info)
     return info->unitsDone * 100 / info->unitsTotal;
 }
 
-// The act's %: the average of its quests' fractions
+// The act's %: the average of its MAIN quests' fractions (SIDE ones are optional, so they don't hold the act back)
 u32 Quests_GetActPercent(void)
 {
-    u32 count = Quests_Count(), i, sum = 0;
+    u32 count = Quests_Count(), i, sum = 0, main = 0;
     struct QuestInfo info;
-    if (count == 0)
-        return 0;
     for (i = 0; i < count; i++)
     {
         Quests_Get(i, &info);
+        if (info.kind == QUEST_SIDE)
+            continue;
+        main++;
         sum += info.unitsTotal == 0 ? (info.state == QUEST_DONE ? 100 : 0) : info.unitsDone * 10000 / info.unitsTotal;
     }
-    return sum / (count * 100);
+    return main == 0 ? 0 : sum / (main * 100);
 }
 
 // What blinks on the Town Map: the current quest's next step's place

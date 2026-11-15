@@ -141,13 +141,13 @@ dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_n
 - **2. Follow the ODDISH.** Too skittish to follow (it darts off and back), until a party Pokémon holds it still with
   SLEEP POWDER or STUN SPORE, or else any Grass status move (`Act2_FindHoldStillMoveUser`). Then it shakes off the
   powder and toddles along the next leg ((44,28) → (30,17) → (40,6)), where the next ODDISH waits. The third walks
-  into the trees at the north edge: a hidden opening, a dark hollow under a whole tree column (x 39-41): the trunks
-  and their shadow (rows 3-4) give way to darkness under the canopy (`Act2_DrawForestOpening`, from `sForestOpening`;
-  metatiles 0x2AB-0x2B4 by `tools/hack/draw_forest_passage.py`), drawn on every load from then on. Its coord events
-  (row 3) lead into the glade. All three: `ACT2_RESEARCH_PUZZLE_2`.
+  into the trees at the north edge: a hidden passage, the tree column there (x 39-41, rows 0-4) giving way to a gap
+  between the trees whose ground fades from the grass into the dark, its sides blending back into the grass
+  (`Act2_DrawForestOpening`, from `sForestOpening`; metatiles from 0x2AB by `tools/hack/draw_forest_passage.py`),
+  drawn on every load from then on. Its coord events (row 3) lead into the glade. All three: `ACT2_RESEARCH_PUZZLE_2`.
 - **3. Guard the bloom.** The glade (`MAP_VIRIDIAN_FOREST_GLADE`, in `gMapGroup_SpecialArea_Frlg`, Viridian Forest's
   map section, so the forest's area level; laid out by `tools/hack/compose_glade.py`; its way back south is the same
-  dark hollow from the other side) is a moonlit clearing with the MOONVEIL's bud in the middle and a
+  dark passage between the trees from the other side) is a moonlit clearing with the MOONVEIL's bud in the middle and a
   MORELULL glowing beside it. Arriving, the bud's scent draws hungry BUG POKéMON in three waves, one gap at a time:
   west, north, east. Each is announced ("Go stop it!") and waits at its gap (`Act2_SetupGladeObjects` shows the
   current one); the player goes there and fights it (`StartAct2BloomWaveBattle`): Venonat; Paras and Venonat;

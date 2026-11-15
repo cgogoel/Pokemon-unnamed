@@ -15,10 +15,19 @@ static const struct NightBloomSquare sGladeHedges[][3] = {
 
 // Viridian Forest: the hidden opening into the glade, once the third ODDISH shows the way
 static const struct NightBloomSquare sForestOpening[] = {
-    {39, 3, 0x32AB},
-    {40, 3, 0x32AC},
-    {41, 3, 0x32AD},
-    {39, 4, 0x32AE},
-    {40, 4, 0x32AF},
-    {41, 4, 0x32B0},
+    {39, 0, 0x36AB},
+    {40, 0, 0x36AC},
+    {41, 0, 0x36AD},
+    {39, 1, 0x36AE},
+    {40, 1, 0x36AF},
+    {41, 1, 0x36B0},
+    {39, 2, 0x36B1},
+    {40, 2, 0x36B2},
+    {41, 2, 0x36B3},
+    {39, 3, 0x32B4},
+    {40, 3, 0x32B5},
+    {41, 3, 0x32B6},
+    {39, 4, 0x32B7},
+    {40, 4, 0x32B8},
+    {41, 4, 0x32B9},
 };

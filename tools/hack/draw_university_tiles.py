@@ -1119,18 +1119,33 @@ def reflecting_pool():
 
 
 def lamp():
-    """A lamp post, 1x2 (symmetric)."""
+    """A lamp post, 1x2 (symmetric): a gold finial and crown over a glazed lantern with a muntin bar and a lit
+    core, a slate shaft that steps out at a collar, and a stepped plinth."""
     P = Pic(T, 2 * T)
-    P.r(6, 10, 4, 20, SL3)
-    P.vl(6, 10, 29, OL)
-    P.r(4, 28, 8, 3, SL3)
-    P.hl(4, 11, 31, OL)
-    P.r(4, 2, 8, 7, G1)
-    P.vl(4, 2, 8, OL)
-    P.vl(7, 2, 8, WHITE)
-    P.hl(3, 12, 1, AU2)
-    P.hl(5, 10, 0, AU)
-    P.hl(3, 12, 9, AU2)
+    P.p(7, 0, AU)                      # finial
+    P.hl(5, 7, 1, AU)
+    P.hl(3, 7, 2, AU2)                 # crown
+    P.vl(3, 3, 9, OL)                  # lantern frame
+    P.hl(4, 7, 3, G2)                  # glazing, shaded under the crown
+    P.r(4, 4, 4, 5, G1)
+    P.vl(4, 4, 8, G2)
+    P.hl(4, 7, 9, G2)
+    P.vl(6, 6, 7, WHITE)               # the lit core
+    P.vl(7, 3, 9, AU2)                 # muntin bar
+    P.hl(3, 7, 10, AU2)                # base ring
+    P.hl(4, 7, 11, OL)                 # fitting
+    P.vl(6, 12, 18, OL)                # shaft, narrow above the collar
+    P.vl(7, 12, 18, SL2)
+    P.vl(5, 21, 27, OL)                # shaft, wider below it
+    P.vl(6, 21, 27, SL2)
+    P.vl(7, 21, 27, SL1)
+    P.hl(4, 7, 13, AU2)                # collars
+    P.hl(4, 7, 19, AU2)
+    P.hl(4, 7, 20, OL)
+    P.hl(4, 7, 28, SL1)                # plinth
+    P.hl(3, 7, 29, SL2)
+    P.hl(2, 7, 30, SL3)
+    P.hl(2, 7, 31, OL)
     P.mirror()
     return P
 

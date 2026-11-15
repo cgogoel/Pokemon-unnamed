@@ -21,8 +21,8 @@
 // in Viridian Forest. The trip runs at night (Act2_IsGrassTripNight). The site's puzzle, VAR_ACT2_NIGHT_BLOOM:
 //  1. Light the way: the forest is dark (flash darkness); three dim glowcaps along the trail wake with a GRASS move,
 //     and each widens the light (Act2_GetNightForestFlashLevel).
-//  2. Follow the ODDISH: held still with SLEEP POWDER or STUN SPORE, each shows the next leg of the way; the third
-//     leads to a hidden opening into the glade.
+//  2. Follow the ODDISH: each sleeps along the lit trail and wakes to a GRASS move (Act2_FindCourseMoveUser, as the
+//     glowcaps do), then shows the next leg of the way; the third leads to a hidden opening into the glade.
 //  3. Guard the bloom: three waves of BUG POKéMON until dawn, one gap at a time: the player goes to the gap and
 //     fights them, then the MORELULL's INGRAIN grows a hedge across it.
 // Then dawn (day for the rest of the trip), the MOONVEIL opens, its dew is collected (the puzzle's end), the glade's
@@ -216,57 +216,6 @@ bool16 Act2_FollowOddish(void)
 
 // The first party Pokémon that knows one of the moves (MOVE_NONE ends the list), or, failing that, one that knows a
 // GRASS move that passes the fallback check. Its nickname goes in STR_VAR_1 and the move in STR_VAR_2.
-static bool32 FindMoveUser(const u16 *moves, bool32 (*fallback)(u32 move))
-{
-    u32 pass, i, j, k;
-    for (pass = 0; pass < 2; pass++)
-    {
-        for (i = 0; i < PARTY_SIZE; i++)
-        {
-            struct Pokemon *mon = &gParties[B_TRAINER_PLAYER][i];
-            if (GetMonData(mon, MON_DATA_SPECIES) == SPECIES_NONE || GetMonData(mon, MON_DATA_IS_EGG))
-                continue;
-            for (j = 0; j < MAX_MON_MOVES; j++)
-            {
-                u32 move = GetMonData(mon, MON_DATA_MOVE1 + j);
-                bool32 found = FALSE;
-                if (move == MOVE_NONE)
-                    continue;
-                if (pass == 0)
-                {
-                    for (k = 0; moves[k] != MOVE_NONE; k++)
-                        found |= moves[k] == move;
-                }
-                else
-                {
-                    found = GetMoveType(move) == TYPE_GRASS && fallback(move);
-                }
-                if (found)
-                {
-                    GetMonData(mon, MON_DATA_NICKNAME, gStringVar1);
-                    StringGet_Nickname(gStringVar1);
-                    StringCopy(gStringVar2, GetMoveName(move));
-                    return TRUE;
-                }
-            }
-        }
-    }
-    return FALSE;
-}
-
-static bool32 IsStatusMove(u32 move)
-{
-    return GetMoveCategory(move) == DAMAGE_CATEGORY_STATUS;
-}
-
-// specialvar VAR_RESULT, Act2_FindHoldStillMoveUser: a party Pokémon that can hold an ODDISH still: SLEEP POWDER or
-// STUN SPORE, or else any GRASS status move
-bool16 Act2_FindHoldStillMoveUser(void)
-{
-    static const u16 sMoves[] = { MOVE_SLEEP_POWDER, MOVE_STUN_SPORE, MOVE_NONE };
-    return FindMoveUser(sMoves, IsStatusMove);
-}
-
 // ---------------------------------------------------------------------------------------------------------------
 // The glade
 

@@ -666,7 +666,6 @@ gSpecials::
 	def_special Act2_IsGlowcapLit
 	def_special Act2_BrightenForest
 	def_special Act2_FollowOddish
-	def_special Act2_FindHoldStillMoveUser
 	def_special Act2_SetNightBloomBit
 	def_special Act2_HasNightBloomBit
 	def_special Act2_SetupGladeObjects

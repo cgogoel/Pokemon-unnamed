@@ -114,20 +114,24 @@ TEST("Night bloom: the waves grow, at the area's level")
     EXPECT_EQ(Act2_GetBloomWaveSize(3), 3);
 }
 
-TEST("Night bloom: SLEEP POWDER or STUN SPORE holds an ODDISH still; any GRASS status move will do")
+TEST("Night bloom: a sleeping ODDISH wakes to a GRASS move, the same check the glowcaps use")
 {
+    StartGrassTrip();
     ZeroPlayerPartyMons();
     CreateMon(&gPlayerParty[0], SPECIES_BULBASAUR, 15, 0, OTID_STRUCT_PLAYER_ID);
-    SetMonMoveSlot(&gPlayerParty[0], MOVE_ABSORB, 0);
-    SetMonMoveSlot(&gPlayerParty[0], MOVE_GROWTH, 1);
+    SetMonMoveSlot(&gPlayerParty[0], MOVE_TACKLE, 0);
+    SetMonMoveSlot(&gPlayerParty[0], MOVE_GROWTH, 1); // GROWTH is a NORMAL move, so it won't do
     SetMonMoveSlot(&gPlayerParty[0], MOVE_NONE, 2);
     SetMonMoveSlot(&gPlayerParty[0], MOVE_NONE, 3);
-    EXPECT(!Act2_FindHoldStillMoveUser());
-    SetMonMoveSlot(&gPlayerParty[0], MOVE_COTTON_SPORE, 2);
-    EXPECT(Act2_FindHoldStillMoveUser());
-    SetMonMoveSlot(&gPlayerParty[0], MOVE_STUN_SPORE, 3);
-    EXPECT(Act2_FindHoldStillMoveUser());
+    EXPECT(!Act2_FindCourseMoveUser());
+    // Any GRASS move rouses it now, damaging or not: no more SLEEP POWDER / STUN SPORE special case
+    SetMonMoveSlot(&gPlayerParty[0], MOVE_ABSORB, 2);
+    EXPECT(Act2_FindCourseMoveUser());
+    SetMonMoveSlot(&gPlayerParty[0], MOVE_NONE, 2);
+    SetMonMoveSlot(&gPlayerParty[0], MOVE_COTTON_SPORE, 3);
+    EXPECT(Act2_FindCourseMoveUser());
     ZeroPlayerPartyMons();
+    EndStory();
 }
 
 TEST("Night bloom: the glade's MORELULL is a gift, not a catch; a wild one counts")

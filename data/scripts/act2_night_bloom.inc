@@ -69,9 +69,9 @@ Act2_EventScript_ForestAssistant::
 	msgbox Act2_Text_ForestAssistant, MSGBOX_NPC
 	end
 
-@ Part 2, follow the ODDISH: too skittish to follow, until a POKéMON holds it still (SLEEP POWDER or STUN SPORE, or
-@ another GRASS status move: Act2_FindHoldStillMoveUser). Then it shakes it off and toddles along the next leg, and
-@ the next ODDISH waits where it stops. The third leads into the glade's hidden opening.
+@ Part 2, follow the ODDISH: each one sleeps where the glowcaps' light reaches, until a GRASS move wakes it (the
+@ course's own check, Act2_FindCourseMoveUser, the same one the glowcaps use). Then it blinks awake and toddles along
+@ the next leg, and the next ODDISH sleeps where it stops. The third leads into the glade's hidden opening.
 Act2_EventScript_Oddish1::
 	setvar VAR_0x8004, 1
 	goto Act2_EventScript_Oddish
@@ -86,15 +86,15 @@ Act2_EventScript_Oddish3::
 
 Act2_EventScript_Oddish:
 	lockall
-	playmoncry SPECIES_ODDISH, CRY_MODE_NORMAL
-	waitmoncry
-	specialvar VAR_RESULT, Act2_FindHoldStillMoveUser
-	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_OddishScurries
+	specialvar VAR_RESULT, Act2_FindCourseMoveUser
+	goto_if_eq VAR_RESULT, FALSE, Act2_EventScript_OddishSleeps
 	msgbox Act2_Text_OddishAsk, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, NO, Act2_EventScript_OddishScurries
-	playse SE_M_POISON_POWDER
-	msgbox Act2_Text_OddishHeld
+	goto_if_eq VAR_RESULT, NO, Act2_EventScript_OddishSleeps
+	playse SE_M_ABSORB
 	waitse
+	playmoncry SPECIES_ODDISH, CRY_MODE_NORMAL
+	msgbox Act2_Text_OddishWoken
+	waitmoncry
 	call_if_eq VAR_0x8004, 1, Act2_EventScript_OddishLeg1Text
 	call_if_eq VAR_0x8004, 2, Act2_EventScript_OddishLeg2Text
 	call_if_eq VAR_0x8004, 3, Act2_EventScript_OddishLeg3Text
@@ -117,11 +117,9 @@ Act2_EventScript_OddishFoundGlade:
 	releaseall
 	end
 
-@ It darts away and back: no way to follow it like this
-Act2_EventScript_OddishScurries:
-	applymovement VAR_LAST_TALKED, Act2_Movement_OddishScurry
-	waitmovement 0
-	msgbox Act2_Text_OddishScurries
+@ It sleeps on: nothing here to stir it
+Act2_EventScript_OddishSleeps:
+	msgbox Act2_Text_OddishSleeps
 	releaseall
 	end
 
@@ -158,13 +156,6 @@ Act2_EventScript_OddishLeg3:
 	applymovement LOCALID_FOREST_ODDISH_3, Act2_Movement_OddishLeg3
 	waitmovement 0
 	return
-
-Act2_Movement_OddishScurry:
-	jump_in_place_down
-	walk_in_place_faster_left
-	walk_in_place_faster_right
-	walk_in_place_faster_down
-	step_end
 
 Act2_Movement_OddishLeg1:
 	walk_fast_left
@@ -806,32 +797,32 @@ Act2_Text_GlowcapsAllLit:
 Act2_Text_GlowcapLitSign:
 	.string "The GLOWCAP glows softly.$"
 
-Act2_Text_OddishScurries:
-	.string "The ODDISH darts off and back,\n"
-	.string "too skittish to follow.\p"
-	.string "If only something could make it\n"
-	.string "hold still…$"
+Act2_Text_OddishSleeps:
+	.string "The ODDISH is fast asleep,\n"
+	.string "its leaves folded over it.\p"
+	.string "A GRASS POKéMON's move might\n"
+	.string "stir it awake…$"
 
 Act2_Text_OddishAsk:
-	.string "The ODDISH won't hold still.\n"
+	.string "The ODDISH is fast asleep.\n"
 	.string "Have {STR_VAR_1} use {STR_VAR_2}?$"
 
-Act2_Text_OddishHeld:
+Act2_Text_OddishWoken:
 	.string "{STR_VAR_1} used {STR_VAR_2}!\p"
-	.string "The ODDISH froze, sniffing the\n"
+	.string "The ODDISH woke and sniffed the\n"
 	.string "air. It was heading somewhere…$"
 
 Act2_Text_OddishLeg1:
-	.string "It shook off the powder and\n"
-	.string "toddled north, then west!$"
+	.string "Wide awake now, it toddled\n"
+	.string "north, then west!$"
 
 Act2_Text_OddishLeg2:
-	.string "It shook off the powder and\n"
-	.string "hurried north, then east!$"
+	.string "Wide awake now, it hurried\n"
+	.string "north, then east!$"
 
 Act2_Text_OddishLeg3:
-	.string "It shook off the powder and\n"
-	.string "pushed straight into the trees!$"
+	.string "Wide awake now, it pushed\n"
+	.string "straight into the trees!$"
 
 Act2_Text_OddishFoundGlade:
 	.string "There's an opening between the\n"

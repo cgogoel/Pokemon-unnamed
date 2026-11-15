@@ -138,9 +138,10 @@ dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_n
   blend-immune `night_bloom.pal`, so it isn't dimmed by the night's tint), and the light widens on the spot
   (`Act2_BrightenForest`: `AnimateFlash` to the new level, then `SetFlashLevel`). All three: `ACT2_RESEARCH_PUZZLE_1`,
   and an ODDISH comes out into the light.
-- **2. Follow the ODDISH.** Too skittish to follow (it darts off and back), until a party Pokémon holds it still with
-  SLEEP POWDER or STUN SPORE, or else any Grass status move (`Act2_FindHoldStillMoveUser`). Then it shakes off the
-  powder and toddles along the next leg ((44,28) → (30,17) → (40,6)), where the next ODDISH waits. The third walks
+- **2. Follow the ODDISH.** Each one is fast asleep where the light reaches it, until a Grass move wakes it — the
+  course's own check (`Act2_FindCourseMoveUser`: a Grass Pokémon that knows a Grass move), the same one the glowcaps
+  use, so the whole site puzzle answers to one tool. Then it wakes and toddles along the next leg ((44,28) → (30,17)
+  → (40,6)), where the next ODDISH sleeps. The third walks
   into the trees at the north edge: a hidden passage, the tree column there (x 39-41, rows 0-4) giving way to a gap
   between the trees, dark, its entrance an arch fading from the grass, the shade running on between the crowns of
   the trees either side

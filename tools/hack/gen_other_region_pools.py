@@ -10,7 +10,8 @@ src/data/pokemon/species_info/*.h:
   Tera or totem form; not a regional form; only a species' base form (the first in its form table), so nothing
   that needs a form change to exist.
 - Not a baby (an undiscovered-egg-group Pokémon that starts its line and evolves into one that can breed).
-- Not in EXCLUDE_SPECIES: Pokémon met only one way in the story (the glade's Morelull, docs/hack/act2_story.md).
+- Not in EXCLUDE_SPECIES: Pokémon met only one way in the story (the glade's Morelull, and Act 1's five, which
+  are the player's own; docs/hack/act2_story.md, docs/hack/befriending.md).
 - Stage: 0 basic, 1 stage 1, 2 stage 2, counting pre-evolutions but not babies (so Pikachu is basic).
 
 It also writes every species' stage (sAct2RoadEvoStage), which the game uses for the Pokémon being replaced.
@@ -36,7 +37,14 @@ EXCLUDE_FLAGS = ['isRestrictedLegendary', 'isSubLegendary', 'isMythical', 'isUlt
                  'isAlolanForm', 'isGalarianForm', 'isHisuianForm', 'isPaldeanForm']
 
 # Pokémon the story gives in one place only, so never wild or a trainer's elsewhere: the glade's MORELULL (its line)
-EXCLUDE_SPECIES = {'SPECIES_MORELULL', 'SPECIES_SHIINOTIC'}
+# Pokemon met only one way in the story, so the road home must never substitute one in somewhere else:
+# the glade's Morelull line, and the five the player befriends in Act 1 and keeps on the farm
+# (sWoodsPokemon in src/act1_story.c, sFarmFamilies in src/farmyard.c; docs/hack/befriending.md).
+# Their evolutions are left in: a wild Ursaring is its own Pokemon, it isn't the player's Teddiursa.
+EXCLUDE_SPECIES = {
+    'SPECIES_MORELULL', 'SPECIES_SHIINOTIC',
+    'SPECIES_BLIPBUG', 'SPECIES_TYNAMO', 'SPECIES_HATENNA', 'SPECIES_TEDDIURSA', 'SPECIES_JANGMO_O',
+}
 
 
 def read(path):

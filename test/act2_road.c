@@ -119,6 +119,38 @@ TEST("Act 2 road: another region's Pokémon matches the type and evolution stage
     EXPECT_EQ(Act2Road_GetEvoStage(SPECIES_CHARIZARD), 2);
 }
 
+TEST("Act 2 road: the Pokémon the player befriended in Act 1 are never substituted in")
+{
+    // Act 1's five are the player's own, so the road home must not hand one out somewhere else in Kanto.
+    // gen_other_region_pools.py keeps them out of the pools (EXCLUDE_SPECIES); this checks the game sees that.
+    // A pool only holds one primary type and stage, so these five pools are the only ones that could yield them.
+    static const u16 sAct1Five[] = { SPECIES_BLIPBUG, SPECIES_TYNAMO, SPECIES_HATENNA, SPECIES_TEDDIURSA,
+                                     SPECIES_JANGMO_O };
+    u32 i, j, draw;
+
+    for (i = 0; i < ARRAY_COUNT(sAct1Five); i++)
+    {
+        bool32 drawnOne = FALSE;
+
+        for (draw = 0; draw < 600; draw++)
+        {
+            u32 species = Act2Road_PickOtherRegionSpecies(sAct1Five[i]);
+
+            for (j = 0; j < ARRAY_COUNT(sAct1Five); j++)
+            {
+                if (species == sAct1Five[j])
+                    drawnOne = TRUE;
+            }
+            // The pool it draws from is still the right one, so the beat itself keeps working
+            EXPECT(IsFromBeyondKanto(species));
+        }
+        EXPECT(!drawnOne);
+    }
+
+    // Their evolutions stay in: a wild URSARING is its own Pokémon, not the player's TEDDIURSA
+    EXPECT_EQ(Act2Road_GetEvoStage(SPECIES_URSARING), 1);
+}
+
 TEST("Act 2 road: wild Pokémon are 0-3 below the party on the route home, 15 above off it")
 {
     static const struct WildPokemon sMon = { .minLevel = 2, .maxLevel = 4, .species = SPECIES_RATTATA };

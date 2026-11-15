@@ -99,6 +99,20 @@ with the rest when they come home.
 - Taking one costs no Poke Ball, unlike the end of Act 1, where Oak lent two of his.
 - There's no way to leave one behind again from here: the gates only drop a follower off in Act 1, so a Pokemon goes
   back to the farm through the PC (the farm is `FARM_BOX`, the last box, named FARM).
+
+## Act 1's five are found nowhere else
+
+They're the player's own, so Kanto never hands one out somewhere else:
+
+- They're in no wild encounter table (`src/data/wild_encounters.json`). The only one that was is Teddiursa, one of
+  the Altering Cave's nine rotating species; it's Phanpy there now, in both Altering Caves and Hoenn's Safari Zone.
+- The road home's substitution, which can swap a wild or a trainer's Pokemon for one from another region, skips
+  them: `EXCLUDE_SPECIES` in `tools/hack/gen_other_region_pools.py`, the same list that holds the glade's Morelull.
+  Test: "the Pokémon the player befriended in Act 1 are never substituted in" (`test/act2_road.c`).
+- No trainer carries one.
+- **Their evolutions are deliberately left in** - a wild Ursaring is its own Pokemon, not the player's Teddiursa.
+- The TM Database's checklist is unaffected: the five still count as findable through the Woods' `befriendbattle`
+  scripts, which is what `gen_tm_research_species.py` reads them from.
 - The gates **only drop a follower off in Act 1** (`VAR_STORY_ACT`). They used to do it in every act, so walking in or
   out of the farmyard in Act 2 moved the lead party Pokemon into the farm box.
 - Act 1's last stage is its highest, so `VAR_ACT1_PROGRESS` is set to `ACT1_DONE` when Act 2 starts (`StartAct2`,

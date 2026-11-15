@@ -115,7 +115,7 @@ dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_n
 - **Viridian Forest at night**: the forest's people stay home (`FLAG_TEMP_1`, `Act2_SetupForestObjects`), two of
   PROF. FERN's assistants block the north exit for the whole trip ((4,12) and (5,12), `FLAG_TEMP_14`), and it has
   its own wild Pokémon for the trip only (`sAct2_ViridianForest_FireRed`: Oddish, Hoothoot, Bellsprout, Venonat,
-  Paras, Morelull, Phantump (rare); `onlyStage` in `sAct2WildTables`, `src/wild_encounter.c`), plus the usual 35%
+  Paras, Phantump (rare); no Morelull, so the glade's is the first; `onlyStage` in `sAct2WildTables`, `src/wild_encounter.c`), plus the usual 35%
   Grass Pokémon from other regions. Wild Grass Pokémon know their Grass moves from up to 8 levels ahead (Absorb,
   Stun Spore, Sleep Powder, Leech Seed, Mega Drain…).
 - **1. Light the way.** The forest is pitch-dark: the flash darkness of a cave without FLASH. `SetDefaultFlashLevel`
@@ -161,7 +161,7 @@ dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_n
   `ACT2_RESEARCH_PUZZLE_DONE`.
 - **The MORELULL** that lit the glade all night asks to come along (no won't do, like the Lapras). It joins at
   level 18 (`ACT2_MORELULL_LEVEL`, `Act2_GiveGladeMorelull`), to the party or the PC; `FLAG_ACT2_GOT_MORELULL`. It's a
-  gift (marked as a fateful encounter), so it doesn't count toward the sheet's catches; a wild Morelull does.
+  gift (marked as a fateful encounter), so it doesn't count toward the sheet's catches. No wild Morelull lives in the forest (nor in the other regions' Grass Pokémon on the trip), so the glade's is the first one met.
 - **PROF. FERN** runs up (she followed the glowcaps' light; `NIGHT_BLOOM_FERN`). She waits at the forest's south gate
   until dawn (`FLAG_TEMP_9`, `Act2_SetupForestGateObjects`), then in the glade. With the sheet done, the dew makes TM GIGA DRAIN
   ("it drinks the night"), and the exam is her battle in the glade at sunrise. Passing goes back to the dorms as
@@ -251,7 +251,7 @@ In both builds, the Pokémon the player starts Act 2 with know the moves they'd 
   | Route 6 (fishing) | Poliwag, Goldeen, Psyduck, Slowpoke, Krabby, Seel, Horsea, Staryu, Shellder, Tentacool (10% each) | 13-17 |
   | Route 6 | Psyduck, Poliwag, Seel, Marill, Squirtle and Totodile (rare); Pidgey, Oddish, Abra | 13-16 |
   | Route 22 | Oddish, Bellsprout, Hoppip, Paras, Exeggcute, Bulbasaur and Chikorita (rare); Rattata, Spearow, Mankey | 16-19 |
-  | Viridian Forest (Grass trip only) | Oddish (common), Bellsprout, Paras, Morelull, Phantump (rare); Hoothoot, Venonat | 16-19 |
+  | Viridian Forest (Grass trip only) | Oddish (common), Bellsprout, Paras, Phantump (rare); Hoothoot, Venonat | 16-19 |
   | Celadon City (fishing) | Lotad, Lombre (Water/Grass), Goldeen, Magikarp | 20-24 |
   | Route 7 | Capsakid (Grass; a Fire Stone from the Department Store makes Scovillain, Grass/Fire), Growlithe, Vulpix, Ponyta, Oddish, Meowth, Pidgey | 20-24 |
 

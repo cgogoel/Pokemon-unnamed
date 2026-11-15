@@ -39,6 +39,7 @@ NEW_COLORS = {DEEP: (32, 28, 24), 10: (255, 0, 255), 11: (255, 0, 255)}
 RAMP = [13, 14, 15, 5, 4, DARK, DEEP]   # The grass into the dark
 RAMP_PX = 7                             # Pixels a step
 EDGE_BLEND = 14                         # The sides' blend into the grass, in pixels
+DEPTH_RATE = 2.2                        # How fast it darkens from the entrance (the fade's length: RAMP's / this)
 
 FOREST_ROWS = [[FIRST + r * 3 + i for i in range(3)] for r in range(5)]        # Rows 0-4
 GLADE_ROWS = [[FIRST + 15 + r * 3 + i for i in range(3)] for r in range(4)]    # Rows 12-15
@@ -98,7 +99,9 @@ def main():
             row = []
             for x in range(48):
                 edge = min(x + 0.5, 47.5 - x) / EDGE_BLEND    # The sides blend back into the grass
-                d = depth_at(y) * min(1.0, edge) ** 0.7 + (noise(x, y) % 3)
+                a = depth_at(y) * DEPTH_RATE + 0.01                      # Darkening from the entrance
+                b = min(1.0, edge) ** 0.7 * RAMP_PX * len(RAMP) + 0.01   # and from the sides: a smooth minimum of
+                d = (a ** -3 + b ** -3) ** (-1 / 3) + (noise(x, y) % 3)  # the two rounds the corners
                 step, frac = int(d // RAMP_PX), (d % RAMP_PX) / RAMP_PX
                 if frac * 4 > BAYER[y % 2][x % 2] + 0.5:
                     step += 1

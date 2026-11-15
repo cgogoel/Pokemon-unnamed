@@ -3284,7 +3284,21 @@ static void CB2_ReturnFromRemoteSwap(void)
      && GetBoxMonDataAt(gSpecialVar_MonBoxId, gSpecialVar_MonBoxPos, MON_DATA_SPECIES) != SPECIES_NONE)
     {
         struct Pokemon *stored = AllocZeroed(sizeof(struct Pokemon));
-        RemoveSelectedPcMon(stored); // The box's, as a party Pokémon (healed, like the PC withdrawing it)
+        u32 hp = GetMonData(&gParties[B_TRAINER_PLAYER][slot], MON_DATA_HP);
+        u32 maxHp = GetMonData(&gParties[B_TRAINER_PLAYER][slot], MON_DATA_MAX_HP);
+        u32 status = GetMonData(&gParties[B_TRAINER_PLAYER][slot], MON_DATA_STATUS);
+        u32 newMaxHp;
+        RemoveSelectedPcMon(stored); // The box's, as a party Pokémon
+        // No free heal: it comes in as hurt as the one it replaces (the same share of its HP, and the same status)
+        newMaxHp = GetMonData(stored, MON_DATA_MAX_HP);
+        if (maxHp != 0 && hp < maxHp)
+        {
+            u32 newHp = hp * newMaxHp / maxHp;
+            if (newHp == 0 && hp != 0)
+                newHp = 1;
+            SetMonData(stored, MON_DATA_HP, &newHp);
+        }
+        SetMonData(stored, MON_DATA_STATUS, &status);
         *GetBoxedMonPtr(gSpecialVar_MonBoxId, gSpecialVar_MonBoxPos) = gParties[B_TRAINER_PLAYER][slot].box;
         gParties[B_TRAINER_PLAYER][slot] = *stored;
         Free(stored);

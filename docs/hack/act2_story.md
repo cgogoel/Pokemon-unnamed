@@ -262,7 +262,8 @@ In both builds, the Pokémon the player starts Act 2 with know the moves they'd 
   Link, renamed: `ITEM_REMOTE_DESKTOP`). Given when Act 2 starts, kept in Act 3 (`Act2_GiveStartingKit`; saves
   already in Act 2 get it on campus). With it, the field party menu (out of battle only) also has **REMOTE SWAP** for a Pokémon not
   holding Mail: the PC opens in its choose-a-Pokémon mode, and the stored Pokémon picked trades places with the party
-  one, which goes into its box slot (`CursorCb_RemoteSwap`, `ChooseMonFromStorageThen`); then it's back to the party
+  one, which goes into its box slot. The one coming in takes over the outgoing one's condition (the same share of its
+  HP, at least 1 unless that one had fainted, and the same status), so it's no free heal (`CursorCb_RemoteSwap`, `ChooseMonFromStorageThen`); then it's back to the party
   menu. PROF. ASHFORD mentions both in his Cinnabar briefing.
 - **The Heal Dash**: a key item (new, `ITEM_HEAL_DASH`, `src/heal_dash.c`) that spins the player away, as with
   Teleport, to the front of the nurse in the last Pokémon Center they went into (the white-out respawn point). On a

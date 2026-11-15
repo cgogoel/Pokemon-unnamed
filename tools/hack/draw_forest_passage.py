@@ -48,6 +48,9 @@ FOREST_ROWS = [[FIRST + r * 5 + i for i in range(5)] for r in range(5)]        #
 GLADE_ROWS = [[FIRST + 25 + r * 5 + i for i in range(5)] for r in range(4)]    # Rows 12-15, x 8-12
 SIDE = 16                               # The neighbors' cells in the canvas either side of the passage
 KEEP = {1, 2, 3, 4, 5, 6, 7, 8}         # Palette 8's leaves, bark and outline: the neighbors' trees, kept whole
+RIM = 5                                 # The crowns' rim where they meet the dark
+SHADE = 4                               # The crowns' shade, rounding the dark between them
+ROUND_NEAR = 9                          # Kept pixels within 2 px that make a dark pixel a rounded corner
 
 # The tree metatiles (compose_glade.py's): the neighbors either side, by row
 CANOPY_A = [0x298, 0x299, 0x29A]
@@ -134,35 +137,124 @@ def main():
     out_meta, out_attr = bytearray(metatiles), bytearray(attrs)
     attrs_of = lambda m: struct.unpack_from('<I', attrs, (m - PRIMARY_TILES) * 4)[0]   # noqa: E731
 
-    def neighbor(m, cv, ox, oy):
-        """A tree beside the passage: its leaves, bark and outline kept whole; only the empty space around them (the
-        grass, the gaps between the crowns) takes the darkness's color there; quarters with no darkness on them stay
-        as they were."""
-        e = original(m)
-        out = list(e)
-        for k in range(4):
-            dark = [cv[oy + k // 2 * 8 + y][ox + k % 2 * 8:ox + k % 2 * 8 + 8] for y in range(8)]
-            if all(c == RAMP[0] for r in dark for c in r):
-                continue
-            px = [[None] * 8 for _ in range(8)]
-            for layer in (0, 1):
-                src = entry_px(e[layer * 4 + k])
-                if src:
+    # The colors behind the neighbors' trees (the primary tileset's grass, palette 9's gaps), for the parts of a
+    # quarter that keep their look when the quarter is redrawn in palette 8
+    prim_dir = os.path.join(ROOT, 'data/tilesets/primary/general_frlg')
+    pw, prows, _ = read_png(os.path.join(prim_dir, 'tiles.png'))
+
+    def read_pal(path):
+        lines = open(path).read().split('\n')
+        return [tuple(map(int, line.split())) for line in lines[3:19]]
+    pals = [read_pal(os.path.join(prim_dir if i < 7 else TILESET, 'palettes/%02d.pal' % i)) for i in range(13)]
+    pal8 = list(pals[PAL])
+    for slot, rgb in NEW_COLORS.items():
+        pal8[slot] = rgb
+    usable = [i for i in range(1, 16) if pal8[i] != (255, 0, 255)]
+
+    def nearest8(rgb):
+        return min(usable, key=lambda i: sum((a - b) ** 2 for a, b in zip(pal8[i], rgb)))
+
+    def any_px(e):
+        """(palette, 8x8 color indices) of any metatile entry."""
+        t, p = e & 0x3FF, e >> 12
+        if t < PRIMARY_TILES:
+            n = pw // 8
+            px = [prows[(t // n) * 8 + y][(t % n) * 8:(t % n) * 8 + 8] for y in range(8)]
+        else:
+            px = tile(t)
+        if e & HFLIP:
+            px = [list(reversed(r)) for r in px]
+        if e & VFLIP:
+            px = list(reversed(px))
+        return p, px
+
+    def neighbor_column(trees, cv, ox, depth_at, toward):
+        """The trees beside the passage (one column of cells, top to bottom): their leaves, bark and outline kept
+        whole. The empty space around them that runs on from the passage's edge (the grass, the gaps between the
+        crowns) takes the passage's darkness: its own color there near the entrance (the rounded arch), the depths
+        further in. Space that doesn't reach the passage, and quarters the darkness doesn't touch, stay as they were.
+        Returns each cell's metatile entries."""
+        h = len(trees) * 16
+        keep = [[None] * 16 for _ in range(h)]     # A kept palette 8 color, or None for the empty space
+        rgb = [[None] * 16 for _ in range(h)]      # What the empty space looks like now
+        for r, m in enumerate(trees):
+            e = original(m)
+            for k in range(4):
+                for layer in (0, 1):
+                    p, px = any_px(e[layer * 4 + k])
                     for y in range(8):
                         for x in range(8):
-                            if src[y][x] in KEEP:
-                                px[y][x] = src[y][x]
-            out[k] = add([[px[y][x] if px[y][x] is not None else dark[y][x] for x in range(8)] for y in range(8)])
-            out[4 + k] = 0
-        return out
+                            c = px[y][x]
+                            if c == 0 and not (layer == 0 and p != PAL):
+                                continue
+                            Y, X = r * 16 + k // 2 * 8 + y, k % 2 * 8 + x
+                            if p == PAL and c in KEEP:
+                                keep[Y][X] = c
+                            else:
+                                keep[Y][X] = None
+                                rgb[Y][X] = pals[p][c]
+        edge_x = 15 if toward == 'right' else 0
+        seen, todo = set(), [(edge_x, y) for y in range(h) if keep[y][edge_x] is None]
+        while todo:
+            x, y = todo.pop()
+            if (x, y) in seen or not (0 <= x < 16 and 0 <= y < h) or keep[y][x] is not None:
+                continue
+            seen.add((x, y))
+            todo += [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+        deep_x = ox + (16 if toward == 'right' else -16) + (8 if toward == 'right' else 8)
+        # Round the dark's corners where it runs in between the crowns: a pixel hemmed in by leaves (many kept
+        # pixels close by) takes the crowns' shade instead, so no square notch shows
+        rounded = set()
+        for (x, y) in seen:
+            if abs(x - edge_x) < 2:
+                continue
+            near = sum(1 for dy in range(-2, 3) for dx in range(-2, 3)
+                       if 0 <= x + dx < 16 and 0 <= y + dy < h and keep[y + dy][x + dx] is not None)
+            if near >= ROUND_NEAR:
+                rounded.add((x, y))
+        # And a rim of the crowns' outline wherever their leaves meet the dark (their own edge there was the gap's
+        # light shade)
+        rim = {(x, y) for (x, y) in seen
+               if any(0 <= x + dx < 16 and 0 <= y + dy < h and keep[y + dy][x + dx] is not None
+                      for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))}
+        cells = []
+        for r, m in enumerate(trees):
+            e = original(m)
+            out = list(e)
+            for k in range(4):
+                px, changed = [], False
+                for y in range(8):
+                    row = []
+                    for x in range(8):
+                        Y, X = r * 16 + k // 2 * 8 + y, k % 2 * 8 + x
+                        if keep[Y][X] is not None:
+                            row.append(keep[Y][X])
+                        elif (X, Y) in rim and depth_at(Y) >= FADE:
+                            changed = True
+                            row.append(RIM)
+                        elif (X, Y) in rounded and depth_at(Y) >= FADE:
+                            changed = True
+                            row.append(SHADE)
+                        elif (X, Y) in seen:
+                            c = cv[Y][ox + X] if depth_at(Y) < CORNER else cv[Y][deep_x]
+                            changed |= c != RAMP[0]
+                            row.append(c)
+                        else:
+                            row.append(nearest8(rgb[Y][X]))
+                    px.append(row)
+                if changed:
+                    out[k], out[4 + k] = add(px), 0
+            cells.append(out)
+        return cells
 
-    for cv, sources in ((forest, FOREST_NEIGHBORS), (glade, GLADE_NEIGHBORS)):
+    for cv, sources, depth_at in ((forest, FOREST_NEIGHBORS, lambda y: 79 - y), (glade, GLADE_NEIGHBORS, lambda y: y)):
+        left = neighbor_column([t[2] for t in sources], cv, 0, depth_at, 'right')      # The column ending at its left
+        right = neighbor_column([t[0] for t in sources], cv, 64, depth_at, 'left')     # and the one starting at its right
         for r, trees in enumerate(sources):
             for c in range(5):
                 if c in (0, 4):
-                    m = trees[2] if c == 0 else trees[0]          # The column ending on the left, starting on the right
-                    out_meta += struct.pack('<8H', *neighbor(m, cv, c * 16, r * 16))
-                    out_attr += struct.pack('<I', attrs_of(m))
+                    out_meta += struct.pack('<8H', *(left[r] if c == 0 else right[r]))
+                    out_attr += struct.pack('<I', attrs_of(trees[2] if c == 0 else trees[0]))
                     continue
                 quarters = [add([cv[r * 16 + q // 2 * 8 + y][c * 16 + q % 2 * 8:c * 16 + q % 2 * 8 + 8]
                                  for y in range(8)]) for q in range(4)]

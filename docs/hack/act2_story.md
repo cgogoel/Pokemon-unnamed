@@ -260,7 +260,7 @@ In both builds, the Pokémon the player starts Act 2 with know the moves they'd 
   `StartMenuPlayerNameCallback`). Both come with `Act2_GiveStartingKit`.
 - **The Remote Desktop**: a key item that opens the Pokémon Storage System anywhere (the expansion's Pokémon Box
   Link, renamed: `ITEM_REMOTE_DESKTOP`). Given when Act 2 starts, kept in Act 3 (`Act2_GiveStartingKit`; saves
-  already in Act 2 get it on campus). With it, the field party menu also has **REMOTE SWAP** for a Pokémon not
+  already in Act 2 get it on campus). With it, the field party menu (out of battle only) also has **REMOTE SWAP** for a Pokémon not
   holding Mail: the PC opens in its choose-a-Pokémon mode, and the stored Pokémon picked trades places with the party
   one, which goes into its box slot (`CursorCb_RemoteSwap`, `ChooseMonFromStorageThen`); then it's back to the party
   menu. PROF. ASHFORD mentions both in his Cinnabar briefing.

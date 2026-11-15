@@ -3060,8 +3060,10 @@ static void SetPartyMonFieldSelectionActions(struct Pokemon *mons, u8 slotId)
     {
         if (GetMonData(&mons[1], MON_DATA_SPECIES) != SPECIES_NONE)
             AppendToList(sPartyMenuInternal->actions, &sPartyMenuInternal->numActions, MENU_SWITCH);
-        // With the Remote Desktop (Acts 2 and 3), a PC Pokémon can swap in for this one (not while it holds MAIL)
+        // With the Remote Desktop (Acts 2 and 3), a PC Pokémon can swap in for this one: out of battle only, and not
+        // while it holds MAIL
         if (CheckBagHasItem(ITEM_REMOTE_DESKTOP, 1) && mons == gParties[B_TRAINER_PLAYER]
+         && gPartyMenu.menuType == PARTY_MENU_TYPE_FIELD && !gMain.inBattle
          && !ItemIsMail(GetMonData(&mons[slotId], MON_DATA_HELD_ITEM)))
             AppendToList(sPartyMenuInternal->actions, &sPartyMenuInternal->numActions, MENU_REMOTE_SWAP);
         if (ItemIsMail(GetMonData(&mons[slotId], MON_DATA_HELD_ITEM)))

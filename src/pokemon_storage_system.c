@@ -540,6 +540,8 @@ struct PokemonStorageSystemData
 static u32 sItemIconGfxBuffer[98];
 
 EWRAM_DATA static u8 sPreviousBoxOption = 0;
+// Where choosing a Pokémon (OPTION_SELECT_MON) returns to: a script by default, the party menu for its REMOTE SWAP
+EWRAM_DATA static MainCallback sSelectMonExitCallback = NULL;
 EWRAM_DATA static struct ChooseBoxMenu *sChooseBoxMenu = NULL;
 EWRAM_DATA static struct PokemonStorageSystemData *sStorage = NULL;
 EWRAM_DATA static bool8 sInPartyMenu = 0;
@@ -1969,6 +1971,13 @@ static void CB2_PokeStorage(void)
     BuildOamBuffer();
 }
 
+static void ExitSelectMon(void)
+{
+    MainCallback callback = sSelectMonExitCallback != NULL ? sSelectMonExitCallback : CB2_ReturnToFieldContinueScript;
+    sSelectMonExitCallback = NULL;
+    SetMainCallback2(callback);
+}
+
 static void EnterPokeStorage(u8 boxOption)
 {
     ResetTasks();
@@ -1977,7 +1986,7 @@ static void EnterPokeStorage(u8 boxOption)
     if (sStorage == NULL)
     {
         if (boxOption == OPTION_SELECT_MON)
-            SetMainCallback2(CB2_ReturnToFieldContinueScript);
+            ExitSelectMon();
         else
             SetMainCallback2(CB2_ExitPokeStorage);
     }
@@ -2000,7 +2009,7 @@ static void CB2_ReturnToPokeStorage(void)
     if (sStorage == NULL)
     {
         if (sStorage->boxOption == OPTION_SELECT_MON)
-            SetMainCallback2(CB2_ReturnToFieldContinueScript);
+            ExitSelectMon();
         else
             SetMainCallback2(CB2_ExitPokeStorage);
     }
@@ -3764,7 +3773,7 @@ static void Task_ChangeScreen(u8 taskId)
     case SCREEN_CHANGE_EXIT_BOX:
     default:
         if (sStorage->boxOption == OPTION_SELECT_MON)
-            SetMainCallback2(CB2_ReturnToFieldContinueScript);
+            ExitSelectMon();
         else
             SetMainCallback2(CB2_ExitPokeStorage);
         FreePokeStorageData();
@@ -10081,6 +10090,17 @@ void UpdateSpeciesSpritePSS(struct BoxPokemon *boxMon)
 
 void ChooseMonFromStorage(void)
 {
+    sSelectMonExitCallback = NULL;
+    EnterPokeStorage(OPTION_SELECT_MON);
+}
+
+// Choosing a Pokémon, then on to the callback instead of back to a script (the party menu's REMOTE SWAP):
+// gSpecialVar_0x8004 is PC_MON_CHOSEN and gSpecialVar_MonBoxId / gSpecialVar_MonBoxPos where it is, if one was
+void ChooseMonFromStorageThen(MainCallback callback)
+{
+    SetBoxMonSelectionType(SELECT_PC_MON_NORMAL);
+    gSpecialVar_0x8004 = PARTY_NOTHING_CHOSEN;
+    sSelectMonExitCallback = callback;
     EnterPokeStorage(OPTION_SELECT_MON);
 }
 

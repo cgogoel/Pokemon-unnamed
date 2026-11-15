@@ -110,6 +110,7 @@ enum {
     MENU_CATALOG_MOWER,
     MENU_CHANGE_FORM,
     MENU_CHANGE_ABILITY,
+    MENU_REMOTE_SWAP,
     MENU_FIELD_MOVES
 };
 
@@ -459,6 +460,8 @@ static void BlitBitmapToPartyWindow_LeftColumnTriple(u8, u8, u8, u8, u8, bool8);
 static void UpdatePartySelectionTripleLayout(s8 *, s8);
 static void CursorCb_Summary(u8);
 static void CursorCb_Switch(u8);
+static void CursorCb_RemoteSwap(u8);
+static void CB2_ReturnFromRemoteSwap(void);
 static void CursorCb_Cancel1(u8);
 static void CursorCb_Item(u8);
 static void CursorCb_Give(u8);
@@ -3057,6 +3060,12 @@ static void SetPartyMonFieldSelectionActions(struct Pokemon *mons, u8 slotId)
     {
         if (GetMonData(&mons[1], MON_DATA_SPECIES) != SPECIES_NONE)
             AppendToList(sPartyMenuInternal->actions, &sPartyMenuInternal->numActions, MENU_SWITCH);
+        // With the Remote Desktop (Acts 2 and 3), a PC Pokémon can swap in for this one: out of battle only, and not
+        // while it holds MAIL
+        if (CheckBagHasItem(ITEM_REMOTE_DESKTOP, 1) && mons == gParties[B_TRAINER_PLAYER]
+         && gPartyMenu.menuType == PARTY_MENU_TYPE_FIELD && !gMain.inBattle
+         && !ItemIsMail(GetMonData(&mons[slotId], MON_DATA_HELD_ITEM)))
+            AppendToList(sPartyMenuInternal->actions, &sPartyMenuInternal->numActions, MENU_REMOTE_SWAP);
         if (ItemIsMail(GetMonData(&mons[slotId], MON_DATA_HELD_ITEM)))
             AppendToList(sPartyMenuInternal->actions, &sPartyMenuInternal->numActions, MENU_MAIL);
         else
@@ -3252,6 +3261,53 @@ void CB2_ReturnToPartyMenuFromSummaryScreen(void)
     gPaletteFade.bufferTransferDisabled = TRUE;
     gPartyMenu.slotId = gLastViewedMonIndex;
     InitPartyMenu(gPartyMenu.menuType, KEEP_PARTY_LAYOUT, gPartyMenu.action, TRUE, PARTY_MSG_DO_WHAT_WITH_MON, Task_TryCreateSelectionWindow, gPartyMenu.exitCallback);
+}
+
+// REMOTE SWAP: the PC opens to choose a stored Pokémon, which trades places with this one (it goes where the
+// chosen one was), then back to the party menu
+static void CB2_ChooseRemoteSwapMon(void)
+{
+    ChooseMonFromStorageThen(CB2_ReturnFromRemoteSwap);
+}
+
+static void CursorCb_RemoteSwap(u8 taskId)
+{
+    PlaySE(SE_PC_LOGIN);
+    sPartyMenuInternal->exitCallback = CB2_ChooseRemoteSwapMon;
+    Task_ClosePartyMenu(taskId);
+}
+
+static void CB2_ReturnFromRemoteSwap(void)
+{
+    u32 slot = gPartyMenu.slotId;
+    if (gSpecialVar_0x8004 == PC_MON_CHOSEN && gSpecialVar_Result
+     && GetBoxMonDataAt(gSpecialVar_MonBoxId, gSpecialVar_MonBoxPos, MON_DATA_SPECIES) != SPECIES_NONE)
+    {
+        struct Pokemon *stored = AllocZeroed(sizeof(struct Pokemon));
+        u32 hp = GetMonData(&gParties[B_TRAINER_PLAYER][slot], MON_DATA_HP);
+        u32 maxHp = GetMonData(&gParties[B_TRAINER_PLAYER][slot], MON_DATA_MAX_HP);
+        u32 status = GetMonData(&gParties[B_TRAINER_PLAYER][slot], MON_DATA_STATUS);
+        u32 newMaxHp;
+        RemoveSelectedPcMon(stored); // The box's, as a party Pokémon
+        // No free heal: it comes in as hurt as the one it replaces (the same share of its HP, and the same status)
+        newMaxHp = GetMonData(stored, MON_DATA_MAX_HP);
+        if (maxHp != 0 && hp < maxHp)
+        {
+            u32 newHp = hp * newMaxHp / maxHp;
+            if (newHp == 0 && hp != 0)
+                newHp = 1;
+            SetMonData(stored, MON_DATA_HP, &newHp);
+        }
+        SetMonData(stored, MON_DATA_STATUS, &status);
+        *GetBoxedMonPtr(gSpecialVar_MonBoxId, gSpecialVar_MonBoxPos) = gParties[B_TRAINER_PLAYER][slot].box;
+        gParties[B_TRAINER_PLAYER][slot] = *stored;
+        Free(stored);
+        if (slot == 0)
+            gFollowerSteps = 0;
+    }
+    gPaletteFade.bufferTransferDisabled = TRUE;
+    InitPartyMenu(PARTY_MENU_TYPE_FIELD, PARTY_LAYOUT_SINGLE, PARTY_ACTION_CHOOSE_MON, TRUE, PARTY_MSG_CHOOSE_MON,
+                  Task_HandleChooseMonInput, gPartyMenu.exitCallback);
 }
 
 static void CursorCb_Switch(u8 taskId)

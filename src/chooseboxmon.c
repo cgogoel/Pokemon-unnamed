@@ -140,6 +140,11 @@ u32 IsBoxMonExcluded(struct BoxPokemon *boxmon)
     return sPcMonSelectionTypes[sSelectionType].isMonInvalid(boxmon);
 }
 
+void SetBoxMonSelectionType(u32 selectionType)
+{
+    sSelectionType = selectionType;
+}
+
 bool32 CanBoxMonBeSelected(struct BoxPokemon *boxmon)
 {
     if (!sPcMonSelectionTypes[sSelectionType].isStrict)

@@ -69,6 +69,7 @@ void SetWaldaPhrase(const u8 *src);
 bool32 IsWaldaPhraseEmpty(void);
 
 void ChooseMonFromStorage();
+void ChooseMonFromStorageThen(void (*callback)(void));
 u32 CountPartyNonEggMons(void);
 void RemoveSelectedPcMon(struct Pokemon *mon);
 

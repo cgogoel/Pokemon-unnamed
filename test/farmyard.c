@@ -189,3 +189,56 @@ TEST("Farmyard: they take spots the farm's own Pokémon aren't standing in")
     ClearFarm();
     VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
 }
+
+// Acts 2 and 3: taking one of the left-behind farm Pokémon along
+
+TEST("Farmyard: in Act 2 the farm Pokémon the player is talking to can be taken along")
+{
+    SetUpVisit(STORY_ACT_UNIVERSITY);
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_TEDDIURSA, 5; );
+    EXPECT_EQ(DepositFollowerInFarm(), 0); // Left behind on the farm, in the first land spot
+    SetupFarmyardMons();
+
+    gSpecialVar_LastTalked = 1; // Its object: the first land spot + 1
+    EXPECT_EQ(GetFarmMonToTake(), TRUE);
+    EXPECT_EQ(gSpecialVar_0x8004, SPECIES_TEDDIURSA);
+    EXPECT_EQ(gSpecialVar_0x8005, 0);
+
+    EXPECT(TakeFarmMonIntoParty());
+    EXPECT_EQ(CalculatePlayerPartyCount(), 1);
+    EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][0], MON_DATA_SPECIES), SPECIES_TEDDIURSA);
+    EXPECT_EQ(GetBoxMonDataAt(FARM_BOX, 0, MON_DATA_SPECIES), SPECIES_NONE); // Gone from the farm
+    EXPECT_EQ(CountFarmyardMons(), 0);
+    EXPECT(FlagGet(FLAG_TEMP_1)); // Its spot is empty again
+
+    // And now that it's one of the player's, it runs out to play when they come home
+    EXPECT_EQ(ShowPartyFarmFamily(), 1);
+
+    ClearFarm();
+    VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+}
+
+TEST("Farmyard: talking to nothing, or to one with a full team, takes nobody along")
+{
+    SetUpVisit(STORY_ACT_UNIVERSITY);
+
+    // No farm Pokémon has that object
+    gSpecialVar_LastTalked = 1;
+    EXPECT_EQ(GetFarmMonToTake(), FALSE);
+
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_HATENNA, 5; );
+    EXPECT_EQ(DepositFollowerInFarm(), 0);
+    SetupFarmyardMons();
+    for (u32 i = 0; i < PARTY_SIZE; i++)
+        RUN_OVERWORLD_SCRIPT( givemon SPECIES_PIKACHU, 5; );
+    EXPECT_EQ(CalculatePlayerPartyCount(), PARTY_SIZE);
+
+    EXPECT_EQ(GetFarmMonToTake(), FARM_TAKE_PARTY_FULL);
+    EXPECT(!TakeFarmMonIntoParty()); // Refused, and it stays put
+    EXPECT_EQ(GetBoxMonDataAt(FARM_BOX, 0, MON_DATA_SPECIES), SPECIES_HATENNA);
+    EXPECT_EQ(CalculatePlayerPartyCount(), PARTY_SIZE);
+
+    ZeroPlayerPartyMons();
+    ClearFarm();
+    VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+}

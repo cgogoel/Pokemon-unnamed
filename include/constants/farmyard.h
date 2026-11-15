@@ -12,6 +12,8 @@
 #define FARM_SPOT_NONE      0xFF
 // DepositFollowerInFarm: nothing was deposited
 #define FARM_DEPOSIT_NONE   0xFF
+// GetFarmMonToTake: there's one here, but the party has no room for it
+#define FARM_TAKE_PARTY_FULL 2
 // befriendbattle: VAR_RESULT when the encounter didn't start because a Pokémon is still following (Act 1)
 #define BEFRIEND_RESULT_BLOCKED 0xFE
 

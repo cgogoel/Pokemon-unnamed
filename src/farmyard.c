@@ -6,6 +6,7 @@
 #include "pokemon_storage_system.h"
 #include "string_util.h"
 #include "constants/event_objects.h"
+#include "constants/pokeball.h"
 #include "constants/story.h"
 
 // Act 1 farmyard (docs/hack/befriending.md). The player keeps one befriended Pokémon, which follows them; walking
@@ -204,6 +205,61 @@ u32 ShowPartyFarmFamily(void)
 void Special_ShowPartyFarmFamily(void)
 {
     gSpecialVar_Result = ShowPartyFarmFamily();
+}
+
+// Acts 2 and 3, coming home: the farm Pokemon the player is talking to can be taken along. VAR_LAST_TALKED is its
+// object's local id, which is its farmyard spot + 1. Sets VAR_0x8004 to its species and VAR_0x8005 to its farm box
+// slot, with its name in STR_VAR_1.
+// Returns FALSE when the player isn't talking to one, FARM_TAKE_PARTY_FULL when there's no room, TRUE otherwise.
+u32 GetFarmMonToTake(void)
+{
+    for (u32 slot = 0; slot < IN_BOX_COUNT; slot++)
+    {
+        if (GetFarmSpot(slot) + 1 != gSpecialVar_LastTalked)
+            continue;
+        if (GetBoxMonDataAt(FARM_BOX, slot, MON_DATA_IS_EGG))
+            return FALSE;
+        gSpecialVar_0x8004 = GetBoxMonDataAt(FARM_BOX, slot, MON_DATA_SPECIES);
+        gSpecialVar_0x8005 = slot;
+        GetBoxMonData(GetBoxedMonPtr(FARM_BOX, slot), MON_DATA_NICKNAME, gStringVar1);
+        StringGet_Nickname(gStringVar1);
+        return (CalculatePlayerPartyCount() >= PARTY_SIZE) ? FARM_TAKE_PARTY_FULL : TRUE;
+    }
+    return FALSE;
+}
+
+// special GetFarmMonToTake
+void Special_GetFarmMonToTake(void)
+{
+    gSpecialVar_Result = GetFarmMonToTake();
+}
+
+// The farm Pokemon in box slot VAR_0x8005 leaves the farm and joins the party, in a Poke Ball of the player's own
+// this time. Returns FALSE if it couldn't (no room, or nothing in the slot).
+// It deliberately doesn't call ShowPartyFarmFamily: that would overwrite STR_VAR_1, which the script still needs for
+// its message, and the spot flags only matter at map load, where Farmyard_OnTransition sets both up in order.
+bool32 TakeFarmMonIntoParty(void)
+{
+    u32 slot = gSpecialVar_0x8005;
+    u32 count = CalculatePlayerPartyCount();
+    u32 ball = BALL_POKE;
+
+    if (count >= PARTY_SIZE || GetBoxMonDataAt(FARM_BOX, slot, MON_DATA_SPECIES) == SPECIES_NONE)
+        return FALSE;
+
+    BoxMonToMon(GetBoxedMonPtr(FARM_BOX, slot), &gParties[B_TRAINER_PLAYER][count]);
+    SetMonData(&gParties[B_TRAINER_PLAYER][count], MON_DATA_POKEBALL, &ball);
+    ZeroBoxMonAt(FARM_BOX, slot);
+    CalculatePlayerPartyCount();
+    UpdateFollowingPokemon();
+    SetupFarmyardMons();
+    return TRUE;
+}
+
+// special TakeFarmMonIntoParty: VAR_RESULT TRUE if it joined
+void Special_TakeFarmMonIntoParty(void)
+{
+    gSpecialVar_Result = TakeFarmMonIntoParty();
 }
 
 // special DepositFollowerInFarm: VAR_RESULT is the local id of its object on the Farmyard map (spot + 1) if it's

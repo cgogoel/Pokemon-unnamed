@@ -179,8 +179,40 @@ Farmyard_EventScript_FarmMon::
 	lock
 	faceplayer
 	goto_if_eq VAR_ACT1_PROGRESS, ACT1_CHOOSING_FRIENDS, Farmyard_EventScript_ChooseFriend
+	goto_if_ge VAR_STORY_ACT, STORY_ACT_UNIVERSITY, Farmyard_EventScript_TakeAlong
 Farmyard_EventScript_FarmMonHappy:
 	msgbox Farmyard_Text_LooksHappy, MSGBOX_DEFAULT
+	release
+	end
+
+@ Acts 2 and 3: the ones left behind at the end of Act 1 are still here, and the player can take one along now
+@ (GetFarmMonToTake / TakeFarmMonIntoParty, src/farmyard.c). Shown like the end of Act 1's choice.
+Farmyard_EventScript_TakeAlong:
+	specialvar VAR_RESULT, Special_GetFarmMonToTake
+	goto_if_eq VAR_RESULT, FALSE, Farmyard_EventScript_FarmMonHappy
+	goto_if_eq VAR_RESULT, FARM_TAKE_PARTY_FULL, Farmyard_EventScript_TakeAlongTeamFull
+	showmonpic VAR_0x8004, 10, 3
+	msgbox Farmyard_Text_TakeAlong, MSGBOX_YESNO
+	hidemonpic
+	goto_if_eq VAR_RESULT, NO, Farmyard_EventScript_TakeAlongStays
+	specialvar VAR_RESULT, Special_TakeFarmMonIntoParty
+	goto_if_eq VAR_RESULT, FALSE, Farmyard_EventScript_TakeAlongTeamFull
+	removeobject VAR_LAST_TALKED
+	playfanfare MUS_RG_OBTAIN_KEY_ITEM
+	message Farmyard_Text_TakeAlongJoined
+	waitmessage
+	waitfanfare
+	msgbox Farmyard_Text_TakeAlongLookAfterIt, MSGBOX_DEFAULT
+	release
+	end
+
+Farmyard_EventScript_TakeAlongStays:
+	msgbox Farmyard_Text_TakeAlongStays, MSGBOX_DEFAULT
+	release
+	end
+
+Farmyard_EventScript_TakeAlongTeamFull:
+	msgbox Farmyard_Text_TakeAlongTeamFull, MSGBOX_DEFAULT
 	release
 	end
 
@@ -363,6 +395,26 @@ Farmyard_Text_FamilyRanOut:
 Farmyard_Text_FamilyComesBack:
 	.string "{STR_VAR_1} came running back\n"
 	.string "to your side.$"
+
+Farmyard_Text_TakeAlong:
+	.string "{STR_VAR_1} looks up at you,\n"
+	.string "hoping.\p"
+	.string "Take {STR_VAR_1} along with you?$"
+
+Farmyard_Text_TakeAlongJoined:
+	.string "{STR_VAR_1} joined your team!$"
+
+Farmyard_Text_TakeAlongLookAfterIt:
+	.string "It's a long way from the farm.\n"
+	.string "Look after it out there!$"
+
+Farmyard_Text_TakeAlongStays:
+	.string "{STR_VAR_1} goes back to playing\n"
+	.string "in the farmyard.$"
+
+Farmyard_Text_TakeAlongTeamFull:
+	.string "Your team is full, so {STR_VAR_1}\n"
+	.string "has to stay on the farm for now.$"
 
 Farmyard_Text_FamilyComesBackTogether:
 	.string "{STR_VAR_1} and the others came\n"

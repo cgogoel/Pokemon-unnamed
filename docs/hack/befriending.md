@@ -87,6 +87,18 @@ from the gates):
   is enough, which is why leaving to Pallet Town needs no script of its own - that side is a map connection.
 - The gate says so once a visit (`VAR_TEMP_8`): which gate the player is on and which way they're facing tell coming
   home from going out, since Pallet Town is to the right of the farmyard and the Woods to the left.
+
+**Taking one along.** Talking to a farm Pokemon offers to bring it with you (`Farmyard_EventScript_TakeAlong`,
+`GetFarmMonToTake` / `TakeFarmMonIntoParty`), shown the way the end of Act 1's choice is - its picture, then
+"are you sure?". It leaves the farm box for the party in a Poke Ball of the player's own, its object is removed, and
+its spot frees up for whoever the farm box shows next. From then on it's one of the player's, so it runs out to play
+with the rest when they come home.
+
+- Room is the party's normal capacity (`PARTY_SIZE`), not Act 2's three-a-side battle rule, which is about how many
+  can be sent out rather than how many can be carried. A full team gets a message and the Pokemon stays.
+- Taking one costs no Poke Ball, unlike the end of Act 1, where Oak lent two of his.
+- There's no way to leave one behind again from here: the gates only drop a follower off in Act 1, so a Pokemon goes
+  back to the farm through the PC (the farm is `FARM_BOX`, the last box, named FARM).
 - The gates **only drop a follower off in Act 1** (`VAR_STORY_ACT`). They used to do it in every act, so walking in or
   out of the farmyard in Act 2 moved the lead party Pokemon into the farm box.
 - Act 1's last stage is its highest, so `VAR_ACT1_PROGRESS` is set to `ACT1_DONE` when Act 2 starts (`StartAct2`,

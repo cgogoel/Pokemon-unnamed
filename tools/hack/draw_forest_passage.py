@@ -47,8 +47,7 @@ CORNER = 39                             # The entrance's corners' radius, in pix
 FOREST_ROWS = [[FIRST + r * 5 + i for i in range(5)] for r in range(5)]        # Rows 0-4, x 38-42
 GLADE_ROWS = [[FIRST + 25 + r * 5 + i for i in range(5)] for r in range(4)]    # Rows 12-15, x 8-12
 SIDE = 16                               # The neighbors' cells in the canvas either side of the passage
-KEEP = {1, 2, 3, 4, 5, 6, 7}            # Palette 8's leaves and bark: what stays of the neighbors' trees
-NEIGHBOR_DARKEST = 4                    # Between the neighbors' crowns it darkens only to RAMP's 4th step (deep green)
+KEEP = {1, 2, 3, 4, 5, 6, 7, 8}         # Palette 8's leaves, bark and outline: the neighbors' trees, kept whole
 
 # The tree metatiles (compose_glade.py's): the neighbors either side, by row
 CANOPY_A = [0x298, 0x299, 0x29A]
@@ -136,8 +135,9 @@ def main():
     attrs_of = lambda m: struct.unpack_from('<I', attrs, (m - PRIMARY_TILES) * 4)[0]   # noqa: E731
 
     def neighbor(m, cv, ox, oy):
-        """A tree beside the passage: its leaves and bark kept, what shows between them (the grass, the gaps between
-        the crowns) taking the darkness's color there; quarters with no darkness on them stay as they were."""
+        """A tree beside the passage: its leaves, bark and outline kept whole; only the empty space around them (the
+        grass, the gaps between the crowns) takes the darkness's color there; quarters with no darkness on them stay
+        as they were."""
         e = original(m)
         out = list(e)
         for k in range(4):
@@ -152,8 +152,7 @@ def main():
                         for x in range(8):
                             if src[y][x] in KEEP:
                                 px[y][x] = src[y][x]
-            shade = lambda c: RAMP[min(RAMP.index(c), NEIGHBOR_DARKEST)]   # noqa: E731 Shade, not a hole
-            out[k] = add([[px[y][x] if px[y][x] is not None else shade(dark[y][x]) for x in range(8)] for y in range(8)])
+            out[k] = add([[px[y][x] if px[y][x] is not None else dark[y][x] for x in range(8)] for y in range(8)])
             out[4 + k] = 0
         return out
 

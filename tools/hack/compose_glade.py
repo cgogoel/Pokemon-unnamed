@@ -42,7 +42,7 @@ HEDGE = 0x005
 FOREST_OPENING = (39, 3)                # Viridian Forest: the column's trunks' row (x 39-41); the crowns above it
 GLADE_EXIT_PATH = 12                    # The glade: the path on the south way out; under the crowns below it
 
-TOP = [0x288, 0x299, 0x28A]
+TOP = [0x288, 0x289, 0x28A]
 CANOPY_A = [0x298, 0x299, 0x29A]
 CANOPY_B = [0x290, 0x291, 0x292]
 TRUNK_1 = [0x2A0, 0x2A1, 0x2A2]
@@ -50,6 +50,7 @@ TRUNK_2 = [0x2A3, 0x2A4, 0x2A5]
 GRASS = [[0x008, 0x009], [0x010, 0x011]]
 FLOWERS = 0x282
 TUFT = 0x281
+CROWN_TIP = 0x281                       # Over the grass above a column's top row, its middle: the crown's tip
 
 
 def blk(metatile, solid=False, elevation=3):
@@ -121,6 +122,11 @@ def compose():
                 elif (x * 7 + y * 3) % 13 == 0 and 3 <= x <= 17 and 5 <= y <= 11 and d > 3:
                     b = blk(TUFT)
             cells.append(b)
+    # The crowns' tips: the grass right above a column's top row (TOP), over its middle, as in Viridian Forest
+    for y in range(1, H):
+        for x in range(W):
+            if cells[y * W + x] & 0x3FF == TOP[1] and (cells[(y - 1) * W + x] >> 10) & 3 == 0:
+                cells[(y - 1) * W + x] = blk(CROWN_TIP)
     return cells
 
 

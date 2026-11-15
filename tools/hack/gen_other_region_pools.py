@@ -10,6 +10,7 @@ src/data/pokemon/species_info/*.h:
   Tera or totem form; not a regional form; only a species' base form (the first in its form table), so nothing
   that needs a form change to exist.
 - Not a baby (an undiscovered-egg-group Pokémon that starts its line and evolves into one that can breed).
+- Not in EXCLUDE_SPECIES: Pokémon met only one way in the story (the glade's Morelull, docs/hack/act2_story.md).
 - Stage: 0 basic, 1 stage 1, 2 stage 2, counting pre-evolutions but not babies (so Pikachu is basic).
 
 It also writes every species' stage (sAct2RoadEvoStage), which the game uses for the Pokémon being replaced.
@@ -33,6 +34,9 @@ TYPES = ['NORMAL', 'FIGHTING', 'FLYING', 'POISON', 'GROUND', 'ROCK', 'BUG', 'GHO
 EXCLUDE_FLAGS = ['isRestrictedLegendary', 'isSubLegendary', 'isMythical', 'isUltraBeast', 'isParadox', 'isTotem',
                  'isMegaEvolution', 'isPrimalReversion', 'isUltraBurst', 'isGigantamax', 'isTeraForm',
                  'isAlolanForm', 'isGalarianForm', 'isHisuianForm', 'isPaldeanForm']
+
+# Pokémon the story gives in one place only, so never wild or a trainer's elsewhere: the glade's MORELULL (its line)
+EXCLUDE_SPECIES = {'SPECIES_MORELULL', 'SPECIES_SHIINOTIC'}
 
 
 def read(path):
@@ -150,7 +154,8 @@ def main():
 
     pools = {(t, s): [] for t in TYPES for s in range(3)}
     for name, data in info.items():
-        if data['dex'] <= KANTO_DEX_COUNT or data['flags'] or not data['base_form'] or is_baby(name):
+        if data['dex'] <= KANTO_DEX_COUNT or data['flags'] or not data['base_form'] or is_baby(name) \
+                or name in EXCLUDE_SPECIES:
             continue
         if data['types'][0] not in TYPES:
             continue

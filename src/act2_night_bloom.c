@@ -278,7 +278,7 @@ void Act2_SetupGladeObjects(void)
 {
     u32 bloom = GetBloom(), i;
     bool32 trip = Act2_IsGrassTrip();
-    for (i = 0; i < 10; i++)
+    for (i = 0; i < 11; i++)                // To FLAG_TEMP_C, ROWAN (he only runs up after the grass exam)
         FlagSet(FLAG_TEMP_2 + i);
     FlagClear((trip && (bloom & NIGHT_BLOOM_DAWN)) ? FLAG_TEMP_3 : FLAG_TEMP_2);
     if (trip && !FlagGet(FLAG_ACT2_GOT_MORELULL))

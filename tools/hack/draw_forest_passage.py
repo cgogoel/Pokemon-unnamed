@@ -38,7 +38,8 @@ DARK, DEEP = 8, 9
 NEW_COLORS = {DEEP: (32, 28, 24), 10: (255, 0, 255), 11: (255, 0, 255)}
 RAMP = [13, 14, 15, 5, 4, DARK, DEEP]   # The grass into the dark
 RAMP_PX = 7                             # Pixels a step
-FADE = 16                               # The fade from the grass into the dark, in pixels (ends and sides)
+FADE = 16                               # The fade from the grass into the dark at the entrance, in pixels
+FADE_SIDE = 8                           # and along the sides
 CORNER = 23                             # The entrance's corners' radius, in pixels
 
 FOREST_ROWS = [[FIRST + r * 3 + i for i in range(3)] for r in range(5)]        # Rows 0-4
@@ -93,17 +94,19 @@ def main():
 
     def passage(h, depth_at):
         """The passage's ground, 48 x h: each pixel's step along RAMP from its depth (in pixels from the entrance),
-        over FADE px from the entrance and from either side, the entrance's corners rounded (CORNER), dithered."""
+        over FADE px from the entrance and FADE_SIDE from either side, the entrance's corners rounded (CORNER), dithered."""
         cv = []
         for y in range(h):
             row = []
             for x in range(48):
                 e, side = depth_at(y) + 0.5, min(x + 0.5, 47.5 - x)     # From the entrance, from the sides
                 if e < CORNER and side < CORNER:                         # The entrance's corners rounded
-                    dist = CORNER - ((CORNER - e) ** 2 + (CORNER - side) ** 2) ** 0.5
+                    u, v = (CORNER - e) / CORNER, (CORNER - side) / CORNER
+                    fade = (FADE * u + FADE_SIDE * v) / (u + v)          # Between the two fades round the corner
+                    dist = (1 - (u * u + v * v) ** 0.5) * CORNER / fade
                 else:
-                    dist = min(e, side)
-                d = max(0.0, dist) * RAMP_PX * len(RAMP) / FADE + (noise(x, y) % 3)
+                    dist = min(e / FADE, side / FADE_SIDE)
+                d = max(0.0, dist) * RAMP_PX * len(RAMP) + (noise(x, y) % 3)
                 step, frac = int(d // RAMP_PX), (d % RAMP_PX) / RAMP_PX
                 if frac * 4 > BAYER[y % 2][x % 2] + 0.5:
                     step += 1

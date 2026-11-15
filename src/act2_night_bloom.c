@@ -305,6 +305,31 @@ void Act2_SetupGladeObjects(void)
     }
 }
 
+// specialvar VAR_RESULT, Act2_IsDewCollected: whether the player collected the MOONVEIL's dew (the puzzle's end)
+bool16 Act2_IsDewCollected(void)
+{
+    return (VarGet(VAR_ACT2_RESEARCH) & ACT2_RESEARCH_PUZZLE_DONE) != 0;
+}
+
+// specialvar VAR_RESULT, Act2_GetPlayerSideOfBloom: which side of the MOONVEIL (10,8) the player stands on, next to
+// it (DIR_*), or DIR_NONE: where the MORELULL comes over to them from beside it (11,9)
+u16 Act2_GetPlayerSideOfBloom(void)
+{
+    s16 x, y;
+    PlayerGetDestCoords(&x, &y);
+    x -= MAP_OFFSET;
+    y -= MAP_OFFSET;
+    if (x == 10 && y == 9)
+        return DIR_SOUTH;
+    if (x == 10 && y == 7)
+        return DIR_NORTH;
+    if (x == 9 && y == 8)
+        return DIR_WEST;
+    if (x == 11 && y == 8)
+        return DIR_EAST;
+    return DIR_NONE;
+}
+
 // specialvar VAR_RESULT, Act2_GetGapStepOut with the wave (1-3) in VAR_0x8004: the way to step (DIR_*) for the
 // player and the Pokémon following them to be out of the wave's gap, where its hedge grows (west: x 4 on;
 // north: y 6 on; east: x 16 back), or
@@ -352,6 +377,8 @@ u16 Act2_GetGladeScene(void)
         return GLADE_SCENE_VIGIL;
     if (!(bloom & NIGHT_BLOOM_DAWN))
         return GLADE_SCENE_DAWN;
+    if (!(VarGet(VAR_ACT2_RESEARCH) & ACT2_RESEARCH_PUZZLE_DONE))
+        return GLADE_SCENE_NONE;            // The dew waits on the MOONVEIL for the player to collect it
     if (!(bloom & NIGHT_BLOOM_FERN))
         return GLADE_SCENE_MORNING;
     return GLADE_SCENE_NONE;

@@ -150,19 +150,21 @@ dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_n
   map section, so the forest's area level; laid out by `tools/hack/compose_glade.py`; its way back south is the same
   dark passage between the trees from the other side) is a moonlit clearing with the MOONVEIL's bud in the middle and a
   MORELULL glowing beside it. Arriving, the bud's scent draws hungry BUG POKéMON in three waves, one gap at a time:
-  west, north, east. Each is announced ("Go stop it!") and waits at its gap (`Act2_SetupGladeObjects` shows the
-  current one); the player goes there and fights it (`StartAct2BloomWaveBattle`): Venonat; Paras and Venonat;
-  Venomoth, Beedrill and Venonat, at the area's level (+1, +2 for the last two), as many a side as both can field
-  with the 3v3 rules. Winning (or catching) scatters it; the player steps back out of the gap
-  (`Act2_GetGapStepOut`), the MORELULL uses INGRAIN and its roots grow a hedge across the gap (`Act2_PlantHedge`:
-  round bushes, redrawn on load), and the next wave is announced. Running leaves them at the gap; losing whites out.
+  west, north, east (each gap dark toward the forest beyond: the north one under a tree across its far end).
+  Each is announced ("Go stop it!") and waits at its gap, every Pokémon of it shown, walking in place
+  (`Act2_SetupGladeObjects`); the player goes there and fights it (`StartAct2BloomWaveBattle`): Venonat; Paras and
+  Venonat; Venomoth, Beedrill and Venonat, at the area's level (+1, +2 for the last two), as many a side as both can
+  field with the 3v3 rules. Winning (or catching) scatters them; the player steps back out of the gap far enough
+  for their follower to clear it too (`Act2_GetGapStepOut`), the MORELULL walks over, uses INGRAIN and its roots
+  grow a hedge across the gap (`Act2_PlantHedge`: round bushes, redrawn on load), it walks back to the bud and the
+  next wave is announced. Running leaves them at the gap; losing whites out.
   All three:
   `ACT2_RESEARCH_PUZZLE_3`.
 - **Dawn.** The sky pales: the tint steps through 6 to 9 o'clock (`GameTime_ShowHour`), then `NIGHT_BLOOM_DAWN`
   makes it day for the rest of the trip (the forest's darkness is gone too). The MOONVEIL opens
-  (`OBJ_EVENT_GFX_MOONVEIL_BUD` → `_BLOOM`, `tools/hack/draw_night_bloom.py`) and the player collects its dew:
-  `ACT2_RESEARCH_PUZZLE_DONE`.
-- **The MORELULL** that lit the glade all night asks to come along (no won't do, like the Lapras). It joins at
+  (`OBJ_EVENT_GFX_MOONVEIL_BUD` → `_BLOOM`, `tools/hack/draw_night_bloom.py`); the player goes up to it and collects
+  its dew themselves (`Act2_IsDewCollected`): `ACT2_RESEARCH_PUZZLE_DONE`.
+- **The MORELULL** that lit the glade all night comes over to the player (`Act2_GetPlayerSideOfBloom`) and asks to come along (no won't do, like the Lapras). It joins at
   level 18 (`ACT2_MORELULL_LEVEL`, `Act2_GiveGladeMorelull`), to the party or the PC; `FLAG_ACT2_GOT_MORELULL`. It's a
   gift (marked as a fateful encounter), so it doesn't count toward the sheet's catches. It's the only Morelull in the game: none is wild or a trainer's anywhere, not in the trip's other-region Grass Pokémon, and neither it nor Shiinotic is in the final project's road pools (`EXCLUDE_SPECIES` in `tools/hack/gen_other_region_pools.py`).
 - **PROF. FERN** runs up (she followed the glowcaps' light; `NIGHT_BLOOM_FERN`). She waits at the forest's south gate

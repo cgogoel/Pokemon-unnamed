@@ -353,6 +353,54 @@ ViridianForest_Glade_EventScript_WaveWon:
 	call_if_eq VAR_0x8004, 3, ViridianForest_Glade_EventScript_MorelullFromEast
 	goto ViridianForest_Glade_EventScript_NextWave
 
+@ The MORELULL comes over from beside the bud (11,9) to the player, wherever they stand by the MOONVEIL
+ViridianForest_Glade_EventScript_MorelullComesOver:
+	specialvar VAR_RESULT, Act2_GetPlayerSideOfBloom
+	call_if_eq VAR_RESULT, DIR_SOUTH, ViridianForest_Glade_EventScript_MorelullToPlayerSouth
+	call_if_eq VAR_RESULT, DIR_EAST, ViridianForest_Glade_EventScript_MorelullToPlayerEast
+	call_if_eq VAR_RESULT, DIR_WEST, ViridianForest_Glade_EventScript_MorelullToPlayerWest
+	call_if_eq VAR_RESULT, DIR_NORTH, ViridianForest_Glade_EventScript_MorelullToPlayerNorth
+	return
+
+ViridianForest_Glade_EventScript_MorelullToPlayerSouth:
+	applymovement LOCALID_GLADE_MORELULL, Common_Movement_FaceLeft
+	applymovement LOCALID_PLAYER, Common_Movement_FaceRight
+	waitmovement 0
+	return
+
+ViridianForest_Glade_EventScript_MorelullToPlayerEast:
+	applymovement LOCALID_GLADE_MORELULL, Common_Movement_FaceUp
+	applymovement LOCALID_PLAYER, Common_Movement_FaceDown
+	waitmovement 0
+	return
+
+ViridianForest_Glade_EventScript_MorelullToPlayerWest:
+	applymovement LOCALID_GLADE_MORELULL, ViridianForest_Glade_Movement_MorelullToPlayerWest
+	waitmovement 0
+	applymovement LOCALID_PLAYER, Common_Movement_FaceDown
+	waitmovement 0
+	return
+
+ViridianForest_Glade_EventScript_MorelullToPlayerNorth:
+	applymovement LOCALID_GLADE_MORELULL, ViridianForest_Glade_Movement_MorelullToPlayerNorth
+	waitmovement 0
+	applymovement LOCALID_PLAYER, Common_Movement_FaceRight
+	waitmovement 0
+	return
+
+@ To (9,9), below the player at (9,8); to (11,7), right of the player at (10,7)
+ViridianForest_Glade_Movement_MorelullToPlayerWest:
+	walk_left
+	walk_left
+	face_up
+	step_end
+
+ViridianForest_Glade_Movement_MorelullToPlayerNorth:
+	walk_up
+	walk_up
+	face_left
+	step_end
+
 ViridianForest_Glade_EventScript_MorelullToWest:
 	applymovement LOCALID_GLADE_MORELULL, ViridianForest_Glade_Movement_MorelullToWest
 	waitmovement 0
@@ -551,6 +599,11 @@ ViridianForest_Glade_EventScript_Dawn:
 	addobject LOCALID_GLADE_BLOOM
 	waitse
 	msgbox Act2_Text_MoonveilOpens
+	releaseall
+	end
+
+@ The dew, collected from the open MOONVEIL by the player (the puzzle's end), then the morning
+ViridianForest_Glade_EventScript_CollectDew:
 	playfanfare MUS_RG_OBTAIN_KEY_ITEM
 	message Act2_Text_GotDew
 	waitmessage
@@ -563,6 +616,7 @@ ViridianForest_Glade_EventScript_Dawn:
 @ The MORELULL asks to come along (no won't do), then PROF. FERN arrives
 ViridianForest_Glade_EventScript_Morning:
 	goto_if_set FLAG_ACT2_GOT_MORELULL, ViridianForest_Glade_EventScript_FernArrives
+	call ViridianForest_Glade_EventScript_MorelullComesOver
 	msgbox Act2_Text_MorelullComes
 ViridianForest_Glade_EventScript_MorelullAsks:
 	playmoncry SPECIES_MORELULL, CRY_MODE_NORMAL
@@ -639,7 +693,11 @@ ViridianForest_Glade_EventScript_BudVigil:
 	end
 
 ViridianForest_Glade_EventScript_Bloom::
-	msgbox Act2_Text_Bloom, MSGBOX_SIGN
+	lockall
+	specialvar VAR_RESULT, Act2_IsDewCollected
+	goto_if_eq VAR_RESULT, FALSE, ViridianForest_Glade_EventScript_CollectDew
+	msgbox Act2_Text_Bloom
+	releaseall
 	end
 
 ViridianForest_Glade_EventScript_Morelull::
@@ -780,7 +838,8 @@ Act2_Text_NightEnds:
 Act2_Text_MoonveilOpens:
 	.string "In the first light of dawn, the\n"
 	.string "MOONVEIL opened!\p"
-	.string "Dew sparkles on its petals.$"
+	.string "Dew sparkles on its petals.\n"
+	.string "Go collect it!$"
 
 Act2_Text_GotDew:
 	.string "{PLAYER} collected the MOONVEIL's\n"

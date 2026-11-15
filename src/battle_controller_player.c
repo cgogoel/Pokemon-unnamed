@@ -1675,13 +1675,28 @@ static void Task_GiveExpWithExpBar(u8 taskId)
     }
 }
 
+
+// The player's battler on the field with party slot monIndex (the one leveling up): the partner's in a double battle,
+// or any of the three in a 3v3 (the middle one too); else the given battler
+static enum BattlerId GetLevelUpBattler(enum BattlerId battler, u32 monIndex)
+{
+    enum BattlerId b;
+    if (!IsDoubleBattle() && !(gBattleTypeFlags & BATTLE_TYPE_TRIPLE))
+        return battler;
+    for (b = 0; b < gBattlersCount; b++)
+    {
+        if (IsOnPlayerSide(b) && gBattlerPartyIndexes[b] == monIndex && GetBattlerSide(b) == GetBattlerSide(battler))
+            return b;
+    }
+    return battler;
+}
+
 static void Task_LaunchLvlUpAnim(u8 taskId)
 {
     enum BattlerId battler = gTasks[taskId].tExpTask_battler;
     u8 monIndex = gTasks[taskId].tExpTask_monId;
 
-    if (IsDoubleBattle() == TRUE && monIndex == gBattlerPartyIndexes[GetPartnerBattler(battler)])
-        battler ^= BIT_FLANK;
+    battler = GetLevelUpBattler(battler, monIndex);
 
     InitAndLaunchSpecialAnimation(battler, battler, battler, B_ANIM_LVL_UP);
     gTasks[taskId].func = Task_UpdateLvlInHealthbox;
@@ -1695,10 +1710,7 @@ static void Task_UpdateLvlInHealthbox(u8 taskId)
     {
         u8 monIndex = gTasks[taskId].tExpTask_monId;
 
-        if (IsDoubleBattle() == TRUE && monIndex == gBattlerPartyIndexes[GetPartnerBattler(battler)])
-            UpdateHealthboxAttribute(gHealthboxSpriteIds[GetPartnerBattler(battler)], &gParties[B_TRAINER_PLAYER][monIndex], HEALTHBOX_ALL);
-        else
-            UpdateHealthboxAttribute(gHealthboxSpriteIds[battler], &gParties[B_TRAINER_PLAYER][monIndex], HEALTHBOX_ALL);
+        UpdateHealthboxAttribute(gHealthboxSpriteIds[GetLevelUpBattler(battler, monIndex)], &gParties[B_TRAINER_PLAYER][monIndex], HEALTHBOX_ALL);
 
         gTasks[taskId].func = Task_SetControllerToWaitForString;
     }

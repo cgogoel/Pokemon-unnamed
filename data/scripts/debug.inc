@@ -513,6 +513,7 @@ Debug_EventScript_SkipToAct3::
 @ Act 2's Grass course (the night bloom): arriving at Viridian Forest's south gate at dusk, as PROF. FERN's trip does
 Debug_EventScript_SkipToGrassTrip::
 	setvar VAR_STORY_ACT, STORY_ACT_UNIVERSITY
+	setvar VAR_ACT1_PROGRESS, ACT1_DONE
 	setvar VAR_ACT2_RESEARCH, 0
 	setvar VAR_ACT2_MOVE_SEEN_1, MOVE_NONE
 	setvar VAR_ACT2_MOVE_SEEN_2, MOVE_NONE
@@ -526,6 +527,7 @@ Debug_EventScript_SkipToGrassTrip::
 @ Act 2's finale (docs/hack/act2_finale.md): the morning of the director's brief, or the Woods with the station open
 Debug_EventScript_SkipToFinalProject::
 	setvar VAR_STORY_ACT, STORY_ACT_UNIVERSITY
+	setvar VAR_ACT1_PROGRESS, ACT1_DONE
 	setvar VAR_ACT2_PROGRESS, ACT2_GOT_TRAINER_CARD
 	warp MAP_CELADON_UNIVERSITY_SCIENCE_INSTITUTE, 8, 13
 	waitstate
@@ -533,6 +535,7 @@ Debug_EventScript_SkipToFinalProject::
 
 Debug_EventScript_SkipToStation::
 	setvar VAR_STORY_ACT, STORY_ACT_UNIVERSITY
+	setvar VAR_ACT1_PROGRESS, ACT1_DONE
 	setvar VAR_ACT2_PROGRESS, ACT2_PARENTS_TALKED
 	setflag FLAG_ACT2_ROUTE_OPEN
 	warp MAP_WOODS, 5, 10

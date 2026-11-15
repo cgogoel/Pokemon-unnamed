@@ -166,6 +166,8 @@ void ShowActEndCards(const u8 *const *cards, u8 count, void (*startNextAct)(void
 static void StartAct2(void)
 {
     VarSet(VAR_STORY_ACT, STORY_ACT_UNIVERSITY);
+    // Act 1's last stage is its highest, so leaving it set would keep the farmyard's end-of-act scene armed
+    VarSet(VAR_ACT1_PROGRESS, ACT1_DONE);
     VarSet(VAR_ACT2_PROGRESS, ACT2_START);
     Act2_RaisePartyLevels();
     Act2_GiveStartingKit();

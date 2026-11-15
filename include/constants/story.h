@@ -21,6 +21,7 @@
 #define ACT1_BEFRIENDED_JANGMO_O    10 // Bringing it home: Mom and Dad can't believe it, and send the player to rest
 #define ACT1_RESTED                 11 // Mom and Dad: show the Pokédex to Oak. Oak arrives as the player leaves.
 #define ACT1_CHOOSING_FRIENDS       12 // Oak: Celadon University; choose two friends to bring. Then the prologue ends.
+#define ACT1_DONE                   13 // Act 1 is over. Set when Act 2 starts, so its last scene stops re-running.
 
 // Act 2's story so far, in VAR_ACT2_PROGRESS (docs/hack/act2_story.md). Map coord events use the numbers: map data
 // doesn't see these names. Until ACT2_GOT_TRAINER_CARD, trainers won't battle the player (Act2_TrainersLocked).

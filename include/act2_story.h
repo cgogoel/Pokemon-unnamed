@@ -39,6 +39,7 @@ bool16 Act2_IsDockFireBurningSpecial(void);
 bool16 Act2_IsDockFireAlarmDue(void);
 bool16 Act2_FindSpotBesidePlayer(void);
 void Act2_WalkFriendToPlayer(void);
+bool16 Act2_WalkFriendInFrom(void);
 u16 Act2_GetDockFireState(void);
 void Act2_OnCaughtMon(u32 species);
 bool16 Act2_FindTmMoveUser(void);

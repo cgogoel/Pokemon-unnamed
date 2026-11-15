@@ -787,14 +787,19 @@ Act2_EventScript_WaterSeeYouTonightFriendRunsUp:
 	return
 
 @ The friend runs up beside the player after the exam, to say so themselves
+@ (ROWAN comes into the glade by its way in from the forest, the dark passage at the bottom, and walks up)
 Act2_EventScript_GrassSeeYouTonightFriendRunsUp:
-	specialvar VAR_RESULT, Act2_FindSpotBesidePlayer
-	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_NopReturn
+	setvar VAR_0x8005, 10
+	setvar VAR_0x8006, 14
 	setobjectxyperm LOCALID_GLADE_ROWAN, VAR_0x8005, VAR_0x8006
 	clearflag FLAG_TEMP_C
 	addobject LOCALID_GLADE_ROWAN
 	setvar VAR_0x8009, LOCALID_GLADE_ROWAN
-	call Act2_EventScript_FriendRunsUp
+	playse SE_PIN
+	specialvar VAR_RESULT, Act2_WalkFriendInFrom
+	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_NopReturn
+	waitmovement VAR_0x8009
+	call Act2_EventScript_FriendFacesPlayer
 	return
 
 @ A passed exam: the class heads home, and the player ends up back in their room. It's night now (Act2_IsClubNight).

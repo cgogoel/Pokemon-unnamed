@@ -696,6 +696,7 @@ gSpecials::
 	def_special Act2_IsDockFireAlarmDue
 	def_special Act2_FindSpotBesidePlayer
 	def_special Act2_WalkFriendToPlayer
+	def_special Act2_WalkFriendInFrom
 	def_special Act2_GetDockFireState
 	def_special Act2_FindTmMoveUser
 	def_special Act2_FindCourseMoveUser

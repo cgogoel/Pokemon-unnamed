@@ -512,7 +512,7 @@ COLLISION = {
         '#####################',
         '#####################',
         '#...#..............##',
-        '#...................#',
+        '#...#...............#',
         '#...................#',
         '#..####......#####..#',
         '#...................#',
@@ -1303,23 +1303,6 @@ def cabinet_desk(room, x, y, book=True, pc=False):
     room.put(desk_1x1(pc=pc, book=book), x * T, y * T)
 
 
-def small_plant(room, x, y):
-    """A whole one-cell potted plant (FireRed's palms are two cells): a white pot with a dark rim, leaves over it."""
-    P = Pix(T, T)
-    P.box(4, 9, 8, 6, WH)
-    P.hl(5, 10, 10, GR1)
-    P.vl(10, 10, 13, GR2)
-    P.hl(4, 11, 15, OL)
-    for (cx, cy, rx, ry) in ((8, 6, 6, 4), (5, 4, 3, 3), (11, 4, 3, 3), (8, 2, 2, 3)):
-        for yy in range(-ry, ry + 1):
-            for xx in range(-rx, rx + 1):
-                d = (xx / (rx + .5)) ** 2 + (yy / (ry + .5)) ** 2
-                if d <= 1:
-                    P.p(cx + xx, cy + yy, OL if d > .75 else P3['gn1'] if yy < 0 else P3['gn2'])
-    P.p(6, 3, WH)
-    room.put(P.im, x * T, y * T)
-
-
 def lab_rug(room, x, y, w, h, top=True, bottom=True):
     """The Lab's blue rug (edges 0x2EC-0x2F7, middle 0x2F3), w x h cells (walkable)."""
     for dy in range(h):
@@ -1983,7 +1966,7 @@ def home_economics():
 def dorm_lobby():
     """Dorm lobby, 21x12: the houses' look. Stairs up (1-2), the square windows (4, 13), mailboxes (7-9), notices
     (11-12), a bookshelf (16-17), the vending machine (19, 1-2), the warden's counter (3-6,5), the lounge on a rug
-    (12-18, 5-8: sofa 13-17, low table 14-16), a low palm under the window (4,2), palms (1|19, 8-9)."""
+    (12-18, 5-8: sofa 13-17, low table 14-16), a palm under the window (4, 2-3), palms (1|19, 8-9)."""
     r = Room('DORM_LOBBY')
     sh = shell(r, 'planks', 'house')
     square(r, 4, 13)
@@ -1997,7 +1980,7 @@ def dorm_lobby():
     house_rug(r, 12, 5, 7, 4)
     sofa(r, 13, 5, 5)
     low_table(r, 14, 7, 3)
-    small_plant(r, 4, 2)                    # A small plant under the window, (4,2)
+    palm(r, 4, 2)                           # A palm under the window, (4,2-3)
     palm(r, 1, 8)
     palm(r, 19, 8)
     door_mat(r)

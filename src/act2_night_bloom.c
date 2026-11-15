@@ -3,6 +3,7 @@
 #include "act2_road.h"
 #include "act2_story.h"
 #include "event_data.h"
+#include "field_player_avatar.h"
 #include "field_screen_effect.h"
 #include "fieldmap.h"
 #include "game_time.h"
@@ -22,7 +23,8 @@
 //     and each widens the light (Act2_GetNightForestFlashLevel).
 //  2. Follow the ODDISH: held still with SLEEP POWDER or STUN SPORE, each shows the next leg of the way; the third
 //     leads to a hidden opening into the glade.
-//  3. Guard the bloom: three waves of BUG POKéMON until dawn, each fought or kept out by a hedge (a GRASS move).
+//  3. Guard the bloom: three waves of BUG POKéMON until dawn, one gap at a time: the player goes to the gap and
+//     fights them, then the MORELULL's INGRAIN grows a hedge across it.
 // Then dawn (day for the rest of the trip), the MOONVEIL opens, its dew is collected (the puzzle's end), the glade's
 // MORELULL comes along and PROF. FERN makes the TM and gives the exam in the glade.
 
@@ -257,11 +259,6 @@ static bool32 IsStatusMove(u32 move)
     return GetMoveCategory(move) == DAMAGE_CATEGORY_STATUS;
 }
 
-static bool32 IsAnyMove(u32 move)
-{
-    return TRUE;
-}
-
 // specialvar VAR_RESULT, Act2_FindHoldStillMoveUser: a party Pokémon that can hold an ODDISH still: SLEEP POWDER or
 // STUN SPORE, or else any GRASS status move
 bool16 Act2_FindHoldStillMoveUser(void)
@@ -270,20 +267,13 @@ bool16 Act2_FindHoldStillMoveUser(void)
     return FindMoveUser(sMoves, IsStatusMove);
 }
 
-// specialvar VAR_RESULT, Act2_FindHedgeMoveUser: a party Pokémon that can plant a hedge: LEECH SEED or INGRAIN, or
-// else any GRASS move
-bool16 Act2_FindHedgeMoveUser(void)
-{
-    static const u16 sMoves[] = { MOVE_LEECH_SEED, MOVE_INGRAIN, MOVE_NONE };
-    return FindMoveUser(sMoves, IsAnyMove);
-}
-
 // ---------------------------------------------------------------------------------------------------------------
 // The glade
 
 // special Act2_SetupGladeObjects, on the glade's transition: FLAG_TEMP_2 the MOONVEIL's bud (until dawn, and off the
 // trip), FLAG_TEMP_3 its bloom (from dawn, on the trip), FLAG_TEMP_4 the MORELULL (on the trip until it comes along),
-// FLAG_TEMP_5 PROF. FERN (once she's come, on the trip). FLAG_TEMP_6-8, the waves' BUG POKéMON, stay hidden.
+// FLAG_TEMP_5 PROF. FERN (once she's come, on the trip), FLAG_TEMP_6-8 the waves' BUG POKéMON (the wave at its gap,
+// from the arrival until it's beaten).
 void Act2_SetupGladeObjects(void)
 {
     u32 bloom = GetBloom(), i;
@@ -295,6 +285,38 @@ void Act2_SetupGladeObjects(void)
         FlagClear(FLAG_TEMP_4);
     if (trip && (bloom & NIGHT_BLOOM_FERN))
         FlagClear(FLAG_TEMP_5);
+    if (trip && (bloom & NIGHT_BLOOM_ARRIVED) && (bloom & NIGHT_BLOOM_WAVES) != NIGHT_BLOOM_WAVES)
+    {
+        for (i = 0; i < 3; i++)
+        {
+            if (!(bloom & (NIGHT_BLOOM_WAVE_1 << i)))
+            {
+                FlagClear(FLAG_TEMP_6 + i);
+                break;
+            }
+        }
+    }
+}
+
+// specialvar VAR_RESULT, Act2_GetGapStepOut with the wave (1-3) in VAR_0x8004: the way to step (DIR_*) for the
+// player to be out of the wave's gap, where its hedge grows (west: x 3 on; north: y 5 on; east: x 17 back), or
+// DIR_NONE when they're clear of it
+u16 Act2_GetGapStepOut(void)
+{
+    s16 x, y;
+    PlayerGetDestCoords(&x, &y);
+    x -= MAP_OFFSET;
+    y -= MAP_OFFSET;
+    switch (gSpecialVar_0x8004)
+    {
+    case 1:
+        return x < 3 ? DIR_EAST : DIR_NONE;
+    case 2:
+        return y < 5 ? DIR_SOUTH : DIR_NONE;
+    case 3:
+        return x > 17 ? DIR_WEST : DIR_NONE;
+    }
+    return DIR_NONE;
 }
 
 // special Act2_DrawGladeHedges, on the glade's load: the hedges planted this trip
@@ -360,8 +382,8 @@ bool16 Act2_EndWave(void)
     return EndWave(gSpecialVar_0x8004);
 }
 
-// specialvar VAR_RESULT, Act2_PlantHedge with the wave (1-3) in VAR_0x8004: a hedge grows in its gap and the wave is
-// kept out (the script redraws the map)
+// specialvar VAR_RESULT, Act2_PlantHedge with the wave (1-3) in VAR_0x8004: after the wave is beaten, the MORELULL's
+// INGRAIN grows a hedge across its gap and the wave is over (the script redraws the map). TRUE after the last one.
 bool16 Act2_PlantHedge(void)
 {
     u32 wave = gSpecialVar_0x8004;

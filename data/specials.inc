@@ -667,7 +667,6 @@ gSpecials::
 	def_special Act2_BrightenForest
 	def_special Act2_FollowOddish
 	def_special Act2_FindHoldStillMoveUser
-	def_special Act2_FindHedgeMoveUser
 	def_special Act2_SetNightBloomBit
 	def_special Act2_HasNightBloomBit
 	def_special Act2_SetupGladeObjects
@@ -676,6 +675,7 @@ gSpecials::
 	def_special Act2_GetNextWave
 	def_special Act2_EndWave
 	def_special Act2_PlantHedge
+	def_special Act2_GetGapStepOut
 	def_special Act2_BreakDawn
 	def_special Act2_GiveGladeMorelull
 	def_special StartAct2BloomWaveBattle

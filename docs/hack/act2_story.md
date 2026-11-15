@@ -141,19 +141,22 @@ dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_n
 - **2. Follow the ODDISH.** Too skittish to follow (it darts off and back), until a party Pokémon holds it still with
   SLEEP POWDER or STUN SPORE, or else any Grass status move (`Act2_FindHoldStillMoveUser`). Then it shakes off the
   powder and toddles along the next leg ((44,28) → (30,17) → (40,6)), where the next ODDISH waits. The third walks
-  into the trees at the north edge: a hidden opening, a dark hollow under a whole tree column (x 39-41): the trunks
-  and their shadow (rows 3-4) give way to darkness under the canopy (`Act2_DrawForestOpening`, from `sForestOpening`;
-  metatiles 0x2AB-0x2B4 by `tools/hack/draw_forest_passage.py`), drawn on every load from then on. Its coord events
-  (row 3) lead into the glade. All three: `ACT2_RESEARCH_PUZZLE_2`.
+  into the trees at the north edge: a hidden passage, the tree column there (x 39-41, rows 0-4) giving way to a gap
+  between the trees, dark, its entrance an arch fading from the grass, the shade running on between the crowns of
+  the trees either side
+  (`Act2_DrawForestOpening`, from `sForestOpening`; metatiles from 0x2AB by `tools/hack/draw_forest_passage.py`),
+  drawn on every load from then on. Its coord events (row 3) lead into the glade. All three: `ACT2_RESEARCH_PUZZLE_2`.
 - **3. Guard the bloom.** The glade (`MAP_VIRIDIAN_FOREST_GLADE`, in `gMapGroup_SpecialArea_Frlg`, Viridian Forest's
   map section, so the forest's area level; laid out by `tools/hack/compose_glade.py`; its way back south is the same
-  dark hollow from the other side) is a moonlit clearing with the MOONVEIL's bud in the middle and a
-  MORELULL glowing beside it. Arriving, the bud's scent draws hungry BUG POKéMON in three waves, through the west,
-  north and east gaps. Before each, the player can plant a hedge in its gap with LEECH SEED or INGRAIN, or else any
-  Grass move (`Act2_FindHedgeMoveUser`, `Act2_PlantHedge`: round bushes, redrawn on load) and skip it; otherwise it's
-  a battle (`StartAct2BloomWaveBattle`): Venonat; Paras and Venonat; Venomoth, Beedrill and Venonat, at the area's
-  level (+1, +2 for the last two), as many a side as both can field with the 3v3 rules. Winning (or catching) ends
-  the wave; running or losing leaves them circling (talk to the bud to go on). All three:
+  dark passage between the trees from the other side) is a moonlit clearing with the MOONVEIL's bud in the middle and a
+  MORELULL glowing beside it. Arriving, the bud's scent draws hungry BUG POKéMON in three waves, one gap at a time:
+  west, north, east. Each is announced ("Go stop it!") and waits at its gap (`Act2_SetupGladeObjects` shows the
+  current one); the player goes there and fights it (`StartAct2BloomWaveBattle`): Venonat; Paras and Venonat;
+  Venomoth, Beedrill and Venonat, at the area's level (+1, +2 for the last two), as many a side as both can field
+  with the 3v3 rules. Winning (or catching) scatters it; the player steps back out of the gap
+  (`Act2_GetGapStepOut`), the MORELULL uses INGRAIN and its roots grow a hedge across the gap (`Act2_PlantHedge`:
+  round bushes, redrawn on load), and the next wave is announced. Running leaves them at the gap; losing whites out.
+  All three:
   `ACT2_RESEARCH_PUZZLE_3`.
 - **Dawn.** The sky pales: the tint steps through 6 to 9 o'clock (`GameTime_ShowHour`), then `NIGHT_BLOOM_DAWN`
   makes it day for the rest of the trip (the forest's darkness is gone too). The MOONVEIL opens

@@ -289,7 +289,8 @@ ViridianForest_Glade_EventScript_Arrival:
 	waitse
 	goto ViridianForest_Glade_EventScript_NextWave
 
-@ Part 3, guard the bloom: three waves (west, north, east gaps), each fought, or kept out by a hedge
+@ Part 3, guard the bloom: three waves, one gap at a time (west, north, east). Each is announced, the player goes to
+@ its gap and fights it, then the MORELULL's INGRAIN grows a hedge across the gap and the next one comes
 ViridianForest_Glade_EventScript_NextWave:
 	specialvar VAR_0x8004, Act2_GetNextWave
 	goto_if_eq VAR_0x8004, 0, ViridianForest_Glade_EventScript_Dawn
@@ -300,19 +301,14 @@ ViridianForest_Glade_EventScript_NextWave:
 	call_if_eq VAR_0x8004, 1, ViridianForest_Glade_EventScript_Wave1Text
 	call_if_eq VAR_0x8004, 2, ViridianForest_Glade_EventScript_Wave2Text
 	call_if_eq VAR_0x8004, 3, ViridianForest_Glade_EventScript_Wave3Text
-	specialvar VAR_RESULT, Act2_FindHedgeMoveUser
-	goto_if_eq VAR_RESULT, FALSE, ViridianForest_Glade_EventScript_WaveBattle
-	msgbox Act2_Text_HedgeAsk, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, NO, ViridianForest_Glade_EventScript_WaveBattle
-	playse SE_M_GIGA_DRAIN
-	specialvar VAR_RESULT, Act2_PlantHedge
-	special DrawWholeMapView
-	msgbox Act2_Text_HedgeGrew
-	waitse
-	removeobject VAR_0x8005
-	goto ViridianForest_Glade_EventScript_NextWave
+	releaseall
+	end
 
-ViridianForest_Glade_EventScript_WaveBattle:
+@ The wave at its gap: the battle
+ViridianForest_Glade_EventScript_Bug::
+	lockall
+	specialvar VAR_0x8004, Act2_GetNextWave
+	goto_if_eq VAR_0x8004, 0, ViridianForest_Glade_EventScript_BugGone
 	msgbox Act2_Text_WaveBattle
 	closemessage
 	special StartAct2BloomWaveBattle
@@ -324,12 +320,70 @@ ViridianForest_Glade_EventScript_WaveBattle:
 	releaseall
 	end
 
+ViridianForest_Glade_EventScript_BugGone:
+	releaseall
+	end
+
+@ Beaten: they scatter, the player steps back out of the gap, and the MORELULL fills it with a hedge
 ViridianForest_Glade_EventScript_WaveWon:
 	specialvar VAR_0x8004, Act2_GetNextWave
-	specialvar VAR_RESULT, Act2_EndWave
 	removeobject VAR_0x8005
 	msgbox Act2_Text_WaveScattered
+	closemessage
+	call ViridianForest_Glade_EventScript_LeaveGap
+	call_if_eq VAR_0x8004, 1, ViridianForest_Glade_EventScript_FaceWest
+	call_if_eq VAR_0x8004, 2, ViridianForest_Glade_EventScript_FaceNorth
+	call_if_eq VAR_0x8004, 3, ViridianForest_Glade_EventScript_FaceEast
+	playmoncry SPECIES_MORELULL, CRY_MODE_NORMAL
+	msgbox Act2_Text_MorelullIngrain
+	waitmoncry
+	playse SE_M_ABSORB
+	specialvar VAR_RESULT, Act2_PlantHedge
+	special DrawWholeMapView
+	msgbox Act2_Text_HedgeGrew
+	waitse
 	goto ViridianForest_Glade_EventScript_NextWave
+
+ViridianForest_Glade_EventScript_LeaveGap:
+	specialvar VAR_RESULT, Act2_GetGapStepOut
+	goto_if_eq VAR_RESULT, DIR_NONE, ViridianForest_Glade_EventScript_OutOfGap
+	call_if_eq VAR_RESULT, DIR_EAST, ViridianForest_Glade_EventScript_StepEast
+	call_if_eq VAR_RESULT, DIR_SOUTH, ViridianForest_Glade_EventScript_StepSouth
+	call_if_eq VAR_RESULT, DIR_WEST, ViridianForest_Glade_EventScript_StepWest
+	goto ViridianForest_Glade_EventScript_LeaveGap
+
+ViridianForest_Glade_EventScript_OutOfGap:
+	return
+
+ViridianForest_Glade_EventScript_StepEast:
+	applymovement LOCALID_PLAYER, Common_Movement_WalkRight
+	waitmovement 0
+	return
+
+ViridianForest_Glade_EventScript_StepSouth:
+	applymovement LOCALID_PLAYER, Common_Movement_WalkDown
+	waitmovement 0
+	return
+
+ViridianForest_Glade_EventScript_StepWest:
+	applymovement LOCALID_PLAYER, Common_Movement_WalkLeft
+	waitmovement 0
+	return
+
+ViridianForest_Glade_EventScript_FaceWest:
+	applymovement LOCALID_PLAYER, Common_Movement_FaceLeft
+	waitmovement 0
+	return
+
+ViridianForest_Glade_EventScript_FaceNorth:
+	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
+	waitmovement 0
+	return
+
+ViridianForest_Glade_EventScript_FaceEast:
+	applymovement LOCALID_PLAYER, Common_Movement_FaceRight
+	waitmovement 0
+	return
 
 ViridianForest_Glade_EventScript_ShowBug1:
 	clearflag FLAG_TEMP_6
@@ -466,7 +520,8 @@ ViridianForest_Glade_EventScript_Bud::
 
 ViridianForest_Glade_EventScript_BudVigil:
 	msgbox Act2_Text_BudVigil
-	goto ViridianForest_Glade_EventScript_NextWave
+	releaseall
+	end
 
 ViridianForest_Glade_EventScript_Bloom::
 	msgbox Act2_Text_Bloom, MSGBOX_SIGN
@@ -479,9 +534,6 @@ ViridianForest_Glade_EventScript_Morelull::
 	msgbox Act2_Text_MorelullGlows
 	waitmoncry
 	release
-	end
-
-ViridianForest_Glade_EventScript_Bug::
 	end
 
 @ ---------------------------------------------------------------------------------------------------------------
@@ -562,25 +614,26 @@ Act2_Text_GladeScent:
 
 Act2_Text_Wave1:
 	.string "Rustling at the west gap!\n"
-	.string "A VENONAT is after the bud!$"
+	.string "A VENONAT is after the bud!\p"
+	.string "Go stop it!$"
 
 Act2_Text_Wave2:
 	.string "Buzzing at the north gap!\n"
-	.string "PARAS and VENONAT!$"
+	.string "PARAS and VENONAT!\p"
+	.string "Go stop them!$"
 
 Act2_Text_Wave3:
 	.string "A whole swarm at the east gap!\n"
-	.string "VENOMOTH, BEEDRILL, VENONAT!$"
+	.string "VENOMOTH, BEEDRILL, VENONAT!\p"
+	.string "Go stop them!$"
 
-Act2_Text_HedgeAsk:
-	.string "{STR_VAR_1} could grow a hedge in\n"
-	.string "the gap with {STR_VAR_2}.\l"
-	.string "Plant one?$"
+Act2_Text_MorelullIngrain:
+	.string "The MORELULL glows brighter…\p"
+	.string "MORELULL used INGRAIN!$"
 
 Act2_Text_HedgeGrew:
-	.string "{STR_VAR_1} used {STR_VAR_2}!\p"
-	.string "A thick hedge sprang up in the gap!\n"
-	.string "The BUG POKéMON buzz off.$"
+	.string "Its roots spread through the gap\n"
+	.string "and grew into a thick hedge!$"
 
 Act2_Text_WaveBattle:
 	.string "Here they come!$"
@@ -590,10 +643,10 @@ Act2_Text_WaveScattered:
 	.string "dark!$"
 
 Act2_Text_WaveStillThere:
-	.string "The BUG POKéMON are still\n"
-	.string "circling the glade…\p"
-	.string "Go back to the MOONVEIL when\n"
-	.string "you're ready to guard it.$"
+	.string "The BUG POKéMON are still at\n"
+	.string "the gap…\p"
+	.string "Go back when you're ready to\n"
+	.string "stop them.$"
 
 Act2_Text_BudClosed:
 	.string "The MOONVEIL's bud, closed tight.\n"

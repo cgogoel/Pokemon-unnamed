@@ -83,17 +83,14 @@ TEST("Night bloom: the puzzle's parts are the glowcaps, the ODDISH and the waves
     gSpecialVar_0x8004 = NIGHT_BLOOM_ARRIVED;
     Act2_SetNightBloomBit();
     EXPECT_EQ(Act2_GetGladeScene(), GLADE_SCENE_VIGIL);
-    // Wave 1 fought, wave 2 kept out by a hedge, wave 3 fought
-    EXPECT_EQ(Act2_GetNextWave(), 1);
-    gSpecialVar_0x8004 = 1;
-    EXPECT(!Act2_EndWave());
-    EXPECT_EQ(Act2_GetNextWave(), 2);
-    gSpecialVar_0x8004 = 2;
-    EXPECT(!Act2_PlantHedge());
-    EXPECT(VarGet(VAR_ACT2_NIGHT_BLOOM) & NIGHT_BLOOM_HEDGE_2);
-    EXPECT_EQ(Act2_GetNextWave(), 3);
-    gSpecialVar_0x8004 = 3;
-    EXPECT(Act2_EndWave());
+    // One gap at a time, west, north, east: each wave beaten, then the MORELULL's hedge fills its gap
+    for (i = 1; i <= 3; i++)
+    {
+        EXPECT_EQ(Act2_GetNextWave(), i);
+        gSpecialVar_0x8004 = i;
+        EXPECT_EQ(Act2_PlantHedge(), i == 3);
+        EXPECT(VarGet(VAR_ACT2_NIGHT_BLOOM) & (NIGHT_BLOOM_HEDGE_1 << (i - 1)));
+    }
     EXPECT_EQ(Act2_GetNextWave(), 0);
     EXPECT(VarGet(VAR_ACT2_RESEARCH) & ACT2_RESEARCH_PUZZLE_3);
     EXPECT_EQ(Act2_GetGladeScene(), GLADE_SCENE_DAWN);
@@ -122,7 +119,6 @@ TEST("Night bloom: SLEEP POWDER or STUN SPORE holds an ODDISH still; any GRASS s
     SetMonMoveSlot(&gPlayerParty[0], MOVE_NONE, 2);
     SetMonMoveSlot(&gPlayerParty[0], MOVE_NONE, 3);
     EXPECT(!Act2_FindHoldStillMoveUser());
-    EXPECT(Act2_FindHedgeMoveUser()); // Any GRASS move plants a hedge
     SetMonMoveSlot(&gPlayerParty[0], MOVE_COTTON_SPORE, 2);
     EXPECT(Act2_FindHoldStillMoveUser());
     SetMonMoveSlot(&gPlayerParty[0], MOVE_STUN_SPORE, 3);

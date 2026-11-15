@@ -7,6 +7,7 @@
 #include "battle.h"
 #include "battle_setup.h"
 #include "event_data.h"
+#include "malloc.h"
 #include "item.h"
 #include "move.h"
 #include "overworld.h"
@@ -1159,6 +1160,85 @@ void Act2_WalkFriendToPlayer(void)
         sFriendRunUpMovement[i] = sRun[sFriendRunUpDir];
     sFriendRunUpMovement[i] = MOVEMENT_ACTION_STEP_END;
     ScriptMovement_StartObjectMovementScript(gSpecialVar_0x8009, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, sFriendRunUpMovement);
+}
+
+// specialvar VAR_RESULT, Act2_WalkFriendInFrom: the friend (local id in VAR_0x8009, already placed at VAR_0x8005 /
+// VAR_0x8006, map coordinates without MAP_OFFSET) walks in from there to a free square beside the player (below them
+// first, then to their left, their right, above), along the shortest way over free land. VAR_0x8007 is the way they
+// face to look at the player. waitmovement VAR_0x8009 after it. FALSE if there's no way.
+#define FRIEND_WALK_IN_MAX 48
+static EWRAM_DATA u8 sFriendWalkInMovement[FRIEND_WALK_IN_MAX + 1] = {0};
+
+bool16 Act2_WalkFriendInFrom(void)
+{
+    static const s8 sOffsets[][2] = { [DIR_SOUTH] = { 0, 1 }, [DIR_NORTH] = { 0, -1 }, [DIR_WEST] = { -1, 0 }, [DIR_EAST] = { 1, 0 } };
+    static const u8 sOpposite[] = { [DIR_SOUTH] = DIR_NORTH, [DIR_NORTH] = DIR_SOUTH, [DIR_WEST] = DIR_EAST, [DIR_EAST] = DIR_WEST };
+    static const u8 sWalk[] =
+    {
+        [DIR_SOUTH] = MOVEMENT_ACTION_WALK_NORMAL_DOWN, [DIR_NORTH] = MOVEMENT_ACTION_WALK_NORMAL_UP,
+        [DIR_WEST] = MOVEMENT_ACTION_WALK_NORMAL_LEFT, [DIR_EAST] = MOVEMENT_ACTION_WALK_NORMAL_RIGHT,
+    };
+    static const u8 sSides[] = { DIR_SOUTH, DIR_WEST, DIR_EAST, DIR_NORTH };
+    struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
+    s32 w = gMapHeader.mapLayout->width, h = gMapHeader.mapLayout->height;
+    s32 sx = gSpecialVar_0x8005, sy = gSpecialVar_0x8006, tx = -1, ty = -1, i, n, head = 0, tail = 0;
+    u8 friendId, side = DIR_SOUTH;
+    u8 *from;
+    u16 *queue;
+
+    if (w * h > 1024 || TryGetObjectEventIdByLocalIdAndMap(gSpecialVar_0x8009, gSaveBlock1Ptr->location.mapNum,
+                                                           gSaveBlock1Ptr->location.mapGroup, &friendId))
+        return FALSE;
+    for (i = 0; i < (s32)ARRAY_COUNT(sSides); i++)
+    {
+        s32 x = player->currentCoords.x + sOffsets[sSides[i]][0], y = player->currentCoords.y + sOffsets[sSides[i]][1];
+        if ((x - MAP_OFFSET == sx && y - MAP_OFFSET == sy) || IsFreeLandSquare(x, y, player->currentElevation))
+        {
+            tx = x - MAP_OFFSET, ty = y - MAP_OFFSET, side = sSides[i];
+            break;
+        }
+    }
+    if (tx < 0)
+        return FALSE;
+    // Breadth first from the target back toward the start: from[] holds the way to step to get one square closer
+    from = AllocZeroed(w * h);
+    queue = Alloc(w * h * sizeof(u16));
+    from[ty * w + tx] = 0xFF;
+    queue[tail++] = ty * w + tx;
+    while (head < tail && !from[sy * w + sx])
+    {
+        s32 cur = queue[head++], cx = cur % w, cy = cur / w;
+        for (i = DIR_SOUTH; i <= DIR_EAST; i++)
+        {
+            s32 x = cx + sOffsets[i][0], y = cy + sOffsets[i][1];
+            if (x < 0 || y < 0 || x >= w || y >= h || from[y * w + x])
+                continue;
+            if (!(x == sx && y == sy) && !IsFreeLandSquare(x + MAP_OFFSET, y + MAP_OFFSET, player->currentElevation))
+                continue;
+            from[y * w + x] = sOpposite[i];       // From (x, y), step this way toward the target
+            queue[tail++] = y * w + x;
+        }
+    }
+    n = 0;
+    if (from[sy * w + sx])
+    {
+        s32 x = sx, y = sy;
+        while (!(x == tx && y == ty) && n < FRIEND_WALK_IN_MAX)
+        {
+            u8 dir = from[y * w + x];
+            sFriendWalkInMovement[n++] = sWalk[dir];
+            x += sOffsets[dir][0];
+            y += sOffsets[dir][1];
+        }
+    }
+    Free(from);
+    Free(queue);
+    if (n == 0 && !(sx == tx && sy == ty))
+        return FALSE;
+    sFriendWalkInMovement[n] = MOVEMENT_ACTION_STEP_END;
+    gSpecialVar_0x8007 = sOpposite[side];
+    ScriptMovement_StartObjectMovementScript(gSpecialVar_0x8009, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, sFriendWalkInMovement);
+    return TRUE;
 }
 
 // specialvar VAR_RESULT, Act2_IsDockFireAlarmDue: the docks are burning and no one has shown the player yet

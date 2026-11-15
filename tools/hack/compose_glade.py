@@ -3,7 +3,7 @@
 
 A moonlit clearing in the forest's own trees (gTileset_General_Frlg + gTileset_ViridianForest): columns of trees three
 squares wide, as in Viridian Forest, around a clearing with the MOONVEIL in the middle. Three gaps in the trees, west,
-north and east, are where the BUG POKéMON come in (a wave each); the south gap is the way back to the forest.
+north and east, are where the BUG POKéMON come in (a wave each), dark toward the forest beyond; the south gap is the way back to the forest.
 
 Also writes src/data/night_bloom_layout.h, the squares the C side needs (src/act2_night_bloom.c):
     - the hedge each wave's gap gets when the player plants one (round bushes, 0x005);
@@ -21,7 +21,7 @@ import struct
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from draw_forest_passage import FOREST_ROWS, GLADE_ROWS  # noqa: E402
+from draw_forest_passage import FOREST_ROWS, GAP_CELLS, GAP_IDS, GLADE_ROWS  # noqa: E402
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
 SOLID = 1 << 10
@@ -49,7 +49,6 @@ TRUNK_1 = [0x2A0, 0x2A1, 0x2A2]
 TRUNK_2 = [0x2A3, 0x2A4, 0x2A5]
 GRASS = [[0x008, 0x009], [0x010, 0x011]]
 FLOWERS = 0x282
-TUFT = 0x281
 CROWN_TIP = 0x281                       # Over the grass above a column's top row, its middle: the crown's tip
 
 
@@ -74,6 +73,12 @@ def canopy_down(y, end):
 def column(x, y):
     """The block at (x, y): trees, or None for the clearing's grass."""
     c = x // 3
+    for name, cells in GAP_CELLS.items():
+        if (x, y) in cells:
+            # A wave's gap: the forest's dark round the trunks and on the ground (the north one a tree across its
+            # far end, crown and trunk solid)
+            solid = (y < 2 or x in (8, 12)) if name == 'north' else y < SIDE_GAP_ROWS[0]
+            return blk(GAP_IDS[(name, (x, y))], solid, 0 if solid else 3)
     if y >= GLADE_EXIT_PATH and x in (GAP_COLUMN * 3 - 1, GAP_COLUMN * 3 + 3):
         # The trees either side of the way out, dark between their crowns toward it
         return blk(GLADE_ROWS[y - GLADE_EXIT_PATH][0 if x < GAP_COLUMN * 3 else 4], True, 0)
@@ -115,17 +120,15 @@ def compose():
             b = column(x, y)
             if b is None:
                 b = grass(x, y)
-                # A ring of flowers around the MOONVEIL, a few tufts elsewhere
-                d = abs(x - MOONVEIL[0]) + abs(y - MOONVEIL[1])
-                if d == 3:
+                # A ring of flowers around the MOONVEIL
+                if abs(x - MOONVEIL[0]) + abs(y - MOONVEIL[1]) == 3:
                     b = blk(FLOWERS)
-                elif (x * 7 + y * 3) % 13 == 0 and 3 <= x <= 17 and 5 <= y <= 11 and d > 3:
-                    b = blk(TUFT)
             cells.append(b)
     # The crowns' tips: the grass right above a column's top row (TOP), over its middle, as in Viridian Forest
     for y in range(1, H):
         for x in range(W):
-            if cells[y * W + x] & 0x3FF == TOP[1] and (cells[(y - 1) * W + x] >> 10) & 3 == 0:
+            above = cells[(y - 1) * W + x]
+            if cells[y * W + x] & 0x3FF == TOP[1] and (above >> 10) & 3 == 0 and (above & 0x3FF) not in GAP_IDS.values():
                 cells[(y - 1) * W + x] = blk(CROWN_TIP)
     return cells
 

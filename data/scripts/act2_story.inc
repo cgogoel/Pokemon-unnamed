@@ -563,6 +563,8 @@ Act2_EventScript_FireExam:
 	cleartrainerflag TRAINER_ACT2_PROF_FIRE
 	trainerbattle_no_intro TRAINER_ACT2_PROF_FIRE, Act2_Text_AshfordDefeat
 	msgbox Act2_Text_FirePassed
+	closemessage
+	call Act2_EventScript_FireComeSeeKaiFriendRunsUp
 	msgbox Act2_Text_FireComeSeeKai
 	setvar VAR_ACT2_PROGRESS, ACT2_FIRE_SEE_KAI
 	goto Act2_EventScript_BackToDorms
@@ -658,6 +660,8 @@ Act2_EventScript_WaterExam:
 	cleartrainerflag TRAINER_ACT2_PROF_WATER
 	trainerbattle_no_intro TRAINER_ACT2_PROF_WATER, Act2_Text_MarloweDefeat
 	msgbox Act2_Text_WaterPassed
+	closemessage
+	call Act2_EventScript_WaterSeeYouTonightFriendRunsUp
 	msgbox Act2_Text_WaterSeeYouTonight
 	setvar VAR_ACT2_PROGRESS, ACT2_WATER_INVITED
 	goto Act2_EventScript_BackToDorms
@@ -753,6 +757,8 @@ Act2_EventScript_GrassExam:
 	cleartrainerflag TRAINER_ACT2_PROF_GRASS
 	trainerbattle_no_intro TRAINER_ACT2_PROF_GRASS, Act2_Text_FernDefeat
 	msgbox Act2_Text_GrassPassed
+	closemessage
+	call Act2_EventScript_GrassSeeYouTonightFriendRunsUp
 	msgbox Act2_Text_GrassSeeYouTonight
 	setvar VAR_ACT2_PROGRESS, ACT2_GRASS_INVITED
 	goto Act2_EventScript_BackToDorms
@@ -761,6 +767,40 @@ Act2_EventScript_ComeBackWhenReady:
 	msgbox Act2_Text_ComeBackWhenReady
 	release
 	end
+
+@ The friend runs up beside the player after the exam, to say so themselves
+Act2_EventScript_FireComeSeeKaiFriendRunsUp:
+	specialvar VAR_RESULT, Act2_FindSpotBesidePlayer
+	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_NopReturn
+	setobjectxy LOCALID_CINNABAR_KAI, VAR_0x8005, VAR_0x8006
+	setvar VAR_0x8009, LOCALID_CINNABAR_KAI
+	call Act2_EventScript_FriendRunsUp
+	return
+
+@ The friend runs up beside the player after the exam, to say so themselves
+Act2_EventScript_WaterSeeYouTonightFriendRunsUp:
+	specialvar VAR_RESULT, Act2_FindSpotBesidePlayer
+	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_NopReturn
+	setobjectxy LOCALID_VERMILION_MINA, VAR_0x8005, VAR_0x8006
+	setvar VAR_0x8009, LOCALID_VERMILION_MINA
+	call Act2_EventScript_FriendRunsUp
+	return
+
+@ The friend runs up beside the player after the exam, to say so themselves
+@ (ROWAN comes into the glade by its way in from the forest, the dark passage at the bottom, and walks up)
+Act2_EventScript_GrassSeeYouTonightFriendRunsUp:
+	setvar VAR_0x8005, 10
+	setvar VAR_0x8006, 14
+	setobjectxyperm LOCALID_GLADE_ROWAN, VAR_0x8005, VAR_0x8006
+	clearflag FLAG_TEMP_C
+	addobject LOCALID_GLADE_ROWAN
+	setvar VAR_0x8009, LOCALID_GLADE_ROWAN
+	playse SE_PIN
+	specialvar VAR_RESULT, Act2_WalkFriendInFrom
+	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_NopReturn
+	waitmovement VAR_0x8009
+	call Act2_EventScript_FriendFacesPlayer
+	return
 
 @ A passed exam: the class heads home, and the player ends up back in their room. It's night now (Act2_IsClubNight).
 Act2_EventScript_BackToDorms:

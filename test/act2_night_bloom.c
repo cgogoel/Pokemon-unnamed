@@ -96,6 +96,10 @@ TEST("Night bloom: the puzzle's parts are the glowcaps, the ODDISH and the waves
     EXPECT_EQ(Act2_GetGladeScene(), GLADE_SCENE_DAWN);
     Act2_BreakDawn();
     EXPECT(!Act2_IsGrassTripNight());
+    EXPECT_EQ(Act2_GetGladeScene(), GLADE_SCENE_NONE);     // The dew waits for the player on the MOONVEIL
+    EXPECT(!Act2_IsDewCollected());
+    VarSet(VAR_ACT2_RESEARCH, VarGet(VAR_ACT2_RESEARCH) | ACT2_RESEARCH_PUZZLE_DONE);
+    EXPECT(Act2_IsDewCollected());
     EXPECT_EQ(Act2_GetGladeScene(), GLADE_SCENE_MORNING);
     gSpecialVar_0x8004 = NIGHT_BLOOM_FERN;
     Act2_SetNightBloomBit();

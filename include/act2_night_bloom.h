@@ -21,6 +21,8 @@ u16 Act2_GetNextWave(void);
 bool16 Act2_EndWave(void);
 bool16 Act2_PlantHedge(void);
 u16 Act2_GetGapStepOut(void);
+bool16 Act2_IsDewCollected(void);
+u16 Act2_GetPlayerSideOfBloom(void);
 u32 Act2_GetBloomWaveSize(u32 wave);
 u32 Act2_CreateBloomWaveParty(void);
 void Act2_BreakDawn(void);

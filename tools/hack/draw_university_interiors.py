@@ -817,6 +817,8 @@ def stairwell(room, x, down=False):
     spacing top to bottom, a straight rail down each side. Down: stairwell_depth's descending treads (the top one at
     the floor line, each lower one darker and narrower, into the dark), with no rail. The landing below (the warp
     cells) is the room's floor."""
+    if STAIR_SLANT:
+        return stairwell_slant_down(room, x) if down else stairwell_slant_up(room, x)
     if STAIR_STYLE != 'flat' or down:
         return stairwell_depth(room, x, down, rail=not down)
     if UP_FLAT_OR_FADE == 'fade':
@@ -852,6 +854,112 @@ def stairwell(room, x, down=False):
     room.stairs.append(x)
     if down:
         room.stairs_down.append(x)
+
+
+STAIR_SLANT = True                # Both flights flat on the interior side, stepping in from the outer wall
+UP_BACKDROP = 'darker'            # Behind the up flights: the wall's main color, or a step 'lighter' / 'darker'
+
+
+def shade_step(c, way):
+    """A color one step of a gradient lighter (a quarter of the way to white) or darker (an eighth less light),
+    on the GBA's 5-bit color steps."""
+    if way == 'lighter':
+        c = tuple(v + (255 - v) // 4 for v in c)
+    elif way == 'darker':
+        c = tuple(v * 7 // 8 for v in c)
+    return tuple(min(248, (v + 4) // 8 * 8) for v in c)
+
+
+def stair_wall_side(room, x):
+    """The side of a flight toward the room's nearer outer wall."""
+    return 'left' if x + 1 < room.w / 2 else 'right'
+
+
+def stairs_frame(room, px, X0, X1, top, line):
+    """The opening's frame: the wall's white edge and an outline either side, down to the floor line."""
+    for yy in range(top, line):
+        for (xx, c) in ((X0 - 2, WH), (X0 - 1, OL), (X1, OL), (X1 + 1, WH)):
+            if T <= xx < (room.w - 1) * T:
+                px[xx, yy] = c + (255,)
+
+
+def stairwell_slant_up(room, x):
+    """An up flight in the opening, two cells wide: the steps (riser, nosing, tread; shallower and lighter as they
+    climb, to the top of the opening) run flush to the opening's interior side, a straight edge; on the outer wall's
+    side each higher step starts further in, so that end steps toward the interior. Beside them the opening is the
+    room's wall's main color a shade lighter or darker (UP_BACKDROP), one plain color; no rail."""
+    y = room.wall_rows
+    X0, X1 = x * T, (x + 2) * T
+    top, line = WALL_TOP, y * T
+    H = line - top
+    px = room.F.load()
+    wp = room.wall_plain.load()
+    ws = stair_wall_side(room, x)
+
+    def ends(yb):                                   # A step's span, from its bottom: 2 px in at the floor line, 24
+        slant = 2 + (22 * (line - yb)) // H         # at the top, on the outer wall's side; 1 px outline inside
+        return (X0 + slant, X1 - 1) if ws == 'left' else (X0 + 1, X1 - slant)
+    cols = [wp[xx, yy][:3] for yy in range(top, line) for xx in range(T, (room.w - 1) * T)]
+    c = max(set(cols), key=cols.count)              # Behind the steps: one color, the wall's main one a shade
+    c = shade_step(c, UP_BACKDROP)                  # lighter or darker
+    for yy in range(top, line):
+        for xx in range(X0, X1):
+            px[xx, yy] = c + (255,)
+    plan = [(3, 2), (3, 2), (2, 2), (2, 2), (2, 1), (1, 1)]
+    risers = [RISER2, RISER2, RISER, RISER, RISER, TREAD2]
+    tread_c = [TREAD2, TREAD2, TREAD2, TREAD, TREAD, TREAD]
+    treads = set()
+    yb, k = line, 0
+    while yb > top + 1:
+        i = min(k, len(plan) - 1)
+        rh, th = plan[i]
+        riser = risers[i] if k < len(plan) + 2 else TREAD2
+        tread = tread_c[i] if k < len(plan) + 2 else WH
+        a, b = ends(yb)
+        y_top = max(top + 1, yb - rh - 1 - th)
+        for yy in range(y_top - 1, yb):             # The step outlined: its interior side and the line above it
+            px[b if ws == 'left' else a - 1, yy] = OL + (255,)
+        for xx in range(a - (1 if ws == 'right' else 0), b + (1 if ws == 'left' else 0)):
+            px[xx, y_top - 1] = OL + (255,)
+        for (h, c) in ((rh, riser), (1, OL), (th, tread)):
+            for yy in range(max(top + 1, yb - h), yb):
+                for xx in range(a, b):
+                    px[xx, yy] = c + (255,)
+                    treads.add((xx, yy))
+            yb -= h
+        k += 1
+    stairs_frame(room, px, X0, X1, top, line)
+    room.tread_px |= treads
+    room.top_step[x] = (line, X0 + 2, X1 - 2)       # The wall's color above the steps is meant (no 'blank')
+    room.stairs.append(x)
+
+
+def stairwell_slant_down(room, x):
+    """A down flight in the opening, two cells wide, into the dark: the top tread level with the floor line, each
+    lower one a shade darker (TREADS); flush to the opening's interior side, and on the outer wall's side each deeper
+    tread 6 px shorter, so that end steps toward the interior; no rail."""
+    y = room.wall_rows
+    X0, X1 = x * T, (x + 2) * T
+    top, line = WALL_TOP, y * T
+    px = room.F.load()
+    ws = stair_wall_side(room, x)
+    for yy in range(top, line):
+        for xx in range(X0, X1):
+            px[xx, yy] = OL + (255,)
+    treads = set()
+    for k, (tread, edge) in enumerate(TREADS):      # 4 px a step: 3 of tread, its edge a shade down
+        y0 = line - 4 * (k + 1)
+        slant = 2 + 6 * k
+        a, b = (X0 + slant, X1 - 1) if ws == 'left' else (X0 + 1, X1 - slant)
+        for yy in range(y0, y0 + 4):
+            for xx in range(a, b):
+                px[xx, yy] = (edge if yy == y0 + 3 else tread) + (255,)
+                treads.add((xx, yy))
+    stairs_frame(room, px, X0, X1, top, line)
+    room.tread_px |= treads
+    room.top_step[x] = (line - 4, X0 + 2, X1 - 2)
+    room.stairs.append(x)
+    room.stairs_down.append(x)
 
 
 UP_FLAT_OR_FADE = 'climb'         # Up flights: 'climb' (perspective, steps to the top), 'fade' or 'flat'
@@ -2261,6 +2369,8 @@ def audit(room):
                                          for c in Source(HOME).flat(m).getdata()}) - stair_cols
     wp = room.wall_plain.load()
     for sx in room.stairs:
+        if STAIR_SLANT and sx not in room.stairs_down:
+            continue                                # Up flights stand on the wall's main color, plain, by design
         # Foreign pixels reached from the top of the steps' row (or under the wall's top band) through foreign pixels:
         # a backdrop (the shaded faces inside the steps and the rail's own shading aren't reached)
         H = room.wall_rows * T

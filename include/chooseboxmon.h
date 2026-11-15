@@ -10,6 +10,7 @@ struct MoveLearnUI {
     void (*endTask)(u8 taskId);
 };
 
+void SetBoxMonSelectionType(u32 selectionType);
 u32 IsBoxMonExcluded(struct BoxPokemon *boxmon);
 bool32 CanBoxMonBeSelected(struct BoxPokemon *boxmon);
 s32 LearnMove(const struct MoveLearnUI *ui, u8 taskId);

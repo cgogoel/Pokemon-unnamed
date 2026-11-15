@@ -146,7 +146,7 @@ Somewhere along the way, a brand-new move is invented, one no Pokémon game has 
 
 ### Key items (Acts 2 and 3)
 
-- **Remote Desktop:** opens the Pokémon Storage System from anywhere.
+- **Remote Desktop:** opens the Pokémon Storage System from anywhere. In the party menu, **REMOTE SWAP** trades a party Pokémon for one in a box directly.
 - **Heal Dash:** returns the player to the last Pokémon Center they visited.
 
 > [!NOTE]

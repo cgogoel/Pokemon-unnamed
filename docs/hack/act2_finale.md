@@ -253,6 +253,22 @@ Fire, Water and Grass would be, and never less than 1x: anything weak to one of 
 and nothing resists it. Any species can learn it from the TM, but only a Pokémon at max friendship
 (`CanMonLearnTriBlast`): otherwise "isn't close enough to you yet".
 
+## Testing it
+
+The overworld debug menu (hold R, press START) jumps straight into each part of the finale
+(`data/scripts/debug.inc`, listed in `src/debug.c`):
+
+| Entry | Where it puts you |
+|---|---|
+| Skip to final project | The director's brief at the Science Institute (`ACT2_GOT_TRAINER_CARD`) |
+| Skip to Pallet Town | `ACT2_FINAL_PROJECT` with the road home open and its earlier stops behind you, two steps east of the farmyard |
+| Skip to ranger station | The Woods with the station open (`ACT2_PARENTS_TALKED`) |
+| Skip to Act 3 | Runs `Act2_EndAct2`, so the act's ending plays |
+
+Each one closes Act 1 as well (`ACT1_DONE`), since Act 1's last stage would otherwise keep its final scene armed in
+the farmyard. The menu is in every build but `make release` (`DEBUG_OVERWORLD_MENU`, `include/config/debug.h`), the
+Act 2 playtest ROM included.
+
 ## State
 
 | What | Where |

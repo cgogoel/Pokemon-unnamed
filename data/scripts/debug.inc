@@ -533,6 +533,19 @@ Debug_EventScript_SkipToFinalProject::
 	waitstate
 	end
 
+@ Act 2's final project with the road home already walked (the south way): PALLET TOWN, two steps from the farmyard
+Debug_EventScript_SkipToPalletTown::
+	setvar VAR_STORY_ACT, STORY_ACT_UNIVERSITY
+	setvar VAR_ACT1_PROGRESS, ACT1_DONE
+	setvar VAR_ACT2_PROGRESS, ACT2_FINAL_PROJECT
+	setflag FLAG_ACT2_ROUTE_OPEN
+	@ The stops behind the player, so the road home quest doesn't still point back at SAFFRON CITY
+	setvar VAR_QUEST_LOG, QUEST_LOG_ROAD_SAFFRON | QUEST_LOG_ROAD_MIDWAY | QUEST_LOG_ROAD_CAVE | QUEST_LOG_ROAD_VIRIDIAN
+	setrespawn HEAL_LOCATION_PALLET_TOWN
+	warp MAP_PALLET_TOWN, 3, 10
+	waitstate
+	end
+
 Debug_EventScript_SkipToStation::
 	setvar VAR_STORY_ACT, STORY_ACT_UNIVERSITY
 	setvar VAR_ACT1_PROGRESS, ACT1_DONE

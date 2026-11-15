@@ -47,8 +47,9 @@ CORNER = 39                             # The entrance's corners' radius, in pix
 FOREST_ROWS = [[FIRST + r * 5 + i for i in range(5)] for r in range(5)]        # Rows 0-4, x 38-42
 GLADE_ROWS = [[FIRST + 25 + r * 5 + i for i in range(5)] for r in range(4)]    # Rows 12-15, x 8-12
 SIDE = 16                               # The neighbors' cells in the canvas either side of the passage
-KEEP = {1, 2, 3, 4, 5, 6, 7, 8}         # Palette 8's leaves, bark and outline: the neighbors' trees, kept whole
-OUTLINE_CLOSE = 5                       # The trees' silhouette closes over pockets up to about twice this, in px
+OPEN = {0: {8, 9, 10, 11, 12, 13, 14, 15}, 8: {12, 13, 14, 15}}   # The grass's colors by palette (9 is all gap
+                                        # shade): the open space; anything else (the dark green outline, leaves,
+                                        # bark) is the tree
 
 # The tree metatiles (compose_glade.py's): the neighbors either side, by row
 CANOPY_A = [0x298, 0x299, 0x29A]
@@ -167,9 +168,9 @@ def main():
         return p, px
 
     def neighbor_column(trees, cv, ox, depth_at, toward):
-        """The trees beside the passage (one column of cells, top to bottom): everything inside the trees'
-        silhouette (their leaves, bark and outline, and the pockets between the crowns) kept as it was. The open
-        space outside it that runs on from the passage's edge takes the passage's darkness: its own color there near
+        """The trees beside the passage (one column of cells, top to bottom): the trees, up to and including their
+        dark green outline, kept as they were. The open space outside the outline (the grass's colors) that runs on
+        from the passage's edge takes the passage's darkness: its own color there near
         the entrance (the rounded arch), the depths further in. Quarters the darkness doesn't touch stay as they were.
         Returns each cell's metatile entries."""
         h = len(trees) * 16
@@ -186,29 +187,13 @@ def main():
                             if c == 0 and not (layer == 0 and p != PAL):
                                 continue
                             Y, X = r * 16 + k // 2 * 8 + y, k % 2 * 8 + x
-                            if p == PAL and c in KEEP:
-                                keep[Y][X] = c
-                            else:
-                                keep[Y][X] = None
+                            if c in OPEN.get(p, ()) or p == 9:
+                                keep[Y][X] = None                # The open space: grass, the gaps' shade
                                 rgb[Y][X] = pals[p][c]
-        # The trees' silhouette: their leaves, bark and outline, closed over the pockets between the crowns (a
-        # dilation then an erosion by OUTLINE_CLOSE px; off the column on the passage's side the trees are mirrored,
-        # so a pocket opening onto the passage closes too; on its far side, more trees). Everything inside it is protected, kept as it was.
-        def solid(x, y, grid):
-            if not 0 <= y < h:
-                return True
-            if not 0 <= x < 16:
-                if (x < 0) == (toward == 'right'):
-                    return True                                  # The far side: the rest of the trees
-                x = 31 - x if x >= 16 else -1 - x                # The passage's side: the trees mirrored
-            return grid[y][x]
-        tree = [[keep[y][x] is not None for x in range(16)] for y in range(h)]
-        rr = OUTLINE_CLOSE
-        disk = [(dx, dy) for dy in range(-rr, rr + 1) for dx in range(-rr, rr + 1) if dx * dx + dy * dy <= rr * rr]
-        grown = [[any(solid(x + dx, y + dy, tree) for dx, dy in disk) for x in range(16)] for y in range(h)]
-        inside = [[all(solid(x + dx, y + dy, grown) for dx, dy in disk) or tree[y][x] for x in range(16)]
-                  for y in range(h)]
-        # The dark: the open space outside the silhouette, as far as it runs on from the passage's edge
+                            else:
+                                keep[Y][X] = c if p == PAL else nearest8(pals[p][c])   # The tree, outline and all
+        inside = [[keep[y][x] is not None for x in range(16)] for y in range(h)]
+        # The dark: the open space outside the trees' dark green outline, as far as it runs on from the passage
         edge_x = 15 if toward == 'right' else 0
         seen, todo = set(), [(edge_x, y) for y in range(h) if not inside[y][edge_x]]
         while todo:

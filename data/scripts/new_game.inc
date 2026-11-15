@@ -278,6 +278,9 @@ EventScript_ResetAllMapFlags::
 EventScript_ResetAllMapFlagsFrlg::
 	setflag FLAG_HIDE_OAK_IN_HIS_LAB
 	setflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+	@ The hack: the player runs from the start. PROF. OAK's AIDE used to hand the RUNNING SHOES over in PEWTER CITY,
+	@ a scene that came out with the rest of the lab's study (docs/hack/act1_story.md).
+	setflag FLAG_SYS_B_DASH
 	setflag FLAG_HIDE_LIFT_KEY
 	setflag FLAG_HIDE_SILPH_SCOPE
 	@ The hack: Silph Co.'s Rockets stay hidden in every act (Act 3's invasion can show them)

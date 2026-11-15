@@ -104,8 +104,34 @@ to delete the code and texts only it used. Done so far:
   - Kept for later: the **Rocket Hideout** and the **Rocket Warehouse** (Five Island) are sealed (the Game Corner's
     stairs stay walled up; the warehouse door is padlocked), their maps unchanged for Act 3. **Silph Co.**'s Rocket
     objects stay as Act 3's invasion hook, hidden by `FLAG_HIDE_SILPH_ROCKETS` (set at new game).
-  - Neutral gifts kept: Mr. Fuji (home from the start) gives the POKé FLUTE, Bill (home from the start) the S.S.
-    Ticket, the Pewter aide the Running Shoes, the burgled house's hiker TM28 (his Diglett dug the hole).
+  - Neutral gifts kept, all of them talk-to: Mr. Fuji (home from the start) gives the POKé FLUTE, Bill (home from
+    the start) the S.S. Ticket, the burgled house's hiker TM28 (his Diglett dug the hole).
+  - **Pewter's Running Shoes aide** came out too (see below). The player runs from the start instead:
+    `FLAG_SYS_B_DASH` is set at new game in `EventScript_ResetAllMapFlagsFrlg`.
+
+## The forced base-game scenes
+
+A scene the player can't walk away from is worse than a stray line, so these were swept separately. Every forced
+scene in Kanto is a `coord_event` in a `map.json` or a `map_script_2` row in an `ON_FRAME_TABLE`, so the two
+together are the whole set. On the mainland what's left is either the hack's own, an ordinary trainer or a
+mechanism — no base-game story scene fires:
+
+| Scene | Verdict |
+|---|---|
+| Route 5/6/7/8 gate guards | The hack's: `Act2Road_IsRouteOpenSpecial` opens them for the road home |
+| Cinnabar / Viridian locked gyms, Pewter Museum entrance, Pokémon Tower 5F's purified zone | A mechanism, no story |
+| Route 22 / Route 23 badge guards | The League's gate, and gyms stay |
+| Mt. Moon B2F's Miguel, Saffron's Dojo master | An ordinary trainer; Act 2 scales them (`Act2Road_IsScaledTrainer`) |
+| Cycling Road, Victory Road switches, Seafoam currents, Safari Zone, Trainer Tower | A mechanism, no story |
+| S.S. Anne's ticket check and departure | Reachable only through Bill's S.S. Ticket, a kept neutral gift |
+| **Pewter's Running Shoes aide** | **Gone.** It was still vanilla, and signed off with "I must be going back to the lab" — a lab study the hack had already cut |
+
+The base game's own story cutscenes that remain are all behind an entry point that is shut: the **Sevii Islands**
+(One Island's Celio, Two Island's Lostelle, Five Island's Selphy and the Lost Cave, Seven Island) can't be reached
+with `FLAG_HIDE_CINNABAR_BILL` and `FLAG_HIDE_CINNABAR_SEAGALLOP` set at new game, and the **Pokémon League**'s
+rooms need 8 badges and were already rewritten. Three Island's biker gang is worth knowing about if Sevii is ever
+opened: its anti-bikers only step aside once `FLAG_RESCUED_LOSTELLE` is set, which can no longer happen, so the
+bridge would stay blocked.
 
 ## Scripts checked for Act 1
 

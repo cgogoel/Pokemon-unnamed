@@ -142,7 +142,8 @@ dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_n
   SLEEP POWDER or STUN SPORE, or else any Grass status move (`Act2_FindHoldStillMoveUser`). Then it shakes off the
   powder and toddles along the next leg ((44,28) → (30,17) → (40,6)), where the next ODDISH waits. The third walks
   into the trees at the north edge: a hidden passage, the tree column there (x 39-41, rows 0-4) giving way to a gap
-  between the trees whose ground fades from the grass into the dark, its sides blending back into the grass
+  between the trees, dark, its entrance an arch fading from the grass, the shade running on between the crowns of
+  the trees either side
   (`Act2_DrawForestOpening`, from `sForestOpening`; metatiles from 0x2AB by `tools/hack/draw_forest_passage.py`),
   drawn on every load from then on. Its coord events (row 3) lead into the glade. All three: `ACT2_RESEARCH_PUZZLE_2`.
 - **3. Guard the bloom.** The glade (`MAP_VIRIDIAN_FOREST_GLADE`, in `gMapGroup_SpecialArea_Frlg`, Viridian Forest's

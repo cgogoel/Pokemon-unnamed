@@ -39,11 +39,25 @@ NEW_COLORS = {DEEP: (32, 28, 24), 10: (255, 0, 255), 11: (255, 0, 255)}
 RAMP = [13, 14, 15, 5, 4, DARK, DEEP]   # The grass into the dark
 RAMP_PX = 7                             # Pixels a step
 FADE = 16                               # The fade from the grass into the dark at the entrance, in pixels
-FADE_SIDE = 8                           # and along the sides
-CORNER = 23                             # The entrance's corners' radius, in pixels
+FADE_SIDE = 18                          # and from the far side of the trees beside it
+CORNER = 39                             # The entrance's corners' radius, in pixels
 
-FOREST_ROWS = [[FIRST + r * 3 + i for i in range(3)] for r in range(5)]        # Rows 0-4
-GLADE_ROWS = [[FIRST + 15 + r * 3 + i for i in range(3)] for r in range(4)]    # Rows 12-15
+# The passage's metatiles (3 a row) and its neighbors' either side (the trees beside it, dark between their crowns
+# toward the passage), each row: left, the passage's three, right
+FOREST_ROWS = [[FIRST + r * 5 + i for i in range(5)] for r in range(5)]        # Rows 0-4, x 38-42
+GLADE_ROWS = [[FIRST + 25 + r * 5 + i for i in range(5)] for r in range(4)]    # Rows 12-15, x 8-12
+SIDE = 16                               # The neighbors' cells in the canvas either side of the passage
+KEEP = {1, 2, 3, 4, 5, 6, 7}            # Palette 8's leaves and bark: what stays of the neighbors' trees
+NEIGHBOR_DARKEST = 4                    # Between the neighbors' crowns it darkens only to RAMP's 4th step (deep green)
+
+# The tree metatiles (compose_glade.py's): the neighbors either side, by row
+CANOPY_A = [0x298, 0x299, 0x29A]
+CANOPY_B = [0x290, 0x291, 0x292]
+TOP = [0x288, 0x289, 0x28A]
+TRUNK_1 = [0x2A0, 0x2A1, 0x2A2]
+TRUNK_2 = [0x2A3, 0x2A4, 0x2A5]
+FOREST_NEIGHBORS = [CANOPY_A, CANOPY_B, CANOPY_A, TRUNK_1, TRUNK_2]    # Columns end at x 38, start at x 42
+GLADE_NEIGHBORS = [TOP, CANOPY_B, CANOPY_A, CANOPY_B]                  # Columns end at x 8, start at x 12
 BAYER = [[0, 2], [3, 1]]
 
 
@@ -93,13 +107,15 @@ def main():
         return index[key] | (PAL << 12)
 
     def passage(h, depth_at):
-        """The passage's ground, 48 x h: each pixel's step along RAMP from its depth (in pixels from the entrance),
-        over FADE px from the entrance and FADE_SIDE from either side, the entrance's corners rounded (CORNER), dithered."""
+        """The darkness, 80 x h (the passage and a cell of its neighbors either side): each pixel's step along RAMP
+        from its depth (in pixels from the entrance), over FADE px from the entrance and FADE_SIDE from the
+        neighbors' far sides (so the passage is dark to its edges, fading out across the trees beside it), the
+        entrance's corners rounded (CORNER), dithered."""
         cv = []
         for y in range(h):
             row = []
-            for x in range(48):
-                e, side = depth_at(y) + 0.5, min(x + 0.5, 47.5 - x)     # From the entrance, from the sides
+            for x in range(48 + 2 * SIDE):
+                e, side = depth_at(y) + 0.5, min(x + 0.5, 47.5 + 2 * SIDE - x)   # From the entrance, the sides
                 if e < CORNER and side < CORNER:                         # The entrance's corners rounded
                     u, v = (CORNER - e) / CORNER, (CORNER - side) / CORNER
                     fade = (FADE * u + FADE_SIDE * v) / (u + v)          # Between the two fades round the corner
@@ -117,10 +133,39 @@ def main():
     forest = passage(80, lambda y: 79 - y)                  # Entrance at the bottom (row 4)
     glade = passage(64, lambda y: y)                        # Entrance at the top (row 12)
     out_meta, out_attr = bytearray(metatiles), bytearray(attrs)
-    for cv, nrows in ((forest, 5), (glade, 4)):
-        for r in range(nrows):
-            for i in range(3):
-                quarters = [add([cv[r * 16 + q // 2 * 8 + y][i * 16 + q % 2 * 8:i * 16 + q % 2 * 8 + 8]
+    attrs_of = lambda m: struct.unpack_from('<I', attrs, (m - PRIMARY_TILES) * 4)[0]   # noqa: E731
+
+    def neighbor(m, cv, ox, oy):
+        """A tree beside the passage: its leaves and bark kept, what shows between them (the grass, the gaps between
+        the crowns) taking the darkness's color there; quarters with no darkness on them stay as they were."""
+        e = original(m)
+        out = list(e)
+        for k in range(4):
+            dark = [cv[oy + k // 2 * 8 + y][ox + k % 2 * 8:ox + k % 2 * 8 + 8] for y in range(8)]
+            if all(c == RAMP[0] for r in dark for c in r):
+                continue
+            px = [[None] * 8 for _ in range(8)]
+            for layer in (0, 1):
+                src = entry_px(e[layer * 4 + k])
+                if src:
+                    for y in range(8):
+                        for x in range(8):
+                            if src[y][x] in KEEP:
+                                px[y][x] = src[y][x]
+            shade = lambda c: RAMP[min(RAMP.index(c), NEIGHBOR_DARKEST)]   # noqa: E731 Shade, not a hole
+            out[k] = add([[px[y][x] if px[y][x] is not None else shade(dark[y][x]) for x in range(8)] for y in range(8)])
+            out[4 + k] = 0
+        return out
+
+    for cv, sources in ((forest, FOREST_NEIGHBORS), (glade, GLADE_NEIGHBORS)):
+        for r, trees in enumerate(sources):
+            for c in range(5):
+                if c in (0, 4):
+                    m = trees[2] if c == 0 else trees[0]          # The column ending on the left, starting on the right
+                    out_meta += struct.pack('<8H', *neighbor(m, cv, c * 16, r * 16))
+                    out_attr += struct.pack('<I', attrs_of(m))
+                    continue
+                quarters = [add([cv[r * 16 + q // 2 * 8 + y][c * 16 + q % 2 * 8:c * 16 + q % 2 * 8 + 8]
                                  for y in range(8)]) for q in range(4)]
                 out_meta += struct.pack('<8H', *(quarters + [0, 0, 0, 0]))
                 out_attr += struct.pack('<I', LAYER_COVERED << 29)

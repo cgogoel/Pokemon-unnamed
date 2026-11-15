@@ -28,14 +28,15 @@ SOLID = 1 << 10
 
 W, H = 21, 16
 GAP_COLUMN = 3                          # x 9-11: the north gap and the south way out
-SIDE_GAP_ROWS = (7, 8)                  # The west and east gaps, in the outer columns
+SIDE_GAP_ROWS = (7, 9)                  # The west and east gaps, in the outer columns (3 rows: the trees below
+                                        # them then end in step with the border, as the bottom band's do)
 BAND_BOTTOM = 4                         # The top band of trees ends on this row (its trunks)
 BOTTOM_TOP = 12                         # The bottom band of trees starts on this row
 MOONVEIL = (10, 8)
 HEDGES = {                              # A wave's gap: its hedge squares (inner mouth of the gap)
-    1: [(2, 7), (2, 8)],                # West
+    1: [(2, 7), (2, 8), (2, 9)],        # West
     2: [(9, 4), (10, 4), (11, 4)],      # North
-    3: [(18, 7), (18, 8)],              # East
+    3: [(18, 7), (18, 8), (18, 9)],     # East
 }
 HEDGE = 0x005
 FOREST_OPENING = (39, 3)                # Viridian Forest: the column's trunks' row (x 39-41); the crowns above it
@@ -64,16 +65,20 @@ def grass(x, y):
 
 
 def canopy_down(y, end):
-    """Canopy rows of a column that ends (trunks) at row end: A on rows of end's parity minus 2, B between."""
-    return CANOPY_A if (end - 2 - y) % 2 == 0 else CANOPY_B
+    """Canopy rows of a column that ends in trunks at row end: A right above them (as in Viridian Forest), B and A
+    alternating up (so a top row of A meets the border's B above it)."""
+    return CANOPY_A if (end - 1 - y) % 2 == 0 else CANOPY_B
 
 
 def column(x, y):
     """The block at (x, y): trees, or None for the clearing's grass."""
     c = x // 3
+    if y >= GLADE_EXIT_PATH and x in (GAP_COLUMN * 3 - 1, GAP_COLUMN * 3 + 3):
+        # The trees either side of the way out, dark between their crowns toward it
+        return blk(GLADE_ROWS[y - GLADE_EXIT_PATH][0 if x < GAP_COLUMN * 3 else 4], True, 0)
     if c == GAP_COLUMN:
         if y >= GLADE_EXIT_PATH:
-            return blk(GLADE_ROWS[y - GLADE_EXIT_PATH][x % 3])
+            return blk(GLADE_ROWS[y - GLADE_EXIT_PATH][1 + x % 3])
         return None
     if c in (0, 6):
         top, bottom = SIDE_GAP_ROWS
@@ -123,7 +128,8 @@ def forest_opening():
     x0, y0 = FOREST_OPENING
     # Rows 0-4 of the column: the crowns (solid) dark between them, then the trunks' row (walked under) and their
     # shadow on the grass
-    return [(x0 + i, r, blk(FOREST_ROWS[r][i], solid=r < y0)) for r in range(y0 + 2) for i in range(3)]
+    # (and the trees either side, x 38 and 42, dark between their crowns toward it)
+    return [(x0 - 1 + i, r, blk(FOREST_ROWS[r][i], solid=r < y0 or i in (0, 4))) for r in range(y0 + 2) for i in range(5)]
 
 
 def write_layout(cells):

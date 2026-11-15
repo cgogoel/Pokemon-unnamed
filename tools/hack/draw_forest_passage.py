@@ -48,9 +48,7 @@ FOREST_ROWS = [[FIRST + r * 5 + i for i in range(5)] for r in range(5)]        #
 GLADE_ROWS = [[FIRST + 25 + r * 5 + i for i in range(5)] for r in range(4)]    # Rows 12-15, x 8-12
 SIDE = 16                               # The neighbors' cells in the canvas either side of the passage
 KEEP = {1, 2, 3, 4, 5, 6, 7, 8}         # Palette 8's leaves, bark and outline: the neighbors' trees, kept whole
-RIM = 5                                 # The crowns' rim where they meet the dark
-SHADE = 4                               # The crowns' shade, rounding the dark between them
-ROUND_NEAR = 9                          # Kept pixels within 2 px that make a dark pixel a rounded corner
+OUTLINE_CLOSE = 5                       # The trees' silhouette closes over pockets up to about twice this, in px
 
 # The tree metatiles (compose_glade.py's): the neighbors either side, by row
 CANOPY_A = [0x298, 0x299, 0x29A]
@@ -169,10 +167,10 @@ def main():
         return p, px
 
     def neighbor_column(trees, cv, ox, depth_at, toward):
-        """The trees beside the passage (one column of cells, top to bottom): their leaves, bark and outline kept
-        whole. The empty space around them that runs on from the passage's edge (the grass, the gaps between the
-        crowns) takes the passage's darkness: its own color there near the entrance (the rounded arch), the depths
-        further in. Space that doesn't reach the passage, and quarters the darkness doesn't touch, stay as they were.
+        """The trees beside the passage (one column of cells, top to bottom): everything inside the trees'
+        silhouette (their leaves, bark and outline, and the pockets between the crowns) kept as it was. The open
+        space outside it that runs on from the passage's edge takes the passage's darkness: its own color there near
+        the entrance (the rounded arch), the depths further in. Quarters the darkness doesn't touch stay as they were.
         Returns each cell's metatile entries."""
         h = len(trees) * 16
         keep = [[None] * 16 for _ in range(h)]     # A kept palette 8 color, or None for the empty space
@@ -193,30 +191,33 @@ def main():
                             else:
                                 keep[Y][X] = None
                                 rgb[Y][X] = pals[p][c]
+        # The trees' silhouette: their leaves, bark and outline, closed over the pockets between the crowns (a
+        # dilation then an erosion by OUTLINE_CLOSE px; off the column on the passage's side the trees are mirrored,
+        # so a pocket opening onto the passage closes too; on its far side, more trees). Everything inside it is protected, kept as it was.
+        def solid(x, y, grid):
+            if not 0 <= y < h:
+                return True
+            if not 0 <= x < 16:
+                if (x < 0) == (toward == 'right'):
+                    return True                                  # The far side: the rest of the trees
+                x = 31 - x if x >= 16 else -1 - x                # The passage's side: the trees mirrored
+            return grid[y][x]
+        tree = [[keep[y][x] is not None for x in range(16)] for y in range(h)]
+        rr = OUTLINE_CLOSE
+        disk = [(dx, dy) for dy in range(-rr, rr + 1) for dx in range(-rr, rr + 1) if dx * dx + dy * dy <= rr * rr]
+        grown = [[any(solid(x + dx, y + dy, tree) for dx, dy in disk) for x in range(16)] for y in range(h)]
+        inside = [[all(solid(x + dx, y + dy, grown) for dx, dy in disk) or tree[y][x] for x in range(16)]
+                  for y in range(h)]
+        # The dark: the open space outside the silhouette, as far as it runs on from the passage's edge
         edge_x = 15 if toward == 'right' else 0
-        seen, todo = set(), [(edge_x, y) for y in range(h) if keep[y][edge_x] is None]
+        seen, todo = set(), [(edge_x, y) for y in range(h) if not inside[y][edge_x]]
         while todo:
             x, y = todo.pop()
-            if (x, y) in seen or not (0 <= x < 16 and 0 <= y < h) or keep[y][x] is not None:
+            if (x, y) in seen or not (0 <= x < 16 and 0 <= y < h) or inside[y][x]:
                 continue
             seen.add((x, y))
             todo += [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
         deep_x = ox + (16 if toward == 'right' else -16) + (8 if toward == 'right' else 8)
-        # Round the dark's corners where it runs in between the crowns: a pixel hemmed in by leaves (many kept
-        # pixels close by) takes the crowns' shade instead, so no square notch shows
-        rounded = set()
-        for (x, y) in seen:
-            if abs(x - edge_x) < 2:
-                continue
-            near = sum(1 for dy in range(-2, 3) for dx in range(-2, 3)
-                       if 0 <= x + dx < 16 and 0 <= y + dy < h and keep[y + dy][x + dx] is not None)
-            if near >= ROUND_NEAR:
-                rounded.add((x, y))
-        # And a rim of the crowns' outline wherever their leaves meet the dark (their own edge there was the gap's
-        # light shade)
-        rim = {(x, y) for (x, y) in seen
-               if any(0 <= x + dx < 16 and 0 <= y + dy < h and keep[y + dy][x + dx] is not None
-                      for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))}
         cells = []
         for r, m in enumerate(trees):
             e = original(m)
@@ -229,12 +230,6 @@ def main():
                         Y, X = r * 16 + k // 2 * 8 + y, k % 2 * 8 + x
                         if keep[Y][X] is not None:
                             row.append(keep[Y][X])
-                        elif (X, Y) in rim and depth_at(Y) >= FADE:
-                            changed = True
-                            row.append(RIM)
-                        elif (X, Y) in rounded and depth_at(Y) >= FADE:
-                            changed = True
-                            row.append(SHADE)
                         elif (X, Y) in seen:
                             c = cv[Y][ox + X] if depth_at(Y) < CORNER else cv[Y][deep_x]
                             changed |= c != RAMP[0]

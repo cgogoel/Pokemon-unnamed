@@ -161,7 +161,7 @@ dawn at the bloom. Code: `src/act2_night_bloom.c`, scripts: `data/scripts/act2_n
   `ACT2_RESEARCH_PUZZLE_DONE`.
 - **The MORELULL** that lit the glade all night asks to come along (no won't do, like the Lapras). It joins at
   level 18 (`ACT2_MORELULL_LEVEL`, `Act2_GiveGladeMorelull`), to the party or the PC; `FLAG_ACT2_GOT_MORELULL`. It's a
-  gift (marked as a fateful encounter), so it doesn't count toward the sheet's catches. No wild Morelull lives in the forest (nor in the other regions' Grass Pokémon on the trip), so the glade's is the first one met.
+  gift (marked as a fateful encounter), so it doesn't count toward the sheet's catches. It's the only Morelull in the game: none is wild or a trainer's anywhere, not in the trip's other-region Grass Pokémon, and neither it nor Shiinotic is in the final project's road pools (`EXCLUDE_SPECIES` in `tools/hack/gen_other_region_pools.py`).
 - **PROF. FERN** runs up (she followed the glowcaps' light; `NIGHT_BLOOM_FERN`). She waits at the forest's south gate
   until dawn (`FLAG_TEMP_9`, `Act2_SetupForestGateObjects`), then in the glade. With the sheet done, the dew makes TM GIGA DRAIN
   ("it drinks the night"), and the exam is her battle in the glade at sunrise. Passing goes back to the dorms as

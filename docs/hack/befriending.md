@@ -74,6 +74,25 @@ Paradox Pokémon, Megas/Gigantamax and battle or cosmetic forms are left out; re
   the barn (`PalletTown_Farm_Barn`). `HEAL_LOCATION_PALLET_TOWN` points at the farmhouse door; whiting out puts the player
   next to Mom in the farmhouse.
 - Pallet Town's left edge and the farmyard's right edge are a map connection (rows 8-11).
+
+## Coming home in Acts 2 and 3
+The farm Pokemon the player left behind keep wandering the farmyard, and the ones they took with them **run out to
+play** whenever they're brought home (`ShowPartyFarmFamily`, `src/farmyard.c`, called from `Farmyard_OnTransition` and
+from the gates):
+
+- Who counts: any party Pokemon whose evolution line starts at one of Act 1's five (Blipbug, Tynamo, Hatenna,
+  Teddiursa, Jangmo-o), so an evolved one still knows the yard. Eggs don't.
+- They're only **shown**, never moved: they take the farm spots the farm's own Pokemon aren't standing in (Tynamo's
+  line keeps to the pond), and stay in the party the whole time, so nothing has to put them back. Walking off the map
+  is enough, which is why leaving to Pallet Town needs no script of its own - that side is a map connection.
+- The gate says so once a visit (`VAR_TEMP_8`): which gate the player is on and which way they're facing tell coming
+  home from going out, since Pallet Town is to the right of the farmyard and the Woods to the left.
+- The gates **only drop a follower off in Act 1** (`VAR_STORY_ACT`). They used to do it in every act, so walking in or
+  out of the farmyard in Act 2 moved the lead party Pokemon into the farm box.
+- Act 1's last stage is its highest, so `VAR_ACT1_PROGRESS` is set to `ACT1_DONE` when Act 2 starts (`StartAct2`,
+  `src/prologue_end.c`). Left at `ACT1_CHOOSING_FRIENDS` it kept the end-of-Act-1 scene armed: Mom, Dad and Oak stood
+  in the farmyard in Acts 2 and 3, the choose-a-friend triggers fired again, and the farm Pokemon still offered to
+  come along.
 - Acts 1-2: the original player's house in Pallet Town is empty and for sale. Act 3 gets its own Pallet Town and house maps.
 - Act 1 stays in Pallet Town: its north exit to Route 1 turns the player back ("It's too far to go on my own."), on
   triggers listed before Oak's so his scene doesn't start. The south is water, and there's no Surf in Act 1.

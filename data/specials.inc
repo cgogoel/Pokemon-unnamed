@@ -643,6 +643,7 @@ gSpecials::
 	def_special CheckBefriendAllowed
 	def_special Special_DepositFollowerInFarm
 	def_special SetupFarmyardMons
+	def_special Special_ShowPartyFarmFamily
 	def_special Act1_RestockLovedItems
 	def_special Act1_ReleaseFollowerToWoods
 	def_special Act1_PlaceNearPlayer

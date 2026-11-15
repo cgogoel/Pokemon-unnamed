@@ -102,3 +102,90 @@ TEST("Farmyard: no other Pokémon takes the pond spot, even when the farm is ful
     EXPECT_EQ(GetFarmSpot(6), FARM_SHOWN_COUNT - 1);
     EXPECT_EQ(GetFarmSpot(7), FARM_SPOT_NONE); // 7 land spots
 }
+
+// Acts 2 and 3: the Pokémon the player grew up with run out to play when they're brought home
+
+// givemon rolls gender and shininess, so the object graphics a spot should hold depend on the Pokemon that got it.
+// What these tests are really checking is which spot each Pokemon is put in.
+static u32 SpotGfxFor(struct Pokemon *mon)
+{
+    u32 gfx = GetMonData(mon, MON_DATA_SPECIES) + OBJ_EVENT_MON;
+
+    if (GetMonData(mon, MON_DATA_IS_SHINY))
+        gfx += OBJ_EVENT_MON_SHINY;
+    if (GetMonGender(mon) == MON_FEMALE)
+        gfx += OBJ_EVENT_MON_FEMALE;
+    return gfx;
+}
+
+static void SetUpVisit(u32 act)
+{
+    ZeroPlayerPartyMons();
+    ClearFarm();
+    VarSet(VAR_STORY_ACT, act);
+    for (u32 i = 0; i < FARM_SHOWN_COUNT; i++)
+    {
+        FlagSet(FLAG_TEMP_1 + i);
+        VarSet(VAR_OBJ_GFX_ID_0 + i, 0);
+    }
+}
+
+TEST("Farmyard: in Act 1 nobody runs out to play, since the party Pokémon is the one following")
+{
+    SetUpVisit(STORY_ACT_CHILDHOOD);
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_BLIPBUG, 5; );
+
+    EXPECT_EQ(ShowPartyFarmFamily(), 0);
+    for (u32 i = 0; i < FARM_SHOWN_COUNT; i++)
+        EXPECT(FlagGet(FLAG_TEMP_1 + i));
+}
+
+TEST("Farmyard: in Act 2 a Pokémon the player grew up with runs out, and one they didn't doesn't")
+{
+    SetUpVisit(STORY_ACT_UNIVERSITY);
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_BLIPBUG, 20; );
+
+    EXPECT_EQ(ShowPartyFarmFamily(), 1);
+    EXPECT(!FlagGet(FLAG_TEMP_1)); // The first land spot is shown...
+    EXPECT_EQ(VarGet(VAR_OBJ_GFX_ID_0), SpotGfxFor(&gParties[B_TRAINER_PLAYER][0]));
+    EXPECT(FlagGet(FLAG_TEMP_1 + 1)); // ...and nothing else is
+
+    SetUpVisit(STORY_ACT_UNIVERSITY);
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_PIKACHU, 20; );
+    EXPECT_EQ(ShowPartyFarmFamily(), 0);
+    EXPECT(FlagGet(FLAG_TEMP_1));
+
+    VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+}
+
+TEST("Farmyard: it still counts once it has evolved, and Tynamo's line keeps to the pond")
+{
+    SetUpVisit(STORY_ACT_WORKFORCE);
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_EELEKTRIK, 40; );
+
+    EXPECT_EQ(ShowPartyFarmFamily(), 1);
+    EXPECT(!FlagGet(FLAG_TEMP_1 + FARM_WATER_SPOT));
+    EXPECT_EQ(VarGet(VAR_OBJ_GFX_ID_0 + FARM_WATER_SPOT), SpotGfxFor(&gParties[B_TRAINER_PLAYER][0]));
+    EXPECT(FlagGet(FLAG_TEMP_1)); // The land spots stay empty
+
+    VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+}
+
+TEST("Farmyard: they take spots the farm's own Pokémon aren't standing in")
+{
+    SetUpVisit(STORY_ACT_UNIVERSITY);
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_TEDDIURSA, 5; );
+    EXPECT_EQ(DepositFollowerInFarm(), 0); // Lives on the farm, in the first land spot
+    SetupFarmyardMons();
+    EXPECT(!FlagGet(FLAG_TEMP_1));
+
+    u32 farmGfx = VarGet(VAR_OBJ_GFX_ID_0);
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_HATENNA, 20; );
+    EXPECT_EQ(ShowPartyFarmFamily(), 1);
+    EXPECT_EQ(VarGet(VAR_OBJ_GFX_ID_0), farmGfx); // The farm's own, undisturbed in the first land spot
+    EXPECT(!FlagGet(FLAG_TEMP_1 + 1)); // The party's own took the next one
+    EXPECT_EQ(VarGet(VAR_OBJ_GFX_ID_0 + 1), SpotGfxFor(&gParties[B_TRAINER_PLAYER][0]));
+
+    ClearFarm();
+    VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+}

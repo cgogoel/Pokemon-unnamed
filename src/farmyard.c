@@ -100,6 +100,112 @@ u32 GetFarmSpot(u32 slot)
     return FARM_SPOT_NONE;
 }
 
+// Act 1's five befriendable Pokemon (sWoodsPokemon in src/act1_story.c, plus Jangmo-o). A party Pokemon whose line
+// starts at one of these is one the player grew up with on the farm, however far it has evolved since.
+static const u16 sFarmFamilies[] =
+{
+    SPECIES_BLIPBUG,
+    SPECIES_TYNAMO,
+    SPECIES_HATENNA,
+    SPECIES_TEDDIURSA,
+    SPECIES_JANGMO_O,
+};
+
+static bool32 IsFarmFamily(u32 species)
+{
+    u32 base = species, pre;
+
+    while ((pre = GetSpeciesPreEvolution(base)) != SPECIES_NONE && pre != base)
+        base = pre;
+    for (u32 i = 0; i < ARRAY_COUNT(sFarmFamilies); i++)
+    {
+        if (sFarmFamilies[i] == base)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+// The farmyard spots the Pokemon living in the farm box are already standing in
+static void GetTakenFarmSpots(bool32 *taken)
+{
+    for (u32 i = 0; i < FARM_SHOWN_COUNT; i++)
+        taken[i] = FALSE;
+    for (u32 slot = 0; slot < IN_BOX_COUNT; slot++)
+    {
+        u32 spot = GetFarmSpot(slot);
+
+        if (spot != FARM_SPOT_NONE && spot < FARM_SHOWN_COUNT)
+            taken[spot] = TRUE;
+    }
+}
+
+static u32 TakeFreeFarmSpot(bool32 *taken)
+{
+    for (u32 i = 0; i < FARM_SHOWN_COUNT; i++)
+    {
+        if (i == FARM_WATER_SPOT || taken[i])
+            continue;
+        taken[i] = TRUE;
+        return i;
+    }
+    return FARM_SPOT_NONE;
+}
+
+// Acts 2 and 3: the Pokemon the player grew up with run out to play whenever they bring them home. They're only
+// shown on the map - they stay in the party the whole time, so they're back at the player's side on the way out.
+// Returns how many came out, with the first one's name in STR_VAR_1.
+u32 ShowPartyFarmFamily(void)
+{
+    bool32 taken[FARM_SHOWN_COUNT];
+    u32 count = 0, partyCount = CalculatePlayerPartyCount();
+
+    if (VarGet(VAR_STORY_ACT) == STORY_ACT_CHILDHOOD)
+        return 0;
+    GetTakenFarmSpots(taken);
+
+    for (u32 i = 0; i < partyCount; i++)
+    {
+        struct Pokemon *mon = &gParties[B_TRAINER_PLAYER][i];
+        u32 species = GetMonData(mon, MON_DATA_SPECIES);
+        u32 spot, gfx;
+
+        if (GetMonData(mon, MON_DATA_IS_EGG) || !IsFarmFamily(species))
+            continue;
+        if (LivesInWater(species) && !taken[FARM_WATER_SPOT])
+        {
+            spot = FARM_WATER_SPOT;
+            taken[spot] = TRUE;
+        }
+        else
+        {
+            spot = TakeFreeFarmSpot(taken);
+        }
+        if (spot == FARM_SPOT_NONE)
+            continue;
+
+        gfx = species + OBJ_EVENT_MON;
+        if (GetMonData(mon, MON_DATA_IS_SHINY))
+            gfx += OBJ_EVENT_MON_SHINY;
+        if (GetMonGender(mon) == MON_FEMALE)
+            gfx += OBJ_EVENT_MON_FEMALE;
+        VarSet(VAR_OBJ_GFX_ID_0 + spot, gfx);
+        FlagClear(FLAG_TEMP_1 + spot);
+        if (count == 0)
+        {
+            GetMonData(mon, MON_DATA_NICKNAME, gStringVar1);
+            StringGet_Nickname(gStringVar1);
+        }
+        count++;
+    }
+    return count;
+}
+
+// special ShowPartyFarmFamily: VAR_RESULT is how many came out to play
+void Special_ShowPartyFarmFamily(void)
+{
+    gSpecialVar_Result = ShowPartyFarmFamily();
+}
+
 // special DepositFollowerInFarm: VAR_RESULT is the local id of its object on the Farmyard map (spot + 1) if it's
 // one of the shown ones, FARM_DEPOSIT_NONE if nothing was dropped off, 0 if it's in the farm but not shown.
 void Special_DepositFollowerInFarm(void)

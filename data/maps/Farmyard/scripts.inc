@@ -12,7 +12,14 @@ Farmyard_OnTransition:
 	setflag FLAG_TEMP_B
 	setflag FLAG_TEMP_C
 	call_if_eq VAR_ACT1_PROGRESS, ACT1_CHOOSING_FRIENDS, Farmyard_EventScript_EveryoneWaits
+	call_if_ge VAR_STORY_ACT, STORY_ACT_UNIVERSITY, Farmyard_EventScript_FamilyOut
 	end
+
+@ Acts 2 and 3: the Pokémon the player grew up with are out in the farmyard the whole time they're home. They never
+@ leave the party, so nothing has to put them back - walking off the map is enough.
+Farmyard_EventScript_FamilyOut:
+	special Special_ShowPartyFarmFamily
+	return
 
 @ While the player chooses their two friends, Mom, Dad and Oak wait in the farmyard
 Farmyard_EventScript_EveryoneWaits:
@@ -23,6 +30,7 @@ Farmyard_EventScript_EveryoneWaits:
 
 @ The gates, across each entrance: the following Pokémon is dropped off and starts wandering the farmyard
 Farmyard_EventScript_Gate::
+	goto_if_ge VAR_STORY_ACT, STORY_ACT_UNIVERSITY, Farmyard_EventScript_FamilyGate
 	lockall
 	special Special_DepositFollowerInFarm
 	copyvar VAR_0x8004, VAR_RESULT
@@ -36,6 +44,44 @@ Farmyard_EventScript_GateShown:
 Farmyard_EventScript_GateEnd:
 	releaseall
 	end
+
+@ Acts 2 and 3, at either gate: the player's own Pokémon run out as they come home and are back at their side as
+@ they go. Which gate decides which way they're walking - PALLET TOWN is to the right of the farmyard, the Woods to
+@ the left - and VAR_TEMP_8 keeps the greeting to once a visit.
+Farmyard_EventScript_FamilyGate::
+	lockall
+	specialvar VAR_RESULT, Special_ShowPartyFarmFamily
+	goto_if_eq VAR_RESULT, 0, Farmyard_EventScript_GateEnd
+	getplayerxy VAR_0x8004, VAR_0x8005
+	copyvar VAR_0x8006, VAR_RESULT
+	goto_if_eq VAR_0x8004, 1, Farmyard_EventScript_FamilyWoodsGate
+	goto_if_eq VAR_FACING, DIR_EAST, Farmyard_EventScript_FamilyComesBack
+	goto Farmyard_EventScript_FamilyRanOut
+
+Farmyard_EventScript_FamilyWoodsGate:
+	goto_if_eq VAR_FACING, DIR_WEST, Farmyard_EventScript_FamilyComesBack
+	goto Farmyard_EventScript_FamilyRanOut
+
+Farmyard_EventScript_FamilyRanOut:
+	goto_if_eq VAR_TEMP_8, 1, Farmyard_EventScript_GateEnd
+	setvar VAR_TEMP_8, 1
+	goto_if_ge VAR_0x8006, 2, Farmyard_EventScript_FamilyRanOutTogether
+	msgbox Farmyard_Text_RanOffToPlay, MSGBOX_DEFAULT
+	goto Farmyard_EventScript_GateEnd
+
+Farmyard_EventScript_FamilyRanOutTogether:
+	msgbox Farmyard_Text_FamilyRanOut, MSGBOX_DEFAULT
+	goto Farmyard_EventScript_GateEnd
+
+Farmyard_EventScript_FamilyComesBack::
+	setvar VAR_TEMP_8, 0
+	goto_if_ge VAR_0x8006, 2, Farmyard_EventScript_FamilyComesBackTogether
+	msgbox Farmyard_Text_FamilyComesBack, MSGBOX_DEFAULT
+	goto Farmyard_EventScript_GateEnd
+
+Farmyard_EventScript_FamilyComesBackTogether:
+	msgbox Farmyard_Text_FamilyComesBackTogether, MSGBOX_DEFAULT
+	goto Farmyard_EventScript_GateEnd
 
 @ The Woods are reached by warp, not a map connection: the Woods use another tileset, which the game would draw
 @ with the farmyard's tiles (garbled). Pallet Town's side is a map connection.
@@ -309,6 +355,18 @@ Farmyard_Movement_StepDown:
 Farmyard_Text_RanOffToPlay:
 	.string "{STR_VAR_1} ran off to play\n"
 	.string "in the farmyard!$"
+
+Farmyard_Text_FamilyRanOut:
+	.string "{STR_VAR_1} and the others ran\n"
+	.string "off to play in the farmyard!$"
+
+Farmyard_Text_FamilyComesBack:
+	.string "{STR_VAR_1} came running back\n"
+	.string "to your side.$"
+
+Farmyard_Text_FamilyComesBackTogether:
+	.string "{STR_VAR_1} and the others came\n"
+	.string "running back to your side.$"
 
 Farmyard_Text_LooksHappy:
 	.string "It looks happy here.$"

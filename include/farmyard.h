@@ -7,6 +7,8 @@
 bool32 IsBefriendAllowed(void);
 u32 DepositFollowerInFarm(void);
 void SetupFarmyardMons(void);
+u32 ShowPartyFarmFamily(void);
+void Special_ShowPartyFarmFamily(void);
 u32 CountFarmyardMons(void);
 u32 GetFarmSpot(u32 slot);
 

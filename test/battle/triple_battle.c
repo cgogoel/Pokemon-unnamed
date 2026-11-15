@@ -1,6 +1,12 @@
 #include "global.h"
 #include "test/battle.h"
+#include "data.h"
+#include "event_data.h"
+#include "act2_story.h"
+#include "pokemon_storage_system.h"
 #include "triple_battle.h"
+#include "constants/opponents.h"
+#include "constants/story.h"
 
 // 3v3 battles, see docs/hack/triple_battles.md
 
@@ -971,3 +977,133 @@ TRIPLE_BATTLE_TEST("Triple battles: a DIRECT move's user that faints from recoil
 }
 
 #undef RANK
+
+// ---------------------------------------------------------------------------------------------------------------
+// Which battles go by the 3v3 rules (TrainerUsesTripleBattleRules, src/triple_battle.c)
+//
+// The test ROM replaces the whole trainer table with test/battle/trainer_control.h (test/test_runner_battle.c), so
+// the hack's own trainers have no data here and these go by the test table's instead. Its entries cover what
+// matters: written as singles carrying 3, 2 and 1, and written as doubles.
+
+#define TRAINER_TEST_SINGLES_3 3  // Battle Type: Singles, 3 Pokémon
+#define TRAINER_TEST_SINGLES_2 9  // Battle Type: Singles, 2 Pokémon
+#define TRAINER_TEST_SINGLES_1 1  // Battle Type: Singles, 1 Pokémon
+#define TRAINER_TEST_DOUBLES_3 8  // Battle Type: Doubles, 3 Pokémon
+#define TRAINER_TEST_DOUBLES_2 12 // Battle Type: Doubles, 2 Pokémon
+
+// CreateMon leaves the new Pokémon on 0 HP, which CountPartyAliveNonEggMonsExcept (what the side size is worked out
+// from) reads as fainted, so each one's stats are calculated to fill it in.
+static void SetUpTripleRules(u32 act, u32 playerMons)
+{
+    u32 i;
+    VarSet(VAR_STORY_ACT, act);
+    gBattleTypeFlags = 0;
+    ZeroPlayerPartyMons();
+    for (i = 0; i < playerMons; i++)
+    {
+        CreateMon(&gParties[B_TRAINER_PLAYER][i], SPECIES_WOBBUFFET, 20, 0, OTID_STRUCT_PLAYER_ID);
+        CalculateMonStats(&gParties[B_TRAINER_PLAYER][i]);
+    }
+}
+
+TEST("Triple battles: an ordinary trainer carrying more than one Pokémon uses the rules, a lone one doesn't")
+{
+    SetUpTripleRules(STORY_ACT_UNIVERSITY, 3);
+
+    // The test table's entries this leans on, so a change to them shows up here rather than as a silent change
+    EXPECT_EQ(GetTrainerBattleType(TRAINER_TEST_SINGLES_3), TRAINER_BATTLE_TYPE_SINGLES);
+    EXPECT_EQ(GetTrainerPartySizeFromId(TRAINER_TEST_SINGLES_3), 3);
+    EXPECT_EQ(GetTrainerBattleType(TRAINER_TEST_SINGLES_2), TRAINER_BATTLE_TYPE_SINGLES);
+    EXPECT_EQ(GetTrainerPartySizeFromId(TRAINER_TEST_SINGLES_2), 2);
+    EXPECT_EQ(GetTrainerPartySizeFromId(TRAINER_TEST_SINGLES_1), 1);
+
+    EXPECT(TrainerUsesTripleBattleRules(TRAINER_TEST_SINGLES_3));
+    EXPECT(TrainerUsesTripleBattleRules(TRAINER_TEST_SINGLES_2)); // Two is enough: it becomes a 2v2
+    EXPECT(!TrainerUsesTripleBattleRules(TRAINER_TEST_SINGLES_1));
+    EXPECT(!TrainerUsesTripleBattleRules(TRAINER_NONE));
+
+    VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+}
+
+TEST("Triple battles: an ordinary trainer carrying two Pokémon fights a 2v2 in the same style, not a plain battle")
+{
+    SetUpTripleRules(STORY_ACT_UNIVERSITY, 3);
+
+    // Written as singles, carries two: the 3v3 rules with two a side, never a bare BATTLE_TYPE_DOUBLE
+    EXPECT_EQ(GetTripleTrainerBattleTypeFlags(TRAINER_TEST_SINGLES_2),
+              BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE | BATTLE_TYPE_TRIPLE_2V2);
+
+    // The player being able to field three doesn't make it a 3v3: the trainer only has two
+    SetUpTripleRules(STORY_ACT_UNIVERSITY, 2);
+    EXPECT_EQ(GetTripleTrainerBattleTypeFlags(TRAINER_TEST_SINGLES_2),
+              BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE | BATTLE_TYPE_TRIPLE_2V2);
+
+    // A lone Pokémon on either side is still a single battle
+    SetUpTripleRules(STORY_ACT_UNIVERSITY, 1);
+    EXPECT_EQ(GetTripleTrainerBattleTypeFlags(TRAINER_TEST_SINGLES_2), 0);
+    SetUpTripleRules(STORY_ACT_UNIVERSITY, 3);
+    EXPECT_EQ(GetTripleTrainerBattleTypeFlags(TRAINER_TEST_SINGLES_1), 0);
+
+    VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+}
+
+TEST("Triple battles: a promoted trainer's side size follows the smaller of the two parties")
+{
+    SetUpTripleRules(STORY_ACT_UNIVERSITY, 3);
+    EXPECT_EQ(GetTripleTrainerBattleTypeFlags(TRAINER_TEST_SINGLES_3), BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE);
+
+    SetUpTripleRules(STORY_ACT_UNIVERSITY, 2); // The player can only field two: a 2v2 under the same rules
+    EXPECT_EQ(GetTripleTrainerBattleTypeFlags(TRAINER_TEST_SINGLES_3),
+              BATTLE_TYPE_DOUBLE | BATTLE_TYPE_TRIPLE | BATTLE_TYPE_TRIPLE_2V2);
+
+    SetUpTripleRules(STORY_ACT_UNIVERSITY, 1); // One each: an ordinary single battle
+    EXPECT_EQ(GetTripleTrainerBattleTypeFlags(TRAINER_TEST_SINGLES_3), 0);
+
+    VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+}
+
+TEST("Triple battles: an ordinary trainer isn't promoted before Act 2")
+{
+    SetUpTripleRules(STORY_ACT_CHILDHOOD, 3);
+
+    // Act 1 is untouched: a battle written as singles must not become a double battle
+    EXPECT(!TrainerUsesTripleBattleRules(TRAINER_TEST_SINGLES_3));
+    EXPECT(!TrainerUsesTripleBattleRules(TRAINER_TEST_SINGLES_2));
+
+    SetUpTripleRules(STORY_ACT_WORKFORCE, 3);
+    EXPECT(TrainerUsesTripleBattleRules(TRAINER_TEST_SINGLES_3)); // Act 3 keeps the rules
+
+    VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+}
+
+TEST("Triple battles: a trainer written as doubles is unaffected by the promotion rule")
+{
+    SetUpTripleRules(STORY_ACT_UNIVERSITY, 3);
+
+    EXPECT_EQ(GetTrainerBattleType(TRAINER_TEST_DOUBLES_3), TRAINER_BATTLE_TYPE_DOUBLES);
+    EXPECT(TrainerUsesTripleBattleRules(TRAINER_TEST_DOUBLES_3));
+    EXPECT(TrainerUsesTripleBattleRules(TRAINER_TEST_DOUBLES_2));
+
+    // And before Act 2, where they stay ordinary double battles as they always have
+    SetUpTripleRules(STORY_ACT_CHILDHOOD, 3);
+    EXPECT(TrainerUsesTripleBattleRules(TRAINER_TEST_DOUBLES_3));
+    EXPECT_EQ(GetTripleTrainerBattleTypeFlags(TRAINER_TEST_DOUBLES_3), BATTLE_TYPE_DOUBLE);
+
+    VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+}
+
+TEST("Triple battles: the story's own trainers are the range kept out of the promotion rule")
+{
+    // The professors' exams carry three Pokémon but were written as single battles; the club's nights and the
+    // Trainer Card exam were written as triples. Both keep what they were written with, which
+    // TrainerUsesTripleBattleRules does by leaving this range alone. Their party data can't be asserted here: the
+    // test ROM replaces the trainer table, so the hack's own trainers are blank in this build.
+    EXPECT(Act2_IsStoryTrainer(TRAINER_ACT2_PROF_FIRE));
+    EXPECT(Act2_IsStoryTrainer(TRAINER_ACT2_PROF_WATER));
+    EXPECT(Act2_IsStoryTrainer(TRAINER_ACT2_PROF_GRASS));
+    EXPECT(Act2_IsStoryTrainer(TRAINER_ACT2_KAI));
+    EXPECT(Act2_IsStoryTrainer(TRAINER_ACT2_MINA));
+    EXPECT(Act2_IsStoryTrainer(TRAINER_ACT2_EXAMINER));
+    EXPECT(!Act2_IsStoryTrainer(TRAINER_ACT2_PROF_FIRE - 1)); // Ordinary trainers end right before the range
+    EXPECT(!Act2_IsStoryTrainer(TRAINER_TEST_SINGLES_3));
+}

@@ -102,8 +102,12 @@ that grow in length. Act 3 retells Kanto events (Red, Blue, Oak, Giovanni, Silph
 - Difficulty goals; which Pokémon generations appear.
 
 ### Technical notes (custom systems the design needs)
-- **3v3 battles:** pokeemerald-expansion has no triple-battle support. This is the biggest engine job;
-  scope and prototype it before building Act 2 content.
+- **3v3 battles:** built (`src/triple_battle.c`, `include/triple_battle.h`, `docs/hack/triple_battles.md`,
+  tests in `test/battle/triple_battle.c`). Not the Gen 5 triple battle: one acting battler per side per turn, with
+  move reach, a near/middle/far formation and 1/2/3-target moves. From Act 2 on, trainers written as
+  `Battle Type: Doubles`/`Triples` and any ordinary field trainer carrying more than one Pokémon use these rules
+  (`TrainerUsesTripleBattleRules`): two a side is a 2v2 in the same style, a lone Pokémon a single battle. The
+  story's own battles (`Act2_IsStoryTrainer`) keep their authored type.
 - **Befriending without balls (Act 1):** custom battle outcome and script hooks. Farmyard = a house map
   whose Pokémon are shown with `OBJ_EVENT_GFX_SPECIES` (`OW_POKEMON_OBJECT_EVENTS` is already on). Storage
   could reuse the PC box system behind the scenes.

@@ -976,17 +976,27 @@ enum BattleTransition GetTrainerBattleTransition(void)
         || trainerClass == TRAINER_CLASS_AQUA_ADMIN)
         return B_TRANSITION_AQUA;
 
-    switch (GetTrainerBattleType(trainerId))
+    // How many Pokémon a side brings, to compare the two sides' levels with. A battle that goes by the 3v3 rules
+    // fields as many a side as the trainer can (up to 3) whatever the written battle type says
+    // (TrainerUsesTripleBattleRules), so it counts those rather than the 1 or 2 that type would suggest.
+    if (TrainerUsesTripleBattleRules(trainerId))
     {
-    case TRAINER_BATTLE_TYPE_SINGLES:
-        minPartyCount = 1;
-        break;
-    case TRAINER_BATTLE_TYPE_DOUBLES:
-        minPartyCount = 2; // double battles always at least have 2 Pokémon.
-        break;
-    case TRAINER_BATTLE_TYPE_TRIPLES:
-        minPartyCount = 3;
-        break;
+        minPartyCount = min(GetTrainerPartySizeFromId(trainerId), 3);
+    }
+    else
+    {
+        switch (GetTrainerBattleType(trainerId))
+        {
+        case TRAINER_BATTLE_TYPE_SINGLES:
+            minPartyCount = 1;
+            break;
+        case TRAINER_BATTLE_TYPE_DOUBLES:
+            minPartyCount = 2; // double battles always at least have 2 Pokémon.
+            break;
+        case TRAINER_BATTLE_TYPE_TRIPLES:
+            minPartyCount = 3;
+            break;
+        }
     }
 
     transitionType = GetBattleTransitionTypeByMap();
@@ -1561,8 +1571,7 @@ void BattleSetup_StartTrainerBattle(void)
 
         SetHillTrainerFlag();
     }
-    else if (GetTrainerBattleType(TRAINER_BATTLE_PARAM.opponentA) == TRAINER_BATTLE_TYPE_DOUBLES
-          || GetTrainerBattleType(TRAINER_BATTLE_PARAM.opponentA) == TRAINER_BATTLE_TYPE_TRIPLES)
+    else if (TrainerUsesTripleBattleRules(TRAINER_BATTLE_PARAM.opponentA))
     {
         gBattleTypeFlags |= GetTripleTrainerBattleTypeFlags(TRAINER_BATTLE_PARAM.opponentA);
     }
@@ -1717,8 +1726,7 @@ static void CB2_EndRematchBattle(void)
 void BattleSetup_StartRematchBattle(void)
 {
     gBattleTypeFlags = BATTLE_TYPE_TRAINER;
-    if (GetTrainerBattleType(TRAINER_BATTLE_PARAM.opponentA) == TRAINER_BATTLE_TYPE_DOUBLES
-     || GetTrainerBattleType(TRAINER_BATTLE_PARAM.opponentA) == TRAINER_BATTLE_TYPE_TRIPLES)
+    if (TrainerUsesTripleBattleRules(TRAINER_BATTLE_PARAM.opponentA))
         gBattleTypeFlags |= GetTripleTrainerBattleTypeFlags(TRAINER_BATTLE_PARAM.opponentA);
     
     gMain.savedCallback = CB2_EndRematchBattle;

@@ -9,8 +9,17 @@ Custom battle mode for Act 2 onward. Not the Gen 5 Triple Battle: **only one Pok
 - Bag / Pokémon / Run count as the side's one action.
 
 ### When 3v3 rules apply, and how many per side
-- From **Act 2** on (`VAR_STORY_ACT` >= `STORY_ACT_UNIVERSITY`, `include/constants/story.h`), trainers set to
-  `Battle Type: Doubles` or `Triples` use these rules. Before that they're normal double battles.
+Whether a battle goes by these rules at all is `TrainerUsesTripleBattleRules` (`src/triple_battle.c`), which the two
+places in `src/battle_setup.c` that start a trainer battle ask before adding the flags:
+- Trainers set to `Battle Type: Doubles` or `Triples` always do. Before Act 2 they're normal double battles.
+- From **Act 2** on (`VAR_STORY_ACT` >= `STORY_ACT_UNIVERSITY`, `include/constants/story.h`), so does **any ordinary
+  trainer out in the field carrying more than one Pokémon**, even though their data says singles: by then the hack's
+  battles are fought this way, so a trainer carrying two fights a **2v2 in the same style** rather than falling back
+  to a normal battle. Only a trainer down to a lone Pokémon is still a single battle.
+- The **story's own battles are the exception** (`Act2_IsStoryTrainer`: the professors' exams, the club's nights and
+  the Trainer Card exam). They keep the battle type they were written with — so the professors' exams stay the single
+  battles they were authored as, even though each professor carries three Pokémon.
+- Before Act 2 nothing is promoted: a battle written as singles stays one.
 - Pokémon per side = the smaller of the player's Pokémon able to battle and the trainer's party, up to 3
   (`GetTripleTrainerBattleTypeFlags`, `src/triple_battle.c`): 3 each is a 3v3, 2 each a **2v2** with the same rules,
   1 each a single battle. Battles against two trainers or with a partner stay normal double battles.

@@ -1,10 +1,12 @@
 #include "global.h"
+#include "act2_story.h"
 #include "battle.h"
 #include "battle_util.h"
 #include "battle_ai_main.h"
 #include "battle_ai_util.h"
 #include "battle_anim.h"
 #include "battle_interface.h"
+#include "data.h"
 #include "event_data.h"
 #include "pokemon_storage_system.h"
 #include "sprite.h"
@@ -653,9 +655,35 @@ uq4_12_t GetTripleTargetDamageModifier(enum BattlerId battlerAtk, enum BattlerId
     return UQ_4_12(0.75);
 }
 
-// Battle type flags for a trainer set to doubles or triples. From Act 2 on these use the 3v3 rules, with as many
-// Pokémon per side as both sides can field (up to 3): the player's Pokémon able to battle and the trainer's party.
-// 2 each is a 2v2 with the 3v3 rules, 1 each a single battle. Before Act 2 they're double battles.
+// Whether a trainer's battle goes through the 3v3 rules at all (GetTripleTrainerBattleTypeFlags then decides how
+// many Pokémon each side fields, and whether the act allows it).
+// - A trainer written as doubles or triples always does, as before.
+// - From Act 2 on, so does an ordinary trainer out in the field carrying more than one Pokémon, even though their
+//   data says singles: by then the hack's battles are fought this way, so a trainer with two fights a 2v2 in the
+//   same style rather than falling back to a normal battle. Only a lone Pokémon is still a single battle.
+// - The story's own battles are the exception (Act2_IsStoryTrainer: the professors' exams, the club's nights and
+//   the Trainer Card exam). They keep the battle type they were written with, so the professors' exams stay the
+//   single battles they were authored as even though they carry three Pokémon.
+bool32 TrainerUsesTripleBattleRules(u16 trainerId)
+{
+    enum TrainerBattleType battleType = GetTrainerBattleType(trainerId);
+
+    if (battleType == TRAINER_BATTLE_TYPE_DOUBLES || battleType == TRAINER_BATTLE_TYPE_TRIPLES)
+        return TRUE;
+    // Only from Act 2 on. Before it, a battle written as singles stays one: GetTripleBattleTypeFlagsForFoes answers
+    // every pre-Act 2 battle with BATTLE_TYPE_DOUBLE, which is right for a trainer written as doubles and wrong here.
+    if (VarGet(VAR_STORY_ACT) < STORY_ACT_UNIVERSITY)
+        return FALSE;
+    if (Act2_IsStoryTrainer(trainerId))
+        return FALSE;
+    // 2 is enough: GetTripleBattleTypeFlagsForFoes makes that a 2v2 under the same rules. A lone Pokémon can't.
+    return GetTrainerPartySizeFromId(trainerId) >= 2;
+}
+
+// Battle type flags for a trainer whose battle uses the 3v3 rules (TrainerUsesTripleBattleRules). From Act 2 on
+// these use the 3v3 rules, with as many Pokémon per side as both sides can field (up to 3): the player's Pokémon
+// able to battle and the trainer's party. 2 each is a 2v2 with the 3v3 rules, 1 each a single battle. Before Act 2
+// they're double battles.
 u32 GetTripleTrainerBattleTypeFlags(u16 trainerId)
 {
     return GetTripleBattleTypeFlagsForFoes(GetTrainerPartySizeFromId(trainerId));

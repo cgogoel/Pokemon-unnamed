@@ -72,6 +72,7 @@ void ChooseTripleAiActor(enum BattlerId battler, bool32 (*isAiBattler)(enum Batt
 bool32 IsTripleAiPassing(enum BattlerId battler);
 void RecordTriplePlayerActor(void);
 enum BattlerId GetTriplePlayerStartingActor(enum BattlerId battler);
+bool32 TrainerUsesTripleBattleRules(u16 trainerId);
 u32 GetTripleTrainerBattleTypeFlags(u16 trainerId);
 u32 GetTripleBattleTypeFlagsForFoes(u32 foePartySize);
 u32 GetTripleAiSecondTargetByte(enum BattlerId battlerAtk, enum BattlerId mainTarget, u32 moveIndex);

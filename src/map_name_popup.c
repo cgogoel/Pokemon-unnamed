@@ -560,9 +560,50 @@ static bool32 IsCeladonDeptStore(const struct MapHeader *mapHeader)
     return TRUE;
 }
 
+// The hack: Celadon University shares CELADON CITY's map section, so the Town Map keeps one marker for the city
+// (Quests_GetTargetMapSec), but the campus names itself on the location card.
+static bool32 IsCeladonUniversity(const struct MapHeader *mapHeader)
+{
+    static const u16 sCampusLayouts[] =
+    {
+        LAYOUT_CELADON_UNIVERSITY,
+        LAYOUT_CELADON_UNIVERSITY_MAIN_HALL,
+        LAYOUT_CELADON_UNIVERSITY_MAIN_HALL_2F,
+        LAYOUT_CELADON_UNIVERSITY_LECTURE_HALL_A,
+        LAYOUT_CELADON_UNIVERSITY_LECTURE_HALL_B,
+        LAYOUT_CELADON_UNIVERSITY_CAFETERIA,
+        LAYOUT_CELADON_UNIVERSITY_FACULTY_OFFICE,
+        LAYOUT_CELADON_UNIVERSITY_LITERATURE,
+        LAYOUT_CELADON_UNIVERSITY_LIBRARY,
+        LAYOUT_CELADON_UNIVERSITY_SCIENCE_INSTITUTE,
+        LAYOUT_CELADON_UNIVERSITY_SCIENCE_LOUNGE,
+        LAYOUT_CELADON_UNIVERSITY_SCIENCE_RESEARCH_ROOM,
+        LAYOUT_CELADON_UNIVERSITY_SCIENCE_EXPERIMENT_ROOM,
+        LAYOUT_CELADON_UNIVERSITY_HOSPITAL,
+        LAYOUT_CELADON_UNIVERSITY_HOSPITAL_2F,
+        LAYOUT_CELADON_UNIVERSITY_DORM_LOBBY,
+        LAYOUT_CELADON_UNIVERSITY_DORM_2F,
+        LAYOUT_CELADON_UNIVERSITY_DORM_3F,
+        LAYOUT_CELADON_UNIVERSITY_STUDY_HALL,
+        LAYOUT_CELADON_UNIVERSITY_HOME_ECONOMICS,
+    };
+    u32 i;
+
+    if (mapHeader->regionMapSectionId != MAPSEC_CELADON_CITY)
+        return FALSE;
+    for (i = 0; i < ARRAY_COUNT(sCampusLayouts); i++)
+    {
+        if (mapHeader->mapLayoutId == sCampusLayouts[i])
+            return TRUE;
+    }
+    return FALSE;
+}
+
 u8 *GetPopUpMapName(u8 *dest, const struct MapHeader *mapHeader)
 {
-    if (IsCeladonDeptStore(mapHeader))
+    if (IsCeladonUniversity(mapHeader))
+        StringCopy(dest, COMPOUND_STRING("CELADON UNIVERSITY"));
+    else if (IsCeladonDeptStore(mapHeader))
         StringCopy(dest, COMPOUND_STRING("CELADON DEPT."));
     else
         GetMapName(dest, mapHeader->regionMapSectionId, 0);

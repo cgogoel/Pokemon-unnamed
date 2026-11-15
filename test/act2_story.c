@@ -8,13 +8,17 @@
 #include "move.h"
 #include "pokemon.h"
 #include "rtc.h"
+#include "map_name_popup.h"
 #include "string_util.h"
+#include "text.h"
 #include "triple_battle.h"
 #include "wild_encounter.h"
 #include "test/test.h"
 #include "constants/heal_locations.h"
 #include "constants/items.h"
+#include "constants/layouts.h"
 #include "constants/map_groups.h"
+#include "constants/region_map_sections.h"
 #include "constants/moves.h"
 #include "constants/opponents.h"
 #include "constants/story.h"
@@ -627,4 +631,34 @@ TEST("Act 2: KAI's team only knows DIRECT attacks, MINA's partner INDIRECT ones"
     EXPECT_GE(indirect, 3);
     ZeroPlayerPartyMons();
     ZeroEnemyPartyMons();
+}
+
+TEST("Act 2: the campus names itself CELADON UNIVERSITY on the location card, and the name fits")
+{
+    struct MapHeader header;
+    u8 name[MAP_POPUP_STRING_BUFFER_LENGTH];
+    u32 fontId;
+
+    memset(&header, 0, sizeof(header));
+    header.regionMapSectionId = MAPSEC_CELADON_CITY;
+
+    // Every campus map shares CELADON CITY's map section, so the card has to tell them apart by layout
+    header.mapLayoutId = LAYOUT_CELADON_UNIVERSITY;
+    GetPopUpMapName(name, &header);
+    EXPECT_EQ(StringCompare(name, COMPOUND_STRING("CELADON UNIVERSITY")), 0);
+    fontId = GetFontIdToFit(name, FONT_NORMAL, -1, 80);
+    EXPECT_LE(GetStringWidth(fontId, name, -1), 80);
+
+    header.mapLayoutId = LAYOUT_CELADON_UNIVERSITY_SCIENCE_RESEARCH_ROOM;
+    GetPopUpMapName(name, &header);
+    EXPECT_EQ(StringCompare(name, COMPOUND_STRING("CELADON UNIVERSITY")), 0);
+
+    // The city itself, and its department store, are untouched
+    header.mapLayoutId = LAYOUT_CELADON_CITY;
+    GetPopUpMapName(name, &header);
+    EXPECT_EQ(StringCompare(name, COMPOUND_STRING("CELADON CITY")), 0);
+
+    header.mapLayoutId = LAYOUT_CELADON_CITY_DEPARTMENT_STORE_1F;
+    GetPopUpMapName(name, &header);
+    EXPECT_EQ(StringCompare(name, COMPOUND_STRING("CELADON DEPT.")), 0);
 }

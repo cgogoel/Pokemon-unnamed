@@ -9,6 +9,11 @@ University lore art: white stone buildings with slate roofs in a forest (the rem
 | `MAP_CELADON_CITY_UNIVERSITY_GATE` | `LAYOUT_SAFFRON_CITY_NORTH_SOUTH_ENTRANCE` (shared with Saffron's gates) | A friendly guard |
 | `MAP_CELADON_UNIVERSITY` | `LAYOUT_CELADON_UNIVERSITY` (76x64, `gTileset_General_Frlg` + `gTileset_CeladonUniversity`) | The gate's passage at (37,59)-(38,59) |
 
+
+The campus shares CELADON CITY's map section, so the Town Map keeps one marker for the city, but the location card
+names it **CELADON UNIVERSITY** (`IsCeladonUniversity`, `src/map_name_popup.c`, which lists the campus layouts the way
+`IsCeladonDeptStore` lists the store's). A new map should be added to that list.
+
 ## How it's built
 
 - `tools/hack/draw_university_tiles.py` draws the campus and writes `gTileset_CeladonUniversity`, then has

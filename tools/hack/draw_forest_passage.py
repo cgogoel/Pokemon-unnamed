@@ -39,7 +39,7 @@ NEW_COLORS = {DEEP: (32, 28, 24), 10: (255, 0, 255), 11: (255, 0, 255)}
 RAMP = [13, 14, 15, 5, 4, DARK, DEEP]   # The grass into the dark
 RAMP_PX = 7                             # Pixels a step
 FADE = 16                               # The fade from the grass into the dark, in pixels (ends and sides)
-CORNER = 14                             # The entrance's corners' radius, in pixels
+CORNER = 23                             # The entrance's corners' radius, in pixels
 
 FOREST_ROWS = [[FIRST + r * 3 + i for i in range(3)] for r in range(5)]        # Rows 0-4
 GLADE_ROWS = [[FIRST + 15 + r * 3 + i for i in range(3)] for r in range(4)]    # Rows 12-15

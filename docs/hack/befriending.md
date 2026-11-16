@@ -87,6 +87,13 @@ from the gates):
   is enough, which is why leaving to Pallet Town needs no script of its own - that side is a map connection.
 - The gate says so once a visit (`VAR_TEMP_8`): which gate the player is on and which way they're facing tell coming
   home from going out, since Pallet Town is to the right of the farmyard and the Woods to the left.
+- **No follower while they're home.** The Pokemon running around the yard are the player's own party, so one still
+  walking at their heel would be out here twice over. `ShowPartyFarmFamily` sets `FLAG_TEMP_HIDE_FOLLOWER` and calls
+  `RemoveFollowingPokemon`; being a temp flag it clears itself on the next map, so the follower is back at their side
+  the moment they leave. Act 1 keeps its follower - that act's whole mechanic is the one Pokemon walking with you.
+  The flag alone isn't enough coming in from Pallet Town: a map connection keeps the objects of the map being left and
+  never calls `UpdateFollowingPokemon`, so the gate plays `hidefollower` first and the player sees it go back into its
+  ball instead of vanishing. Entering from the farmhouse or the barn is an ordinary warp, which never spawns one.
 
 **Taking one along.** Talking to a farm Pokemon offers to bring it with you (`Farmyard_EventScript_TakeAlong`,
 `GetFarmMonToTake` / `TakeFarmMonIntoParty`), shown the way the end of Act 1's choice is - its picture, then

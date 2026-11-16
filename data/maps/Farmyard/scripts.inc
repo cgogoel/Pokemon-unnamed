@@ -17,6 +17,7 @@ Farmyard_OnTransition:
 
 @ Acts 2 and 3: the Pokémon the player grew up with are out in the farmyard the whole time they're home. They never
 @ leave the party, so nothing has to put them back - walking off the map is enough.
+@ Special_ShowPartyFarmFamily also puts the follower away for the length of the visit - see src/farmyard.c.
 Farmyard_EventScript_FamilyOut:
 	special Special_ShowPartyFarmFamily
 	return
@@ -50,6 +51,9 @@ Farmyard_EventScript_GateEnd:
 @ the left - and VAR_TEMP_8 keeps the greeting to once a visit.
 Farmyard_EventScript_FamilyGate::
 	lockall
+	@ Walking in from PALLET TOWN crosses a map connection, which keeps the Pokemon that was following, so it's still
+	@ at the player's heel here. Return it to its ball where they can see it, before the rest run out to meet them.
+	hidefollower
 	specialvar VAR_RESULT, Special_ShowPartyFarmFamily
 	goto_if_eq VAR_RESULT, 0, Farmyard_EventScript_GateEnd
 	getplayerxy VAR_0x8004, VAR_0x8005

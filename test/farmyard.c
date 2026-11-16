@@ -123,6 +123,7 @@ static void SetUpVisit(u32 act)
     ZeroPlayerPartyMons();
     ClearFarm();
     VarSet(VAR_STORY_ACT, act);
+    FlagClear(FLAG_TEMP_HIDE_FOLLOWER);
     for (u32 i = 0; i < FARM_SHOWN_COUNT; i++)
     {
         FlagSet(FLAG_TEMP_1 + i);
@@ -240,5 +241,29 @@ TEST("Farmyard: talking to nothing, or to one with a full team, takes nobody alo
 
     ZeroPlayerPartyMons();
     ClearFarm();
+    VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
+}
+
+TEST("Farmyard: coming home in Acts 2 and 3 puts the follower away, Act 1 keeps it out")
+{
+    // Act 1: the one Pokémon walking with the player is that act's whole mechanic, so it stays at their heel.
+    SetUpVisit(STORY_ACT_CHILDHOOD);
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_BLIPBUG, 5; );
+    ShowPartyFarmFamily();
+    EXPECT(!FlagGet(FLAG_TEMP_HIDE_FOLLOWER));
+
+    // Act 2: it's one of the ones running around the farmyard, so having it heel as well would show it twice
+    SetUpVisit(STORY_ACT_UNIVERSITY);
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_BLIPBUG, 5; );
+    EXPECT_EQ(ShowPartyFarmFamily(), 1);
+    EXPECT(FlagGet(FLAG_TEMP_HIDE_FOLLOWER));
+
+    // Act 3, and with nobody from the farm in the party: the follower is still put away while they're home
+    SetUpVisit(STORY_ACT_WORKFORCE);
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_PIKACHU, 5; );
+    EXPECT_EQ(ShowPartyFarmFamily(), 0);
+    EXPECT(FlagGet(FLAG_TEMP_HIDE_FOLLOWER));
+
+    FlagClear(FLAG_TEMP_HIDE_FOLLOWER);
     VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
 }

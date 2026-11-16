@@ -162,6 +162,17 @@ u32 ShowPartyFarmFamily(void)
 
     if (VarGet(VAR_STORY_ACT) == STORY_ACT_CHILDHOOD)
         return 0;
+
+    // No follower for the length of the visit. The ones that run out to play are the player's own party, so a
+    // Pokemon still walking at their heel would be out here twice over. FLAG_TEMP_HIDE_FOLLOWER keeps
+    // UpdateFollowingPokemon from putting it back, and being a temp flag it clears itself on the next map, so the
+    // follower is at the player's side again the moment they leave. Entering from PALLET TOWN crosses a map
+    // connection, which keeps the objects of the map being left and never calls UpdateFollowingPokemon, so one that
+    // walked in with the player is still out and has to be taken away here (the gate plays hidefollower first, so
+    // the player sees it go back into its ball rather than vanish).
+    FlagSet(FLAG_TEMP_HIDE_FOLLOWER);
+    RemoveFollowingPokemon();
+
     GetTakenFarmSpots(taken);
 
     for (u32 i = 0; i < partyCount; i++)

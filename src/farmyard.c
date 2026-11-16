@@ -152,8 +152,10 @@ static u32 TakeFreeFarmSpot(bool32 *taken)
     return FARM_SPOT_NONE;
 }
 
-// Acts 2 and 3: the Pokemon the player grew up with run out to play whenever they bring them home. They're only
-// shown on the map - they stay in the party the whole time, so they're back at the player's side on the way out.
+// Acts 2 and 3: the Pokemon the player grew up with run out to play whenever they bring them home, and so does
+// whatever is at the head of the party - that's the one that would otherwise be walking at the player's heel, and
+// the farmyard is where their Pokemon run loose. They're only shown on the map - they stay in the party the whole
+// time, so they're back at the player's side on the way out.
 // Returns how many came out, with the first one's name in STR_VAR_1.
 u32 ShowPartyFarmFamily(void)
 {
@@ -181,7 +183,8 @@ u32 ShowPartyFarmFamily(void)
         u32 species = GetMonData(mon, MON_DATA_SPECIES);
         u32 spot, gfx;
 
-        if (GetMonData(mon, MON_DATA_IS_EGG) || !IsFarmFamily(species))
+        // The lead comes out whatever it is; the rest only if they grew up here. Eggs stay put either way.
+        if (GetMonData(mon, MON_DATA_IS_EGG) || (i != 0 && !IsFarmFamily(species)))
             continue;
         if (LivesInWater(species) && !taken[FARM_WATER_SPOT])
         {

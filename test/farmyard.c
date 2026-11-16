@@ -141,7 +141,7 @@ TEST("Farmyard: in Act 1 nobody runs out to play, since the party Pokémon is th
         EXPECT(FlagGet(FLAG_TEMP_1 + i));
 }
 
-TEST("Farmyard: in Act 2 a Pokémon the player grew up with runs out, and one they didn't doesn't")
+TEST("Farmyard: the lead runs out whatever it is, the rest only if they grew up here")
 {
     SetUpVisit(STORY_ACT_UNIVERSITY);
     RUN_OVERWORLD_SCRIPT( givemon SPECIES_BLIPBUG, 20; );
@@ -151,10 +151,21 @@ TEST("Farmyard: in Act 2 a Pokémon the player grew up with runs out, and one th
     EXPECT_EQ(VarGet(VAR_OBJ_GFX_ID_0), SpotGfxFor(&gParties[B_TRAINER_PLAYER][0]));
     EXPECT(FlagGet(FLAG_TEMP_1 + 1)); // ...and nothing else is
 
+    // One the player never grew up with, at the head of the party: out it goes all the same, since it's the one
+    // that would otherwise be walking at their heel
     SetUpVisit(STORY_ACT_UNIVERSITY);
     RUN_OVERWORLD_SCRIPT( givemon SPECIES_PIKACHU, 20; );
-    EXPECT_EQ(ShowPartyFarmFamily(), 0);
-    EXPECT(FlagGet(FLAG_TEMP_1));
+    EXPECT_EQ(ShowPartyFarmFamily(), 1);
+    EXPECT(!FlagGet(FLAG_TEMP_1));
+    EXPECT_EQ(VarGet(VAR_OBJ_GFX_ID_0), SpotGfxFor(&gParties[B_TRAINER_PLAYER][0]));
+
+    // Behind the lead, only the farm's own: the PIKACHU leads and comes out, the BLIPBUG grew up here and follows
+    // it out, the RATTATA stays in its ball
+    SetUpVisit(STORY_ACT_UNIVERSITY);
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_PIKACHU, 20; );
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_BLIPBUG, 20; );
+    RUN_OVERWORLD_SCRIPT( givemon SPECIES_RATTATA, 20; );
+    EXPECT_EQ(ShowPartyFarmFamily(), 2);
 
     VarSet(VAR_STORY_ACT, STORY_ACT_CHILDHOOD);
 }
@@ -258,10 +269,10 @@ TEST("Farmyard: coming home in Acts 2 and 3 puts the follower away, Act 1 keeps 
     EXPECT_EQ(ShowPartyFarmFamily(), 1);
     EXPECT(FlagGet(FLAG_TEMP_HIDE_FOLLOWER));
 
-    // Act 3, and with nobody from the farm in the party: the follower is still put away while they're home
+    // Act 3, with nobody from the farm in the party: the lead is out playing, so it's put away as a follower too
     SetUpVisit(STORY_ACT_WORKFORCE);
     RUN_OVERWORLD_SCRIPT( givemon SPECIES_PIKACHU, 5; );
-    EXPECT_EQ(ShowPartyFarmFamily(), 0);
+    EXPECT_EQ(ShowPartyFarmFamily(), 1);
     EXPECT(FlagGet(FLAG_TEMP_HIDE_FOLLOWER));
 
     FlagClear(FLAG_TEMP_HIDE_FOLLOWER);

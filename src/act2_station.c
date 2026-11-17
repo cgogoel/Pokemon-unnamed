@@ -26,6 +26,7 @@ extern const u8 RangerStation_B3F_EventScript_Ambush[];
 
 #define METATILE_GATE_COUNTER_END   0x295 // gTileset_GenericBuilding2: the counter's bottom end
 #define METATILE_GATE_FLOOR         0x283
+#define METATILE_GATE_SWITCH_PULLED 0x33A // The wall switch with its lever down (tools/hack/draw_station_tiles.py)
 #define METATILE_MANSION_FLOOR      0x286 // The basement floor
 #define METATILE_FURNACE_COLD       0x382
 #define METATILE_FURNACE_LIT        0x383
@@ -169,6 +170,7 @@ void Act2Station_DrawFloor(void)
         {
             SetMetatile(STATION_1F_COUNTER_X, STATION_1F_COUNTER_Y, METATILE_GATE_COUNTER_END | MAPGRID_IMPASSABLE);
             SetMetatile(STATION_1F_COUNTER_X, STATION_1F_COUNTER_Y + 1, METATILE_GATE_FLOOR);
+            SetMetatile(STATION_1F_SWITCH_X, STATION_1F_SWITCH_Y, METATILE_GATE_SWITCH_PULLED | MAPGRID_IMPASSABLE);
         }
     }
     else if (IS_ON_MAP(MAP_RANGER_STATION_B1F))
@@ -206,6 +208,22 @@ bool32 Act2Station_CanJumpGap(enum Direction direction)
     return GetObjectEventIdByXY(x, y) == OBJECT_EVENTS_COUNT && GetObjectEventIdByXY(x2, y2) == OBJECT_EVENTS_COUNT;
 }
 
+// Hook (FollowablePlayerMovement_Step): the follower's next square is a gap the player jumped, so it jumps it too
+// (the player's previous square is the stone behind it). Otherwise it would wade into the water a step at a time
+// and fall further behind with every jump.
+bool32 Act2Station_IsFollowerGap(s16 x, s16 y)
+{
+    return IS_ON_MAP(MAP_RANGER_STATION_B2F) && MetatileBehavior_IsSurfableWaterOrUnderwater(MapGridGetMetatileBehaviorAt(x, y));
+}
+
+// From SetDefaultFlashLevel: B2F is dark, a small circle of light round the player, just wide enough to show the
+// stones one jump away (flash radius 40 px; a jump is 32 px), so the way through has to be found stone by stone
+#define FLOOD_FLASH_LEVEL 5
+u32 Act2Station_GetFloodFlashLevel(void)
+{
+    return IS_ON_MAP(MAP_RANGER_STATION_B2F) ? FLOOD_FLASH_LEVEL : 0;
+}
+
 static u32 GetDeadEnd(void)
 {
     u32 deadEnd = VarGet(VAR_TEMP_1) - 1;
@@ -223,6 +241,9 @@ bool16 Act2Station_IsDeadEndBeaten(void)
 void Act2Station_PrepareDeadEnd(void)
 {
     u32 species = sDeadEndSpecies[GetDeadEnd()];
+    // Hidden under the water until the player reaches its stone (FLAG_TEMP_1-5, set by the map's ON_TRANSITION):
+    // clear its flag so addobject brings it up
+    FlagClear(FLAG_TEMP_1 + GetDeadEnd());
     gSpecialVar_0x8006 = species;
     StringCopy(gStringVar1, GetSpeciesName(species));
 }

@@ -147,8 +147,8 @@ came to the area. Coming back later, or leveling up, doesn't change it.
 Mom and Dad are in the farmhouse. The Woods' edge sends the player to them first. They suggest meditating back in the
 Woods, where the university journey started (`ACT2_PARENTS_TALKED`).
 
-In the Woods: "An eerie noise is faintly heard." Every 10 tiles closer to the ranger station (top left), "The noise
-is getting louder"; every 10 farther, "quieter" (`VAR_ACT2_WOODS_SOUND` keeps the distance last announced).
+In the Woods: "An eerie noise is faintly heard." Every 20 tiles closer to the ranger station (top left), "The noise
+is getting louder", and the first step within 12 tiles says it's coming from the station; every 10 farther, "quieter" (`VAR_ACT2_WOODS_SOUND` keeps the distance last announced).
 
 At the station's door: "Am I ready to go in?" Yes: inside.
 
@@ -165,11 +165,13 @@ are drawn for the planks.
 **1F** (`MUS_RG_POKE_MANSION`). Saffron's north/south gate, abandoned: no guards, boxes left behind, the north door
 walled up, the left aisle widened for a stair down behind the left counter. Entered from the Woods by the story:
 `warp MAP_RANGER_STATION_1F, 6, 9`; its door mat (warps 0-2 at (5-7, 9)) leads to `MAP_WOODS` warp 0 (at (5, 10),
-below the station's door). The switch panel on the wall at (6, 1): "Pull the switch?" Yes: the bottom of the left
+below the station's door). The wall switch at (6, 1), a breaker box drawn into the wall above the dado rail (`draw_station_tiles.py`; its
+lever is drawn pulled once the basement is open): "Pull the switch?" Yes: the bottom of the left
 counter (4, 8-9) slides away (`ACT2_FINALE_BASEMENT_OPEN`, redrawn on load). The stair down is warp 3 at (2, 3).
 
 **B1F: the clock** (`MUS_RG_POKE_MANSION`). A Pokémon Mansion basement room. 12 standing torches on a clock face of
-radius 6 around a cage of iron bars at (8-12, 8-12) with the stair down inside (warp 1 at (11, 9)); the stair up is
+radius 6 around a cage at (8-12, 8-12), an iron railing with corner posts and a padlocked, spear-tipped gate at
+the front (`railing_pieces` in `draw_station_tiles.py`), with the stair down inside (warp 1 at (11, 9)); the stair up is
 in the bottom right alcove (warp 0 at (17, 17)).
 
 | Piece | Position | Piece | Position | Piece | Position |
@@ -191,20 +193,24 @@ sun), set to `ACT2_CLOCK_START` (10 and 2 lit) on the first visit (`ACT2_FINALE_
 | 1, TOM | "I couldn't see much when I went in. Only the stars lit the trail" | Night (the moon furnace) |
 | 2, PIP | "I set out before breakfast. The day hadn't even begun." | Morning, not evening |
 | 3, DANA | "the town's six o'clock bell hadn't rung yet" | Before 6 |
-| 4, LEX | "The long hand had gone a quarter of the way round" | Quarter past |
+| 4, LEX | "Its long hand lay flat, pointing due east" (3 on a north-up clock face) | Quarter past |
 | 5, OLD BRAM | "the MILTANK get milked at four. I heard them as I left" | 4 o'clock |
 
 **Solution**: 4:15 a.m. From the start: put out 10 and 2, light 4 (hour), 3 (minute) and the moon furnace
-(`ACT2_CLOCK_SOLUTION`, exactly). The camera shakes and the cage's front bars (9-11, 12) drop for good
+(`ACT2_CLOCK_SOLUTION`, exactly). The camera shakes and the cage's gate (9-11, 12) drops into the floor for good
 (`ACT2_FINALE_CLOCK_SOLVED`).
 
 **B2F: the flood** (`MUS_RG_SEVII_CAVE`). A Cerulean Cave chamber flooded with water too deep to wade (and blocked
 for Surf: the water squares are impassable). Flat stepping stones two squares apart: walking at one square of water
 with a stone (or floor) right behind it jumps it, like a ledge (`Act2Station_CanJumpGap`, this map only; not over or
-onto an object). Ladder up (warp 0 at (1, 15)), ladder down at the far end (warp 1 at (19, 1)), the MEDKIT (an item
-ball at (19, 5); heals the party, any number of times). The stones form a tree with exactly five dead ends (the
-composer checks); at each, a Water Pokémon in the water beyond battles the player on arrival (coord event on the
-stone) or when talked to, at the party's average level + 2. Beaten or caught: gone for good.
+onto an object; a follower jumps the same gaps behind the player, `Act2Station_IsFollowerGap`). The floor is dark
+but for a small circle round the player (flash level 5, radius 40 px: the stones one jump away and no further,
+`Act2Station_GetFloodFlashLevel`), so the way has to be found stone by stone. Ladder up (warp 0 at (1, 15)), ladder
+down at the far end (warp 1 at (19, 1)), the MEDKIT (a red first-aid case, `OBJ_EVENT_GFX_MEDKIT`,
+`tools/hack/draw_medkit.py`, at (19, 5); heals the party, any number of times). The stones form a tree with exactly
+five dead ends (the composer checks); at each, a Water Pokémon hidden under the water beyond (`FLAG_TEMP_1`-`5`)
+leaps out and battles the player on arrival (coord event on the stone), at the party's average level + 2. Beaten or
+caught: gone for good.
 
 | Dead end | Stone | Pokémon at | Species | Flag |
 |---|---|---|---|---|

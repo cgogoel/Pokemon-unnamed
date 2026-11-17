@@ -7,8 +7,9 @@ the tileset is rebuilt from the same base every time). A new row of 16 tiles at 
     0x384 torch, unlit     0x385 torch, lit       (standing iron braziers on the basement floor; the lit flames
                                                    flicker: frames in anim/torch/)
     0x386 moon emblem      0x387 sun emblem       (painted on the wall, above the furnaces)
-    0x388 iron bars        (the cage around B1F's stairs; on the basement floor)
+    0x388 railing, back    (the cage around B1F's stairs, an iron railing on the basement floor; railing_pieces)
     0x389, 0x38A           the Mansion 1F stair down's right-hand pieces (0x2D2, 0x2DA) on the basement floor
+    0x38B-0x392            the railing's sides, corners and gate (tiles in the free slots RAILING_SLOTS)
 
 Cerulean Cave tileset (B2F, the flood). A new row of tiles at the end of tiles.png, its palette 08 (cave greys):
     0x306 stepping stone   (a flat rock in the cave's pond water, walkable)
@@ -70,24 +71,81 @@ TORCH_LIT = [
     '.KOYWWWWWWWWYOK.',
     '.KYWWWWWWWWWWYK.',
 ] + TORCH_UNLIT[7:]
-BARS = [
-    'KKKKKKKKKKKKKKKK',
-    'llllllllllllllll',
-    'dddddddddddddddd',
-    '.Kl..Kl..Kl..Kl.',
-    '.Ki..Ki..Ki..Ki.',
-    '.Ki..Ki..Ki..Ki.',
-    '.Ki..Ki..Ki..Ki.',
-    '.Kd..Kd..Kd..Kd.',
-    '.Ki..Ki..Ki..Ki.',
-    '.Ki..Ki..Ki..Ki.',
-    '.Ki..Ki..Ki..Ki.',
-    '.Kd..Kd..Kd..Kd.',
-    'KKKKKKKKKKKKKKKK',
-    'llllllllllllllll',
-    'dddddddddddddddd',
-    'KKKKKKKKKKKKKKKK',
-]
+# The cage around B1F's stair down: an iron railing, light from the upper left like the rest of FireRed. Each piece
+# is a 16x16 picture on the basement floor; the pictures are cut into 8x8 tiles and repeats (and mirror images) are
+# shared, so the whole railing fits in the 12 tiles the tileset has left.
+#   rail     the back of the cage, seen face on: a top rail, bars, a bottom rail on the floor
+#   side     a side of the cage seen from above: the top rail running away from the viewer, the left half of the
+#            square (mirrored for the right side)
+#   corner   the back corners: a post, the rail running off to the right (mirrored for the right)
+#   front    the front corners: the side's rail coming down onto a post, the rail running off to the right
+#   gate     the front's three squares that drop into the floor: spear-tipped bars through the rails, and a padlock
+#            on the middle one
+POST_X = range(3, 8)    # The posts and the sides' top rail: columns 3-7, in the left half of the square
+POST_COLORS = 'KlidK'
+
+
+def _canvas():
+    return [['.'] * 16 for _ in range(16)]
+
+
+def _rail(art, x0, x1, gate=False):
+    for x in range(x0, x1 + 1):
+        bar = x % 4 in (1, 2)
+        shade = 'l' if x % 4 == 1 else 'd'
+        if gate:
+            # Spear tips above the top rail; the bars run through both rails
+            if bar:
+                art[1][x] = 'K'
+                art[2][x] = shade
+            for y, c in ((3, 'K'), (4, 'i'), (5, 'K'), (12, 'K'), (13, 'i'), (14, 'd'), (15, 'K')):
+                art[y][x] = c
+            for y in range(6, 12):
+                art[y][x] = shade if bar else '.'
+            if bar:
+                art[3][x], art[4][x], art[5][x] = shade, shade, shade
+        else:
+            for y, c in ((3, 'K'), (4, 'l'), (5, 'i'), (6, 'K'), (12, 'K'), (13, 'i'), (14, 'd'), (15, 'K')):
+                art[y][x] = c
+            for y in range(7, 12):
+                art[y][x] = shade if bar else '.'
+
+
+def _post(art, top):
+    for i, x in enumerate(POST_X):
+        for y in range(top + 1, 15):
+            art[y][x] = POST_COLORS[i]
+        art[15][x] = 'K'
+        art[top][x] = 'K' if i in (0, 4) else 'x' if i == 1 else 'l'   # A cap, lit from the upper left
+    art[top - 1][4], art[top - 1][5], art[top - 1][6] = 'K', 'K', 'K'
+
+
+def _side(art, y0, y1):
+    for y in range(y0, y1 + 1):
+        for i, x in enumerate(POST_X):
+            art[y][x] = POST_COLORS[i]
+        if y % 4 == 3:  # The bars' tops, seen from above
+            art[y][5] = 'K'
+
+
+def railing_pieces():
+    rail, side, corner, front, gate, lock = (_canvas() for _ in range(6))
+    _rail(rail, 0, 15)
+    _side(side, 0, 15)
+    _rail(corner, 8, 15)
+    _post(corner, 2)
+    _side(front, 0, 2)
+    _rail(front, 8, 15)
+    _post(front, 3)
+    _rail(gate, 0, 15, gate=True)
+    _rail(lock, 0, 15, gate=True)
+    # The padlock, hanging off the top rail in the middle of the gate (brass: Y lit, O shaded)
+    for y, row in enumerate(['...KKKK...', '..K....K..', '..K....K..', '.KKKKKKKK.', '.KYYYYOOK.', '.KYWYKYOK.',
+                             '.KYYYKOOK.', '.KOOOOOOK.', '..KKKKKK..']):
+        for x, c in enumerate(row):
+            if c != '.':
+                lock[5 + y][3 + x] = c
+    return [[''.join(r) for r in a] for a in (rail, side, corner, front, gate, lock)]
 
 
 def emblem_moon():
@@ -167,12 +225,54 @@ LAYER_COVERED = 1 << 29  # Both layers under objects: the player walks in front 
 MB_NORMAL = 0x00
 
 
+HFLIP = 1 << 10
+RAILING_SLOTS = list(range(358, 368)) + [382, 383]  # Free tiles: the furnaces' row after its six, this row's last two
+BLANK_TILE = 0                                       # The primary tileset's first tile is empty
+
+
+def cut_tiles(pictures, slots):
+    """Cuts 16x16 pictures into 8x8 tiles, sharing repeats and mirror images. Returns the new tiles (one per slot
+    used) and, for each picture, its four tile entries (slot index, hflip) or None where the quarter is empty."""
+    tiles, entries = [], []
+    for art in pictures:
+        quarters = []
+        for q in quads(art, KEYS):
+            if not any(any(row) for row in q):
+                quarters.append(None)
+                continue
+            mirror = [row[::-1] for row in q]
+            for n, t in enumerate(tiles):
+                if t == q:
+                    quarters.append((n, False))
+                    break
+                if t == mirror:
+                    quarters.append((n, True))
+                    break
+            else:
+                tiles.append(q)
+                quarters.append((len(tiles) - 1, False))
+        entries.append(quarters)
+    assert len(tiles) <= len(slots), 'railing: %d tiles for %d free slots' % (len(tiles), len(slots))
+    return tiles, entries
+
+
+def put_tiles(folder, slots, tiles):
+    png = os.path.join(folder, 'tiles.png')
+    width, rows, plte = read_png(png)
+    per_row = width // 8
+    for slot, tile in zip(slots, tiles):
+        for y in range(8):
+            rows[(slot // per_row) * 8 + y][(slot % per_row) * 8:(slot % per_row) * 8 + 8] = tile[y]
+    write_png(png, width, rows, plte)
+
+
 def draw_mansion():
     furnace.main()
-    unlit, lit, moon, sun, bars = (quads(a, KEYS) for a in (TORCH_UNLIT, TORCH_LIT, emblem_moon(), emblem_sun(), BARS))
-    # Tiles: torch top (unlit) x2, torch bottom x2, torch top (lit) x2, moon x4, sun x4, bars top, bars bottom
-    tiles = unlit + lit[:2] + moon + sun + [bars[0], bars[2]]
-    first = add_tile_row(MANSION, MANSION_TILE_ROWS, tiles)
+    unlit, lit, moon, sun = (quads(a, KEYS) for a in (TORCH_UNLIT, TORCH_LIT, emblem_moon(), emblem_sun()))
+    # Tiles: torch top (unlit) x2, torch bottom x2, torch top (lit) x2, moon x4, sun x4, then two railing tiles
+    first = add_tile_row(MANSION, MANSION_TILE_ROWS, unlit + lit[:2] + moon + sun)
+    railing_tiles, railing = cut_tiles(railing_pieces(), RAILING_SLOTS)
+    put_tiles(MANSION, RAILING_SLOTS, railing_tiles)
     # The lit torch's flames flicker (its top two tiles, animated by InitTilesetAnim_PokemonMansion)
     flames = furnace.flicker_frames(TORCH_LIT, 'ROYW', '.', (1, 0, 14, 6))
     furnace.write_anim_frames(os.path.join(MANSION, 'anim/torch'), [furnace.tiles_of(f, 0, 1) for f in flames],
@@ -180,22 +280,46 @@ def draw_mansion():
 
     def top(*tiles):
         return [(first + t) | (MANSION_PAL << 12) for t in tiles]
+
+    def piece(quarters, mirror=False):
+        if mirror:
+            quarters = [quarters[1], quarters[0], quarters[3], quarters[2]]
+        out = []
+        for q in quarters:
+            if q is None:
+                out.append(BLANK_TILE)
+            else:
+                n, flip = q
+                out.append((PRIMARY_TILES + RAILING_SLOTS[n]) | (MANSION_PAL << 12) | (HFLIP if flip != mirror else 0))
+        return out
     floor = layers_of(MANSION, 0x286)[:4]       # The basement floor
     wall = layers_of(MANSION, 0x2AA)[4:]        # The wall's face (drawn on its top layer)
+    rail, side, corner, front, gate, lock = railing
     add_metatiles(MANSION, MANSION_METATILES, [
         floor + top(0, 1, 2, 3),                 # 0x384 torch, unlit
         floor + top(4, 5, 2, 3),                 # 0x385 torch, lit
         wall + top(6, 7, 8, 9),                  # 0x386 moon
         wall + top(10, 11, 12, 13),              # 0x387 sun
-        floor + top(14, 14, 15, 15),             # 0x388 bars
+        floor + piece(rail),                     # 0x388 railing, the back
     ], MB_NORMAL | LAYER_COVERED)
     # The stair down's pieces that show the floor, on the basement's floor instead of 1F's (same attributes)
     attrs = open(os.path.join(MANSION, 'metatile_attributes.bin'), 'rb').read()
-    for n, piece in enumerate((0x2D2, 0x2DA)):
-        i = piece - PRIMARY_METATILES
-        add_metatiles(MANSION, MANSION_METATILES + 5 + n, [floor + layers_of(MANSION, piece)[4:]],
+    for n, stair_piece in enumerate((0x2D2, 0x2DA)):
+        i = stair_piece - PRIMARY_METATILES
+        add_metatiles(MANSION, MANSION_METATILES + 5 + n, [floor + layers_of(MANSION, stair_piece)[4:]],
                       struct.unpack('<I', attrs[i * 4:i * 4 + 4])[0])
-    print('Mansion: torch 0x384/0x385, moon 0x386, sun 0x387, bars 0x388, stair pieces 0x389/0x38A')
+    add_metatiles(MANSION, MANSION_METATILES + 7, [
+        floor + piece(side),                     # 0x38B railing, left side
+        floor + piece(side, True),               # 0x38C railing, right side
+        floor + piece(corner),                   # 0x38D railing, back left corner
+        floor + piece(corner, True),             # 0x38E railing, back right corner
+        floor + piece(front),                    # 0x38F railing, front left corner
+        floor + piece(front, True),              # 0x390 railing, front right corner
+        floor + piece(gate),                     # 0x391 the gate
+        floor + piece(lock),                     # 0x392 the gate, padlocked
+    ], MB_NORMAL | LAYER_COVERED)
+    print('Mansion: torch 0x384/0x385, moon 0x386, sun 0x387, stair pieces 0x389/0x38A, railing 0x388 and '
+          '0x38B-0x392 (%d tiles)' % len(railing_tiles))
 
 
 # --- Cerulean Cave --------------------------------------------------------------------------------------------------
@@ -264,11 +388,46 @@ GATE_METATILES = 184
 BOX = (0x0DD, 0x0DE, 0x0ED, 0x0EE)  # The building tileset's cardboard box (metatile 0x181), palette 1
 
 
+SWITCH_SLOTS = range(152, 160)  # The building tileset's last eight tiles, empty and unused
+GATE_WALL = 0x28F               # The wall above the dado rail, where the switch is mounted
+SWITCH_KEYS = '.Kgsw' + 'xxxxxxxx' + 'Rr' + 'h'  # The primary's palette 0: outline, greys, white, red, wall shade
+
+
+def wall_switch(pulled):
+    """A small breaker box mounted on the wall above the dado rail, its red lever up (or pulled down), with a drop
+    shadow on the wall to the right and below. All inside the one square, nothing over the next."""
+    art = [['.'] * 16 for _ in range(16)]
+    for y in range(2, 13):
+        for x in range(4, 14):
+            art[y][x] = 'h' if (x == 13 or y == 12) else '.'
+    for y in range(1, 12):
+        for x in range(3, 13):
+            edge = x in (3, 12) or y in (1, 11)
+            art[y][x] = 'K' if edge else 'w' if (x == 4 or y == 2) else 'h' if (x == 11 or y == 10) else 's'
+    for x, y in ((5, 3), (10, 3), (5, 9), (10, 9)):
+        art[y][x] = 'g'                                            # Screws
+    for y in range(4, 9):
+        art[y][7], art[y][8] = 'K', 'K'                           # The lever's slot
+    arm, knob = ((range(3, 6), 1) if not pulled else (range(7, 10), 9))
+    for y in arm:
+        art[y][7], art[y][8] = 'g', 'g'
+    for dy, row in enumerate(('.KK.', 'KrRK', 'KRRK') if not pulled else ('KrRK', 'KRRK', '.KK.')):
+        for dx, c in enumerate(row):
+            if c != '.':
+                art[knob + dy][6 + dx] = c
+    return [''.join(r) for r in art]
+
+
 def draw_gate():
-    """No new tiles: the building tileset's box, standing on the gate's floor (0x281)."""
+    """The building tileset's box, standing on the gate's floor (0x281); the wall switch, up and pulled."""
     floor = layers_of(GATE, 0x281)[:4]
     add_metatiles(GATE, GATE_METATILES, [floor + [t | (1 << 12) for t in BOX]], MB_NORMAL | LAYER_COVERED)
-    print('Generic building 2: box on the floor 0x338')
+    up, down = (quads(wall_switch(p), SWITCH_KEYS) for p in (False, True))
+    put_tiles(GATE, list(SWITCH_SLOTS), up + down)
+    wall = layers_of(GATE, GATE_WALL)[:4]
+    switch = lambda first: wall + [(PRIMARY_TILES + SWITCH_SLOTS[first + n]) for n in range(4)]
+    add_metatiles(GATE, GATE_METATILES + 1, [switch(0), switch(4)], attr_of(GATE, GATE_WALL))
+    print('Generic building 2: box on the floor 0x338, wall switch 0x339 (up) / 0x33A (pulled)')
 
 
 if __name__ == '__main__':

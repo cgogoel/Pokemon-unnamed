@@ -1,11 +1,22 @@
 @ The abandoned ranger station, B2F: the flood (Act 2 finale, docs/hack/act2_finale.md). Stepping stones in water too
 @ deep to wade; walking at one square of water with a stone behind it jumps it (Act2Station_CanJumpGap). Five dead
-@ ends, each with a powerful Water Pokémon that battles the player there (2 levels above the party's average) until
-@ beaten or caught (FLAG_ACT2_DEAD_END_1-5). The dead ends' objects come first: their local ids are 1-5, which
-@ removeobject VAR_TEMP_1 relies on. A medkit before the ladder down heals the party, any number of times.
+@ ends, each with a powerful Water Pokémon hidden under the water that leaps out and battles the player when they
+@ reach its stone (2 levels above the party's average), until beaten or caught (FLAG_ACT2_DEAD_END_1-5). The dead
+@ ends' objects come first: their local ids are 1-5, which addobject and removeobject VAR_TEMP_1 rely on; FLAG_TEMP_1-5
+@ keep them under the water until then. The floor is dark but for a small circle round the player
+@ (Act2Station_GetFloodFlashLevel). A medkit before the ladder down heals the party, any number of times.
 
 RangerStation_B2F_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, RangerStation_B2F_OnTransition
 	.byte 0
+
+RangerStation_B2F_OnTransition:
+	setflag FLAG_TEMP_1
+	setflag FLAG_TEMP_2
+	setflag FLAG_TEMP_3
+	setflag FLAG_TEMP_4
+	setflag FLAG_TEMP_5
+	end
 
 RangerStation_B2F_EventScript_DeadEnd1::
 	setvar VAR_TEMP_1, 1
@@ -27,13 +38,15 @@ RangerStation_B2F_EventScript_DeadEnd5::
 	setvar VAR_TEMP_1, 5
 	goto RangerStation_B2F_EventScript_DeadEnd
 
-@ On arriving on the dead end's stone (coord event), or talking to the Pokémon
+@ On arriving on the dead end's stone (coord event): the Pokémon leaps up out of the water. Also talking to it, once
+@ it's up (after running from it).
 RangerStation_B2F_EventScript_DeadEnd:
 	lockall
 	specialvar VAR_RESULT, Act2Station_IsDeadEndBeaten
 	goto_if_eq VAR_RESULT, TRUE, RangerStation_B2F_EventScript_Release
 	special Act2Station_PrepareDeadEnd
 	playse SE_M_SURF
+	addobject VAR_TEMP_1
 	applymovement VAR_TEMP_1, RangerStation_B2F_Movement_Lunge
 	waitmovement 0
 	playmoncry VAR_0x8006, CRY_MODE_ENCOUNTER

@@ -418,6 +418,7 @@ enum
     OBJ_EVENT_GFX_GLOWCAP_LIT,
     OBJ_EVENT_GFX_MOONVEIL_BUD,
     OBJ_EVENT_GFX_MOONVEIL_BLOOM,
+    OBJ_EVENT_GFX_MEDKIT,         // Act 2 finale: the ranger station's medkit (tools/hack/draw_medkit.py)
     NUM_OBJ_EVENT_GFX,
 };
 

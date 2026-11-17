@@ -29,7 +29,7 @@
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
       "script": "RangerStation_B2F_EventScript_DeadEnd1",
-      "flag": "FLAG_ACT2_DEAD_END_1"
+      "flag": "FLAG_TEMP_1"
     },
     {
       "local_id": "LOCALID_DEAD_END_2",
@@ -44,7 +44,7 @@
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
       "script": "RangerStation_B2F_EventScript_DeadEnd2",
-      "flag": "FLAG_ACT2_DEAD_END_2"
+      "flag": "FLAG_TEMP_2"
     },
     {
       "local_id": "LOCALID_DEAD_END_3",
@@ -59,7 +59,7 @@
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
       "script": "RangerStation_B2F_EventScript_DeadEnd3",
-      "flag": "FLAG_ACT2_DEAD_END_3"
+      "flag": "FLAG_TEMP_3"
     },
     {
       "local_id": "LOCALID_DEAD_END_4",
@@ -74,7 +74,7 @@
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
       "script": "RangerStation_B2F_EventScript_DeadEnd4",
-      "flag": "FLAG_ACT2_DEAD_END_4"
+      "flag": "FLAG_TEMP_4"
     },
     {
       "local_id": "LOCALID_DEAD_END_5",
@@ -89,12 +89,12 @@
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
       "script": "RangerStation_B2F_EventScript_DeadEnd5",
-      "flag": "FLAG_ACT2_DEAD_END_5"
+      "flag": "FLAG_TEMP_5"
     },
     {
       "local_id": "LOCALID_MEDKIT",
       "type": "object",
-      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "graphics_id": "OBJ_EVENT_GFX_MEDKIT",
       "x": 19,
       "y": 5,
       "elevation": 3,

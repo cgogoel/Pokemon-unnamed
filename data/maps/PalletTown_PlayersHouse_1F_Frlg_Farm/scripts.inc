@@ -7,6 +7,7 @@ PalletTown_PlayersHouse_1F_Frlg_Farm_MapScripts::
 
 @ Dad is home the morning after Jangmo-o, and from Act 2 on (FLAG_TEMP_1 hides him otherwise)
 Farmhouse1F_OnTransition:
+	call Farmyard_EventScript_HomeNoFollower
 	goto_if_ge VAR_STORY_ACT, STORY_ACT_UNIVERSITY, Farmhouse1F_EventScript_DadHome
 	call_if_ne VAR_ACT1_PROGRESS, ACT1_RESTED, Farmhouse1F_EventScript_HideDad
 Farmhouse1F_EventScript_DadHome:

@@ -15,11 +15,13 @@
 
 // ---------------------------------------------------------------------------------------------------------------
 // The Woods' noise: after Mom and Dad's talk, an eerie noise comes from the ranger station (its door, top left).
-// Every WOODS_NOISE_STEP closer it's louder, every WOODS_NOISE_STEP farther it's quieter. VAR_ACT2_WOODS_SOUND is
+// Every WOODS_NOISE_LOUDER_STEP closer it's louder, every WOODS_NOISE_STEP farther it's quieter, and the first step
+// inside WOODS_NOISE_NEAR always says where it's coming from. VAR_ACT2_WOODS_SOUND is
 // the distance when the noise was last described; VAR_TEMP_1 is 2 once the first line has played this visit.
 #define WOODS_STATION_X  5
 #define WOODS_STATION_Y  9
 #define WOODS_NOISE_STEP 10
+#define WOODS_NOISE_LOUDER_STEP 20 // Half as often as it gets quieter: walking toward it is most of the trip
 #define WOODS_NOISE_NEAR 12 // Closer than this, the louder line says where the noise comes from
 
 static bool32 IsWoodsNoiseActive(void)
@@ -58,7 +60,13 @@ bool32 Act2_TryStartWoodsNoise(void)
         return FALSE;
     distance = GetWoodsNoiseDistance();
     last = VarGet(VAR_ACT2_WOODS_SOUND);
-    if (distance + WOODS_NOISE_STEP <= last)
+    if (distance < WOODS_NOISE_NEAR && last >= WOODS_NOISE_NEAR)
+    {
+        VarSet(VAR_ACT2_WOODS_SOUND, distance);
+        ScriptContext_SetupScript(Act2_EventScript_WoodsNoiseNear);
+        return TRUE;
+    }
+    if (distance + WOODS_NOISE_LOUDER_STEP <= last)
     {
         VarSet(VAR_ACT2_WOODS_SOUND, distance);
         ScriptContext_SetupScript(distance < WOODS_NOISE_NEAR ? Act2_EventScript_WoodsNoiseNear : Act2_EventScript_WoodsNoiseLouder);

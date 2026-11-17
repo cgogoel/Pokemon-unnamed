@@ -44,32 +44,35 @@ MANSION_TILE_ROWS = 23    # The tileset's own 22 rows and the furnaces' row
 MANSION_PAL = 9
 KEYS = '.KdilbrpoROYWmax'  # Palette 09 (draw_mansion_furnace.PALETTE), x = white
 
+# A standing iron brazier drawn like FireRed's objects: a dark outline, iron rounded with a lit left side (and a white
+# glint on the rim) and a shaded right, coals and ash in the bowl, a stem and a foot. Lit, flames rise out of the
+# bowl and the coals glow (only the top two tiles change, so the flames can flicker).
 TORCH_UNLIT = [
     '................',
     '................',
     '................',
     '................',
-    '..KKKKKKKKKKKK..',
-    '.KllllllllllllK.',
-    '.KdmamaaamamadK.',
-    '..KiiiiiiiiiiK..',
-    '...KddiiiiddK...',
-    '....KKdiidKK....',
-    '......KilK......',
-    '......KidK......',
-    '......KidK......',
-    '.....KdiidK.....',
-    '....KdiiiidK....',
-    '....KKKKKKKK....',
+    '................',
+    '...KKKKKKKKKK...',
+    '..KlaoaooaoaiK..',
+    '.KxlllllllliidK.',
+    '.KlliiiiiiiiddK.',
+    '..KliiiiiiiddK..',
+    '...KliiiiiddK...',
+    '....KKliidKK....',
+    '.....KliidK.....',
+    '.....KliidK.....',
+    '...KlliiiiddK...',
+    '...KKKKKKKKKK...',
 ]
 TORCH_LIT = [
     '.......R........',
-    '......RO...R....',
-    '...R..ROR.RO....',
-    '...RO.OYORYOR...',
-    '..ROYOYWYYWYOR..',
-    '.KOYWWWWWWWWYOK.',
-    '.KYWWWWWWWWWWYK.',
+    '......RO..R.....',
+    '....R.ROR.OR....',
+    '....ROROYROR....',
+    '...ROYOYWYYOR...',
+    '...KOYWWWWYOK...',
+    '..KlYWWWWWWYiK..',
 ] + TORCH_UNLIT[7:]
 # The cage around B1F's stair down: an iron railing, light from the upper left like the rest of FireRed. Each piece
 # is a 16x16 picture on the basement floor; the pictures are cut into 8x8 tiles and repeats (and mirror images) are
@@ -148,39 +151,54 @@ def railing_pieces():
     return [[''.join(r) for r in a] for a in (rail, side, corner, front, gate, lock)]
 
 
-def emblem_moon():
-    """A round night-sky plaque with a crescent moon and a few stars."""
-    art = [['.'] * 16 for _ in range(16)]
+def plaque(art):
+    """A round iron plaque on the wall, inside the tile with a pixel to spare: an outline, a bevel lit from the upper
+    left (shaded lower right) and a dark face. Returns the face's radius."""
     for y in range(16):
         for x in range(16):
-            d = math.hypot(x - 7.5, y - 7.5)
-            if d < 6.6:
+            dx, dy = x - 7.5, y - 7.5
+            d = math.hypot(dx, dy)
+            if d < 5.2:
                 art[y][x] = 'd'
-            elif d < 7.6:
+            elif d < 6.2:
+                art[y][x] = 'l' if dx + dy < -2 else 'i' if dx + dy < 3 else 'K'
+            elif d < 7.0:
                 art[y][x] = 'K'
-            if d < 4.6 and math.hypot(x - 9.6, y - 6.2) > 3.9:
-                art[y][x] = 'W' if math.hypot(x - 9.6, y - 6.2) < 4.9 else 'Y'
-    for x, y in ((11, 10), (10, 3), (12, 7)):
+    return 5.2
+
+
+def emblem_moon():
+    """A round plaque with a crescent moon (lit on its outer edge) and two stars."""
+    art = [['.'] * 16 for _ in range(16)]
+    plaque(art)
+    for y in range(16):
+        for x in range(16):
+            d, cut = math.hypot(x - 7.5, y - 7.5), math.hypot(x - 9.4, y - 6.4)
+            if d < 4.0 and cut > 3.3:
+                art[y][x] = 'Y' if cut < 4.1 or d > 3.2 and x > 7 else 'W'
+    for x, y in ((11, 10), (10, 4)):
         art[y][x] = 'x'
     return [''.join(r) for r in art]
 
 
 def emblem_sun():
-    """A sun with eight rays, painted straight on the wall."""
+    """A round plaque with a sun: a disc shaded from a white-hot upper left to an orange lower right, ringed red, and
+    eight short rays."""
     art = [['.'] * 16 for _ in range(16)]
+    plaque(art)
     for y in range(16):
         for x in range(16):
             dx, dy = x - 7.5, y - 7.5
             d = math.hypot(dx, dy)
-            angle = math.degrees(math.atan2(dy, dx)) % 45
-            if d < 3.6:
-                art[y][x] = 'Y' if d < 2.6 else 'O'
-            elif d < 4.4:
+            if d < 2.2:
+                art[y][x] = 'W' if dx + dy < -1 else 'Y'
+            elif d < 2.9:
+                art[y][x] = 'O' if dx + dy > 1 else 'Y'
+            elif d < 3.4:
                 art[y][x] = 'R'
-            elif d < 7.6 and (angle < 9 or angle > 36):
-                art[y][x] = 'O' if d < 6.2 else 'R'
-    art[6][6] = 'W'
-    art[6][7] = 'W'
+    for x, y in ((7, 3), (8, 3), (7, 12), (8, 12), (3, 7), (3, 8), (12, 7), (12, 8),
+                 (4, 4), (11, 4), (4, 11), (11, 11)):
+        art[y][x] = 'Y' if x + y < 15 else 'O'
     return [''.join(r) for r in art]
 
 
@@ -331,10 +349,12 @@ POND_WATER = (0x1A0, 0x1A1, 0x1A2, 0x1A3)  # The primary's pond water (metatile 
 
 
 def stepping_stone():
-    """A flat stone slab seen from above: a light top face over a darker rim. Keys are palette 08's indices."""
+    """A flat stone seen from above, sitting in the water clear of the tile's edges: a dark outline, a top face lit
+    from the upper left (a highlight, the stone, its shade) with a few pits, and a darker side under it at the
+    waterline. Keys are palette 08's indices."""
     art = [['0'] * 16 for _ in range(16)]
-    face = lambda x, y: ((x - 7.5) / 7.2) ** 2 + ((y - 6.6) / 5.6) ** 2 < 1
-    body = lambda x, y: face(x, y) or ((x - 7.5) / 7.2) ** 2 + ((y - 8.6) / 5.6) ** 2 < 1
+    face = lambda x, y: ((x - 7.5) / 6.1) ** 2 + ((y - 6.4) / 4.6) ** 2 < 1
+    body = lambda x, y: face(x, y) or ((x - 7.5) / 6.1) ** 2 + ((y - 8.4) / 4.6) ** 2 < 1
     for y in range(16):
         for x in range(16):
             if not body(x, y):
@@ -345,10 +365,14 @@ def stepping_stone():
             elif not face(x, y):
                 art[y][x] = '4'
             else:
-                shade = (x - 7.5) * 0.5 + (y - 6.6)
-                art[y][x] = '1' if shade < -3.5 else '2' if shade < 1.5 else '3'
-    for x, y in ((5, 6), (10, 4), (9, 8), (4, 9)):
-        art[y][x] = '5'
+                shade = (x - 7.5) * 0.6 + (y - 6.4)
+                art[y][x] = '1' if shade < -4.5 else '2' if shade < 1.8 else '3'
+    for y in range(1, 16):  # A highlight just inside the outline, on the lit upper left
+        for x in range(1, 16):
+            if art[y][x] == '2' and 'f' in (art[y - 1][x], art[y][x - 1]) and (x - 7.5) * 0.6 + (y - 6.4) < -1:
+                art[y][x] = '1'
+    for x, y in ((5, 6), (9, 4), (10, 8), (6, 9)):
+        art[y][x] = '3' if art[y][x] == '2' else '4'
     return [''.join(r) for r in art]
 
 

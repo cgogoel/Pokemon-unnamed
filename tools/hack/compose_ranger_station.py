@@ -382,18 +382,23 @@ def compose_b3f():
     def tree_column(x0, y0, trees):
         rows = ['TREE_CROWN'] + [p for i in range(trees) for p in ('TREE', 'TREE_BETWEEN' if i < trees - 1 else 'TREE_FOOT')]
         for k, part in enumerate(rows):
-            g[x0, y0 + k] = blk(G[part + '_L'], True)
-            g[x0 + 1, y0 + k] = blk(G[part + '_R'], True)
+            # In the walls' shadow (the left wall's column, the row under the top wall) the boards behind are shaded
+            for dx, side in ((0, '_L'), (1, '_R')):
+                x, y = x0 + dx, y0 + k
+                shaded = (x == 1 or y == 3) and part + side + '_SH' in G
+                g[x, y] = blk(G[part + side + ('_SH' if shaded else '')], True)
     assert (fy + B3_SIZE - 3) % 2 == 1
     for x0 in (1, W - 3):
         tree_column(x0, 3, (fy + B3_SIZE - 3) // 2)
     tree_column(1, H - 7, 1)  # A lone tree by the entrance
     for xy in ((9, 16), (10, 16), (2, 15), (13, 15), (11, 19 - 4 + 3), (4, 18)):
-        g[xy] = blk(G['TALL_GRASS'])
-    # The field
+        g[xy] = blk(G['TUFT'])
+    # The field: soil and grass where the boards are gone, its edge pieces the boards' broken ends
+    last = B3_SIZE - 1
     for y in range(B3_SIZE):
         for x in range(B3_SIZE):
-            g[fx + x, fy + y] = blk(G['TALL_GRASS'])
+            side = ('N' if y == 0 else 'S' if y == last else '') + ('W' if x == 0 else 'E' if x == last else '')
+            g[fx + x, fy + y] = blk(G['FIELD_' + side if side else 'FIELD'])
     # The tablet, the ladders
     tx, ty = B3_TABLET
     for i in range(9):

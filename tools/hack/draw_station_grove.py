@@ -44,7 +44,8 @@ NAMES = [
     'WALL_BL_EDGE', 'WALL_BR_EDGE', 'WALL_BL_CAP', 'WALL_BR_CAP', 'WALL_BL_FACE', 'WALL_BR_FACE',
     'WALL_BL_BASE', 'WALL_BR_BASE', 'WALL_B_CAP', 'WALL_B_FACE', 'WALL_B_BASE',
     'TREE_CROWN_L', 'TREE_CROWN_R', 'TREE_L', 'TREE_R', 'TREE_BETWEEN_L', 'TREE_BETWEEN_R', 'TREE_FOOT_L', 'TREE_FOOT_R',
-    'TALL_GRASS',
+    'TREE_CROWN_L_SH', 'TREE_CROWN_R_SH', 'TREE_L_SH', 'TREE_BETWEEN_L_SH', 'TREE_FOOT_L_SH',
+    'FIELD', 'FIELD_N', 'FIELD_S', 'FIELD_W', 'FIELD_E', 'FIELD_NW', 'FIELD_NE', 'FIELD_SW', 'FIELD_SE', 'TUFT',
     'LADDER_UP_TOP', 'LADDER_UP', 'LADDER_DOWN',
     'TABLET_0', 'TABLET_1', 'TABLET_2', 'TABLET_3', 'TABLET_4', 'TABLET_5', 'TABLET_6', 'TABLET_7', 'TABLET_8',
 ]
@@ -106,104 +107,100 @@ def swap(img, floor_colors, floor):
     return [[floor[y][x] if img[y][x] in floor_colors else img[y][x] for x in range(16)] for y in range(16)]
 
 
-def shade(img, factor=0.72):
-    return [[tuple(int(v * factor) for v in c) for c in row] for row in img]
-
-
 GRASS_SHADOW = (24, 164, 106)   # The trees' and the tall grass's shadow on the grass: a shadow on the planks
 GRASS_SPECK = (139, 222, 189)   # A light speck in the grass
 
 
 # --- Planks ----------------------------------------------------------------------------------------------------------
-SEAM, DARK, GRAIN, WOOD, LIGHT, GAP = (90, 66, 41), (123, 98, 57), (148, 123, 82), (180, 156, 106), (205, 180, 131), (41, 32, 24)
+# FireRed's own wooden floors (Bill's Sea Cottage, gTileset_SeaCottage 0x288) are two 8-pixel boards a metatile in
+# three close tones: a fill, a mid tone along each board's edge and a dark seam between boards, with a dashed line
+# on the board below the seam. These follow that, in an aged brown: low contrast, no speckle, joints only now and
+# then, so the floor reads as one surface and every edge meets its neighbour.
+SEAM, MID, WOOD = (123, 98, 65), (156, 128, 90), (180, 150, 106)
+DARK, GAP = SEAM, (57, 41, 24)       # A crack's line; the dark under a broken board
+LIGHT = (197, 172, 123)              # The lit cut end of a board (hole edges)
+GRAIN = MID
 
 
-def planks(seed, cracked=False, broken=False):
-    """Four boards a metatile, 4 pixels each (a seam and three of wood), their ends staggered."""
-    rnd = random.Random(seed)
+def planks(joints=(), cracked=False, broken=False):
+    """Two boards a metatile, after gTileset_SeaCottage's floor: [mid, fill x6, seam], [dashed, fill x6, mid].
+    joints: (board, x) board ends, a seam with a mid tone after it. Rows line up with every other plank metatile,
+    so they tile in any order."""
     img = [[WOOD] * 16 for _ in range(16)]
-    for board in range(4):
-        y0 = board * 4
-        joint = rnd.choice([None, None, 3, 6, 9, 12])
-        for x in range(16):
-            img[y0][x] = SEAM
-            img[y0 + 1][x] = LIGHT if rnd.random() < 0.8 else WOOD
-        for _ in range(rnd.randint(1, 3)):  # Grain streaks
-            gy, gx, length = y0 + rnd.randint(2, 3), rnd.randint(0, 13), rnd.randint(2, 6)
-            for x in range(gx, min(16, gx + length)):
-                img[gy][x] = GRAIN
-        if rnd.random() < 0.5:  # A knot
-            kx, ky = rnd.randint(1, 14), y0 + 2
-            img[ky][kx] = DARK
-        if joint is not None:
-            for y in range(y0 + 1, y0 + 4):
-                img[y][joint] = SEAM
-            img[y0 + 1][joint + 1] = LIGHT
-        for x in (0, 15):  # Nail heads at the ends, now and then
-            if rnd.random() < 0.15:
-                img[y0 + 2][x if x == 0 else x - 1] = DARK
-    if cracked:
-        x = rnd.randint(4, 10)
-        for y in range(5, 12):
-            img[y][x] = DARK if y % 4 else SEAM
-            x += rnd.choice([-1, 0, 0, 1])
-            x = max(1, min(14, x))
-    if broken:
-        for y in range(9, 12):
-            for x in range(5 - (y == 9), 12 + (y == 11)):
+    for x in range(16):
+        img[0][x] = MID
+        img[7][x] = SEAM
+        img[8][x] = MID if x % 4 in (0, 3) else SEAM
+        img[15][x] = MID
+    for board, x in joints:
+        y0 = board * 8
+        for y in range(y0 + 1, y0 + 7):
+            img[y][x] = SEAM
+            img[y][(x + 1) % 16] = MID
+    if cracked:  # A split along the top board's grain
+        for x, y in ((3, 3), (4, 3), (5, 4), (6, 4), (7, 4), (8, 5), (9, 5), (10, 4), (11, 4)):
+            img[y][x] = SEAM
+    if broken:   # A length of the lower board gone: the dark beneath, its far edge in shadow, the near cut end lit
+        for y in range(9, 15):
+            for x in range(4, 12):
                 img[y][x] = GAP
-        for x in range(4, 13):
-            img[8][x] = DARK
-        img[12][6], img[12][9] = DARK, DARK
+        for x in range(4, 12):
+            img[9][x] = SEAM
+            img[15][x] = LIGHT
+        img[10][4], img[10][11] = SEAM, SEAM
     return img
 
 
-PLANK = planks(1)
+PLANK = planks()
+
+
+def shade(img, factor=0.8):
+    """In the shadow of a wall: FireRed's floors darken by about a fifth (gTileset_SeaCottage 0x288 -> 0x290)."""
+    return [[tuple(int(v * factor) for v in c) for c in row] for row in img]
 
 
 def roots(img, trunk_colors):
-    """Boards split around the trunk: dark cracks running out from the trunk's foot into the planks."""
+    """Boards split around the trunk: short seams running out from the trunk's foot along the boards."""
     out = [r[:] for r in img]
     feet = [(x, y) for y in range(16) for x in range(16) if img[y][x] in trunk_colors
             and (y == 15 or img[y + 1][x] not in trunk_colors)]
-    rnd = random.Random(7)
-    for x, y in feet[::2]:
-        cx, cy = x, y + 1
-        for _ in range(3):
-            if not (0 <= cx < 16 and 0 <= cy < 16) or out[cy][cx] in trunk_colors:
-                break
-            out[cy][cx] = SEAM
-            cx += rnd.choice([-1, 1])
-            cy += rnd.choice([0, 1])
+    for x, y in feet[::3]:
+        for dx in (-2, -1, 1, 2):
+            cx = x + dx
+            if 0 <= cx < 16 and 0 <= y < 16 and out[y][cx] not in trunk_colors and out[y][cx] in (WOOD, MID):
+                out[y][cx] = SEAM
     return out
 
 
 # --- Ladders ----------------------------------------------------------------------------------------------------------
-RAIL_DARK, RAIL, RAIL_LIGHT = (82, 57, 32), (156, 106, 57), (213, 156, 90)
+# A wooden ladder drawn like FireRed's objects: a dark outline, rails rounded with a lit left face and a shaded right,
+# rungs with a highlight on top and a shadow under, and a shadow on the boards at its feet.
+OUTLINE = (49, 32, 16)
+RAIL_DARK, RAIL, RAIL_LIGHT = (115, 74, 41), (164, 115, 65), (213, 164, 106)
 
 
 def ladder_up(top_floor, floor):
-    """A wooden ladder (two rails, rungs every 4 px) standing on the planks, its top rising out of sight: the upper
-    half fades into the dark of the opening above. Two metatiles, top and bottom."""
+    """A ladder standing on the planks, its top rising out of sight into the opening above (fading into the dark).
+    Two metatiles, top and bottom."""
     img = [r[:] for r in top_floor] + [r[:] for r in floor]
     for y in range(32):
-        for x0 in (3, 11):
-            img[y][x0], img[y][x0 + 1] = RAIL_DARK, RAIL_LIGHT if y % 6 else RAIL
-            img[y][x0 + 2] = RAIL_DARK if x0 == 11 else RAIL
-        if y % 4 == 2 and y < 30:
-            for x in range(5, 11):
+        for x0 in (3, 10):  # Rails, 3 px and an outline either side
+            img[y][x0], img[y][x0 + 4] = OUTLINE, OUTLINE
+            img[y][x0 + 1], img[y][x0 + 2], img[y][x0 + 3] = RAIL_LIGHT, RAIL, RAIL_DARK
+        if y % 5 == 3 and y < 30:  # Rungs between the rails
+            for x in range(8, 10):
+                img[y - 1][x] = OUTLINE
                 img[y][x] = RAIL_LIGHT
                 img[y + 1][x] = RAIL_DARK
-    for x in range(2, 15):  # Its shadow on the boards and its feet
-        img[31][x] = SEAM
-    for x0 in (3, 11):
-        img[30][x0 - 1] = SEAM
-        img[31][x0], img[31][x0 + 1], img[31][x0 + 2] = RAIL_DARK, RAIL_DARK, RAIL_DARK
-    fade = [GAP, GAP, (57, 41, 24), (57, 41, 24), SEAM, SEAM]
+                img[y + 2][x] = OUTLINE
+            for x in (7, 10):
+                img[y][x], img[y + 1][x] = RAIL, RAIL_DARK
+    for x in range(2, 16):  # Its shadow on the boards
+        img[31][x] = shade([[img[31][x]]], 0.75)[0][0] if img[31][x] not in (OUTLINE, RAIL, RAIL_LIGHT, RAIL_DARK) else OUTLINE
+    fade = [GAP, GAP, (74, 52, 33), (74, 52, 33)]
     for y, color in enumerate(fade):  # Into the dark above
         for x in range(2, 15):
-            if img[y][x] in (RAIL, RAIL_LIGHT, RAIL_DARK) or y < 2:
-                img[y][x] = color if y < 2 or img[y][x] == RAIL_DARK else blend(img[y][x], color)
+            img[y][x] = color if y < 2 else (blend(img[y][x], color) if img[y][x] in (RAIL, RAIL_LIGHT, RAIL_DARK, OUTLINE) else img[y][x])
     return img[:16], img[16:]
 
 
@@ -239,44 +236,91 @@ def hatch(floor):
 
 
 # --- The tablet ------------------------------------------------------------------------------------------------------
-STONE_DARK, STONE_LIGHT, SLATE, SLATE_CELL, PATH_CELL, START, EXIT, OUTLINE = \
-    (82, 82, 90), (164, 164, 172), (32, 40, 49), (57, 66, 82), (230, 230, 213), (230, 57, 41), (246, 205, 57), (16, 16, 24)
+# A stone slab drawn like FireRed's stonework: an outline, a bevel lit from the upper left and shaded at the lower
+# right, a few flecks in the stone, and the path cut into its face as a groove (darker along the groove's top edge,
+# where the cut throws its shadow).
+STONE_OUT, STONE_HI, STONE, STONE_FLECK, STONE_LO = (57, 57, 65), (213, 213, 205), (180, 180, 172), (156, 156, 148), (123, 123, 123)
+GROOVE, GROOVE_DEEP, START, EXIT = (106, 106, 115), (74, 74, 82), (222, 74, 49), (238, 205, 74)
 
 
 def tablet(path_rows):
-    """48x48: a stone slab framing a dark slate with the 9x9 grid engraved in it (4 px a square, 1 px between),
-    the path's squares light and joined up; the start (bottom) red, the way out (top) yellow."""
-    img = [[SLATE] * 48 for _ in range(48)]
+    """48x48: the slab (outline, bevel) and on its face the 9x9 grid's path (4 px a square, 1 px between) cut into
+    the stone, the path's squares joined up; the start (bottom) red, the way out (top) yellow."""
+    img = [[STONE] * 48 for _ in range(48)]
+    rnd = random.Random(3)
+    for _ in range(60):
+        img[rnd.randint(3, 44)][rnd.randint(3, 44)] = STONE_FLECK
     for i in range(48):
-        img[1][i] = img[i][1] = STONE_LIGHT
-        img[46][i] = img[i][46] = STONE_DARK
-        img[0][i] = img[47][i] = img[i][0] = img[i][47] = OUTLINE
+        img[1][i] = img[i][1] = STONE_HI
+        img[46][i] = img[i][46] = STONE_LO
+        img[0][i] = img[47][i] = img[i][0] = img[i][47] = STONE_OUT
+    img[1][46] = img[46][1] = STONE
     size = len(path_rows)
     cells = [(x, y) for y, row in enumerate(path_rows) for x, c in enumerate(row) if c == 'X']
     start = [c for c in cells if c[1] == size - 1][0]
     end = [c for c in cells if c[1] == 0][0]
+    groove = set()
 
-    def fill(x0, y0, w, h, color):
-        for y in range(y0, y0 + h):
-            for x in range(x0, x0 + w):
-                img[y][x] = color
-    for cy in range(size):
-        for cx in range(size):
-            fill(2 + cx * 5, 2 + cy * 5, 4, 4, SLATE_CELL)
+    def fill(x0, y0, w, h):
+        groove.update((x, y) for y in range(y0, y0 + h) for x in range(x0, x0 + w))
     for (cx, cy) in cells:
-        fill(2 + cx * 5, 2 + cy * 5, 4, 4, START if (cx, cy) == start else EXIT if (cx, cy) == end else PATH_CELL)
+        fill(2 + cx * 5, 2 + cy * 5, 4, 4)
         if (cx + 1, cy) in cells:
-            fill(2 + cx * 5 + 4, 2 + cy * 5, 1, 4, PATH_CELL)
+            fill(2 + cx * 5 + 4, 2 + cy * 5, 1, 4)
         if (cx, cy + 1) in cells:
-            fill(2 + cx * 5, 2 + cy * 5 + 4, 4, 1, PATH_CELL)
+            fill(2 + cx * 5, 2 + cy * 5 + 4, 4, 1)
+    for (x, y) in groove:
+        img[y][x] = GROOVE_DEEP if (x, y - 1) not in groove or (x - 1, y) not in groove else GROOVE
+    for (cx, cy), color in ((start, START), (end, EXIT)):
+        for y in range(3 + cy * 5, 2 + cy * 5 + 4):
+            for x in range(3 + cx * 5, 2 + cx * 5 + 4):
+                img[y][x] = color
     return [[img[y0 + y][x0:x0 + 16] for y in range(16)] for y0 in (0, 16, 32) for x0 in (0, 16, 32)]
+
+
+# --- The overgrown field ---------------------------------------------------------------------------------------------
+# Where the field is, the boards have rotted away and the tall grass grows out of the soil (gTileset_General_Frlg's
+# own tall grass, 0x00D, on its own lawn). Its outer squares show the broken boards round the edge. Each side's edge
+# wanders, but starts and ends 3 px in, so the squares along a side join up whatever their order.
+EDGE_N = [3, 3, 4, 4, 3, 2, 2, 3, 4, 4, 5, 4, 3, 3, 2, 3]
+EDGE_S = [3, 2, 2, 3, 4, 4, 3, 3, 2, 3, 4, 5, 4, 3, 3, 3]
+EDGE_W = [3, 4, 4, 3, 2, 2, 3, 4, 4, 3, 3, 2, 3, 4, 4, 3]
+EDGE_E = [3, 3, 2, 3, 4, 4, 3, 2, 2, 3, 4, 4, 3, 3, 2, 3]
+
+
+def field(grass, floor, sides, inset=0):
+    """The tall grass square with boards along the given sides ('N', 'S', 'E', 'W'). Where a board's broken end
+    meets the soil: on the far side (N) its lit cut end shows and it shades the grass below; elsewhere a dark
+    edge."""
+    def soil(x, y):
+        return not (('N' in sides and y < EDGE_N[x] + inset) or ('S' in sides and y > 15 - EDGE_S[x] - inset)
+                    or ('W' in sides and x < EDGE_W[y] + inset) or ('E' in sides and x > 15 - EDGE_E[y] - inset))
+    img = [[grass[y][x] if soil(x, y) else floor[y][x] for x in range(16)] for y in range(16)]
+    for y in range(16):
+        for x in range(16):
+            if soil(x, y):
+                if y > 0 and not soil(x, y - 1):
+                    img[y][x] = GRASS_SHADOW
+                continue
+            below = y < 15 and soil(x, y + 1)
+            beside = any(0 <= x + dx < 16 and soil(x + dx, y) for dx in (-1, 1)) or (y > 0 and soil(x, y - 1))
+            if below:
+                img[y][x] = LIGHT
+            elif beside:
+                img[y][x] = SEAM
+    return img
+
+
+FIELD_PARTS = {
+    'FIELD': '', 'FIELD_N': 'N', 'FIELD_S': 'S', 'FIELD_W': 'W', 'FIELD_E': 'E',
+    'FIELD_NW': 'NW', 'FIELD_NE': 'NE', 'FIELD_SW': 'SW', 'FIELD_SE': 'SE',
+}
 
 
 # --- Composition -----------------------------------------------------------------------------------------------------
 def compose(path_rows):
     m286, m287 = mansion(0x286), mansion(0x287)
-    grass_colors = colors(general(0x008), general(0x009), general(0x010), general(0x011))
-    cave_floor_colors = colors(cave(0x281))
+    grass_colors = colors(general(0x008), general(0x009), general(0x010), general(0x011)) | {GRASS_SPECK}
     shaded = shade(PLANK)
 
     def floored(mid, lit, dark):
@@ -285,9 +329,10 @@ def compose(path_rows):
         return [[lit[y][x] if pic[y][x] == m286[y][x] else dark[y][x] if pic[y][x] == m287[y][x] else pic[y][x]
                  for x in range(16)] for y in range(16)]
     pics = {
-        'PLANK_0': PLANK, 'PLANK_1': planks(2), 'PLANK_2': planks(3), 'PLANK_3': planks(4),
-        'PLANK_CRACKED': planks(5, cracked=True), 'PLANK_BROKEN': planks(6, broken=True),
-        'PLANK_SHADE_TOP': shaded, 'PLANK_SHADE_LEFT': shade(planks(2)),
+        'PLANK_0': PLANK, 'PLANK_1': planks([(0, 5)]), 'PLANK_2': planks([(1, 11)]),
+        'PLANK_3': planks([(0, 2), (1, 9)]),
+        'PLANK_CRACKED': planks([(1, 6)], cracked=True), 'PLANK_BROKEN': planks(broken=True),
+        'PLANK_SHADE_TOP': shaded, 'PLANK_SHADE_LEFT': shade(planks([(1, 11)])),
         'PLANK_SHADE_CORNER': floored(0x290, PLANK, shaded),
         'PLANK_EDGE_BOTTOM': floored(0x29F, PLANK, shaded), 'PLANK_EDGE_BOTTOM_LEFT': floored(0x352, PLANK, shaded),
     }
@@ -299,20 +344,28 @@ def compose(path_rows):
                       ('WALL_BL_FACE', 0x339), ('WALL_BR_FACE', 0x33A), ('WALL_BL_BASE', 0x341),
                       ('WALL_BR_BASE', 0x342), ('WALL_B_CAP', 0x2A2), ('WALL_B_FACE', 0x2AA), ('WALL_B_BASE', 0x2B2)):
         pics[name] = floored(mid, PLANK, shaded)
-    # Trees and grass through the floor
-    grass_colors |= {GRASS_SPECK}
+    # Trees grown up through the floor. A column of trees, top to bottom (as the overworld stacks them): the crown's
+    # tip, then per tree its body and either the next tree's tip over its foot (between) or, for the last, its foot
+    # with the trunk on the boards. Their grass becomes the boards around them; _SH: on the boards in a wall's shadow
+    # (the left wall's column and the row under the top wall), so the shadow runs on behind the trees.
     trunk_colors = {c for c in colors(general(0x024), general(0x025)) - grass_colors if c[0] >= c[1]}
-    # A column of trees, top to bottom (as the overworld stacks them): the crown's tip, then per tree its body and
-    # either the next tree's tip over its foot (between) or, for the last, its foot with the trunk on the boards
     for name, mid in (('TREE_CROWN_L', 0x00E), ('TREE_CROWN_R', 0x00F), ('TREE_L', 0x01E), ('TREE_R', 0x01F),
                       ('TREE_BETWEEN_L', 0x016), ('TREE_BETWEEN_R', 0x017), ('TREE_FOOT_L', 0x024),
                       ('TREE_FOOT_R', 0x025)):
-        pic = swap(swap(general(mid), grass_colors, PLANK), {GRASS_SHADOW}, shaded)
-        if 'FOOT' in name:
-            pic = roots(pic, trunk_colors)
-        pics[name] = pic
-    pics['TALL_GRASS'] = swap(swap(general(0x00D), grass_colors, planks(8)), {GRASS_SHADOW}, shade(planks(8)))
-    pics['LADDER_UP_TOP'], pics['LADDER_UP'] = ladder_up(PLANK, planks(2))
+        for suffix, floor in (('', PLANK), ('_SH', shaded)):
+            if suffix and name in ('TREE_R', 'TREE_BETWEEN_R', 'TREE_FOOT_R'):
+                continue
+            pic = swap(swap(general(mid), grass_colors, floor), {GRASS_SHADOW}, shade(floor))
+            if 'FOOT' in name:
+                pic = roots(pic, trunk_colors)
+            pics[name + suffix] = pic
+    # The field: the overworld's tall grass in the soil where the boards are gone, and lone tufts in the gaps of
+    # single broken boards
+    grass = general(0x00D)
+    for name, sides in FIELD_PARTS.items():
+        pics[name] = field(grass, PLANK, sides)
+    pics['TUFT'] = field(grass, PLANK, 'NSWE', inset=1)
+    pics['LADDER_UP_TOP'], pics['LADDER_UP'] = ladder_up(PLANK, PLANK)
     pics['LADDER_DOWN'] = hatch(shaded)
     for i, pic in enumerate(tablet(path_rows)):
         pics['TABLET_%d' % i] = pic
@@ -391,7 +444,7 @@ def build(path_rows):
 
 
 def behavior(name):
-    if name == 'TALL_GRASS':
+    if name.startswith('FIELD') or name == 'TUFT':
         return MB_TALL_GRASS
     if name in ('LADDER_UP', 'LADDER_DOWN'):
         return MB_LADDER

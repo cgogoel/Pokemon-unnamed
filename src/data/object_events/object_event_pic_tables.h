@@ -820,6 +820,10 @@ static const struct SpriteFrameImage sPicTable_DockFire[] = {
     obj_frame_tiles(gObjectEventPic_DockFire),
 };
 
+static const struct SpriteFrameImage sPicTable_Medkit[] = {
+    obj_frame_tiles(gObjectEventPic_Medkit),
+};
+
 static const struct SpriteFrameImage sPicTable_GlowcapDim[] = {
     obj_frame_tiles(gObjectEventPic_GlowcapDim),
 };

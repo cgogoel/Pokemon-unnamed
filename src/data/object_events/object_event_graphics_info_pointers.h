@@ -174,6 +174,7 @@ extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_BallCushion
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_GrassCushion;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_FireCushion;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_DockFire;
+extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_Medkit;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_GlowcapDim;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_GlowcapLit;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_MoonveilBud;
@@ -746,6 +747,7 @@ const struct ObjectEventGraphicsInfo *const gObjectEventGraphicsInfoPointers[NUM
     [OBJ_EVENT_GFX_CUTTABLE_TREE_FRLG]       = &gObjectEventGraphicsInfo_CuttableTreeFrlg,
     [OBJ_EVENT_GFX_BREAKABLE_ROCK_FRLG]      = &gObjectEventGraphicsInfo_BreakableRockFrlg,
     [OBJ_EVENT_GFX_DOCK_FIRE]                = &gObjectEventGraphicsInfo_DockFire,
+    [OBJ_EVENT_GFX_MEDKIT]                       = &gObjectEventGraphicsInfo_Medkit,
     [OBJ_EVENT_GFX_GLOWCAP_DIM]                  = &gObjectEventGraphicsInfo_GlowcapDim,
     [OBJ_EVENT_GFX_GLOWCAP_LIT]                  = &gObjectEventGraphicsInfo_GlowcapLit,
     [OBJ_EVENT_GFX_MOONVEIL_BUD]                 = &gObjectEventGraphicsInfo_MoonveilBud,

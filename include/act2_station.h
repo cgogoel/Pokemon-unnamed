@@ -6,12 +6,14 @@
 // Its custom metatiles (tools/hack/draw_station_tiles.py)
 #define METATILE_RangerStation_TorchUnlit   0x384 // gTileset_PokemonMansion
 #define METATILE_RangerStation_TorchLit     0x385
-#define METATILE_RangerStation_Bars         0x388
+#define METATILE_RangerStation_RailBack     0x388 // The railing round the stair down (0x38B-0x392 the rest)
 #define METATILE_RangerStation_Stone        0x306 // gTileset_CeruleanCave
 
 // Engine hooks
 bool32 Act2Station_CanJumpGap(enum Direction direction);
 bool32 Act2Station_TryOvergrowthStep(void);
+bool32 Act2Station_IsFollowerGap(s16 x, s16 y);
+u32 Act2Station_GetFloodFlashLevel(void);
 
 // Specials
 void Act2Station_DrawFloor(void);

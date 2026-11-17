@@ -796,8 +796,7 @@
     "RangerStation_1F",
     "RangerStation_B1F",
     "RangerStation_B2F",
-    "RangerStation_B3F",
-    "RangerStation_B4F"
+    "RangerStation_B3F"
   ],
   "gMapGroup_SpecialArea_Frlg": [
     "NavelRock_Exterior_Frlg",
@@ -936,7 +935,8 @@
     "PalletTown_ProfessorOaksLab_Frlg",
     "PalletTown_PlayersHouse_1F_Frlg_Farm",
     "PalletTown_PlayersHouse_2F_Frlg_Farm",
-    "PalletTown_Farm_Barn"
+    "PalletTown_Farm_Barn",
+    "RangerStation_B4F"
   ],
   "gMapGroup_IndoorViridian_Frlg": [
     "ViridianCity_House_Frlg",

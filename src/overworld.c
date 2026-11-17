@@ -4,6 +4,7 @@
 #include "game_time.h"
 #include "act2_night_bloom.h"
 #include "act2_road.h"
+#include "act2_station.h"
 #include "overworld.h"
 #include "battle_pyramid.h"
 #include "battle_setup.h"
@@ -1118,6 +1119,8 @@ void SetDefaultFlashLevel(void)
 {
     // The hack: Viridian Forest on the Grass trip's night (src/act2_night_bloom.c)
     u32 nightLevel = Act2_GetNightForestFlashLevel();
+    if (nightLevel == 0)
+        nightLevel = Act2Station_GetFloodFlashLevel(); // The ranger station's flooded B2F (src/act2_station.c)
     if (nightLevel != 0)
         gSaveBlock1Ptr->flashLevel = nightLevel;
     else if (!gMapHeader.cave)

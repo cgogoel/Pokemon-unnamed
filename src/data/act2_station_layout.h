@@ -3,6 +3,8 @@
 // 1F: the counter that slides away from the stair down
 #define STATION_1F_COUNTER_X 4
 #define STATION_1F_COUNTER_Y 8
+#define STATION_1F_SWITCH_X 6
+#define STATION_1F_SWITCH_Y 1
 
 // B1F: the torches at 1 to 12 o'clock, then the moon and sun furnaces (VAR_ACT2_CLOCK's bits)
 static const s8 sClockPieces[][2] = {

@@ -83,7 +83,7 @@ RangerStation_B1F_EventScript_Release:
 	end
 
 @ Five explorers' notes, one hint each (no two hint at the same thing): night; morning, not evening; before six;
-@ a quarter past; four o'clock. Together: 4:15 a.m.
+@ the long hand pointing east (a quarter past); four o'clock. Together: 4:15 a.m.
 RangerStation_B1F_EventScript_Note1::
 	msgbox RangerStation_B1F_Text_Note1, MSGBOX_SIGN
 	end
@@ -163,9 +163,9 @@ RangerStation_B1F_Text_Note3:
 
 RangerStation_B1F_Text_Note4:
 	.string "A page of a pocket diary…\p"
-	.string "“I checked my watch at the door.\n"
-	.string "The long hand had gone a quarter\l"
-	.string "of the way round.”\p"
+	.string "“I held my watch up to the map\n"
+	.string "at the door. Its long hand lay\l"
+	.string "flat, pointing due east.”\p"
 	.string "“Then the door shut behind me.\n"
 	.string "Why do I write these things?\l"
 	.string "-LEX”$"

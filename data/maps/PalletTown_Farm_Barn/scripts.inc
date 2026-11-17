@@ -6,6 +6,7 @@ PalletTown_Farm_Barn_MapScripts::
 
 @ From the morning after Jangmo-o, Dad is in the house (FLAG_TEMP_1 hides him here)
 Barn_OnTransition:
+	call Farmyard_EventScript_HomeNoFollower
 	call_if_ge VAR_ACT1_PROGRESS, ACT1_RESTED, Barn_EventScript_HideDad
 	end
 

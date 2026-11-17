@@ -20,6 +20,23 @@ Farmyard_OnTransition:
 @ Special_ShowPartyFarmFamily also puts the follower away for the length of the visit - see src/farmyard.c.
 Farmyard_EventScript_FamilyOut:
 	special Special_ShowPartyFarmFamily
+	goto_if_eq VAR_RESULT, 0, Farmyard_EventScript_FamilyOutEnd
+	@ Arriving by warp (the farmhouse, the barn, the Woods) they're already out playing as the player steps in, so
+	@ there's nothing to announce at the Woods gate. Coming from PALLET TOWN they run out at the gate, which is the
+	@ moment the greeting is for: the connection puts the player on the right edge (x 23).
+	getplayerxy VAR_0x8004, VAR_0x8005
+	goto_if_ge VAR_0x8004, 22, Farmyard_EventScript_FamilyOutEnd
+	setvar VAR_TEMP_8, 1
+Farmyard_EventScript_FamilyOutEnd:
+	return
+
+@ Acts 2 and 3: the farmhouse and the barn are home too, and the player's Pokémon are out in the yard, so none
+@ follows them indoors either (FLAG_TEMP_HIDE_FOLLOWER clears itself on the next map). Called from their
+@ ON_TRANSITION scripts.
+Farmyard_EventScript_HomeNoFollower::
+	goto_if_lt VAR_STORY_ACT, STORY_ACT_UNIVERSITY, Farmyard_EventScript_HomeNoFollowerEnd
+	setflag FLAG_TEMP_HIDE_FOLLOWER
+Farmyard_EventScript_HomeNoFollowerEnd:
 	return
 
 @ While the player chooses their two friends, Mom, Dad and Oak wait in the farmyard

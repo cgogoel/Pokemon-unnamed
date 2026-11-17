@@ -63,6 +63,7 @@ F1_DOOR = (5, 9)          # The exit mats, (5..7, 9)
 F1_COUNTER = (4, 8)       # The left counter's bottom end; with (4, 9) below it, slides away (ACT2_FINALE_BASEMENT_OPEN)
 F1_SWITCH = (6, 1)        # The switch panel on the wall (a bg_event, faced from (6, 2))
 GB2_BOX = 0x338           # A box on the floor (draw_station_tiles.py adds it to the generic building tileset)
+GB2_SWITCH = 0x339        # The wall switch, its lever up (0x33A pulled: Act2Station_DrawFloor), draw_station_tiles.py
 
 
 def compose_1f():
@@ -95,7 +96,7 @@ def compose_1f():
     for xy in ((0, 8), (0, 9), (1, 9), (10, 8), (10, 9), (7, 2)):
         g[xy] = blk(GB2_BOX, True)
     # The switch panel on the wall above the middle
-    g[F1_SWITCH] = blk(0x2DC, True, 0)
+    g[F1_SWITCH] = blk(GB2_SWITCH, True, 0)
     return g
 
 
@@ -117,7 +118,11 @@ B1_FURNACE_SUN = (14, 2)
 B1_GATE = [(9, 12), (10, 12), (11, 12)]
 B1_STAIRS_DOWN = (11, 9)  # MB_DOWN_LEFT_STAIR_WARP
 B1_STAIRS_UP = (17, 17)   # MB_UP_RIGHT_STAIR_WARP
-TORCH_UNLIT, TORCH_LIT, MOON, SUN, BARS = 0x384, 0x385, 0x386, 0x387, 0x388
+TORCH_UNLIT, TORCH_LIT, MOON, SUN = 0x384, 0x385, 0x386, 0x387
+# The railing round the stair down (draw_station_tiles.py): back, sides, corners, and the gate at the front
+RAIL_BACK, RAIL_LEFT, RAIL_RIGHT = 0x388, 0x38B, 0x38C
+RAIL_BACK_LEFT, RAIL_BACK_RIGHT, RAIL_FRONT_LEFT, RAIL_FRONT_RIGHT = 0x38D, 0x38E, 0x38F, 0x390
+RAIL_GATE, RAIL_GATE_LOCK = 0x391, 0x392
 FURNACE_COLD, FURNACE_LIT = 0x382, 0x383
 BASEMENT_FLOOR = 0x286
 STAIR_WARP_BASEMENT, STAIR_SIDE_BASEMENT = 0x389, 0x38A  # Mansion 1F's 0x2D2 and 0x2DA on the basement floor
@@ -152,9 +157,17 @@ def compose_b1f():
         g[xy] = blk(TORCH_UNLIT, True)
     # The caged stair down in the middle (Pokémon Mansion 1F's stair down)
     cx, cy = B1_CENTER
-    for x in range(cx - 2, cx + 3):
-        for y in range(cy - 2, cy + 3):
-            g[x, y] = blk(BARS, True)
+    # The back rail stands a square behind the stair (a step of floor between them), not right against its top
+    x0, x1, y0, y1 = cx - 2, cx + 2, cy - 3, cy + 2
+    for x in range(x0 + 1, x1):
+        g[x, y0 + 1] = blk(BASEMENT_FLOOR)
+    for x in range(x0 + 1, x1):
+        g[x, y0] = blk(RAIL_BACK, True)
+        g[x, y1] = blk(RAIL_GATE_LOCK if x == cx else RAIL_GATE, True)
+    for y in range(y0 + 1, y1):
+        g[x0, y], g[x1, y] = blk(RAIL_LEFT, True), blk(RAIL_RIGHT, True)
+    g[x0, y0], g[x1, y0] = blk(RAIL_BACK_LEFT, True), blk(RAIL_BACK_RIGHT, True)
+    g[x0, y1], g[x1, y1] = blk(RAIL_FRONT_LEFT, True), blk(RAIL_FRONT_RIGHT, True)
     mansion_1f = load('LAYOUT_POKEMON_MANSION_1F')
     g.copy_from(mansion_1f, 23, 27, 3, 2, cx - 1, cy - 1)
     g[cx + 1, cy - 1], g[cx + 1, cy] = blk(STAIR_WARP_BASEMENT), blk(STAIR_SIDE_BASEMENT)
@@ -210,7 +223,8 @@ def edge_water(g):
 
 
 # B2F: stones on a lattice two squares apart (a jump over one square of water). Rows of the lattice, top to bottom:
-# x a stone, S where the start platform reaches it, E the end platform. Exactly five dead ends.
+# x a stone, S where the start platform reaches it, E the end platform's jetty (floor, so the bank along the landing
+# runs round it rather than breaking at a stone against it). Exactly five dead ends.
 B2_LATTICE = [
     'xxxx.xxE',
     'x.x..x..',
@@ -239,7 +253,7 @@ def compose_b2f():
     for j, row in enumerate(B2_LATTICE):
         for i, c in enumerate(row):
             if c != '.':
-                g[ox + 2 * i, oy + 2 * j] = blk(STONE)
+                g[ox + 2 * i, oy + 2 * j] = blk(CAVE_FLOOR if c == 'E' else STONE)
     g[B2_LADDER_UP[0], B2_LADDER_UP[1] - 1] = blk(LADDER_UP_TOP, True)
     g[B2_LADDER_UP] = blk(LADDER_UP)
     g[B2_LADDER_DOWN] = blk(LADDER_DOWN)
@@ -275,7 +289,7 @@ def b2f_dead_ends(g):
     assert B2_LADDER_DOWN in seen, 'B2F: the far end is out of reach'
     ends = []
     for p in sorted(seen, key=lambda p: (p[1], p[0])):
-        if (g[p] & 0x3FF) != STONE:
+        if (g[p] & 0x3FF) not in (STONE,):
             continue
         ways = list(moves(*p))
         if len(ways) == 1:
@@ -368,18 +382,23 @@ def compose_b3f():
     def tree_column(x0, y0, trees):
         rows = ['TREE_CROWN'] + [p for i in range(trees) for p in ('TREE', 'TREE_BETWEEN' if i < trees - 1 else 'TREE_FOOT')]
         for k, part in enumerate(rows):
-            g[x0, y0 + k] = blk(G[part + '_L'], True)
-            g[x0 + 1, y0 + k] = blk(G[part + '_R'], True)
+            # In the walls' shadow (the left wall's column, the row under the top wall) the boards behind are shaded
+            for dx, side in ((0, '_L'), (1, '_R')):
+                x, y = x0 + dx, y0 + k
+                shaded = (x == 1 or y == 3) and part + side + '_SH' in G
+                g[x, y] = blk(G[part + side + ('_SH' if shaded else '')], True)
     assert (fy + B3_SIZE - 3) % 2 == 1
     for x0 in (1, W - 3):
         tree_column(x0, 3, (fy + B3_SIZE - 3) // 2)
     tree_column(1, H - 7, 1)  # A lone tree by the entrance
     for xy in ((9, 16), (10, 16), (2, 15), (13, 15), (11, 19 - 4 + 3), (4, 18)):
-        g[xy] = blk(G['TALL_GRASS'])
-    # The field
+        g[xy] = blk(G['TUFT'])
+    # The field: soil and grass where the boards are gone, its edge pieces the boards' broken ends
+    last = B3_SIZE - 1
     for y in range(B3_SIZE):
         for x in range(B3_SIZE):
-            g[fx + x, fy + y] = blk(G['TALL_GRASS'])
+            side = ('N' if y == 0 else 'S' if y == last else '') + ('W' if x == 0 else 'E' if x == last else '')
+            g[fx + x, fy + y] = blk(G['FIELD_' + side if side else 'FIELD'])
     # The tablet, the ladders
     tx, ty = B3_TABLET
     for i in range(9):
@@ -425,10 +444,8 @@ def compose_b4f():
             g[x, 9 + B4_EXTRA_ROWS + k] = blk(0x281) if (b & 0x3FF) in (0x303, 0x300, 0x2FC, 0x301, 0x305, 0x304) else b
     g[B4_LADDER_UP[0], B4_LADDER_UP[1] - 1] = blk(0x362, True)  # The ladder top on the floor (draw_station_tiles.py)
     g[B4_LADDER_UP] = blk(0x297)
-    # Underground: darkness all round the chamber, not Mt. Ember's sunny mountainside
-    for i, b in enumerate(g.cells):
-        if (b & 0x3FF) == 0x291:
-            g.cells[i] = blk(0x000, True, 0)
+    # All round the chamber is Mt. Ember's rock (0x291), seen from above, as in the original room: the rims along
+    # the walls' feet (0x289) are its edge, so blacking it out would leave them floating over nothing
     return g
 
 
@@ -438,7 +455,7 @@ LAYOUTS = [
     ('LAYOUT_RANGER_STATION_B1F', 'RangerStation_B1F', 'gTileset_BuildingFrlg', 'gTileset_PokemonMansion', 0x008, True),
     ('LAYOUT_RANGER_STATION_B2F', 'RangerStation_B2F', 'gTileset_General_Frlg', 'gTileset_CeruleanCave', 0x291, True),
     ('LAYOUT_RANGER_STATION_B3F', 'RangerStation_B3F', 'gTileset_BuildingFrlg', 'gTileset_RangerStationGrove', 0x008, True),
-    ('LAYOUT_RANGER_STATION_B4F', 'RangerStation_B4F', 'gTileset_General_Frlg', 'gTileset_MtEmber', 0x000, True),
+    ('LAYOUT_RANGER_STATION_B4F', 'RangerStation_B4F', 'gTileset_General_Frlg', 'gTileset_MtEmber', 0x291, True),
 ]
 
 
@@ -473,6 +490,8 @@ def write_header(b2_ends):
         '// 1F: the counter that slides away from the stair down',
         '#define STATION_1F_COUNTER_X %d' % F1_COUNTER[0],
         '#define STATION_1F_COUNTER_Y %d' % F1_COUNTER[1],
+        '#define STATION_1F_SWITCH_X %d' % F1_SWITCH[0],
+        '#define STATION_1F_SWITCH_Y %d' % F1_SWITCH[1],
         '',
         '// B1F: the torches at 1 to 12 o\'clock, then the moon and sun furnaces (VAR_ACT2_CLOCK\'s bits)',
         'static const s8 sClockPieces[][2] = {',

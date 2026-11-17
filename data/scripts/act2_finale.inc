@@ -684,9 +684,9 @@ Act2_Text_ProfessorsMarvel:
 	.string "Congratulations, graduate!$"
 
 @ ---------------------------------------------------------------------------------------------------------------
-@ The chamber (RangerStation_B4F): coord events on row 12 in front of the trio (HEATRAN (5,6), SUICUNE (7,6),
-@ VIRIZION (9,6)). The player lines up at (7,11); the battle; then, in a flash, MEW (7,9) between them with DAD
-@ (6,10) and MOM (8,10).
+@ The chamber (RangerStation_B4F): coord events on row 10 in front of the trio (HEATRAN (5,6), SUICUNE (7,6),
+@ VIRIZION (9,6)). The player lines up at (7,9); the battle; then, in a flash, MEW (7,7) between them with DAD
+@ (6,8) and MOM (8,8).
 
 Act2_EventScript_ChamberScene::
 	lockall
@@ -774,19 +774,22 @@ Act2_Text_TrioCalmed:
 Act2_Text_ParentsInChamber:
 	.string "DAD: {PLAYER}! Are you hurt?\p"
 	.string "MOM: What were you thinking?!\n"
-	.string "Those three guard the WOODS.\l"
-	.string "They don't hold back!\p"
+	.string "You've known since you were a boy\l"
+	.string "to not come in here!\p"
 	.string "DAD: That was dangerous. If MEW\n"
 	.string "hadn't come…\p"
 	.string "{PLAYER}: …\p"
 	.string "……\p"
-	.string "MOM: MEW? Heh. You want to know\n"
-	.string "how we know MEW.\p"
-	.string "DAD: We met it in these very\n"
+	.string "MOM: MEW? Heh. You want to\n"
+	.string "know why it showed up.\p"
+	.string "DAD: Your mom and I met it in these very\n"
 	.string "WOODS, when we were young.\p"
-	.string "MOM: We befriended it together.\n"
-	.string "We never caught it.\p"
-	.string "DAD: It comes to visit us when\n"
-	.string "we need it. Like today.\p"
+	.string "MOM: It was drawn to the calm\n"
+	.string "and remote area. Like it was\l"
+	.string "hiding from something.\p"
+	.string "DAD: Since we were young it comes\n"
+	.string "to visit us when we need it. Like\l"
+	.string "when we needed comfort from the loss\l"
+	.string "of your brother. And now today.\p"
 	.string "MEW: Mew!\p"
 	.string "MOM: Come on, you. Let's go home.$"

@@ -1,7 +1,8 @@
 # Parents' speech at the end of Act 2: for editing
 
 Edit the lines below freely; I'll put them back into the script. Each `---` is a new text box (a button press). A
-box shows two lines, and a line holds about 18-20 characters (I'll rewrap and check the fit). `{PLAYER}` is the
+box shows two lines (a third or fourth scrolls up in the same box), and a line fits about 208 pixels, roughly 32-38
+characters (I'll measure and rewrap if needed). `{PLAYER}` is the
 player's name.
 
 Source: `data/scripts/act2_finale.inc`.
@@ -16,8 +17,8 @@ DAD: {PLAYER}! Are you hurt?
 ---
 
 MOM: What were you thinking?!
-Those three guard the WOODS.
-They don't hold back!
+You've known since you were a boy 
+to not come in here!
 
 ---
 
@@ -34,23 +35,26 @@ hadn't come…
 
 ---
 
-MOM: MEW? Heh. You want to know
-how we know MEW.
+MOM: MEW? Heh. You want to 
+know why it showed up.
 
 ---
 
-DAD: We met it in these very
+DAD: Your mom and I met it in these very
 WOODS, when we were young.
 
 ---
 
-MOM: We befriended it together.
-We never caught it.
+MOM: It was drawn to the calm
+and remote area. Like it was
+hiding from something.
 
 ---
 
-DAD: It comes to visit us when
-we need it. Like today.
+DAD: Since we were young it comes
+to visit us when we need it. Like
+when we needed comfort from the loss
+of your brother. And now today.
 
 ---
 

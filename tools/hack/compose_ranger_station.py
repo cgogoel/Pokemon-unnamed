@@ -185,10 +185,15 @@ def open_b1f_gate(g):
 # B2F and B3F: gTileset_General_Frlg + gTileset_CeruleanCave
 CAVE_FLOOR = 0x281
 WATER = 0x12B
-WATER_EDGES = {  # (wall/floor above, left, right) -> the pond water piece with banks on those sides
-    (False, False, False): 0x12B, (True, False, False): 0x123, (False, True, False): 0x12A,
-    (False, False, True): 0x12C, (True, True, False): 0x120, (True, False, True): 0x121,
-    (False, True, True): 0x12B, (True, True, True): 0x123,
+WATER_EDGES = {  # (rock/floor above, left, right, below) -> the pond water piece with banks on those sides
+    (False, False, False, False): 0x12B, (True, False, False, False): 0x123, (False, True, False, False): 0x12A,
+    (False, False, True, False): 0x12C, (True, True, False, False): 0x120, (True, False, True, False): 0x121,
+    (False, True, True, False): 0x12B, (True, True, True, False): 0x123,
+    # Banks below (FireRed's own turned upside down, draw_station_tiles.py)
+    (False, False, False, True): 0x308, (False, True, False, True): 0x309, (False, False, True, True): 0x30A,
+}
+WATER_NUBS = {  # Pond water with a bank's corner nub where floor touches it only diagonally
+    'TL': 0x131, 'TR': 0x130, 'BL': 0x30B, 'BR': 0x30C,
 }
 STONE = 0x306
 LADDER_UP_TOP, LADDER_UP, LADDER_DOWN = 0x307, 0x296, 0x285  # 0x307: the ladder top on the floor (draw_station_tiles.py)
@@ -209,7 +214,7 @@ def cave_room(w, h):
 
 
 def is_water(g, x, y):
-    return (g[x, y] & 0x3FF) in set(WATER_EDGES.values()) | {STONE}
+    return (g[x, y] & 0x3FF) in set(WATER_EDGES.values()) | set(WATER_NUBS.values()) | {STONE}
 
 
 def edge_water(g):
@@ -218,13 +223,25 @@ def edge_water(g):
         for x in range(g.w):
             if (g[x, y] & 0x3FF) != WATER:
                 continue
-            key = tuple(not is_water(g, x + dx, y + dy) for dx, dy in ((0, -1), (-1, 0), (1, 0)))
+            key = tuple(not is_water(g, x + dx, y + dy) for dx, dy in ((0, -1), (-1, 0), (1, 0))) + \
+                (not is_water(g, x, y + 1) and y + 1 < g.h - 1,)  # (The bottom wall has its own bank)
             g[x, y] = blk(WATER_EDGES[key], True, 1)
+    # Where floor touches open water only at a corner, the banks either side meet in a nub
+    for y in range(1, g.h - 1):
+        for x in range(1, g.w - 1):
+            if (g[x, y] & 0x3FF) != WATER:
+                continue
+            nubs = [name for name, (dx, dy) in (('TL', (-1, -1)), ('TR', (1, -1)), ('BL', (-1, 1)), ('BR', (1, 1)))
+                    if not is_water(g, x + dx, y + dy) and not g[x + dx, y + dy] & SOLID
+                    and is_water(g, x + dx, y) and is_water(g, x, y + dy)]
+            if nubs:
+                assert len(nubs) == 1, 'pond water at %s: nubs %s' % ((x, y), nubs)
+                g[x, y] = blk(WATER_NUBS[nubs[0]], True, 1)
 
 
 # B2F: stones on a lattice two squares apart (a jump over one square of water). Rows of the lattice, top to bottom:
-# x a stone, S where the start platform reaches it, E the end platform's jetty (floor, so the bank along the landing
-# runs round it rather than breaking at a stone against it). Exactly five dead ends.
+# x a stone; S and E jetties off the start and end platforms (floor, so the bank along a landing runs round them
+# rather than breaking at a stone against it). Exactly five dead ends.
 B2_LATTICE = [
     'xxxx.xxE',
     'x.x..x..',
@@ -253,7 +270,7 @@ def compose_b2f():
     for j, row in enumerate(B2_LATTICE):
         for i, c in enumerate(row):
             if c != '.':
-                g[ox + 2 * i, oy + 2 * j] = blk(CAVE_FLOOR if c == 'E' else STONE)
+                g[ox + 2 * i, oy + 2 * j] = blk(CAVE_FLOOR if c in 'ES' else STONE)
     g[B2_LADDER_UP[0], B2_LADDER_UP[1] - 1] = blk(LADDER_UP_TOP, True)
     g[B2_LADDER_UP] = blk(LADDER_UP)
     g[B2_LADDER_DOWN] = blk(LADDER_DOWN)
@@ -276,7 +293,7 @@ def b2f_dead_ends(g):
         for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
             if walkable(x + dx, y + dy):
                 yield (x + dx, y + dy), (dx, dy)
-            elif 0 <= x + dx < g.w and 0 <= y + dy < g.h and (g[x + dx, y + dy] & 0x3FF) in WATER_EDGES.values() \
+            elif 0 <= x + dx < g.w and 0 <= y + dy < g.h and (g[x + dx, y + dy] & 0x3FF) in set(WATER_EDGES.values()) | set(WATER_NUBS.values()) \
                     and walkable(x + 2 * dx, y + 2 * dy):
                 yield (x + 2 * dx, y + 2 * dy), (dx, dy)
     seen, todo = {B2_LADDER_UP}, [B2_LADDER_UP]
@@ -414,9 +431,9 @@ def compose_b3f():
 B4_EXTRA_ROWS = 5
 B4_LADDER_UP = (11, 13)    # Arrival from B3F
 B4_TRIO = {'HEATRAN': (5, 6), 'SUICUNE': (7, 6), 'VIRIZION': (9, 6)}
-B4_SCENE = {'MEW': (7, 9), 'DAD': (6, 10), 'MOM': (8, 10)}
-B4_TRIGGER_ROW = 12        # x 3-10
-B4_TRIGGER_X = range(3, 11)
+B4_SCENE = {'MEW': (7, 7), 'DAD': (6, 8), 'MOM': (8, 8)}   # The player lines up at (7, 9) below them
+B4_TRIGGER_ROW = 10        # x 3-11: close enough that the trio is on screen
+B4_TRIGGER_X = range(3, 12)
 
 
 def compose_b4f():

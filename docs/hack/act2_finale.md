@@ -234,10 +234,11 @@ start." and a warp to (3, 14). Reaching the row above the field sets `ACT2_FINAL
 **B4F: the chamber** (`MUS_RG_SEVII_DUNGEON`). Arriving heals the party, and a party of fewer than three is filled up from the PC (the farm box last; `Act2_FillChamberParty`), so the battle is always a 3v3. Mt. Ember's Ruby Path altar room, stretched, in darkness (no
 mountainside around it). Ladder up: warp 0 at
 (11, 13). Objects: HEATRAN (5, 6), SUICUNE (7, 6), VIRIZION (9, 6), facing down (`LOCALID_CHAMBER_HEATRAN` / `_SUICUNE` /
-`_VIRIZION`); hidden for the scene: MEW (7, 9) (`LOCALID_CHAMBER_MEW`, `FLAG_TEMP_2`), DAD (6, 10)
-(`LOCALID_CHAMBER_DAD`, `FLAG_TEMP_1`), MOM (8, 10) (`LOCALID_CHAMBER_MOM`, `FLAG_TEMP_3`), all facing up. Coord
-events on row y = 12, x 3-10 (`VAR_ACT2_PROGRESS` == 15, `ACT2_PARENTS_TALKED`) run
-`RangerStation_B4F_EventScript_Encounter` (a stub, for the story to fill in).
+`_VIRIZION`); hidden for the scene: MEW (7, 7) (`LOCALID_CHAMBER_MEW`, `FLAG_TEMP_2`), DAD (6, 8)
+(`LOCALID_CHAMBER_DAD`, `FLAG_TEMP_1`), MOM (8, 8) (`LOCALID_CHAMBER_MOM`, `FLAG_TEMP_3`). Coord events on row
+y = 10, x 3-11 (`VAR_ACT2_PROGRESS` == 15, `ACT2_PARENTS_TALKED`; close enough that the trio is on screen) run
+`RangerStation_B4F_EventScript_Encounter` (`Act2_EventScript_ChamberScene`): the player lines up at x 7 and steps
+up to (7, 9), just below where Mew and the parents appear after the battle.
 
 Heatran, Suicune and Virizion (Lv. 50), a 3v3. The player acts once; then all three attack
 together (Fire, Water and Grass, 120 power each, one animation). The battle cuts out: Mom and Dad are there, and

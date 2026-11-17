@@ -44,36 +44,55 @@ MANSION_TILE_ROWS = 23    # The tileset's own 22 rows and the furnaces' row
 MANSION_PAL = 9
 KEYS = '.KdilbrpoROYWmax'  # Palette 09 (draw_mansion_furnace.PALETTE), x = white
 
-# A standing iron brazier drawn like FireRed's objects: a dark outline, iron rounded with a lit left side (and a white
-# glint on the rim) and a shaded right, coals and ash in the bowl, a stem and a foot. Lit, flames rise out of the
-# bowl and the coals glow (only the top two tiles change, so the flames can flicker).
+# A standing iron brazier drawn like FireRed's objects, seen from above at an angle: a rim round a mouth full of coals
+# and ash (its far inner wall in shadow), the lip's dark underside, a riveted band, a rounded bowl, a knob and a foot,
+# all with a dark outline and lit from the upper left (white glints on the rim, a rivet and the knob). Its foot ends
+# two rows short of the tile's bottom so its shadow (torch_shadow, on the floor layer) shows below it. Lit, flames
+# rise out of the mouth over the far rim, the coals burn white-hot and the near rim takes the firelight; only the top
+# two tiles change, and the flames flicker (TORCH_FLICKER_BOX).
 TORCH_UNLIT = [
     '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '...KKKKKKKKKK...',
-    '..KlaoaooaoaiK..',
-    '.KxlllllllliidK.',
-    '.KlliiiiiiiiddK.',
-    '..KliiiiiiiddK..',
-    '...KliiiiiddK...',
-    '....KKliidKK....',
-    '.....KliidK.....',
-    '.....KliidK.....',
+    '....KKKKKKKK....',
+    '..KKlliiiiddKK..',
+    '.KlKddddddddKdK.',
+    '.KxomoaoomaaodK.',
+    '.KllaoomoamoidK.',
+    '.KxllllllliiddK.',
+    '..KddddddddddK..',
+    '..KdxddlddiddK..',
     '...KlliiiiddK...',
-    '...KKKKKKKKKK...',
+    '....KKliidKK....',
+    '...KKxliiddKK...',
+    '..KllliiiidddK..',
+    '..KKKKKKKKKKKK..',
+    '................',
+    '................',
 ]
 TORCH_LIT = [
-    '.......R........',
-    '......RO..R.....',
-    '....R.ROR.OR....',
-    '....ROROYROR....',
-    '...ROYOYWYYOR...',
-    '...KOYWWWWYOK...',
-    '..KlYWWWWWWYiK..',
+    '......R...R.....',
+    '....KRORKROK....',
+    '..KKROYORYORKK..',
+    '.KlKOYWOYWYOKdK.',
+    '.KxOYWWYWWYYOdK.',
+    '.KlpOYWWWWYOpdK.',
+    '.KxlpppppppiddK.',
 ] + TORCH_UNLIT[7:]
+TORCH_FLICKER_BOX = (2, 0, 13, 4)
+
+
+def torch_shadow(lit_floor, shaded_floor):
+    """The floor layer's bottom two tiles under the torch: the floor darkened in a flat oval round the foot, a little
+    to the right (the light comes from the upper left). Its rim takes the Mansion's own wall-shaded floor; its core is
+    a step darker again (the floor palette's next shade down)."""
+    darker = {lit: shaded for lit_row, shaded_row in zip(lit_floor, shaded_floor) for lit, shaded in zip(lit_row, shaded_row)}
+    pic = [[lit_floor[y % 8][x % 8] for x in range(16)] for y in range(8, 16)]
+    for y in range(8, 16):
+        for x in range(16):
+            d = ((x - 8.6) / 6.5) ** 2 + ((y - 13.6) / 1.3) ** 2
+            if d < 1:
+                c = darker[lit_floor[y % 8][x % 8]]
+                pic[y - 8][x] = darker.get(c, c - 1) if d < 0.45 else c
+    return [[row[x0:x0 + 8] for row in pic] for x0 in (0, 8)]
 # The cage around B1F's stair down: an iron railing, light from the upper left like the rest of FireRed. Each piece
 # is a 16x16 picture on the basement floor; the pictures are cut into 8x8 tiles and repeats (and mirror images) are
 # shared, so the whole railing fits in the 12 tiles the tileset has left.
@@ -245,6 +264,7 @@ MB_NORMAL = 0x00
 
 HFLIP = 1 << 10
 RAILING_SLOTS = list(range(358, 368)) + [382, 383]  # Free tiles: the furnaces' row after its six, this row's last two
+SHADOW_SLOTS = (131, 132)                            # Free tiles (blank, unused) for the torch's shadow
 BLANK_TILE = 0                                       # The primary tileset's first tile is empty
 
 
@@ -274,6 +294,15 @@ def cut_tiles(pictures, slots):
     return tiles, entries
 
 
+def secondary_tile(folder, entry):
+    """The 8x8 pixels (palette indices) of a metatile entry's tile in this secondary tileset (no flips)."""
+    assert entry & 0xC00 == 0 and (entry & 0x3FF) >= PRIMARY_TILES, hex(entry)
+    n = (entry & 0x3FF) - PRIMARY_TILES
+    width, rows, _ = read_png(os.path.join(folder, 'tiles.png'))
+    per_row = width // 8
+    return [rows[(n // per_row) * 8 + y][(n % per_row) * 8:(n % per_row) * 8 + 8] for y in range(8)]
+
+
 def put_tiles(folder, slots, tiles):
     png = os.path.join(folder, 'tiles.png')
     width, rows, plte = read_png(png)
@@ -291,8 +320,11 @@ def draw_mansion():
     first = add_tile_row(MANSION, MANSION_TILE_ROWS, unlit + lit[:2] + moon + sun)
     railing_tiles, railing = cut_tiles(railing_pieces(), RAILING_SLOTS)
     put_tiles(MANSION, RAILING_SLOTS, railing_tiles)
+    # The torch's shadow on the floor (floor tile 0x2B9, its wall-shaded version 0x2A9; both palette 12)
+    lit_floor, shaded_floor = (secondary_tile(MANSION, layers_of(MANSION, m)[0]) for m in (0x286, 0x287))
+    put_tiles(MANSION, SHADOW_SLOTS, torch_shadow(lit_floor, shaded_floor))
     # The lit torch's flames flicker (its top two tiles, animated by InitTilesetAnim_PokemonMansion)
-    flames = furnace.flicker_frames(TORCH_LIT, 'ROYW', '.', (1, 0, 14, 6))
+    flames = furnace.flicker_frames(TORCH_LIT, 'ROYW', '.', TORCH_FLICKER_BOX)
     furnace.write_anim_frames(os.path.join(MANSION, 'anim/torch'), [furnace.tiles_of(f, 0, 1) for f in flames],
                               KEYS, furnace.PALETTE)
 
@@ -311,11 +343,12 @@ def draw_mansion():
                 out.append((PRIMARY_TILES + RAILING_SLOTS[n]) | (MANSION_PAL << 12) | (HFLIP if flip != mirror else 0))
         return out
     floor = layers_of(MANSION, 0x286)[:4]       # The basement floor
+    shadowed = floor[:2] + [(PRIMARY_TILES + n) | (floor[2] & 0xF000) for n in SHADOW_SLOTS]
     wall = layers_of(MANSION, 0x2AA)[4:]        # The wall's face (drawn on its top layer)
     rail, side, corner, front, gate, lock = railing
     add_metatiles(MANSION, MANSION_METATILES, [
-        floor + top(0, 1, 2, 3),                 # 0x384 torch, unlit
-        floor + top(4, 5, 2, 3),                 # 0x385 torch, lit
+        shadowed + top(0, 1, 2, 3),              # 0x384 torch, unlit
+        shadowed + top(4, 5, 2, 3),              # 0x385 torch, lit
         wall + top(6, 7, 8, 9),                  # 0x386 moon
         wall + top(10, 11, 12, 13),              # 0x387 sun
         floor + piece(rail),                     # 0x388 railing, the back
@@ -376,6 +409,29 @@ def stepping_stone():
     return [''.join(r) for r in art]
 
 
+GENERAL = os.path.join(ROOT, 'data/tilesets/primary/general_frlg')
+POND_BANK_PAL = 1            # The primary's palette for the pond's banks (their tiles lie over the water)
+POND_SHADE_PAL = 6           # The pond water's palette in the banks' shadow
+VFLIP = 1 << 11
+
+
+def bank_upside_down(metatile_id):
+    """A pond bank piece of the primary turned upside down (its banks above become banks below): its bank tiles
+    flipped and swapped top to bottom, the water's shaded quarters swapped with them. The water's own tiles stay
+    the right way up (they're animated)."""
+    data = open(os.path.join(GENERAL, 'metatiles.bin'), 'rb').read()
+    layers = struct.unpack('<8H', data[metatile_id * 16:metatile_id * 16 + 16])
+    order = (2, 3, 0, 1)
+    water = [(POND_WATER[k] | (layers[order[k]] & 0xF000)) for k in range(4)]
+    banks = [layers[4 + order[k]] ^ VFLIP if layers[4 + order[k]] & 0x3FF else 0 for k in range(4)]
+    return water + banks
+
+
+def primary_attr(metatile_id):
+    data = open(os.path.join(GENERAL, 'metatile_attributes.bin'), 'rb').read()
+    return struct.unpack('<I', data[metatile_id * 4:metatile_id * 4 + 4])[0]
+
+
 def draw_cave():
     stone = quads(stepping_stone(), '012345' + '6789abcde' + 'f')
     first = add_tile_row(CAVE, CAVE_TILE_ROWS, stone)
@@ -386,7 +442,12 @@ def draw_cave():
     # The ladder up's top half standing on the chamber's floor, not on a scrap of the rock it leans on elsewhere
     add_metatiles(CAVE, CAVE_METATILES + 1, [layers_of(CAVE, 0x281)[:4] + layers_of(CAVE, 0x28E)[4:]],
                   attr_of(CAVE, 0x28E))
-    print('Cerulean Cave: stepping stone 0x306, ladder top on the floor 0x307')
+    # The pond's banks where the water has floor below it: FireRed's banks above, turned upside down (0x123 along
+    # the top, 0x120/0x121 its corners, 0x130/0x131 the nubs where two banks meet round a diagonal)
+    add_metatiles(CAVE, CAVE_METATILES + 2, [bank_upside_down(m) for m in (0x123, 0x120, 0x121, 0x131, 0x130)],
+                  primary_attr(0x12B))
+    print('Cerulean Cave: stepping stone 0x306, ladder top on the floor 0x307, pond banks below 0x308 (along), '
+          '0x309/0x30A (corners: left, right), 0x30B/0x30C (nubs: bottom left, bottom right)')
 
 
 def attr_of(folder, metatile_id):

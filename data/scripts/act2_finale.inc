@@ -633,7 +633,8 @@ Act2_Text_HomeFriend:
 
 Act2_Text_MomFriendsHere:
 	.string "MOM: {PLAYER}! Your friends are\n"
-	.string "here! Go on up!$"
+	.string "here! …\l"
+	.string "You all can go on up.$"
 
 Act2_Text_FriendsVisit:
 	.string "KAI: {PLAYER}! We came all\n"
@@ -643,13 +644,19 @@ Act2_Text_FriendsVisit:
 	.string "ROWAN: You look like you saw\n"
 	.string "a ghost. What happened?\p"
 	.string "{PLAYER}: …\p"
-	.string "FIRE, WATER and GRASS…\n"
-	.string "all at the same time…$"
+	.string "ROWAN: So you saw three legendary\n"
+	.string "POKéMON??\p"
+	.string "MINA: And they attacked you?!\p"
+	.string "KAI: AWESOME!\p"
+	.string "ROWAN: KAI…\n"
+	.string "So a FIRE, WATER, and GRASS attack\l"
+	.string "all at the same time huh… wow$"
 
 Act2_Text_Epiphany:
 	.string "{PLAYER}: …!\p"
-	.string "Come back to the lab with me!\p"
-	.string "KAI: Huh? Wait up!$"
+	.string "KAI: You want us to go all the\n"
+	.string "way back to the lab? Now??\p"
+	.string "ROWAN: Huh? Wait up!$"
 
 Act2_Text_LabWorking:
 	.string "{PLAYER} worked through the night…$"
@@ -662,31 +669,37 @@ Act2_Text_MadeTriBlast:
 
 Act2_Text_FriendsReactTriBlast:
 	.string "KAI: TRI-BLAST?\p"
-	.string "{PLAYER}: FIRE, WATER and GRASS\n"
-	.string "in one move. 120 power.\p"
-	.string "MINA: All three at once… So\n"
-	.string "anything weak to one of them…\p"
-	.string "ROWAN: …takes super-effective\n"
-	.string "damage. And nothing resists it!\p"
+	.string "ROWAN: FIRE, WATER and GRASS\n"
+	.string "in one attack.\p"
+	.string "MINA: All three at once… woven\n"
+	.string "together…\p"
+	.string "ROWAN: …the target takes\n"
+	.string "super-effective damage without normal\l"
+	.string "type resistance\p"
 	.string "KAI: No way. That's amazing!$"
 
 Act2_Text_ProfessorsMarvel:
 	.string "PROF. ASHFORD: What's all the\n"
 	.string "noise in here? Is that…\p"
-	.string "PROF. MARLOWE: FIRE, WATER and\n"
-	.string "GRASS in a single move.\l"
-	.string "In all my years…\p"
+	.string "PROF. MARLOWE: A new TM???\n"
+	.string "FIRE, WATER and GRASS in a single\l"
+	.string "move. In all my years…\p"
 	.string "PROF. FERN: All three courses in\n"
-	.string "one TM. You really listened.\p"
+	.string "one TM. You really listened,\l"
+	.string "and then some.\p"
 	.string "PROF. ASHFORD: {PLAYER}, this\n"
 	.string "isn't just a passing grade.\l"
 	.string "It's a discovery.\p"
-	.string "Congratulations, graduate!$"
+	.string "Congratulations, graduate! Go\n"
+	.string "celebrate with your friends. Then\l"
+	.string "cancel your plans for the next week.\l"
+	.string "You've got some writing to do, we're\l"
+	.string "getting this published!$"
 
 @ ---------------------------------------------------------------------------------------------------------------
-@ The chamber (RangerStation_B4F): coord events on row 12 in front of the trio (HEATRAN (5,6), SUICUNE (7,6),
-@ VIRIZION (9,6)). The player lines up at (7,11); the battle; then, in a flash, MEW (7,9) between them with DAD
-@ (6,10) and MOM (8,10).
+@ The chamber (RangerStation_B4F): coord events on row 10 in front of the trio (HEATRAN (5,6), SUICUNE (7,6),
+@ VIRIZION (9,6)). The player lines up at (7,9); the battle; then, in a flash, MEW (7,7) between them with DAD
+@ (6,8) and MOM (8,8).
 
 Act2_EventScript_ChamberScene::
 	lockall
@@ -774,19 +787,22 @@ Act2_Text_TrioCalmed:
 Act2_Text_ParentsInChamber:
 	.string "DAD: {PLAYER}! Are you hurt?\p"
 	.string "MOM: What were you thinking?!\n"
-	.string "Those three guard the WOODS.\l"
-	.string "They don't hold back!\p"
+	.string "You've known since you were a boy\l"
+	.string "to not come in here!\p"
 	.string "DAD: That was dangerous. If MEW\n"
 	.string "hadn't come…\p"
 	.string "{PLAYER}: …\p"
 	.string "……\p"
-	.string "MOM: MEW? Heh. You want to know\n"
-	.string "how we know MEW.\p"
-	.string "DAD: We met it in these very\n"
+	.string "MOM: MEW? Heh. You want to\n"
+	.string "know why it showed up.\p"
+	.string "DAD: Your mom and I met it in these very\n"
 	.string "WOODS, when we were young.\p"
-	.string "MOM: We befriended it together.\n"
-	.string "We never caught it.\p"
-	.string "DAD: It comes to visit us when\n"
-	.string "we need it. Like today.\p"
+	.string "MOM: It was drawn to the calm\n"
+	.string "and remote area. Like it was\l"
+	.string "hiding from something.\p"
+	.string "DAD: Since we were young it comes\n"
+	.string "to visit us when we need it. Like\l"
+	.string "when we needed comfort from the loss\l"
+	.string "of your brother. And now today.\p"
 	.string "MEW: Mew!\p"
 	.string "MOM: Come on, you. Let's go home.$"

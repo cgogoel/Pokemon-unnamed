@@ -158,7 +158,7 @@ Maps `RangerStation_1F` and `_B1F`-`_B4F` (map group `gMapGroup_Dungeons_Frlg`).
 `tools/hack/compose_ranger_station.py` (re-running overwrites all five, and writes `src/data/act2_station_layout.h`,
 the positions the C code uses); custom metatiles: `tools/hack/draw_station_tiles.py` (runs
 `draw_mansion_furnace.py` first) and B3F's tileset, `tools/hack/draw_station_grove.py` (run before the composer). Code: `src/act2_station.c`; each floor's events in its `scripts.inc`. No wild
-Pokémon on any floor. Floors are joined by stairs (1F-B1F-B2F) and ladders (B2F-B3F-B4F). Every ladder sits on its
+Pokémon on any floor but B1F's rooms and corridor (below). Floors are joined by stairs (1F-B1F-B2F) and ladders (B2F-B3F-B4F). Every ladder sits on its
 floor's own tiles: B2F's and B4F's ladder tops are redrawn on the chamber floor (`draw_station_tiles.py`), B3F's
 are drawn for the planks.
 
@@ -169,35 +169,46 @@ below the station's door). The wall switch at (6, 1), a breaker box drawn into t
 lever is drawn pulled once the basement is open): "Pull the switch?" Yes: the bottom of the left
 counter (4, 8-9) slides away (`ACT2_FINALE_BASEMENT_OPEN`, redrawn on load). The stair down is warp 3 at (2, 3).
 
-**B1F: the clock** (`MUS_RG_POKE_MANSION`). A Pokémon Mansion basement room. 12 standing torches on a clock face of
-radius 6 around a cage at (8-12, 7-12), an iron railing with corner posts and a padlocked, spear-tipped gate at
-the front (`railing_pieces` in `draw_station_tiles.py`), with the stair down inside (warp 1 at (11, 9)); the stair up is
-in the bottom right alcove (warp 0 at (17, 17)).
+**B1F: the clock** (`MUS_RG_POKE_MANSION`), 33x54. A Pokémon Mansion basement floor: the clock room (21x23, its
+top left corner at (6, 15)) stands in the middle, a box of walls with its door at the top, between the furnaces
+(15-17, 15). Round it, a corridor and rooms: the office (top left), a hall with two statues (top middle), the lab (top
+right), the greenhouse (bottom left), the study (bottom middle) and the stair hall (bottom right), where the stair up
+is (warp 0 at (29, 48)). Walls are the Mansion's pieces (`Walls` in the composer). 12 standing torches on a clock face
+of radius 6 around a cage, an iron railing with corner posts and a padlocked, spear-tipped gate at the front
+(`railing_pieces` in `draw_station_tiles.py`), with the stair down inside (warp 1 at (17, 24)).
+
+Wild Pokémon in the rooms and corridor (`sAct2_RangerStationB1F_FireRed`: Rattata, Zubat, Gastly, Grimer, Koffing,
+Voltorb, Magnemite...; Act 2's levels), none in the clock room (`Act2Station_IsEncounterFree`, the room's square
+`STATION_CLOCK_*`). Two Pokémon guard the doors of the lab (Magneton, (26, 10)) and the study (Haunter, (16, 42)): talk to one
+for a battle 3 levels above the party's average; beaten or caught, it's gone for good (`ACT2_FINALE_LAB_GUARD`,
+`_STUDY_GUARD`; their objects' flags `FLAG_TEMP_1`/`2`, set on transition).
 
 | Piece | Position | Piece | Position | Piece | Position |
 |---|---|---|---|---|---|
-| 12 | (10, 4) | 4 | (15, 13) | 8 | (5, 13) |
-| 1 | (13, 5) | 5 | (13, 15) | 9 | (4, 10) |
-| 2 | (15, 7) | 6 | (10, 16) | 10 | (5, 7) |
-| 3 | (16, 10) | 7 | (7, 15) | 11 | (7, 5) |
-| Moon furnace | (6, 2) | Sun furnace | (14, 2) | | |
+| 12 | (16, 19) | 4 | (21, 28) | 8 | (11, 28) |
+| 1 | (19, 20) | 5 | (19, 30) | 9 | (10, 25) |
+| 2 | (21, 22) | 6 | (16, 31) | 10 | (11, 22) |
+| 3 | (22, 25) | 7 | (13, 30) | 11 | (13, 20) |
+| Moon furnace | (12, 17) | Sun furnace | (20, 17) | | |
 
 Every torch and furnace is a bg_event running `RangerStation_B1F_EventScript_ClockPiece`, which finds the piece the
 player faces. Unlit: if a party Pokémon knows any FIRE-type move, "Have X use Y to light it?"; lit: the same with a
 WATER-type move, to put it out; without one, a hint. State: `VAR_ACT2_CLOCK` (bit n-1 for n o'clock, 12 moon, 13
-sun), set to `ACT2_CLOCK_START` (10 and 2 lit) on the first visit (`ACT2_FINALE_CLOCK_SET`). Five explorers' notes
-(clipboards) at (3, 4), (17, 4), (2, 11), (5, 18), (13, 18) give one hint each:
+sun), set to `ACT2_CLOCK_START` (10 and 2 lit) on the first visit (`ACT2_FINALE_CLOCK_SET`). Five explorers' notes, sheets
+of paper (`OBJ_EVENT_GFX_STATION_NOTE`, `draw_station_note.py`) in the rooms round the clock room, give one hint each.
+Reading one counts it (`ACT2_FINALE_NOTE_1`-`5`) and shows "Notes found: N/5"; the terminal on the clock room's top
+wall ((9, 17), read from below) shows every note found so far.
 
-| Note | Hint | Points to |
-|---|---|---|
-| 1, TOM | "I couldn't see much when I went in. Only the stars lit the trail" | Night (the moon furnace) |
-| 2, PIP | "I set out before breakfast. The day hadn't even begun." | Morning, not evening |
-| 3, DANA | "the town's six o'clock bell hadn't rung yet" | Before 6 |
-| 4, LEX | "Its long hand lay flat, pointing due east" (3 on a north-up clock face) | Quarter past |
-| 5, OLD BRAM | "the MILTANK get milked at four. I heard them as I left" | 4 o'clock |
+| Note | Where | Hint | Points to |
+|---|---|---|---|
+| 1, TOM | Greenhouse, among the plants (3, 46) | "I couldn't see much when I went in. Only the stars lit the trail" | Night (the moon furnace) |
+| 2, PIP | Office, on the desk (6, 6) | "I set out before breakfast. The day hadn't even begun." | Morning, not evening |
+| 3, DANA | Lab, at the machines (27, 3); guarded | "the town's six o'clock bell hadn't rung yet" | Before 6 |
+| 4, LEX | Study, on the table by the open book (16, 47); guarded | "Its long hand lay flat, pointing due east" (3 on a north-up clock face) | Quarter past |
+| 5, OLD BRAM | Statue hall, above the clock room's door (16, 4) | "the MILTANK get milked at four. I heard them as I left" | 4 o'clock |
 
 **Solution**: 4:15 a.m. From the start: put out 10 and 2, light 4 (hour), 3 (minute) and the moon furnace
-(`ACT2_CLOCK_SOLUTION`, exactly). The camera shakes and the cage's gate (9-11, 12) drops into the floor for good
+(`ACT2_CLOCK_SOLUTION`, exactly). The camera shakes and the cage's gate (15, 27)-(17, 27) drops into the floor for good
 (`ACT2_FINALE_CLOCK_SOLVED`).
 
 **B2F: the flood** (`MUS_RG_SEVII_CAVE`). A Cerulean Cave chamber flooded with water too deep to wade (and blocked
@@ -245,7 +256,7 @@ together (Fire, Water and Grass, 120 power each, one animation). The battle cuts
 their Mew takes the blast. The trio calms. Mom and Dad: that was dangerous. "…" (how did you get Mew?) They befriended
 it in these Woods when they were young; it comes to visit them when they need it.
 
-**Resetting the station** (debug): `VAR_ACT2_FINALE` = 0 (switch, clock, cage, grass), `VAR_ACT2_CLOCK` = 0 (set to
+**Resetting the station** (debug): `VAR_ACT2_FINALE` = 0 (switch, clock, cage, grass, guards, notes), `VAR_ACT2_CLOCK` = 0 (set to
 the start again on the next B1F visit), clear `FLAG_ACT2_DEAD_END_1`-`5`.
 
 ## The ending

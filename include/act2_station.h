@@ -14,6 +14,7 @@ bool32 Act2Station_CanJumpGap(enum Direction direction);
 bool32 Act2Station_TryOvergrowthStep(void);
 bool32 Act2Station_IsFollowerGap(s16 x, s16 y);
 u32 Act2Station_GetFloodFlashLevel(void);
+bool32 Act2Station_IsEncounterFree(void);
 
 // Specials
 void Act2Station_DrawFloor(void);
@@ -25,6 +26,9 @@ u16 Act2Station_GetFacedClockPiece(void);
 bool16 Act2Station_IsClockPieceLit(void);
 bool16 Act2Station_ToggleClockPiece(void);
 void Act2Station_OpenClockGate(void);
+void Act2Station_HideBeatenGuards(void);
+void Act2Station_CreateGuardMon(void);
+u16 Act2Station_CountNotes(void);
 bool16 Act2Station_IsDeadEndBeaten(void);
 void Act2Station_PrepareDeadEnd(void);
 void Act2Station_CreateDeadEndMon(void);

@@ -32,6 +32,7 @@ extern const u8 RangerStation_B3F_EventScript_Ambush[];
 #define METATILE_FURNACE_LIT        0x383
 
 #define DEAD_END_LEVEL_ABOVE_PARTY  2
+#define GUARD_LEVEL_ABOVE_PARTY     3
 
 #define IS_ON_MAP(map) (gSaveBlock1Ptr->location.mapGroup == MAP_GROUP(map) && gSaveBlock1Ptr->location.mapNum == MAP_NUM(map))
 
@@ -40,6 +41,8 @@ static const u16 sDeadEndFlags[] = { FLAG_ACT2_DEAD_END_1, FLAG_ACT2_DEAD_END_2,
 
 STATIC_ASSERT(ARRAY_COUNT(sDeadEndSpecies) == ARRAY_COUNT(sDeadEnds), DeadEndCount);
 STATIC_ASSERT(ARRAY_COUNT(sClockPieces) == ACT2_CLOCK_SUN + 1, ClockPieceCount);
+
+static u32 GetLevelAboveParty(u32 above);
 
 static void SetMetatile(s32 x, s32 y, u32 metatile)
 {
@@ -187,6 +190,44 @@ void Act2Station_DrawFloor(void)
     }
 }
 
+// Hook (StandardWildEncounter): no wild Pokémon in B1F's clock room, only in the rooms and corridor round it
+bool32 Act2Station_IsEncounterFree(void)
+{
+    s16 x, y;
+    if (!IS_ON_MAP(MAP_RANGER_STATION_B1F))
+        return FALSE;
+    PlayerGetDestCoords(&x, &y);
+    x -= MAP_OFFSET, y -= MAP_OFFSET;
+    return x >= STATION_CLOCK_X && x < STATION_CLOCK_X + STATION_CLOCK_W
+        && y >= STATION_CLOCK_Y && y < STATION_CLOCK_Y + STATION_CLOCK_H;
+}
+
+// special Act2Station_HideBeatenGuards (B1F's ON_TRANSITION): the Pokémon in the lab's and the study's doors stay
+// gone once beaten (their objects' flags, FLAG_TEMP_1 and FLAG_TEMP_2)
+void Act2Station_HideBeatenGuards(void)
+{
+    u32 finale = VarGet(VAR_ACT2_FINALE);
+    if (finale & ACT2_FINALE_LAB_GUARD)
+        FlagSet(FLAG_TEMP_1);
+    if (finale & ACT2_FINALE_STUDY_GUARD)
+        FlagSet(FLAG_TEMP_2);
+}
+
+// special Act2Station_CreateGuardMon with its species in VAR_0x8006, after setwildbattle: a Pokémon guarding a room's
+// door, 3 levels above the party's average
+void Act2Station_CreateGuardMon(void)
+{
+    CreateScriptedWildMon(gSpecialVar_0x8006, GetLevelAboveParty(GUARD_LEVEL_ABOVE_PARTY), ITEM_NONE);
+}
+
+// specialvar VAR_RESULT, Act2Station_CountNotes: how many of B1F's notes have been read, also in STR_VAR_1
+u16 Act2Station_CountNotes(void)
+{
+    u32 count = __builtin_popcount(VarGet(VAR_ACT2_FINALE) & ACT2_FINALE_NOTES);
+    ConvertIntToDecimalStringN(gStringVar1, count, STR_CONV_MODE_LEFT_ALIGN, 1);
+    return count;
+}
+
 // --- B2F: the flood --------------------------------------------------------------------------------------------------
 
 // Hook (PlayerNotOnBikeMoving): on B2F, walking into one square of water with a stone (or floor) right behind it
@@ -248,11 +289,10 @@ void Act2Station_PrepareDeadEnd(void)
     StringCopy(gStringVar1, GetSpeciesName(species));
 }
 
-// special Act2Station_CreateDeadEndMon with the dead end (1-5) in VAR_TEMP_1, after setwildbattle: the dead end's
-// Pokémon, 2 levels above the party's average
-void Act2Station_CreateDeadEndMon(void)
+// The party's average level (rounded), plus some
+static u32 GetLevelAboveParty(u32 above)
 {
-    u32 i, total = 0, count = 0, level;
+    u32 i, total = 0, count = 0;
     for (i = 0; i < PARTY_SIZE; i++)
     {
         if (GetMonData(&gParties[B_TRAINER_PLAYER][i], MON_DATA_SPECIES) == SPECIES_NONE || GetMonData(&gParties[B_TRAINER_PLAYER][i], MON_DATA_IS_EGG))
@@ -260,8 +300,14 @@ void Act2Station_CreateDeadEndMon(void)
         total += GetMonData(&gParties[B_TRAINER_PLAYER][i], MON_DATA_LEVEL);
         count++;
     }
-    level = (count ? (total + count / 2) / count : 5) + DEAD_END_LEVEL_ABOVE_PARTY;
-    CreateScriptedWildMon(sDeadEndSpecies[GetDeadEnd()], min(level, MAX_LEVEL), ITEM_NONE);
+    return min((count ? (total + count / 2) / count : 5) + above, MAX_LEVEL);
+}
+
+// special Act2Station_CreateDeadEndMon with the dead end (1-5) in VAR_TEMP_1, after setwildbattle: the dead end's
+// Pokémon, 2 levels above the party's average
+void Act2Station_CreateDeadEndMon(void)
+{
+    CreateScriptedWildMon(sDeadEndSpecies[GetDeadEnd()], GetLevelAboveParty(DEAD_END_LEVEL_ABOVE_PARTY), ITEM_NONE);
 }
 
 // special Act2Station_SetDeadEndBeaten with the dead end (1-5) in VAR_TEMP_1

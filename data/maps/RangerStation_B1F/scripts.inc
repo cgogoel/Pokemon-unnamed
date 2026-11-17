@@ -3,10 +3,17 @@
 @ WATER-type move puts it out (VAR_ACT2_CLOCK). At 4:15 a.m. (ACT2_CLOCK_SOLUTION: the torches at 4 and 3 and the
 @ moon furnace lit, nothing else) the cage's front opens for good (ACT2_FINALE_CLOCK_SOLVED). Act2Station_DrawFloor
 @ sets the clock to ACT2_CLOCK_START on the first visit and draws it on every load.
+@ Round the clock room, a ring of corridor and rooms (wild Pokémon there, none in the clock room) where five
+@ explorers' notes give the time. Two Pokémon guard the doors of the lab and the study.
 
 RangerStation_B1F_MapScripts::
 	map_script MAP_SCRIPT_ON_LOAD, RangerStation_B1F_OnLoad
+	map_script MAP_SCRIPT_ON_TRANSITION, RangerStation_B1F_OnTransition
 	.byte 0
+
+RangerStation_B1F_OnTransition:
+	special Act2Station_HideBeatenGuards
+	end
 
 RangerStation_B1F_OnLoad:
 	special Act2Station_DrawFloor
@@ -83,25 +90,142 @@ RangerStation_B1F_EventScript_Release:
 	end
 
 @ Five explorers' notes, one hint each (no two hint at the same thing): night; morning, not evening; before six;
-@ the long hand pointing east (a quarter past); four o'clock. Together: 4:15 a.m.
+@ the long hand pointing east (a quarter past); four o'clock. Together: 4:15 a.m. Each lies in one of the rooms
+@ (object events); reading one counts it (ACT2_FINALE_NOTE_1-5), and the terminal in the clock room shows the ones
+@ found so far.
 RangerStation_B1F_EventScript_Note1::
-	msgbox RangerStation_B1F_Text_Note1, MSGBOX_SIGN
-	end
+	lockall
+	msgbox RangerStation_B1F_Text_Note1
+	setvar VAR_0x8004, ACT2_FINALE_NOTE_1
+	goto RangerStation_B1F_EventScript_NoteRead
 
 RangerStation_B1F_EventScript_Note2::
-	msgbox RangerStation_B1F_Text_Note2, MSGBOX_SIGN
-	end
+	lockall
+	msgbox RangerStation_B1F_Text_Note2
+	setvar VAR_0x8004, ACT2_FINALE_NOTE_2
+	goto RangerStation_B1F_EventScript_NoteRead
 
 RangerStation_B1F_EventScript_Note3::
-	msgbox RangerStation_B1F_Text_Note3, MSGBOX_SIGN
-	end
+	lockall
+	msgbox RangerStation_B1F_Text_Note3
+	setvar VAR_0x8004, ACT2_FINALE_NOTE_3
+	goto RangerStation_B1F_EventScript_NoteRead
 
 RangerStation_B1F_EventScript_Note4::
-	msgbox RangerStation_B1F_Text_Note4, MSGBOX_SIGN
-	end
+	lockall
+	msgbox RangerStation_B1F_Text_Note4
+	setvar VAR_0x8004, ACT2_FINALE_NOTE_4
+	goto RangerStation_B1F_EventScript_NoteRead
 
 RangerStation_B1F_EventScript_Note5::
-	msgbox RangerStation_B1F_Text_Note5, MSGBOX_SIGN
+	lockall
+	msgbox RangerStation_B1F_Text_Note5
+	setvar VAR_0x8004, ACT2_FINALE_NOTE_5
+	goto RangerStation_B1F_EventScript_NoteRead
+
+RangerStation_B1F_EventScript_NoteRead:
+	special Act2Station_SetFinaleBit
+	specialvar VAR_RESULT, Act2Station_CountNotes
+	goto_if_eq VAR_RESULT, ACT2_STATION_NOTE_COUNT, RangerStation_B1F_EventScript_AllNotes
+	msgbox RangerStation_B1F_Text_NotesFound
+	releaseall
+	end
+
+RangerStation_B1F_EventScript_AllNotes:
+	msgbox RangerStation_B1F_Text_AllNotes
+	releaseall
+	end
+
+@ The terminal on the clock room's wall: the notes found so far, read over
+RangerStation_B1F_EventScript_Terminal::
+	lockall
+	specialvar VAR_RESULT, Act2Station_CountNotes
+	goto_if_eq VAR_RESULT, 0, RangerStation_B1F_EventScript_TerminalEmpty
+	msgbox RangerStation_B1F_Text_TerminalAsk, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, RangerStation_B1F_EventScript_Release
+	setvar VAR_0x8004, ACT2_FINALE_NOTE_1
+	specialvar VAR_RESULT, Act2Station_HasFinaleBit
+	call_if_eq VAR_RESULT, TRUE, RangerStation_B1F_EventScript_ShowNote1
+	setvar VAR_0x8004, ACT2_FINALE_NOTE_2
+	specialvar VAR_RESULT, Act2Station_HasFinaleBit
+	call_if_eq VAR_RESULT, TRUE, RangerStation_B1F_EventScript_ShowNote2
+	setvar VAR_0x8004, ACT2_FINALE_NOTE_3
+	specialvar VAR_RESULT, Act2Station_HasFinaleBit
+	call_if_eq VAR_RESULT, TRUE, RangerStation_B1F_EventScript_ShowNote3
+	setvar VAR_0x8004, ACT2_FINALE_NOTE_4
+	specialvar VAR_RESULT, Act2Station_HasFinaleBit
+	call_if_eq VAR_RESULT, TRUE, RangerStation_B1F_EventScript_ShowNote4
+	setvar VAR_0x8004, ACT2_FINALE_NOTE_5
+	specialvar VAR_RESULT, Act2Station_HasFinaleBit
+	call_if_eq VAR_RESULT, TRUE, RangerStation_B1F_EventScript_ShowNote5
+	specialvar VAR_RESULT, Act2Station_CountNotes
+	msgbox RangerStation_B1F_Text_TerminalDone
+	releaseall
+	end
+
+RangerStation_B1F_EventScript_TerminalEmpty:
+	msgbox RangerStation_B1F_Text_TerminalEmpty
+	releaseall
+	end
+
+RangerStation_B1F_EventScript_ShowNote1:
+	msgbox RangerStation_B1F_Text_Note1
+	return
+
+RangerStation_B1F_EventScript_ShowNote2:
+	msgbox RangerStation_B1F_Text_Note2
+	return
+
+RangerStation_B1F_EventScript_ShowNote3:
+	msgbox RangerStation_B1F_Text_Note3
+	return
+
+RangerStation_B1F_EventScript_ShowNote4:
+	msgbox RangerStation_B1F_Text_Note4
+	return
+
+RangerStation_B1F_EventScript_ShowNote5:
+	msgbox RangerStation_B1F_Text_Note5
+	return
+
+@ The Pokémon in the doors of the lab and the study: a battle each, 3 levels above the party's average. Beaten or
+@ caught, it's gone for good (Act2Station_HideBeatenGuards).
+RangerStation_B1F_EventScript_LabGuard::
+	lock
+	faceplayer
+	setvar VAR_0x8006, SPECIES_MAGNETON
+	setvar VAR_TEMP_4, ACT2_FINALE_LAB_GUARD
+	setvar VAR_TEMP_5, 1  @ Its local id
+	goto RangerStation_B1F_EventScript_Guard
+
+RangerStation_B1F_EventScript_StudyGuard::
+	lock
+	faceplayer
+	setvar VAR_0x8006, SPECIES_HAUNTER
+	setvar VAR_TEMP_4, ACT2_FINALE_STUDY_GUARD
+	setvar VAR_TEMP_5, 2
+	goto RangerStation_B1F_EventScript_Guard
+
+RangerStation_B1F_EventScript_Guard:
+	bufferspeciesname STR_VAR_1, VAR_0x8006
+	playmoncry VAR_0x8006, CRY_MODE_ENCOUNTER
+	msgbox RangerStation_B1F_Text_Guard
+	waitmoncry
+	closemessage
+	setwildbattle SPECIES_MAGIKARP, 1  @ Replaced by the guard
+	special Act2Station_CreateGuardMon
+	dowildbattle
+	specialvar VAR_RESULT, GetBattleOutcome
+	goto_if_eq VAR_RESULT, B_OUTCOME_WON, RangerStation_B1F_EventScript_GuardBeaten
+	goto_if_eq VAR_RESULT, B_OUTCOME_CAUGHT, RangerStation_B1F_EventScript_GuardBeaten
+	release
+	end
+
+RangerStation_B1F_EventScript_GuardBeaten:
+	copyvar VAR_0x8004, VAR_TEMP_4
+	special Act2Station_SetFinaleBit
+	removeobject VAR_TEMP_5
+	release
 	end
 
 RangerStation_B1F_Text_LightAsk:
@@ -177,3 +301,29 @@ RangerStation_B1F_Text_Note5:
 	.string "lowing as I left.”\p"
 	.string "“Funny, what you remember when\n"
 	.string "you're lost down here. -OLD BRAM”$"
+
+RangerStation_B1F_Text_NotesFound:
+	.string "Notes found: {STR_VAR_1}/5$"
+
+RangerStation_B1F_Text_AllNotes:
+	.string "Notes found: 5/5\p"
+	.string "That's all of them. Put together,\n"
+	.string "their times could set the clock.$"
+
+RangerStation_B1F_Text_TerminalAsk:
+	.string "An old terminal. It still runs!\p"
+	.string "Type in the notes you've found\n"
+	.string "and read them over?$"
+
+RangerStation_B1F_Text_TerminalDone:
+	.string "That's every note found so far.\n"
+	.string "Notes found: {STR_VAR_1}/5$"
+
+RangerStation_B1F_Text_TerminalEmpty:
+	.string "An old terminal. It still runs!\p"
+	.string "But there's nothing to type\n"
+	.string "into it yet.$"
+
+RangerStation_B1F_Text_Guard:
+	.string "A wild {STR_VAR_1} is blocking\n"
+	.string "the doorway!$"

@@ -419,6 +419,7 @@ enum
     OBJ_EVENT_GFX_MOONVEIL_BUD,
     OBJ_EVENT_GFX_MOONVEIL_BLOOM,
     OBJ_EVENT_GFX_MEDKIT,         // Act 2 finale: the ranger station's medkit (tools/hack/draw_medkit.py)
+    OBJ_EVENT_GFX_STATION_NOTE,   // Act 2 finale: the notes on the ranger station's B1F (tools/hack/draw_station_note.py)
     NUM_OBJ_EVENT_GFX,
 };
 

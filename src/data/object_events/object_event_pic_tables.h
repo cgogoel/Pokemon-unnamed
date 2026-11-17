@@ -824,6 +824,10 @@ static const struct SpriteFrameImage sPicTable_Medkit[] = {
     obj_frame_tiles(gObjectEventPic_Medkit),
 };
 
+static const struct SpriteFrameImage sPicTable_StationNote[] = {
+    obj_frame_tiles(gObjectEventPic_StationNote),
+};
+
 static const struct SpriteFrameImage sPicTable_GlowcapDim[] = {
     obj_frame_tiles(gObjectEventPic_GlowcapDim),
 };

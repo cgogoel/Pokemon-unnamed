@@ -8,22 +8,27 @@
 
 // B1F: the torches at 1 to 12 o'clock, then the moon and sun furnaces (VAR_ACT2_CLOCK's bits)
 static const s8 sClockPieces[][2] = {
-    {13, 5},
-    {15, 7},
-    {16, 10},
-    {15, 13},
-    {13, 15},
-    {10, 16},
-    {7, 15},
-    {5, 13},
-    {4, 10},
-    {5, 7},
-    {7, 5},
-    {10, 4},
-    {6, 2},
-    {14, 2},
+    {19, 20},
+    {21, 22},
+    {22, 25},
+    {21, 28},
+    {19, 30},
+    {16, 31},
+    {13, 30},
+    {11, 28},
+    {10, 25},
+    {11, 22},
+    {13, 20},
+    {16, 19},
+    {12, 17},
+    {20, 17},
 };
-static const s8 sClockGate[][2] = {{9, 12}, {10, 12}, {11, 12}};
+static const s8 sClockGate[][2] = {{15, 27}, {16, 27}, {17, 27}};
+// The clock room, walls and all: no wild Pokémon there (only in the rooms and corridor round it)
+#define STATION_CLOCK_X 6
+#define STATION_CLOCK_Y 15
+#define STATION_CLOCK_W 21
+#define STATION_CLOCK_H 23
 
 // B2F: the stones at the dead ends, and the square of water beyond each where its Pokémon waits
 static const s8 sDeadEnds[][2][2] = {

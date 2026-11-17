@@ -4,7 +4,7 @@
     1F   the gate building (Saffron's north/south gate, LAYOUT_SAFFRON_CITY_NORTH_SOUTH_ENTRANCE), widened on the left
          for a stair down behind the left counter (Underground Path entrance's), its north door walled up.
     B1F  the clock: a Pokémon Mansion basement room; 12 torches at the hours of a clock face around a caged stair
-         down; two furnaces under a moon and a sun.
+         down; two furnaces under a moon and a sun. A ring of corridor and rooms round it, where the notes are.
     B2F  the flood: a Cerulean Cave chamber under water; stepping stones one jump apart, five dead ends.
     B3F  the overgrowth: a pattern on the floor, then a field of tall grass where only that pattern's path is safe.
     B4F  the chamber: Mt. Ember's Ruby Path altar room (B5F), stretched.
@@ -107,17 +107,31 @@ def open_1f(g):
 
 
 # ---------------------------------------------------------------------------------------------------------------------
-# B1F: gTileset_BuildingFrlg + gTileset_PokemonMansion
-B1_W, B1_H = 21, 23
-B1_CENTER = (10, 10)
+# B1F: gTileset_BuildingFrlg + gTileset_PokemonMansion. The clock room (the old floor, 21x23) stands in the middle,
+# a ring of corridor and rooms round it: an office, a hall with statues, a lab, a greenhouse, a study, and the stair
+# hall in the bottom right corner where the stair from 1F comes down. Walls are Pokemon Mansion's pieces.
+B1_W, B1_H = 33, 54
+B1_CLOCK = (6, 15)          # The clock room's top left corner (its wall's cap), 21x23
+CLOCK_W, CLOCK_H = 21, 23
+
+
+def clock_xy(x, y):
+    return B1_CLOCK[0] + x, B1_CLOCK[1] + y
+
+
+B1_CENTER = clock_xy(10, 10)
 B1_RADIUS = {12: (0, -6), 1: (3, -5), 2: (5, -3), 3: (6, 0), 4: (5, 3), 5: (3, 5),
              6: (0, 6), 7: (-3, 5), 8: (-5, 3), 9: (-6, 0), 10: (-5, -3), 11: (-3, -5)}
 B1_TORCHES = [(B1_CENTER[0] + B1_RADIUS[h][0], B1_CENTER[1] + B1_RADIUS[h][1]) for h in range(1, 13)]
-B1_FURNACE_MOON = (6, 2)
-B1_FURNACE_SUN = (14, 2)
-B1_GATE = [(9, 12), (10, 12), (11, 12)]
-B1_STAIRS_DOWN = (11, 9)  # MB_DOWN_LEFT_STAIR_WARP
-B1_STAIRS_UP = (17, 17)   # MB_UP_RIGHT_STAIR_WARP
+B1_FURNACE_MOON = clock_xy(6, 2)
+B1_FURNACE_SUN = clock_xy(14, 2)
+B1_GATE = [clock_xy(9, 12), clock_xy(10, 12), clock_xy(11, 12)]
+B1_STAIRS_DOWN = clock_xy(11, 9)  # MB_DOWN_LEFT_STAIR_WARP
+B1_STAIRS_UP = (29, 48)           # MB_UP_RIGHT_STAIR_WARP, in the stair hall
+B1_CLOCK_DOOR = [clock_xy(x, 0) for x in (9, 10, 11)]  # The gap in the clock room's top wall
+B1_TERMINAL = clock_xy(3, 2)      # The terminal on the clock room's top wall, where the notes found are typed up
+B1_LAB_DOOR = (26, 10)            # The rooms the guards stand in the doors of (one square wide)
+B1_STUDY_DOOR = (16, 42)
 TORCH_UNLIT, TORCH_LIT, MOON, SUN = 0x384, 0x385, 0x386, 0x387
 # The railing round the stair down (draw_station_tiles.py): back, sides, corners, and the gate at the front
 RAIL_BACK, RAIL_LEFT, RAIL_RIGHT = 0x388, 0x38B, 0x38C
@@ -127,36 +141,117 @@ FURNACE_COLD, FURNACE_LIT = 0x382, 0x383
 BASEMENT_FLOOR = 0x286
 STAIR_WARP_BASEMENT, STAIR_SIDE_BASEMENT = 0x389, 0x38A  # Mansion 1F's 0x2D2 and 0x2DA on the basement floor
 
+# Pokemon Mansion's wall pieces (as its B1F uses them). A wall running across is three rows: its cap, its face, its
+# base (wainscot); the floor's row above the cap is the floor-edge row (the top of the wall seen from above).
+M_FLOOR, M_SHADE = 0x286, 0x287
+M_EDGE, M_EDGE_LEFT_END, M_EDGE_RIGHT_END, M_EDGE_BY_WALL = 0x29F, 0x351, 0x353, 0x352
+M_WALL = (0x2A2, 0x2AA, 0x2B2)          # Cap, face, base
+M_WALL_LEFT_END = (0x2F3, 0x2FB, 0x303)  # A wall's free end, the floor (a door) to its left
+M_WALL_RIGHT_END = (0x2F4, 0x2FC, 0x304)
+M_POST = 0x2B4                            # A wall running down (seen from above)
+M_POST_THROUGH = 0x2EF                    # In the floor-edge row: a wall running down meets (or crosses) one across
+M_POST_INTO_LEFT, M_POST_INTO_RIGHT = 0x2EE, 0x2ED  # ...one across that runs off to its left / its right
+M_CAP_TEE = 0x2F7                         # The cap where a wall running down leaves one across
+M_CAP_TOP_LEFT, M_CAP_TOP_RIGHT = 0x2F5, 0x2F6  # A box's top corners, its walls running down from them
+M_OUTER_LEFT_TEE = (0x32D, 0x335, 0x2A8, 0x2A8)  # The outer left wall, a wall across leaving it (edge row to base)
+M_OUTER_RIGHT_TEE = (0x32E, 0x336, 0x2AC, 0x2AC)
+M_CAPS = {0x2A2, 0x2F3, 0x2F4, 0x2F5, 0x2F6, 0x2F7, 0x335, 0x336, 0x331, 0x332}
+M_BASES = {0x2B2, 0x303, 0x304, 0x2B1, 0x2B3}
 
-def compose_b1f():
-    g = Grid(B1_W, B1_H, blk(0x286))
-    W, H = B1_W, B1_H
+
+class Walls:
+    """Pokemon Mansion walls on a grid of floor; shade() then gives the floor its shading and edges."""
+
+    def __init__(self, g):
+        self.g, self.cells = g, set()
+
+    def put(self, x, y, metatile):
+        self.g[x, y] = blk(metatile, True, 0)
+        self.cells.add((x, y))
+
+    def across(self, y, x0, x1, doors=()):
+        """A wall across, its cap in row y, from x0 to x1; doors: the columns left open."""
+        for x in range(x0, x1 + 1):
+            if x in doors:
+                continue
+            pieces = M_WALL_RIGHT_END if x + 1 in doors else M_WALL_LEFT_END if x - 1 in doors else M_WALL
+            for dy, m in enumerate(pieces):
+                self.put(x, y + dy, m)
+
+    def down(self, x, y0, y1):
+        for y in range(y0, y1 + 1):
+            self.put(x, y, M_POST)
+
+    def shade(self, skip=()):
+        g, cells = self.g, self.cells
+        mt = lambda x, y: g[x, y] & 0x3FF
+        floor = lambda x, y: (x, y) not in cells and (x, y) not in skip
+        for y in range(1, g.h - 1):
+            for x in range(1, g.w - 1):
+                if not floor(x, y):
+                    continue
+                if mt(x, y + 1) in M_CAPS and (x, y + 1) in cells:
+                    left_open = floor(x - 1, y) and mt(x - 1, y + 1) not in M_CAPS
+                    right_open = floor(x + 1, y) and mt(x + 1, y + 1) not in M_CAPS
+                    m = (M_EDGE_BY_WALL if (x - 1, y) in cells else M_EDGE_LEFT_END if left_open
+                         else M_EDGE_RIGHT_END if right_open else M_EDGE)
+                elif (x - 1, y) in cells or ((x, y - 1) in cells and mt(x, y - 1) in M_BASES):
+                    m = M_SHADE
+                else:
+                    m = M_FLOOR
+                g[x, y] = blk(m)
+
+
+def mansion_frame(g, walls):
+    """The outer wall round the whole floor (as Pokemon Mansion B1F's)."""
+    W, H = g.w, g.h
     for x in range(W):
-        g[x, 0], g[x, 1], g[x, 2] = blk(0x2A2, True, 0), blk(0x2AA, True, 0), blk(0x2B2, True, 0)
-        g[x, H - 3], g[x, H - 2], g[x, H - 1] = blk(0x2A2, True, 0), blk(0x2AA, True, 0), blk(0x2B2, True, 0)
-        g[x, 3] = blk(0x287)
-        g[x, H - 4] = blk(0x29F)
+        for y, m in ((0, 0x2A2), (1, 0x2AA), (2, 0x2B2), (H - 3, 0x2A2), (H - 2, 0x2AA), (H - 1, 0x2B2)):
+            walls.put(x, y, m)
     for y in range(1, H):
-        g[0, y], g[W - 1, y] = blk(0x2A8, True, 0), blk(0x2AC, True, 0)
-        if 3 <= y < H - 4:
-            g[1, y] = blk(0x287)
-    g[0, 0], g[1, 0], g[1, 1], g[1, 2], g[1, 3] = (blk(m, True, 0) for m in (0x2A0, 0x2A1, 0x2A9, 0x2B1, 0x290))
-    g[1, 3] = blk(0x290)
-    g[W - 2, 0], g[W - 1, 0], g[W - 2, 1], g[W - 2, 2] = (blk(m, True, 0) for m in (0x2A3, 0x2A4, 0x2AB, 0x2B3))
-    g[W - 2, 3] = blk(0x291)
-    g[0, H - 4], g[0, H - 3], g[0, H - 2], g[0, H - 1] = (blk(m, True, 0) for m in (0x32D, 0x331, 0x339, 0x341))
-    g[1, H - 4] = blk(0x352)
-    g[W - 1, H - 4], g[W - 1, H - 3], g[W - 1, H - 2], g[W - 1, H - 1] = (blk(m, True, 0) for m in (0x32E, 0x332, 0x33A, 0x342))
-    # The stair up, in an alcove in the bottom right corner (Pokémon Mansion B1F's, x 33-37, y 25-31)
-    g.copy_from(load('LAYOUT_POKEMON_MANSION_B1F'), 33, 25, 5, 7, 16, 13)
-    # Furnaces in the wainscot of the top wall, a moon and a sun painted above them
-    for (x, y), emblem in ((B1_FURNACE_MOON, MOON), (B1_FURNACE_SUN, SUN)):
+        walls.put(0, y, 0x2A8)
+        walls.put(W - 1, y, 0x2AC)
+    for (x, y), m in zip(((0, 0), (1, 0), (1, 1), (1, 2)), (0x2A0, 0x2A1, 0x2A9, 0x2B1)):
+        walls.put(x, y, m)
+    for (x, y), m in zip(((W - 2, 0), (W - 1, 0), (W - 2, 1), (W - 2, 2)), (0x2A3, 0x2A4, 0x2AB, 0x2B3)):
+        walls.put(x, y, m)
+    for y, m in zip(range(H - 4, H), (0x32D, 0x331, 0x339, 0x341)):
+        walls.put(0, y, m)
+    for y, m in zip(range(H - 4, H), (0x32E, 0x332, 0x33A, 0x342)):
+        walls.put(W - 1, y, m)
+
+
+def tee_outer(walls, y, left=True):
+    """A wall across (its cap in row y) leaving the outer left (or right) wall."""
+    x = 0 if left else walls.g.w - 1
+    for dy, m in enumerate(M_OUTER_LEFT_TEE if left else M_OUTER_RIGHT_TEE):
+        walls.put(x, y - 1 + dy, m)
+
+
+def compose_clock_room():
+    """The clock room as it was (its own walls drawn plainly; compose_b1f() gives it its box of walls)."""
+    g = Grid(CLOCK_W, CLOCK_H, blk(BASEMENT_FLOOR))
+    W, H = CLOCK_W, CLOCK_H
+    for x in range(W):
+        g[x, 3] = blk(M_SHADE)
+        g[x, H - 4] = blk(M_EDGE)
+    for y in range(3, H - 4):
+        g[1, y] = blk(M_SHADE)
+    g[1, H - 4] = blk(M_EDGE_BY_WALL)
+    # Furnaces in the wainscot of the top wall, a moon and a sun painted above them (positions in the room's own
+    # squares here: compose_b1f() moves them with the room)
+    for x in range(W):
+        g[x, 0], g[x, 1], g[x, 2] = (blk(m, True, 0) for m in M_WALL)
+    for (x, y), emblem in (((6, 2), MOON), ((14, 2), SUN)):
         g[x, y] = blk(FURNACE_COLD, True, 0)
         g[x, y - 1] = blk(emblem, True, 0)
-    for xy in B1_TORCHES:
-        g[xy] = blk(TORCH_UNLIT, True)
-    # The caged stair down in the middle (Pokémon Mansion 1F's stair down)
-    cx, cy = B1_CENTER
+    # The terminal where the notes are typed up (Pokemon Mansion B1F's machine, its foot on the floor below)
+    tx, ty = B1_TERMINAL[0] - B1_CLOCK[0], B1_TERMINAL[1] - B1_CLOCK[1]
+    g[tx, ty], g[tx, ty + 1] = blk(0x31D, True, 0), blk(0x36C, True)
+    cx, cy = B1_CENTER[0] - B1_CLOCK[0], B1_CENTER[1] - B1_CLOCK[1]
+    for h in range(1, 13):
+        g[cx + B1_RADIUS[h][0], cy + B1_RADIUS[h][1]] = blk(TORCH_UNLIT, True)
+    # The caged stair down in the middle (Pokemon Mansion 1F's stair down)
     # The back rail stands a square behind the stair (a step of floor between them), not right against its top
     x0, x1, y0, y1 = cx - 2, cx + 2, cy - 3, cy + 2
     for x in range(x0 + 1, x1):
@@ -173,6 +268,75 @@ def compose_b1f():
     g[cx + 1, cy - 1], g[cx + 1, cy] = blk(STAIR_WARP_BASEMENT), blk(STAIR_SIDE_BASEMENT)
     for x in range(cx - 1, cx + 2):
         g[x, cy + 1] = blk(BASEMENT_FLOOR)
+    return g
+
+
+def compose_b1f():
+    g = Grid(B1_W, B1_H, blk(M_FLOOR))
+    W, H = B1_W, B1_H
+    walls = Walls(g)
+    mansion_frame(g, walls)
+    # Top band (rows 3-11): the office (x 1-10), the statue hall (x 12-20, open to the corridor), the lab (x 22-31)
+    walls.put(11, 0, M_CAP_TEE)
+    walls.down(11, 1, 7)
+    walls.put(11, 8, M_POST_INTO_LEFT)
+    walls.across(9, 1, 11, doors=(5, 6))
+    for dy, m in enumerate(M_WALL_RIGHT_END):
+        walls.put(11, 9 + dy, m)
+    tee_outer(walls, 9)
+    walls.put(21, 0, M_CAP_TEE)
+    walls.down(21, 1, 7)
+    walls.put(21, 8, M_POST_INTO_RIGHT)
+    walls.across(9, 21, W - 2, doors=(B1_LAB_DOOR[0],))
+    for dy, m in enumerate(M_WALL_LEFT_END):
+        walls.put(21, 9 + dy, m)
+    tee_outer(walls, 9, left=False)
+    # The clock room: a box of walls, its door in the top wall between the furnaces
+    ox, oy = B1_CLOCK
+    x0, x1, y0, y1 = ox, ox + CLOCK_W - 1, oy, oy + CLOCK_H - 1
+    walls.across(y0, x0 + 1, x1 - 1, doors=[x for x, _ in B1_CLOCK_DOOR])
+    walls.put(x0, y0, M_CAP_TOP_LEFT)
+    walls.put(x1, y0, M_CAP_TOP_RIGHT)
+    walls.down(x0, y0 + 1, y1 - 4)
+    walls.down(x1, y0 + 1, y1 - 4)
+    walls.put(x0, y1 - 3, M_POST_INTO_RIGHT)
+    walls.put(x1, y1 - 3, M_POST_INTO_LEFT)
+    walls.across(y1 - 2, x0, x1)
+    for dy in range(3):
+        walls.put(x0, y1 - 2 + dy, M_WALL_LEFT_END[dy])
+        walls.put(x1, y1 - 2 + dy, M_WALL_RIGHT_END[dy])
+    # Bottom band (rows 41-50): the greenhouse (x 1-10), the study (x 12-20), the stair hall (x 22-31, open)
+    walls.across(41, 1, 20, doors=(5, 6, B1_STUDY_DOOR[0]))
+    tee_outer(walls, 41)
+    walls.put(11, 40, M_POST_THROUGH)
+    walls.put(11, 41, M_CAP_TEE)
+    walls.down(11, 42, H - 5)
+    walls.put(11, H - 4, M_POST_THROUGH)
+    walls.put(21, 41, M_CAP_TOP_RIGHT)
+    walls.down(21, 42, H - 5)
+    walls.put(21, H - 4, M_POST_THROUGH)
+    clock = (x0, x1, y0, y1)
+    inside = {(x, y) for x in range(x0 + 1, x1) for y in range(y0 + 3, y1 - 2)}
+    walls.shade(skip=inside)
+    g[1, 3], g[W - 2, 3] = blk(0x290), blk(0x291)
+    # The clock room's insides, and the furnaces and terminal in its top wall
+    room = compose_clock_room()
+    for y in range(3, CLOCK_H - 3):
+        for x in range(1, CLOCK_W - 1):
+            g[ox + x, oy + y] = room[x, y]
+    for (x, y) in (B1_FURNACE_MOON, B1_FURNACE_SUN, B1_TERMINAL):
+        g[x, y], g[x, y - 1] = room[x - ox, y - oy], room[x - ox, y - oy - 1]
+    # Furniture, from Pokemon Mansion B1F: the office's desk and chairs, the hall's statues, the lab's machines on
+    # its back wall, the greenhouse's potted plants, the study's table with an open book
+    mansion = load('LAYOUT_POKEMON_MANSION_B1F')
+    g.copy_from(mansion, 3, 6, 6, 4, 3, 4)
+    for x in (13, 19):
+        g.copy_from(mansion, 27, 4, 1, 2, x, 4)
+    g.copy_from(mansion, 19, 1, 6, 3, 24, 1)
+    g.copy_from(mansion, 1, 17, 10, 5, 1, 44)
+    g.copy_from(mansion, 19, 26, 5, 4, 14, 45)
+    # The stair up, in an alcove in the bottom right corner (Pokemon Mansion B1F's, x 33-37, y 25-31)
+    g.copy_from(mansion, 33, 25, 5, 7, B1_STAIRS_UP[0] - 1, B1_STAIRS_UP[1] - 4)
     return g
 
 
@@ -515,6 +679,11 @@ def write_header(b2_ends):
     ] + ['    %s,' % pt(p) for p in B1_TORCHES + [B1_FURNACE_MOON, B1_FURNACE_SUN]] + [
         '};',
         'static const s8 sClockGate[][2] = {%s};' % ', '.join(pt(p) for p in B1_GATE),
+        '// The clock room, walls and all: no wild Pokémon there (only in the rooms and corridor round it)',
+        '#define STATION_CLOCK_X %d' % B1_CLOCK[0],
+        '#define STATION_CLOCK_Y %d' % B1_CLOCK[1],
+        '#define STATION_CLOCK_W %d' % CLOCK_W,
+        '#define STATION_CLOCK_H %d' % CLOCK_H,
         '',
         '// B2F: the stones at the dead ends, and the square of water beyond each where its Pokémon waits',
         'static const s8 sDeadEnds[][2][2] = {',

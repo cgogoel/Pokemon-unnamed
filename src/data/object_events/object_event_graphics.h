@@ -210,6 +210,7 @@ const u32 gObjectEventPic_GrassCushion[] = INCGFX_U32("graphics/object_events/pi
 const u32 gObjectEventPic_FireCushion[] = INCGFX_U32("graphics/object_events/pics/cushions/fire_cushion.png", ".4bpp");
 const u32 gObjectEventPic_DockFire[] = INCGFX_U32("graphics/object_events/pics/misc/dock_fire.png", ".4bpp");
 const u32 gObjectEventPic_Medkit[] = INCGFX_U32("graphics/object_events/pics/misc/medkit.png", ".4bpp");
+const u32 gObjectEventPic_StationNote[] = INCGFX_U32("graphics/object_events/pics/misc/station_note.png", ".4bpp");
 const u32 gObjectEventPic_GlowcapDim[] = INCGFX_U32("graphics/object_events/pics/misc/glowcap_dim.png", ".4bpp");
 const u32 gObjectEventPic_GlowcapLit[] = INCGFX_U32("graphics/object_events/pics/misc/glowcap_lit.png", ".4bpp");
 const u32 gObjectEventPic_MoonveilBud[] = INCGFX_U32("graphics/object_events/pics/misc/moonveil_bud.png", ".4bpp");

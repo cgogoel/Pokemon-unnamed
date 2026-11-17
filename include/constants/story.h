@@ -131,6 +131,15 @@
 #define ACT2_FINALE_MEDKIT_USED     (1 << 2) // B2F: the medkit was opened (it can be used again)
 #define ACT2_FINALE_GRASS_CROSSED   (1 << 3) // B3F: walked the hidden path once
 #define ACT2_FINALE_CLOCK_SET       (1 << 4) // B1F: VAR_ACT2_CLOCK set to ACT2_CLOCK_START (on the first visit)
+#define ACT2_FINALE_LAB_GUARD       (1 << 5) // B1F: the Pokemon in the lab's door was beaten (or caught)
+#define ACT2_FINALE_STUDY_GUARD     (1 << 6) // B1F: the Pokemon in the study's door
+#define ACT2_FINALE_NOTE_1          (1 << 7) // B1F: the notes read, 1 to 5 (bits 7-11)
+#define ACT2_FINALE_NOTE_2          (1 << 8)
+#define ACT2_FINALE_NOTE_3          (1 << 9)
+#define ACT2_FINALE_NOTE_4          (1 << 10)
+#define ACT2_FINALE_NOTE_5          (1 << 11)
+#define ACT2_FINALE_NOTES           (0x1F << 7)
+#define ACT2_STATION_NOTE_COUNT     5
 
 // VAR_ACT2_CLOCK: bit (n - 1) for the torch at n o'clock, then the moon and sun furnaces
 #define ACT2_CLOCK_MOON             12

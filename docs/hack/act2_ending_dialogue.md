@@ -16,7 +16,8 @@ line up beside the player.
 `Act2_Text_MomFriendsHere`
 
 MOM: {PLAYER}! Your friends are
-here! Go on up!
+here! ...
+You all can go on up.
 
 `Act2_Text_FriendsVisit`
 
@@ -37,10 +38,17 @@ a ghost. What happened?
 
 {PLAYER}: …
 
----
+ROWAN: So you saw three legendary pokemon??
 
-FIRE, WATER and GRASS…
-all at the same time…
+MINA: And they attacked you?!
+
+KAI: AWESOME!
+
+ROWAN: KAI...
+So a FIRE, WATER, and GRASS attack
+all at the same time huh... wow
+
+---
 
 *(The player gets an idea: "!" over their head.)*
 
@@ -50,11 +58,12 @@ all at the same time…
 
 ---
 
-Come back to the lab with me!
+KAI: You want us to go all the
+way back to the lab? Now??
 
 ---
 
-KAI: Huh? Wait up!
+ROWAN: Huh? Wait up!
 
 *(Fade to black; warp to the lab, the institute's Research Room.)*
 
@@ -93,18 +102,18 @@ KAI: TRI-BLAST?
 
 ---
 
-{PLAYER}: FIRE, WATER and GRASS
-in one move. 120 power.
+ROWAN: FIRE, WATER and GRASS
+in one attack. 
 
 ---
 
-MINA: All three at once… So
-anything weak to one of them…
+MINA: All three at once… woven
+together...
 
 ---
 
-ROWAN: …takes super-effective
-damage. And nothing resists it!
+ROWAN: …the target takes super-effective
+damage without normal type resistance
 
 ---
 
@@ -119,14 +128,16 @@ noise in here? Is that…
 
 ---
 
-PROF. MARLOWE: FIRE, WATER and
+PROF. MARLOWE: A new TM???
+FIRE, WATER and
 GRASS in a single move.
 In all my years…
 
 ---
 
 PROF. FERN: All three courses in
-one TM. You really listened.
+one TM. You really listened,
+and then some.
 
 ---
 
@@ -136,7 +147,11 @@ It's a discovery.
 
 ---
 
-Congratulations, graduate!
+Congratulations, graduate! Go celebrate
+with your friends. Then cancel your plans 
+for the next week. You've got
+some writing to do, we're getting this
+published!
 
 *(Fade to black.)*
 

@@ -159,6 +159,32 @@ def shade(img, factor=0.8):
     return [[tuple(int(v * factor) for v in c) for c in row] for row in img]
 
 
+FOLIAGE_EDGE = (57, 90, 16)    # The trees' darkest green, their outline
+
+
+def foot(img, floor, trunk_colors, right):
+    """A tree's foot on the boards: the overworld tree's skirt (drawn to sit on grass) rounded off into the trunk, a
+    dark edge where it is cut, and a soft shadow on the boards around the trunk. One half of the pair (right: the
+    right half), measured across both halves so the curve and the shadow meet in the middle."""
+    dark = shade(floor)
+    out = [r[:] for r in img]
+    foliage = lambda x, y: img[y][x] not in trunk_colors and img[y][x] != floor[y][x] and img[y][x] != dark[y][x]
+    kept = [[False] * 16 for _ in range(16)]
+    for y in range(16):
+        for x in range(16):
+            X = x + (16 if right else 0)
+            if foliage(x, y) and ((X - 15.5) / 14.5) ** 2 + ((y - 2) / 10.5) ** 2 < 1:
+                kept[y][x] = True
+            elif foliage(x, y) or img[y][x] == dark[y][x] != floor[y][x]:  # Cut skirt, or the grass's shadow
+                out[y][x] = dark[y][x] if ((X - 15.5) / 9) ** 2 + ((y - 13) / 3.2) ** 2 < 1 else floor[y][x]
+    for y in range(16):
+        for x in range(16):
+            if kept[y][x] and any(0 <= x + dx < 16 and y + dy < 16 and foliage(x + dx, y + dy)
+                                  and not kept[y + dy][x + dx] for dx, dy in ((0, 1), (-1, 0), (1, 0))):
+                out[y][x] = FOLIAGE_EDGE
+    return out
+
+
 def roots(img, trunk_colors):
     """Boards split around the trunk: short seams running out from the trunk's foot along the boards."""
     out = [r[:] for r in img]
@@ -357,7 +383,7 @@ def compose(path_rows):
                 continue
             pic = swap(swap(general(mid), grass_colors, floor), {GRASS_SHADOW}, shade(floor))
             if 'FOOT' in name:
-                pic = roots(pic, trunk_colors)
+                pic = roots(foot(pic, floor, trunk_colors, name.endswith('_R')), trunk_colors)
             pics[name + suffix] = pic
     # The field: the overworld's tall grass in the soil where the boards are gone, and lone tufts in the gaps of
     # single broken boards

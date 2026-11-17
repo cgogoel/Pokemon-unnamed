@@ -157,7 +157,10 @@ def compose_b1f():
         g[xy] = blk(TORCH_UNLIT, True)
     # The caged stair down in the middle (Pokémon Mansion 1F's stair down)
     cx, cy = B1_CENTER
-    x0, x1, y0, y1 = cx - 2, cx + 2, cy - 2, cy + 2
+    # The back rail stands a square behind the stair (a step of floor between them), not right against its top
+    x0, x1, y0, y1 = cx - 2, cx + 2, cy - 3, cy + 2
+    for x in range(x0 + 1, x1):
+        g[x, y0 + 1] = blk(BASEMENT_FLOOR)
     for x in range(x0 + 1, x1):
         g[x, y0] = blk(RAIL_BACK, True)
         g[x, y1] = blk(RAIL_GATE_LOCK if x == cx else RAIL_GATE, True)

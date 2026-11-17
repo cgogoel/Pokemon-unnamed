@@ -170,7 +170,7 @@ lever is drawn pulled once the basement is open): "Pull the switch?" Yes: the bo
 counter (4, 8-9) slides away (`ACT2_FINALE_BASEMENT_OPEN`, redrawn on load). The stair down is warp 3 at (2, 3).
 
 **B1F: the clock** (`MUS_RG_POKE_MANSION`). A Pokémon Mansion basement room. 12 standing torches on a clock face of
-radius 6 around a cage at (8-12, 8-12), an iron railing with corner posts and a padlocked, spear-tipped gate at
+radius 6 around a cage at (8-12, 7-12), an iron railing with corner posts and a padlocked, spear-tipped gate at
 the front (`railing_pieces` in `draw_station_tiles.py`), with the stair down inside (warp 1 at (11, 9)); the stair up is
 in the bottom right alcove (warp 0 at (17, 17)).
 

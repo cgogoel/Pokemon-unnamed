@@ -242,6 +242,23 @@ TEST("Act 2 road: an area's level is set on the first visit, not by coming back 
     TearDown();
 }
 
+TEST("Act 2 road: the ranger station is an area of its own, not Pallet's")
+{
+    SetUpFinalProject(MAP_GROUP(MAP_PALLET_TOWN), MAP_NUM(MAP_PALLET_TOWN), 30);
+    Act2Road_OnMapEntered();
+    SetPartyLevel(40);
+    MoveTo(MAP_GROUP(MAP_RANGER_STATION_1F), MAP_NUM(MAP_RANGER_STATION_1F));
+    Act2Road_OnMapEntered();
+    EXPECT_EQ(Act2Road_GetAreaLevel(), 40);
+    SetPartyLevel(50);
+    MoveTo(MAP_GROUP(MAP_RANGER_STATION_B4F), MAP_NUM(MAP_RANGER_STATION_B4F));
+    Act2Road_OnMapEntered();
+    EXPECT_EQ(Act2Road_GetAreaLevel(), 40);
+    MoveTo(MAP_GROUP(MAP_PALLET_TOWN), MAP_NUM(MAP_PALLET_TOWN));
+    EXPECT_EQ(Act2Road_GetAreaLevel(), 30);
+    TearDown();
+}
+
 TEST("Act 2 road: an area is a region map section: a route's gates, a city's buildings, a cave's floors")
 {
     SetUpFinalProject(MAP_GROUP(MAP_MT_MOON_1F), MAP_NUM(MAP_MT_MOON_1F), 30);

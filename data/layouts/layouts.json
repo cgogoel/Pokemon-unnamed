@@ -10547,8 +10547,8 @@
     {
       "id": "LAYOUT_RANGER_STATION_B1F",
       "name": "RangerStation_B1F_Layout",
-      "width": 21,
-      "height": 23,
+      "width": 33,
+      "height": 54,
       "border_width": 2,
       "border_height": 2,
       "primary_tileset": "gTileset_BuildingFrlg",

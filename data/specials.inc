@@ -721,7 +721,10 @@ gSpecials::
 	def_special Act2Station_GetFacedClockPiece
 	def_special Act2Station_IsClockPieceLit
 	def_special Act2Station_ToggleClockPiece
-	def_special Act2Station_OpenClockGate
+	def_special Act2Station_SlideMosaic
+	def_special Act2Station_HideBeatenGuards
+	def_special Act2Station_CreateGuardMon
+	def_special Act2Station_CountNotes
 	def_special Act2Station_IsDeadEndBeaten
 	def_special Act2Station_PrepareDeadEnd
 	def_special Act2Station_CreateDeadEndMon

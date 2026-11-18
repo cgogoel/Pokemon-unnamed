@@ -1,4 +1,5 @@
 #include "global.h"
+#include "act2_station.h"
 #include "battle_setup.h"
 #include "battle_pike.h"
 #include "battle_pyramid.h"
@@ -453,6 +454,7 @@ static const struct Act2WildTable sAct2WildTables[] =
     { &sAct2_ViridianForest_FireRed_LandMonsInfo,    ACT2_GRASS_TRIP }, // The night bloom (docs/hack/act2_story.md)
     { &sAct2_CeladonCity_FireRed_FishingMonsInfo,    ALL_OF_ACT2 },
     { &sAct2_Route7_FireRed_LandMonsInfo,            ALL_OF_ACT2 },
+    { &sAct2_RangerStationB1F_FireRed_LandMonsInfo,  ALL_OF_ACT2 }, // The finale's ranger station, round the clock room
 };
 
 // Whether the table is one of Act 2's own (its field trips' areas)
@@ -812,6 +814,8 @@ bool8 StandardWildEncounter(u16 curMetatileBehavior, u16 prevMetatileBehavior)
     {
         if (MetatileBehavior_IsLandWildEncounter(curMetatileBehavior) == TRUE)
         {
+            if (Act2Station_IsEncounterFree())
+                return FALSE;
             timeOfDay = GetTimeOfDayForEncounters(headerId, WILD_AREA_LAND);
 
             if (gWildMonHeaders[headerId].encounterTypes[timeOfDay].landMonsInfo == NULL)

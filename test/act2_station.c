@@ -6,8 +6,7 @@
 #include "constants/characters.h"
 #include "constants/story.h"
 
-// The ranger station's B1F (docs/hack/act2_finale.md): the notes round the clock room, and the Pokémon guarding two
-// of its rooms
+// The ranger station's B1F (docs/hack/act2_finale.md): the notes round the clock room
 
 TEST("The ranger station: the notes found are counted, the others not")
 {
@@ -21,16 +20,4 @@ TEST("The ranger station: the notes found are counted, the others not")
     VarSet(VAR_ACT2_FINALE, ACT2_FINALE_NOTES);
     EXPECT_EQ(Act2Station_CountNotes(), ACT2_STATION_NOTE_COUNT);
     VarSet(VAR_ACT2_FINALE, 0);
-}
-
-TEST("The ranger station: a beaten guard stays gone, the other stays")
-{
-    FlagClear(FLAG_TEMP_1);
-    FlagClear(FLAG_TEMP_2);
-    VarSet(VAR_ACT2_FINALE, ACT2_FINALE_STUDY_GUARD);
-    Act2Station_HideBeatenGuards();
-    EXPECT(!FlagGet(FLAG_TEMP_1));
-    EXPECT(FlagGet(FLAG_TEMP_2));
-    VarSet(VAR_ACT2_FINALE, 0);
-    FlagClear(FLAG_TEMP_2);
 }

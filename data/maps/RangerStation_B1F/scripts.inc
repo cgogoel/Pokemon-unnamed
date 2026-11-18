@@ -6,7 +6,7 @@
 @ (and the open shaft) on every load.
 @ Round the clock room, a ring of corridor and rooms (wild Pokémon there, none in the clock room): a lone ranger's
 @ post. Their log, five notes from the five stages of their stay, gives the time, and why; the last is in their
-@ hands, in the study. Two Pokémon guard the doors of the lab and the study.
+@ hands, in the study. Two Pokémon hide in the doorways of the lab and the study.
 @ The lore: the station's founders sealed three Pokémon below (the chamber's trio, B4F) at a quarter past four one
 @ morning, the night the ground split, and built the clock to that hour. The trio stirs at that hour every night.
 
@@ -15,8 +15,10 @@ RangerStation_B1F_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, RangerStation_B1F_OnTransition
 	.byte 0
 
+@ The doorways' Pokémon stay hidden until the player steps into their doorway
 RangerStation_B1F_OnTransition:
-	special Act2Station_HideBeatenGuards
+	setflag FLAG_TEMP_1
+	setflag FLAG_TEMP_2
 	end
 
 RangerStation_B1F_OnLoad:
@@ -204,26 +206,33 @@ RangerStation_B1F_EventScript_ShowNote5:
 	msgbox RangerStation_B1F_Text_Note5
 	return
 
-@ The Pokémon in the doors of the lab and the study: a battle each, 3 levels above the party's average. Beaten or
-@ caught, it's gone for good (Act2Station_HideBeatenGuards).
+@ The Pokémon hiding in the doorways of the lab and the study: stepping into the doorway (coord event), it jumps out
+@ from the room's side and battles, 3 levels above the station's level (Act2Road_GetAreaLevel: an area of its own).
+@ Beaten or caught, it's gone for good (ACT2_FINALE_LAB_GUARD, _STUDY_GUARD). Run from, it stays out, blocking the
+@ way; talk to it to battle again. Their objects come first: local ids 1 and 2 (VAR_TEMP_5), hidden by FLAG_TEMP_1/2.
 RangerStation_B1F_EventScript_LabGuard::
-	lock
-	faceplayer
+	lockall
 	setvar VAR_0x8006, SPECIES_MAGNETON
 	setvar VAR_TEMP_4, ACT2_FINALE_LAB_GUARD
 	setvar VAR_TEMP_5, 1  @ Its local id
 	goto RangerStation_B1F_EventScript_Guard
 
 RangerStation_B1F_EventScript_StudyGuard::
-	lock
-	faceplayer
+	lockall
 	setvar VAR_0x8006, SPECIES_HAUNTER
 	setvar VAR_TEMP_4, ACT2_FINALE_STUDY_GUARD
 	setvar VAR_TEMP_5, 2
 	goto RangerStation_B1F_EventScript_Guard
 
 RangerStation_B1F_EventScript_Guard:
+	copyvar VAR_0x8004, VAR_TEMP_4
+	specialvar VAR_RESULT, Act2Station_HasFinaleBit
+	goto_if_eq VAR_RESULT, TRUE, RangerStation_B1F_EventScript_Release
 	bufferspeciesname STR_VAR_1, VAR_0x8006
+	addobject VAR_TEMP_5
+	playse SE_LEDGE
+	call_if_eq VAR_TEMP_5, 1, RangerStation_B1F_EventScript_JumpOutDown
+	call_if_eq VAR_TEMP_5, 2, RangerStation_B1F_EventScript_JumpOutUp
 	playmoncry VAR_0x8006, CRY_MODE_ENCOUNTER
 	msgbox RangerStation_B1F_Text_Guard
 	waitmoncry
@@ -234,15 +243,36 @@ RangerStation_B1F_EventScript_Guard:
 	specialvar VAR_RESULT, GetBattleOutcome
 	goto_if_eq VAR_RESULT, B_OUTCOME_WON, RangerStation_B1F_EventScript_GuardBeaten
 	goto_if_eq VAR_RESULT, B_OUTCOME_CAUGHT, RangerStation_B1F_EventScript_GuardBeaten
-	release
+	releaseall
 	end
 
 RangerStation_B1F_EventScript_GuardBeaten:
 	copyvar VAR_0x8004, VAR_TEMP_4
 	special Act2Station_SetFinaleBit
 	removeobject VAR_TEMP_5
-	release
+	releaseall
 	end
+
+@ Out at the player: the lab's comes down at them from inside, the study's up
+RangerStation_B1F_EventScript_JumpOutDown:
+	applymovement VAR_TEMP_5, RangerStation_B1F_Movement_JumpOutDown
+	waitmovement 0
+	return
+
+RangerStation_B1F_EventScript_JumpOutUp:
+	applymovement VAR_TEMP_5, RangerStation_B1F_Movement_JumpOutUp
+	waitmovement 0
+	return
+
+RangerStation_B1F_Movement_JumpOutDown:
+	jump_in_place_down
+	jump_in_place_down
+	step_end
+
+RangerStation_B1F_Movement_JumpOutUp:
+	jump_in_place_up
+	jump_in_place_up
+	step_end
 
 RangerStation_B1F_Text_LightAsk:
 	.string "The {STR_VAR_3} is cold.\p"
@@ -368,5 +398,5 @@ RangerStation_B1F_Text_TerminalEmpty:
 	.string "into it yet.$"
 
 RangerStation_B1F_Text_Guard:
-	.string "A wild {STR_VAR_1} is blocking\n"
-	.string "the doorway!$"
+	.string "A wild {STR_VAR_1} jumped out of\n"
+	.string "the dark!$"

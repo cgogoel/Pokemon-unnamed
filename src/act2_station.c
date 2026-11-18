@@ -1,5 +1,6 @@
 #include "global.h"
 #include "act2_station.h"
+#include "act2_road.h"
 #include "event_data.h"
 #include "event_object_movement.h"
 #include "field_player_avatar.h"
@@ -31,8 +32,8 @@ extern const u8 RangerStation_B3F_EventScript_Ambush[];
 #define METATILE_FURNACE_COLD       0x382
 #define METATILE_FURNACE_LIT        0x383
 
-#define DEAD_END_LEVEL_ABOVE_PARTY  2
-#define GUARD_LEVEL_ABOVE_PARTY     3
+#define DEAD_END_LEVEL_ABOVE_AREA  2
+#define GUARD_LEVEL_ABOVE_AREA     3
 
 #define IS_ON_MAP(map) (gSaveBlock1Ptr->location.mapGroup == MAP_GROUP(map) && gSaveBlock1Ptr->location.mapNum == MAP_NUM(map))
 
@@ -42,7 +43,7 @@ static const u16 sDeadEndFlags[] = { FLAG_ACT2_DEAD_END_1, FLAG_ACT2_DEAD_END_2,
 STATIC_ASSERT(ARRAY_COUNT(sDeadEndSpecies) == ARRAY_COUNT(sDeadEnds), DeadEndCount);
 STATIC_ASSERT(ARRAY_COUNT(sClockPieces) == ACT2_CLOCK_SUN + 1, ClockPieceCount);
 
-static u32 GetLevelAboveParty(u32 above);
+static u32 GetLevelAboveArea(u32 above);
 
 static void SetMetatile(s32 x, s32 y, u32 metatile)
 {
@@ -206,22 +207,11 @@ bool32 Act2Station_IsEncounterFree(void)
         && y >= STATION_CLOCK_Y && y < STATION_CLOCK_Y + STATION_CLOCK_H;
 }
 
-// special Act2Station_HideBeatenGuards (B1F's ON_TRANSITION): the Pokémon in the lab's and the study's doors stay
-// gone once beaten (their objects' flags, FLAG_TEMP_1 and FLAG_TEMP_2)
-void Act2Station_HideBeatenGuards(void)
-{
-    u32 finale = VarGet(VAR_ACT2_FINALE);
-    if (finale & ACT2_FINALE_LAB_GUARD)
-        FlagSet(FLAG_TEMP_1);
-    if (finale & ACT2_FINALE_STUDY_GUARD)
-        FlagSet(FLAG_TEMP_2);
-}
-
-// special Act2Station_CreateGuardMon with its species in VAR_0x8006, after setwildbattle: a Pokémon guarding a room's
-// door, 3 levels above the party's average
+// special Act2Station_CreateGuardMon with its species in VAR_0x8006, after setwildbattle: a Pokémon hiding in a room's
+// door, 3 levels above the station's level
 void Act2Station_CreateGuardMon(void)
 {
-    CreateScriptedWildMon(gSpecialVar_0x8006, GetLevelAboveParty(GUARD_LEVEL_ABOVE_PARTY), ITEM_NONE);
+    CreateScriptedWildMon(gSpecialVar_0x8006, GetLevelAboveArea(GUARD_LEVEL_ABOVE_AREA), ITEM_NONE);
 }
 
 // specialvar VAR_RESULT, Act2Station_CountNotes: how many of B1F's notes have been read, also in STR_VAR_1
@@ -293,25 +283,18 @@ void Act2Station_PrepareDeadEnd(void)
     StringCopy(gStringVar1, GetSpeciesName(species));
 }
 
-// The party's average level (rounded), plus some
-static u32 GetLevelAboveParty(u32 above)
+// The station's level (an area of its own: the party's average level when the player first came in,
+// Act2Road_GetAreaLevel), plus some
+static u32 GetLevelAboveArea(u32 above)
 {
-    u32 i, total = 0, count = 0;
-    for (i = 0; i < PARTY_SIZE; i++)
-    {
-        if (GetMonData(&gParties[B_TRAINER_PLAYER][i], MON_DATA_SPECIES) == SPECIES_NONE || GetMonData(&gParties[B_TRAINER_PLAYER][i], MON_DATA_IS_EGG))
-            continue;
-        total += GetMonData(&gParties[B_TRAINER_PLAYER][i], MON_DATA_LEVEL);
-        count++;
-    }
-    return min((count ? (total + count / 2) / count : 5) + above, MAX_LEVEL);
+    return min(Act2Road_GetAreaLevel() + above, MAX_LEVEL);
 }
 
 // special Act2Station_CreateDeadEndMon with the dead end (1-5) in VAR_TEMP_1, after setwildbattle: the dead end's
-// Pokémon, 2 levels above the party's average
+// Pokémon, 2 levels above the station's level
 void Act2Station_CreateDeadEndMon(void)
 {
-    CreateScriptedWildMon(sDeadEndSpecies[GetDeadEnd()], GetLevelAboveParty(DEAD_END_LEVEL_ABOVE_PARTY), ITEM_NONE);
+    CreateScriptedWildMon(sDeadEndSpecies[GetDeadEnd()], GetLevelAboveArea(DEAD_END_LEVEL_ABOVE_AREA), ITEM_NONE);
 }
 
 // special Act2Station_SetDeadEndBeaten with the dead end (1-5) in VAR_TEMP_1

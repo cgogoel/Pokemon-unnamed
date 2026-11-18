@@ -195,9 +195,15 @@ their hands) says why the clock is set to four.
 
 Wild Pokémon in the rooms and corridor (`sAct2_RangerStationB1F_FireRed`: Rattata, Zubat, Gastly, Grimer, Koffing,
 Voltorb, Magnemite...; Act 2's levels), none in the clock room (`Act2Station_IsEncounterFree`, the room's square
-`STATION_CLOCK_*`). Two Pokémon guard the doors of the lab (Magneton, (26, 10)) and the study (Haunter, (16, 42)): talk to one
-for a battle 3 levels above the party's average; beaten or caught, it's gone for good (`ACT2_FINALE_LAB_GUARD`,
-`_STUDY_GUARD`; their objects' flags `FLAG_TEMP_1`/`2`, set on transition).
+`STATION_CLOCK_*`). Two Pokémon hide in the doorways of the lab (Magneton) and the study (Haunter): stepping into the
+doorway ((26, 10), (16, 42); coord events) makes it jump out from the room's side ((26, 9), (16, 43)) for a battle 3
+levels above the station's level. Beaten or caught, it's gone for good (`ACT2_FINALE_LAB_GUARD`, `_STUDY_GUARD`); run
+from, it stays out, blocking the way, and talking to it battles again (their objects' flags `FLAG_TEMP_1`/`2`, set
+on transition).
+
+**Levels.** The station is an area of its own (`Act2Road_GetAreaLevel`; its floors keep Pallet's map section for the
+region map, so `act2_road.c` keeps its level in the unused `MAPSEC_SEVII_ISLE_22` slot): the party's average level
+when the player first goes in. B1F's wild Pokémon, the doorway Pokémon (+3) and B2F's dead ends (+2) start from it.
 
 | Piece | Position | Piece | Position | Piece | Position |
 |---|---|---|---|---|---|
@@ -238,7 +244,7 @@ but for a small circle round the player (flash level 5, radius 40 px: the stones
 down at the far end (warp 1 at (19, 1)), the MEDKIT (a red first-aid case, `OBJ_EVENT_GFX_MEDKIT`,
 `tools/hack/draw_medkit.py`, at (19, 5); heals the party, any number of times). The stones form a tree with exactly
 five dead ends (the composer checks); at each, a Water Pokémon hidden under the water beyond (`FLAG_TEMP_1`-`5`)
-leaps out and battles the player on arrival (coord event on the stone), at the party's average level + 2. Beaten or
+leaps out and battles the player on arrival (coord event on the stone), at the station's level + 2. Beaten or
 caught: gone for good.
 
 | Dead end | Stone | Pokémon at | Species | Flag |

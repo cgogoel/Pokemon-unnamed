@@ -27,7 +27,6 @@ u16 Act2Station_GetFacedClockPiece(void);
 bool16 Act2Station_IsClockPieceLit(void);
 bool16 Act2Station_ToggleClockPiece(void);
 void Act2Station_SlideMosaic(void);
-void Act2Station_HideBeatenGuards(void);
 void Act2Station_CreateGuardMon(void);
 u16 Act2Station_CountNotes(void);
 bool16 Act2Station_IsDeadEndBeaten(void);

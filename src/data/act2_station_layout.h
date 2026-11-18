@@ -23,7 +23,9 @@ static const s8 sClockPieces[][2] = {
     {12, 17},
     {20, 17},
 };
-static const s8 sClockGate[][2] = {{15, 27}, {16, 27}, {17, 27}};
+// The mosaic's middle: its slab slides away from the ladder down
+#define STATION_MOSAIC_X 16
+#define STATION_MOSAIC_Y 25
 // The clock room, walls and all: no wild Pokémon there (only in the rooms and corridor round it)
 #define STATION_CLOCK_X 6
 #define STATION_CLOCK_Y 15

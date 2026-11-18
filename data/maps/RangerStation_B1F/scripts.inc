@@ -1,10 +1,14 @@
 @ The abandoned ranger station, B1F: the clock (Act 2 finale, docs/hack/act2_finale.md). Twelve torches at the hours
-@ of a clock face around the caged stair down, two furnaces under a moon and a sun. A FIRE-type move lights one, a
+@ of a clock face round a stone mosaic, two furnaces under a moon and a sun. A FIRE-type move lights one, a
 @ WATER-type move puts it out (VAR_ACT2_CLOCK). At 4:15 a.m. (ACT2_CLOCK_SOLUTION: the torches at 4 and 3 and the
-@ moon furnace lit, nothing else) the cage's front opens for good (ACT2_FINALE_CLOCK_SOLVED). Act2Station_DrawFloor
-@ sets the clock to ACT2_CLOCK_START on the first visit and draws it on every load.
-@ Round the clock room, a ring of corridor and rooms (wild Pokémon there, none in the clock room) where five
-@ explorers' notes give the time. Two Pokémon guard the doors of the lab and the study.
+@ moon furnace lit, nothing else) the slab in the mosaic's middle slides away from a ladder down, for good
+@ (ACT2_FINALE_CLOCK_SOLVED). Act2Station_DrawFloor sets the clock to ACT2_CLOCK_START on the first visit and draws it
+@ (and the open shaft) on every load.
+@ Round the clock room, a ring of corridor and rooms (wild Pokémon there, none in the clock room): a lone ranger's
+@ post. Their log, five notes from the five stages of their stay, gives the time, and why; the last is in their
+@ hands, in the study. Two Pokémon guard the doors of the lab and the study.
+@ The lore: the station's founders sealed three Pokémon below (the chamber's trio, B4F) at a quarter past four one
+@ morning, the night the ground split, and built the clock to that hour. The trio stirs at that hour every night.
 
 RangerStation_B1F_MapScripts::
 	map_script MAP_SCRIPT_ON_LOAD, RangerStation_B1F_OnLoad
@@ -48,7 +52,7 @@ RangerStation_B1F_EventScript_LitPiece:
 	msgbox RangerStation_B1F_Text_PutOut
 	waitse
 RangerStation_B1F_EventScript_CheckClock:
-	goto_if_eq VAR_TEMP_3, TRUE, RangerStation_B1F_EventScript_OpenGate
+	goto_if_eq VAR_TEMP_3, TRUE, RangerStation_B1F_EventScript_OpenMosaic
 	releaseall
 	end
 
@@ -58,20 +62,30 @@ RangerStation_B1F_EventScript_Toggle:
 	special DrawWholeMapView
 	return
 
-RangerStation_B1F_EventScript_OpenGate:
+@ The clock set: a rumble, and the slab in the mosaic's middle grinds aside, halfway, then all the way
+RangerStation_B1F_EventScript_OpenMosaic:
 	delay 30
 	playse SE_UNLOCK
+	waitse
+	playse SE_M_EARTHQUAKE
 	setvar VAR_0x8004, 1  @ vertical pan
 	setvar VAR_0x8005, 1  @ horizontal pan
-	setvar VAR_0x8006, 6  @ num shakes
+	setvar VAR_0x8006, 8  @ num shakes
 	setvar VAR_0x8007, 4  @ shake delay
 	special ShakeCamera
 	waitstate
-	special Act2Station_OpenClockGate
+	playse SE_M_STRENGTH
+	setvar VAR_0x8004, 1
+	special Act2Station_SlideMosaic
 	special DrawWholeMapView
-	playse SE_BANG
+	delay 24
+	setvar VAR_0x8004, 2
+	special Act2Station_SlideMosaic
+	special DrawWholeMapView
 	waitse
-	msgbox RangerStation_B1F_Text_GateOpened
+	playse SE_M_ROCK_THROW
+	waitse
+	msgbox RangerStation_B1F_Text_MosaicOpened
 	releaseall
 	end
 
@@ -89,10 +103,10 @@ RangerStation_B1F_EventScript_Release:
 	releaseall
 	end
 
-@ Five explorers' notes, one hint each (no two hint at the same thing): night; morning, not evening; before six;
-@ the long hand pointing east (a quarter past); four o'clock. Together: 4:15 a.m. Each lies in one of the rooms
-@ (object events); reading one counts it (ACT2_FINALE_NOTE_1-5), and the terminal in the clock room shows the ones
-@ found so far.
+@ The ranger's five notes, one hint each (no two hint at the same thing): night; morning, not evening; before six;
+@ the long hand pointing east (a quarter past); four o'clock. Together: 4:15 a.m. Four lie in the rooms (object
+@ events), the fifth in the ranger's hands (RangerStation_B1F_EventScript_Remains); reading one counts it
+@ (ACT2_FINALE_NOTE_1-5), and the terminal in the clock room shows the ones found so far.
 RangerStation_B1F_EventScript_Note1::
 	lockall
 	msgbox RangerStation_B1F_Text_Note1
@@ -117,8 +131,10 @@ RangerStation_B1F_EventScript_Note4::
 	setvar VAR_0x8004, ACT2_FINALE_NOTE_4
 	goto RangerStation_B1F_EventScript_NoteRead
 
-RangerStation_B1F_EventScript_Note5::
+@ The ranger, slumped against the study's wall, the last note in their hands
+RangerStation_B1F_EventScript_Remains::
 	lockall
+	msgbox RangerStation_B1F_Text_Remains
 	msgbox RangerStation_B1F_Text_Note5
 	setvar VAR_0x8004, ACT2_FINALE_NOTE_5
 	goto RangerStation_B1F_EventScript_NoteRead
@@ -255,60 +271,87 @@ RangerStation_B1F_Text_NeedsWater:
 	.string "A WATER-type move could put it\n"
 	.string "out.$"
 
-RangerStation_B1F_Text_GateOpened:
-	.string "Clank!\p"
-	.string "The bars in front of the stairs\n"
-	.string "dropped into the floor!$"
+RangerStation_B1F_Text_MosaicOpened:
+	.string "The stone in the middle of the\n"
+	.string "mosaic slid away!\p"
+	.string "A ladder leads down into\n"
+	.string "the dark…$"
 
 RangerStation_B1F_Text_Note1:
-	.string "A torn page from a notebook…\p"
-	.string "“I couldn't see much when I went\n"
-	.string "in. Only the stars lit the trail\l"
-	.string "through the WOODS.”\p"
-	.string "“My lantern gave out on the\n"
-	.string "stairs. Some ranger I'd make.\l"
-	.string "-TOM”$"
+	.string "A page from a ranger's log…\p"
+	.string "“DAY 3. Posted down here alone.\n"
+	.string "Apparently I couldn't handle a post\l"
+	.string "dealing with real visitors. My orders\l"
+	.string "are to keep the post. But I haven't\l"
+	.string "been able to find out why. Nobody would\l"
+	.string "say.”\p"
+	.string "“There's a hum under the floor. Only\n"
+	.string "when it's dark, when the stars are out\l"
+	.string "over the WOODS.”$"
 
 RangerStation_B1F_Text_Note2:
-	.string "A note in neat handwriting…\p"
-	.string "“I set out before breakfast.\n"
-	.string "The day hadn't even begun.”\p"
-	.string "“Mom packed me breakfast AND\n"
-	.string "lunch. I ate both on the way.\l"
-	.string "-PIP”$"
+	.string "A page from a ranger's log…\p"
+	.string "“DAY 40. I talk to the plants now.\n"
+	.string "They're good listeners.”\p"
+	.string "“The hum never bugs me when I'm falling\n"
+	.string "asleep. It worms into my conscious\l"
+	.string "before I wake. Staying in my mind\l"
+	.string "throughout the day.”$"
 
 RangerStation_B1F_Text_Note3:
-	.string "A crumpled note…\p"
-	.string "“I ran the whole way, sure I'd\n"
-	.string "be late. But the town's six\l"
-	.string "o'clock bell hadn't rung yet.”\p"
-	.string "“Should've walked. My legs!\n"
-	.string "-DANA”$"
+	.string "A page from a ranger's log, the writing\n"
+	.string "cramped…\p"
+	.string "“DAY 112. Lit every torch. Put them\n"
+	.string "out. Fed the furnaces. They won't\l"
+	.string "answer me.”\p"
+	.string "“A hundred nights I've timed it. It\n"
+	.string "starts before the SPEAROW wake and\l"
+	.string "fly out for the day.”$"
 
 RangerStation_B1F_Text_Note4:
-	.string "A page of a pocket diary…\p"
-	.string "“I held my watch up to the map\n"
-	.string "at the door. Its long hand lay\l"
-	.string "flat, pointing due east.”\p"
-	.string "“Then the door shut behind me.\n"
-	.string "Why do I write these things?\l"
-	.string "-LEX”$"
+	.string "A page from a ranger's log, the writing\n"
+	.string "all over the place…\p"
+	.string "“DAY ???. Found a log behind the\n"
+	.string "machines. They SEALED something down\l"
+	.string "there.”\p"
+	.string "“…when the ground was sealed, a\n"
+	.string "clock's long hand lay flat, not angled.\l"
+	.string "That's one. Now for the hour hand…”$"
 
 RangerStation_B1F_Text_Note5:
-	.string "A note on the back of a receipt…\p"
-	.string "“Back on the farm, the MILTANK\n"
-	.string "get milked at four. I heard them\l"
-	.string "lowing as I left.”\p"
-	.string "“Funny, what you remember when\n"
-	.string "you're lost down here. -OLD BRAM”$"
+	.string "“They built the clock to the hour they\n"
+	.string "shut it in… hands reaching to the\l"
+	.string "east.”\p"
+	.string "“Set the time and it opens. I know the\n"
+	.string "minute, but the hour still eludes me… I\l"
+	.string "tried to track my sleep cycles… 2 hours\l"
+	.string "each… starting at 10…\p"
+	.string "…it must have been 3 or 4 of them\n"
+	.string "before the hum drove into my conscious\l"
+	.string "and the maddening dreams burrowed\l"
+	.string "into my soul.”\p"
+	.string "“Can't make the stairs anymore. The\n"
+	.string "legs won't. That's all right. The mind\l"
+	.string "gave up long ago.\p"
+	.string "I realized it wasn't the post. It's me,\n"
+	.string "I've never been right. I was right to\l"
+	.string "lock myself down here.” -HOLT$"
+
+RangerStation_B1F_Text_Remains:
+	.string "Someone is slumped against\n"
+	.string "the wall…\p"
+	.string "A RANGER, in a uniform faded to\n"
+	.string "dust. They've been here a long,\l"
+	.string "long time.\p"
+	.string "Their hands still hold a note.$"
 
 RangerStation_B1F_Text_NotesFound:
 	.string "Notes found: {STR_VAR_1}/5$"
 
 RangerStation_B1F_Text_AllNotes:
 	.string "Notes found: 5/5\p"
-	.string "That's all of them. Put together,\n"
-	.string "their times could set the clock.$"
+	.string "That's the whole log. Put together,\n"
+	.string "it gives the hour to set the clock.$"
 
 RangerStation_B1F_Text_TerminalAsk:
 	.string "An old terminal. It still runs!\p"

@@ -3,8 +3,9 @@
 
     1F   the gate building (Saffron's north/south gate, LAYOUT_SAFFRON_CITY_NORTH_SOUTH_ENTRANCE), widened on the left
          for a stair down behind the left counter (Underground Path entrance's), its north door walled up.
-    B1F  the clock: a Pokémon Mansion basement room; 12 torches at the hours of a clock face around a caged stair
-         down; two furnaces under a moon and a sun. A ring of corridor and rooms round it, where the notes are.
+    B1F  the clock: a Pokémon Mansion basement room; 12 torches at the hours of a clock face round a stone mosaic
+         whose middle slab slides away (a ladder down); two furnaces under a moon and a sun. A ring of corridor and
+         rooms round it, a lone ranger's post: their things, cobwebs, and their notes.
     B2F  the flood: a Cerulean Cave chamber under water; stepping stones one jump apart, five dead ends.
     B3F  the overgrowth: a pattern on the floor, then a field of tall grass where only that pattern's path is safe.
     B4F  the chamber: Mt. Ember's Ruby Path altar room (B5F), stretched.
@@ -20,6 +21,8 @@ import os
 import struct
 
 import draw_station_grove
+import draw_station_tiles as tiles
+from draw_station_tiles import furniture_id, mosaic_id
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
 SOLID = 1 << 10
@@ -125,21 +128,15 @@ B1_RADIUS = {12: (0, -6), 1: (3, -5), 2: (5, -3), 3: (6, 0), 4: (5, 3), 5: (3, 5
 B1_TORCHES = [(B1_CENTER[0] + B1_RADIUS[h][0], B1_CENTER[1] + B1_RADIUS[h][1]) for h in range(1, 13)]
 B1_FURNACE_MOON = clock_xy(6, 2)
 B1_FURNACE_SUN = clock_xy(14, 2)
-B1_GATE = [clock_xy(9, 12), clock_xy(10, 12), clock_xy(11, 12)]
-B1_STAIRS_DOWN = clock_xy(11, 9)  # MB_DOWN_LEFT_STAIR_WARP
+B1_LADDER = B1_CENTER             # The mosaic's middle: the slab, then the ladder down (MB_LADDER)
 B1_STAIRS_UP = (29, 48)           # MB_UP_RIGHT_STAIR_WARP, in the stair hall
 B1_CLOCK_DOOR = [clock_xy(x, 0) for x in (9, 10, 11)]  # The gap in the clock room's top wall
 B1_TERMINAL = clock_xy(3, 2)      # The terminal on the clock room's top wall, where the notes found are typed up
 B1_LAB_DOOR = (26, 10)            # The rooms the guards stand in the doors of (one square wide)
 B1_STUDY_DOOR = (16, 42)
 TORCH_UNLIT, TORCH_LIT, MOON, SUN = 0x384, 0x385, 0x386, 0x387
-# The railing round the stair down (draw_station_tiles.py): back, sides, corners, and the gate at the front
-RAIL_BACK, RAIL_LEFT, RAIL_RIGHT = 0x388, 0x38B, 0x38C
-RAIL_BACK_LEFT, RAIL_BACK_RIGHT, RAIL_FRONT_LEFT, RAIL_FRONT_RIGHT = 0x38D, 0x38E, 0x38F, 0x390
-RAIL_GATE, RAIL_GATE_LOCK = 0x391, 0x392
 FURNACE_COLD, FURNACE_LIT = 0x382, 0x383
 BASEMENT_FLOOR = 0x286
-STAIR_WARP_BASEMENT, STAIR_SIDE_BASEMENT = 0x389, 0x38A  # Mansion 1F's 0x2D2 and 0x2DA on the basement floor
 
 # Pokemon Mansion's wall pieces (as its B1F uses them). A wall running across is three rows: its cap, its face, its
 # base (wainscot); the floor's row above the cap is the floor-edge row (the top of the wall seen from above).
@@ -251,27 +248,14 @@ def compose_clock_room():
     cx, cy = B1_CENTER[0] - B1_CLOCK[0], B1_CENTER[1] - B1_CLOCK[1]
     for h in range(1, 13):
         g[cx + B1_RADIUS[h][0], cy + B1_RADIUS[h][1]] = blk(TORCH_UNLIT, True)
-    # The caged stair down in the middle (Pokemon Mansion 1F's stair down)
-    # The back rail stands a square behind the stair (a step of floor between them), not right against its top
-    x0, x1, y0, y1 = cx - 2, cx + 2, cy - 3, cy + 2
-    for x in range(x0 + 1, x1):
-        g[x, y0 + 1] = blk(BASEMENT_FLOOR)
-    for x in range(x0 + 1, x1):
-        g[x, y0] = blk(RAIL_BACK, True)
-        g[x, y1] = blk(RAIL_GATE_LOCK if x == cx else RAIL_GATE, True)
-    for y in range(y0 + 1, y1):
-        g[x0, y], g[x1, y] = blk(RAIL_LEFT, True), blk(RAIL_RIGHT, True)
-    g[x0, y0], g[x1, y0] = blk(RAIL_BACK_LEFT, True), blk(RAIL_BACK_RIGHT, True)
-    g[x0, y1], g[x1, y1] = blk(RAIL_FRONT_LEFT, True), blk(RAIL_FRONT_RIGHT, True)
-    mansion_1f = load('LAYOUT_POKEMON_MANSION_1F')
-    g.copy_from(mansion_1f, 23, 27, 3, 2, cx - 1, cy - 1)
-    g[cx + 1, cy - 1], g[cx + 1, cy] = blk(STAIR_WARP_BASEMENT), blk(STAIR_SIDE_BASEMENT)
-    for x in range(cx - 1, cx + 2):
-        g[x, cy + 1] = blk(BASEMENT_FLOOR)
+    # The stone mosaic in the middle of the torches (draw_station_mosaic.py), its slab right in the middle
+    for dy in range(5):
+        for dx in range(5):
+            g[cx - 2 + dx, cy - 2 + dy] = blk(mosaic_id(dx, dy))
     return g
 
 
-def compose_b1f():
+def compose_b1f(webs=True):
     g = Grid(B1_W, B1_H, blk(M_FLOOR))
     W, H = B1_W, B1_H
     walls = Walls(g)
@@ -337,12 +321,58 @@ def compose_b1f():
     g.copy_from(mansion, 19, 26, 5, 4, 14, 45)
     # The stair up, in an alcove in the bottom right corner (Pokemon Mansion B1F's, x 33-37, y 25-31)
     g.copy_from(mansion, 33, 25, 5, 7, B1_STAIRS_UP[0] - 1, B1_STAIRS_UP[1] - 4)
+    furnish_b1f(g)
+    if webs:
+        targets = web_targets()
+        for x, y, corner in B1_WEBS:
+            g[x, y] = (g[x, y] & ~0x3FF) | tiles.webbed_id(g[x, y] & 0x3FF, corner, targets)
     return g
 
 
-def open_b1f_gate(g):
-    for xy in B1_GATE:
-        g[xy] = blk(BASEMENT_FLOOR)
+# The lone ranger's things round the ring (FURNITURE, on the basement floor): (x, y, name)
+B1_FURNITURE = [
+    # The office: the ranger's shelf of field guides, a cabinet, the TV, crates of supplies never unpacked
+    (2, 3, 'shelf_l'), (3, 3, 'shelf_r'), (8, 3, 'tv'), (9, 3, 'cabinet_l'), (10, 3, 'cabinet_r'),
+    (1, 7, 'crate_l'), (9, 7, 'crate_r'), (10, 7, 'crate_l'),
+    # The statue hall: the ranger's bed, between the statues, and a plant they kept alive
+    (15, 3, 'bed_l'), (16, 3, 'bed_r'), (12, 3, 'plant'),
+    # The kitchen nook in the corridor, under the office's wall: sink, stove, a cupboard
+    (2, 12, 'sink'), (3, 12, 'stove'), (4, 12, 'cabinet_l'), (5, 12, 'cabinet_r'),
+    # The lab: cabinets, crates
+    (22, 3, 'cabinet_l'), (23, 3, 'cabinet_r'), (30, 7, 'crate_l'), (31, 7, 'crate_r'), (31, 6, 'crate_l'),
+    # The study: a bookshelf
+    (12, 44, 'shelf_l'), (13, 44, 'shelf_r'),
+    # The stair hall: supplies stacked where they were carried down
+    (22, 44, 'crate_l'), (23, 44, 'crate_r'), (22, 45, 'crate_r'), (25, 49, 'crate_l'),
+]
+# Cobwebs (x, y, corner): baked into whatever stands there (draw_station_tiles.py makes the webbed copies)
+B1_WEBS = [
+    # On the furniture
+    (24, 2, 'TL'), (29, 2, 'TR'), (2, 3, 'TL'), (10, 3, 'TR'), (16, 3, 'TR'),
+    (12, 44, 'TL'), (2, 44, 'TL'), (10, 47, 'TR'), (15, 46, 'TL'), (22, 44, 'TL'), (5, 12, 'TR'), (31, 6, 'TR'),
+    # In the corners of the walls
+    (1, 1, 'TL'), (31, 1, 'TR'), (20, 1, 'TR'), (12, 1, 'TL'), (1, 42, 'TL'), (12, 42, 'TL'), (20, 42, 'TR'),
+    (7, 16, 'TL'), (25, 16, 'TR'),
+]
+
+
+def furnish_b1f(g):
+    for x, y, name in B1_FURNITURE:
+        floor = g[x, y] & 0x3FF
+        assert floor in tiles.FURNITURE_FLOORS, 'B1F: %s at (%d, %d) is on 0x%X, not the floor' % (name, x, y, floor)
+        g[x, y] = blk(furniture_id(name, floor), True)
+
+
+def web_targets():
+    """The (metatile, corner) pairs B1F's cobwebs hang on, in order (draw_station_tiles.py makes a webbed copy of
+    each)."""
+    g = compose_b1f(webs=False)
+    out = []
+    for x, y, corner in B1_WEBS:
+        key = (g[x, y] & 0x3FF, corner)
+        if key not in out:
+            out.append(key)
+    return out
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -678,7 +708,9 @@ def write_header(b2_ends):
         'static const s8 sClockPieces[][2] = {',
     ] + ['    %s,' % pt(p) for p in B1_TORCHES + [B1_FURNACE_MOON, B1_FURNACE_SUN]] + [
         '};',
-        'static const s8 sClockGate[][2] = {%s};' % ', '.join(pt(p) for p in B1_GATE),
+        '// The mosaic\'s middle: its slab slides away from the ladder down',
+        '#define STATION_MOSAIC_X %d' % B1_LADDER[0],
+        '#define STATION_MOSAIC_Y %d' % B1_LADDER[1],
         '// The clock room, walls and all: no wild Pokémon there (only in the rooms and corridor round it)',
         '#define STATION_CLOCK_X %d' % B1_CLOCK[0],
         '#define STATION_CLOCK_Y %d' % B1_CLOCK[1],

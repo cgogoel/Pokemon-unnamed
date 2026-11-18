@@ -6,7 +6,8 @@
 // Its custom metatiles (tools/hack/draw_station_tiles.py)
 #define METATILE_RangerStation_TorchUnlit   0x384 // gTileset_PokemonMansion
 #define METATILE_RangerStation_TorchLit     0x385
-#define METATILE_RangerStation_RailBack     0x388 // The railing round the stair down (0x38B-0x392 the rest)
+#define METATILE_RangerStation_MosaicHalf   0x3A1 // The mosaic's middle slab, slid halfway
+#define METATILE_RangerStation_MosaicOpen   0x3A2 // ...slid away: the shaft, a ladder down (MB_LADDER)
 #define METATILE_RangerStation_Stone        0x306 // gTileset_CeruleanCave
 
 // Engine hooks
@@ -25,7 +26,7 @@ bool16 Act2Station_FindWaterMoveUser(void);
 u16 Act2Station_GetFacedClockPiece(void);
 bool16 Act2Station_IsClockPieceLit(void);
 bool16 Act2Station_ToggleClockPiece(void);
-void Act2Station_OpenClockGate(void);
+void Act2Station_SlideMosaic(void);
 void Act2Station_HideBeatenGuards(void);
 void Act2Station_CreateGuardMon(void);
 u16 Act2Station_CountNotes(void);

@@ -828,6 +828,10 @@ static const struct SpriteFrameImage sPicTable_StationNote[] = {
     obj_frame_tiles(gObjectEventPic_StationNote),
 };
 
+static const struct SpriteFrameImage sPicTable_RangerRemains[] = {
+    obj_frame_tiles(gObjectEventPic_RangerRemains),
+};
+
 static const struct SpriteFrameImage sPicTable_GlowcapDim[] = {
     obj_frame_tiles(gObjectEventPic_GlowcapDim),
 };

@@ -7,9 +7,11 @@ the tileset is rebuilt from the same base every time). A new row of 16 tiles at 
     0x384 torch, unlit     0x385 torch, lit       (standing iron braziers on the basement floor; the lit flames
                                                    flicker: frames in anim/torch/)
     0x386 moon emblem      0x387 sun emblem       (painted on the wall, above the furnaces)
-    0x388 railing, back    (the cage around B1F's stairs, an iron railing on the basement floor; railing_pieces)
-    0x389, 0x38A           the Mansion 1F stair down's right-hand pieces (0x2D2, 0x2DA) on the basement floor
-    0x38B-0x392            the railing's sides, corners and gate (tiles in the free slots RAILING_SLOTS)
+    0x388-0x3A0            the stone mosaic in the middle of the clock, 5x5 (draw_station_mosaic.py, palette 10)
+    0x3A1, 0x3A2           its middle slab slid halfway, and slid away (the shaft and its ladder down, MB_LADDER)
+    0x3A3-                 the lone ranger's furniture (FURNITURE: FireRed's building furniture on the basement
+                           floor), then the cobwebbed copies of what B1F's cobwebs hang on (compose_ranger_station
+                           B1_WEBS). New tiles go in the tileset's free (unused) slots.
 
 Cerulean Cave tileset (B2F, the flood). A new row of tiles at the end of tiles.png, its palette 08 (cave greys):
     0x306 stepping stone   (a flat rock in the cave's pond water, walkable)
@@ -93,83 +95,6 @@ def torch_shadow(lit_floor, shaded_floor):
                 c = darker[lit_floor[y % 8][x % 8]]
                 pic[y - 8][x] = darker.get(c, c - 1) if d < 0.45 else c
     return [[row[x0:x0 + 8] for row in pic] for x0 in (0, 8)]
-# The cage around B1F's stair down: an iron railing, light from the upper left like the rest of FireRed. Each piece
-# is a 16x16 picture on the basement floor; the pictures are cut into 8x8 tiles and repeats (and mirror images) are
-# shared, so the whole railing fits in the 12 tiles the tileset has left.
-#   rail     the back of the cage, seen face on: a top rail, bars, a bottom rail on the floor
-#   side     a side of the cage seen from above: the top rail running away from the viewer, the left half of the
-#            square (mirrored for the right side)
-#   corner   the back corners: a post, the rail running off to the right (mirrored for the right)
-#   front    the front corners: the side's rail coming down onto a post, the rail running off to the right
-#   gate     the front's three squares that drop into the floor: spear-tipped bars through the rails, and a padlock
-#            on the middle one
-POST_X = range(3, 8)    # The posts and the sides' top rail: columns 3-7, in the left half of the square
-POST_COLORS = 'KlidK'
-
-
-def _canvas():
-    return [['.'] * 16 for _ in range(16)]
-
-
-def _rail(art, x0, x1, gate=False):
-    for x in range(x0, x1 + 1):
-        bar = x % 4 in (1, 2)
-        shade = 'l' if x % 4 == 1 else 'd'
-        if gate:
-            # Spear tips above the top rail; the bars run through both rails
-            if bar:
-                art[1][x] = 'K'
-                art[2][x] = shade
-            for y, c in ((3, 'K'), (4, 'i'), (5, 'K'), (12, 'K'), (13, 'i'), (14, 'd'), (15, 'K')):
-                art[y][x] = c
-            for y in range(6, 12):
-                art[y][x] = shade if bar else '.'
-            if bar:
-                art[3][x], art[4][x], art[5][x] = shade, shade, shade
-        else:
-            for y, c in ((3, 'K'), (4, 'l'), (5, 'i'), (6, 'K'), (12, 'K'), (13, 'i'), (14, 'd'), (15, 'K')):
-                art[y][x] = c
-            for y in range(7, 12):
-                art[y][x] = shade if bar else '.'
-
-
-def _post(art, top):
-    for i, x in enumerate(POST_X):
-        for y in range(top + 1, 15):
-            art[y][x] = POST_COLORS[i]
-        art[15][x] = 'K'
-        art[top][x] = 'K' if i in (0, 4) else 'x' if i == 1 else 'l'   # A cap, lit from the upper left
-    art[top - 1][4], art[top - 1][5], art[top - 1][6] = 'K', 'K', 'K'
-
-
-def _side(art, y0, y1):
-    for y in range(y0, y1 + 1):
-        for i, x in enumerate(POST_X):
-            art[y][x] = POST_COLORS[i]
-        if y % 4 == 3:  # The bars' tops, seen from above
-            art[y][5] = 'K'
-
-
-def railing_pieces():
-    rail, side, corner, front, gate, lock = (_canvas() for _ in range(6))
-    _rail(rail, 0, 15)
-    _side(side, 0, 15)
-    _rail(corner, 8, 15)
-    _post(corner, 2)
-    _side(front, 0, 2)
-    _rail(front, 8, 15)
-    _post(front, 3)
-    _rail(gate, 0, 15, gate=True)
-    _rail(lock, 0, 15, gate=True)
-    # The padlock, hanging off the top rail in the middle of the gate (brass: Y lit, O shaded)
-    for y, row in enumerate(['...KKKK...', '..K....K..', '..K....K..', '.KKKKKKKK.', '.KYYYYOOK.', '.KYWYKYOK.',
-                             '.KYYYKOOK.', '.KOOOOOOK.', '..KKKKKK..']):
-        for x, c in enumerate(row):
-            if c != '.':
-                lock[5 + y][3 + x] = c
-    return [[''.join(r) for r in a] for a in (rail, side, corner, front, gate, lock)]
-
-
 def plaque(art):
     """A round iron plaque on the wall, inside the tile with a pixel to spare: an outline, a bevel lit from the upper
     left (shaded lower right) and a dark face. Returns the face's radius."""
@@ -262,36 +187,9 @@ LAYER_COVERED = 1 << 29  # Both layers under objects: the player walks in front 
 MB_NORMAL = 0x00
 
 
-HFLIP = 1 << 10
-RAILING_SLOTS = list(range(358, 368)) + [382, 383]  # Free tiles: the furnaces' row after its six, this row's last two
+HFLIP, VFLIP = 1 << 10, 1 << 11
 SHADOW_SLOTS = (131, 132)                            # Free tiles (blank, unused) for the torch's shadow
 BLANK_TILE = 0                                       # The primary tileset's first tile is empty
-
-
-def cut_tiles(pictures, slots):
-    """Cuts 16x16 pictures into 8x8 tiles, sharing repeats and mirror images. Returns the new tiles (one per slot
-    used) and, for each picture, its four tile entries (slot index, hflip) or None where the quarter is empty."""
-    tiles, entries = [], []
-    for art in pictures:
-        quarters = []
-        for q in quads(art, KEYS):
-            if not any(any(row) for row in q):
-                quarters.append(None)
-                continue
-            mirror = [row[::-1] for row in q]
-            for n, t in enumerate(tiles):
-                if t == q:
-                    quarters.append((n, False))
-                    break
-                if t == mirror:
-                    quarters.append((n, True))
-                    break
-            else:
-                tiles.append(q)
-                quarters.append((len(tiles) - 1, False))
-        entries.append(quarters)
-    assert len(tiles) <= len(slots), 'railing: %d tiles for %d free slots' % (len(tiles), len(slots))
-    return tiles, entries
 
 
 def secondary_tile(folder, entry):
@@ -313,13 +211,154 @@ def put_tiles(folder, slots, tiles):
     write_png(png, width, rows, plte)
 
 
-def draw_mansion():
+# B1F's metatiles after the torches and emblems (0x384-0x387), in this order; compose_ranger_station.py places them
+# by these same numbers (mosaic_id, furniture_id, webbed_id), so the two can't drift apart.
+MOSAIC_FIRST = 0x388                     # The dial, 5x5, row by row; its middle (0x394) is the slab, closed
+MOSAIC_SLAB = MOSAIC_FIRST + 12
+MOSAIC_HALF, MOSAIC_OPEN = 0x3A1, 0x3A2  # The slab slid halfway; slid away, the shaft and its ladder (MB_LADDER)
+MB_LADDER = 0x61
+
+# The lone ranger's things: FireRed's building furniture (gTileset_BuildingFrlg, drawn on its top layer) stood on
+# the basement's floor instead of the building's planks, on each of the floor pieces it may stand on
+FURNITURE = {
+    'bed_l': 0x18, 'bed_r': 0x19, 'shelf_l': 0x73, 'shelf_r': 0x74, 'sink': 0x31, 'stove': 0x32, 'tv': 0x75,
+    'crate_l': 0x99, 'crate_r': 0x9A, 'plant': 0x93, 'cabinet_l': 0x33, 'cabinet_r': 0x34,
+}
+FURNITURE_FLOORS = (0x286, 0x287)  # The floor, and the floor shaded by a wall
+FURNITURE_FIRST = 0x3A3
+
+
+def mosaic_id(dx, dy):
+    return MOSAIC_FIRST + dy * 5 + dx
+
+
+def furniture_id(name, floor):
+    return FURNITURE_FIRST + list(FURNITURE).index(name) * len(FURNITURE_FLOORS) + FURNITURE_FLOORS.index(floor)
+
+
+# Cobwebs, baked into copies of the metatiles they hang on (furniture, wall corners): (metatile, corner) where
+# corner is the web's anchor, 'TL' or 'TR'. Metatiles from gTileset_PokemonMansion or the furniture above.
+WEBBED_FIRST = FURNITURE_FIRST + len(FURNITURE) * len(FURNITURE_FLOORS)
+WEBBED = []   # Filled in from compose_ranger_station.B1_WEBS (webbed_targets), so the list lives in one place
+
+
+def webbed_id(metatile, corner, targets):
+    return WEBBED_FIRST + targets.index((metatile, corner))
+
+
+# A cobweb strung across a top-left corner, drawn by hand: three spokes from the corner (along the top, down the
+# middle, down the side), joined by threads that sag toward the corner; the outer one broken, a loose end hanging
+WEB_SPOKES = [[(x, 0 if x < 7 else 1) for x in range(14)], [(i, i) for i in range(10)],
+              [(0 if y < 7 else 1, y) for y in range(14)]]
+WEB_THREADS = [
+    [(4, 0), (3, 1), (3, 2), (3, 3), (2, 3), (1, 3), (0, 4)],
+    [(8, 1), (7, 2), (7, 3), (6, 4), (6, 5), (6, 6), (5, 6), (4, 6), (3, 7), (2, 7), (1, 8)],
+    [(12, 1), (11, 2), (11, 3), (10, 4), (10, 5), (10, 6), (9, 7), (9, 8), (9, 9), (8, 9), (7, 10),
+     (3, 11), (2, 12), (1, 12), (9, 10), (10, 11), (10, 12)],
+]
+
+
+def web(corner):
+    """The cobweb, 16x16: 1 the strands (bright: the spokes near the corner, the inner thread), 2 the finer threads
+    (faint), 0 nothing. Mirrored for a top-right corner."""
+    pic = [[0] * 16 for _ in range(16)]
+    for spoke in WEB_SPOKES:
+        for i, (x, y) in enumerate(spoke):
+            pic[y][x] = 1 if i < 6 else 2
+    for n, thread in enumerate(WEB_THREADS):
+        for x, y in thread:
+            if pic[y][x] == 0:
+                pic[y][x] = 1 if n == 0 else 2
+    if corner == 'TR':
+        pic = [row[::-1] for row in pic]
+    return pic
+
+
+def read_pal(path):
+    lines = open(path).read().split('\n')
+    return [tuple(map(int, l.split())) for l in lines[3:19]]
+
+
+def tile_pixels(entry, tiles):
+    """The 8x8 palette indices an entry shows (its flips applied). tiles: (primary rows, secondary rows)."""
+    t = entry & 0x3FF
+    rows, n = (tiles[0], t) if t < PRIMARY_TILES else (tiles[1], t - PRIMARY_TILES)
+    per = len(rows[0]) // 8
+    px = [rows[(n // per) * 8 + y][(n % per) * 8:(n % per) * 8 + 8] for y in range(8)]
+    if entry & HFLIP:
+        px = [r[::-1] for r in px]
+    if entry & VFLIP:
+        px = px[::-1]
+    return [list(r) for r in px]
+
+
+class TileSink:
+    """New 8x8 tiles for the Mansion tileset, put in its free slots; identical tiles (and mirror images) shared."""
+
+    def __init__(self, slots):
+        self.slots, self.tiles = list(slots), []
+
+    def entry(self, px, pal):
+        if not any(any(r) for r in px):
+            return BLANK_TILE
+        for n, t in enumerate(self.tiles):
+            for flip, f in ((0, lambda p: p), (HFLIP, lambda p: [r[::-1] for r in p]), (VFLIP, lambda p: p[::-1]),
+                            (HFLIP | VFLIP, lambda p: [r[::-1] for r in p[::-1]])):
+                if t == f(px):
+                    return (PRIMARY_TILES + self.slots[n]) | flip | (pal << 12)
+        self.tiles.append(px)
+        assert len(self.tiles) <= len(self.slots), 'Mansion tileset: out of free tiles'
+        return (PRIMARY_TILES + self.slots[len(self.tiles) - 1]) | (pal << 12)
+
+
+def nearest(pal, rgb):
+    return min(range(1, 16), key=lambda i: sum((a - b) ** 2 for a, b in zip(pal[i], rgb)))
+
+
+def bake_web(layers, corner, tiles, palettes, sink):
+    """A metatile's eight entries with a cobweb drawn over them: on its top layer, in each tile's own palette (the
+    web's two colors matched to that palette's nearest), or in the mosaic's palette where the top layer is empty."""
+    pic = web(corner)
+    out = list(layers)
+    for q in range(4):
+        part = [row[(q % 2) * 8:(q % 2) * 8 + 8] for row in pic[(q // 2) * 8:(q // 2) * 8 + 8]]
+        if not any(any(r) for r in part):
+            continue
+        top = layers[4 + q]
+        if top & 0x3FF:
+            pal = top >> 12
+            px = tile_pixels(top, tiles)
+        else:
+            pal, px = MOSAIC_PAL, [[0] * 8 for _ in range(8)]
+        colors = {1: nearest(palettes[pal], (238, 238, 230)), 2: nearest(palettes[pal], (172, 172, 180))}
+        for y in range(8):
+            for x in range(8):
+                if part[y][x]:
+                    px[y][x] = colors[part[y][x]]
+        out[4 + q] = sink.entry(px, pal)
+    return out
+
+
+MOSAIC_PAL = 10
+LAYER_MASK = 3 << 29
+
+
+def free_slots(folder, metatile_count, keep):
+    """Tiles no metatile up to metatile_count uses (and not in keep): free for new art."""
+    data = open(os.path.join(folder, 'metatiles.bin'), 'rb').read()[:metatile_count * 16]
+    used = {(e & 0x3FF) - PRIMARY_TILES for i in range(metatile_count)
+            for e in struct.unpack('<8H', data[i * 16:i * 16 + 16]) if (e & 0x3FF) >= PRIMARY_TILES}
+    width, rows, _ = read_png(os.path.join(folder, 'tiles.png'))
+    total = (width // 8) * (len(rows) // 8)
+    return [n for n in range(1, total) if n not in used and n not in keep]
+
+
+def draw_mansion(web_targets=()):
+    import draw_station_mosaic as mosaic
     furnace.main()
     unlit, lit, moon, sun = (quads(a, KEYS) for a in (TORCH_UNLIT, TORCH_LIT, emblem_moon(), emblem_sun()))
-    # Tiles: torch top (unlit) x2, torch bottom x2, torch top (lit) x2, moon x4, sun x4, then two railing tiles
+    # Tiles: torch top (unlit) x2, torch bottom x2, torch top (lit) x2, moon x4, sun x4
     first = add_tile_row(MANSION, MANSION_TILE_ROWS, unlit + lit[:2] + moon + sun)
-    railing_tiles, railing = cut_tiles(railing_pieces(), RAILING_SLOTS)
-    put_tiles(MANSION, RAILING_SLOTS, railing_tiles)
     # The torch's shadow on the floor (floor tile 0x2B9, its wall-shaded version 0x2A9; both palette 12)
     lit_floor, shaded_floor = (secondary_tile(MANSION, layers_of(MANSION, m)[0]) for m in (0x286, 0x287))
     put_tiles(MANSION, SHADOW_SLOTS, torch_shadow(lit_floor, shaded_floor))
@@ -330,48 +369,66 @@ def draw_mansion():
 
     def top(*tiles):
         return [(first + t) | (MANSION_PAL << 12) for t in tiles]
-
-    def piece(quarters, mirror=False):
-        if mirror:
-            quarters = [quarters[1], quarters[0], quarters[3], quarters[2]]
-        out = []
-        for q in quarters:
-            if q is None:
-                out.append(BLANK_TILE)
-            else:
-                n, flip = q
-                out.append((PRIMARY_TILES + RAILING_SLOTS[n]) | (MANSION_PAL << 12) | (HFLIP if flip != mirror else 0))
-        return out
     floor = layers_of(MANSION, 0x286)[:4]       # The basement floor
     shadowed = floor[:2] + [(PRIMARY_TILES + n) | (floor[2] & 0xF000) for n in SHADOW_SLOTS]
     wall = layers_of(MANSION, 0x2AA)[4:]        # The wall's face (drawn on its top layer)
-    rail, side, corner, front, gate, lock = railing
     add_metatiles(MANSION, MANSION_METATILES, [
         shadowed + top(0, 1, 2, 3),              # 0x384 torch, unlit
         shadowed + top(4, 5, 2, 3),              # 0x385 torch, lit
         wall + top(6, 7, 8, 9),                  # 0x386 moon
         wall + top(10, 11, 12, 13),              # 0x387 sun
-        floor + piece(rail),                     # 0x388 railing, the back
     ], MB_NORMAL | LAYER_COVERED)
-    # The stair down's pieces that show the floor, on the basement's floor instead of 1F's (same attributes)
-    attrs = open(os.path.join(MANSION, 'metatile_attributes.bin'), 'rb').read()
-    for n, stair_piece in enumerate((0x2D2, 0x2DA)):
-        i = stair_piece - PRIMARY_METATILES
-        add_metatiles(MANSION, MANSION_METATILES + 5 + n, [floor + layers_of(MANSION, stair_piece)[4:]],
-                      struct.unpack('<I', attrs[i * 4:i * 4 + 4])[0])
-    add_metatiles(MANSION, MANSION_METATILES + 7, [
-        floor + piece(side),                     # 0x38B railing, left side
-        floor + piece(side, True),               # 0x38C railing, right side
-        floor + piece(corner),                   # 0x38D railing, back left corner
-        floor + piece(corner, True),             # 0x38E railing, back right corner
-        floor + piece(front),                    # 0x38F railing, front left corner
-        floor + piece(front, True),              # 0x390 railing, front right corner
-        floor + piece(gate),                     # 0x391 the gate
-        floor + piece(lock),                     # 0x392 the gate, padlocked
-    ], MB_NORMAL | LAYER_COVERED)
-    print('Mansion: torch 0x384/0x385, moon 0x386, sun 0x387, stair pieces 0x389/0x38A, railing 0x388 and '
-          '0x38B-0x392 (%d tiles)' % len(railing_tiles))
+    count = MANSION_METATILES + 4
+    torch_row = [first - PRIMARY_TILES + n for n in range(16)]
+    sink = TileSink(free_slots(MANSION, count, set(SHADOW_SLOTS) | set(torch_row)))
 
+    # The mosaic, palette 10: the dial on the floor (both layers under the player), then the slab slid half away and
+    # the open shaft
+    open(os.path.join(MANSION, 'palettes/%02d.pal' % MOSAIC_PAL), 'w').write(
+        'JASC-PAL\r\n0100\r\n16\r\n' + ''.join('%d %d %d\r\n' % c for c in mosaic.MOSAIC_PALETTE))
+    floor_attr = (attr_of(MANSION, 0x286) & ~LAYER_MASK) | LAYER_COVERED
+
+    def mosaic_square(pic, sx, sy):
+        return floor + [sink.entry([row[sx + (q % 2) * 8:sx + (q % 2) * 8 + 8]
+                                    for row in pic[sy + (q // 2) * 8:sy + (q // 2) * 8 + 8]], MOSAIC_PAL)
+                        for q in range(4)]
+    dial = mosaic.dial()
+    add_metatiles(MANSION, count, [mosaic_square(dial, x * 16, y * 16) for y in range(5) for x in range(5)],
+                  floor_attr)
+    count += 25
+    middle = mosaic.SLAB[0]
+    add_metatiles(MANSION, count, [mosaic_square(mosaic.slab(mosaic.dial(), 'half'), middle, middle)], floor_attr)
+    add_metatiles(MANSION, count + 1, [mosaic_square(mosaic.slab(mosaic.dial(), 'open'), middle, middle)],
+                  (floor_attr & ~0x1FF) | MB_LADDER)
+    count += 2
+    assert count == FURNITURE_FIRST - PRIMARY_METATILES
+
+    # The furniture on the basement floor
+    building = os.path.join(ROOT, 'data/tilesets/primary/building_frlg')
+    battrs = open(os.path.join(building, 'metatile_attributes.bin'), 'rb').read()
+    bmeta = open(os.path.join(building, 'metatiles.bin'), 'rb').read()
+    for name, m in FURNITURE.items():
+        top_layer = list(struct.unpack('<8H', bmeta[m * 16:m * 16 + 16]))[4:]
+        attr = struct.unpack('<I', battrs[m * 4:m * 4 + 4])[0]
+        for f in FURNITURE_FLOORS:
+            add_metatiles(MANSION, count, [layers_of(MANSION, f)[:4] + top_layer], attr)
+            count += 1
+    assert count == WEBBED_FIRST - PRIMARY_METATILES
+
+    # Cobwebs on the furniture and in the corners
+    _, prows, _ = read_png(os.path.join(building, 'tiles.png'))
+    _, srows, _ = read_png(os.path.join(MANSION, 'tiles.png'))
+    palettes = [read_pal(os.path.join(building if i < 7 else MANSION, 'palettes/%02d.pal' % i)) for i in range(16)]
+    palettes[MOSAIC_PAL] = mosaic.MOSAIC_PALETTE
+    for m, corner in web_targets:
+        layers = layers_of(MANSION, m)
+        add_metatiles(MANSION, count, [bake_web(layers, corner, (prows, srows), palettes, sink)], attr_of(MANSION, m))
+        count += 1
+    put_tiles(MANSION, sink.slots[:len(sink.tiles)], sink.tiles)
+    assert count <= 384, 'Mansion tileset: %d metatiles' % count
+    print('Mansion: torch 0x384/0x385, moon 0x386, sun 0x387, mosaic 0x%X-0x%X, furniture 0x%X-, %d cobwebs '
+          '(%d new tiles, %d left)' % (MOSAIC_FIRST, MOSAIC_OPEN, FURNITURE_FIRST, len(web_targets), len(sink.tiles),
+                                      len(sink.slots) - len(sink.tiles)))
 
 # --- Cerulean Cave --------------------------------------------------------------------------------------------------
 CAVE = os.path.join(ROOT, 'data/tilesets/secondary/cerulean_cave_frlg')
@@ -516,7 +573,8 @@ def draw_gate():
 
 
 if __name__ == '__main__':
-    draw_mansion()
+    import compose_ranger_station
+    draw_mansion(compose_ranger_station.web_targets())
     draw_cave()
     draw_gate()
     draw_ember()

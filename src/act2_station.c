@@ -114,11 +114,9 @@ static void DrawClockPiece(u32 piece)
     SetMetatile(sClockPieces[piece][0], sClockPieces[piece][1], metatile | MAPGRID_IMPASSABLE);
 }
 
-static void DrawClockGateOpen(void)
+static void DrawMosaicOpen(void)
 {
-    u32 i;
-    for (i = 0; i < ARRAY_COUNT(sClockGate); i++)
-        SetMetatile(sClockGate[i][0], sClockGate[i][1], METATILE_MANSION_FLOOR);
+    SetMetatile(STATION_MOSAIC_X, STATION_MOSAIC_Y, METATILE_RangerStation_MosaicOpen);
 }
 
 // specialvar VAR_RESULT, Act2Station_GetFacedClockPiece: the torch or furnace the player faces (0-11 the torches at
@@ -147,7 +145,7 @@ bool16 Act2Station_IsClockPieceLit(void)
 }
 
 // specialvar VAR_RESULT, Act2Station_ToggleClockPiece with the piece in VAR_0x8004: lights it or puts it out (the
-// script redraws the map). TRUE if that set the clock to the solution and the gate is still shut.
+// script redraws the map). TRUE if that set the clock to the solution and the mosaic is still shut.
 bool16 Act2Station_ToggleClockPiece(void)
 {
     u32 clock = VarGet(VAR_ACT2_CLOCK) ^ (1 << gSpecialVar_0x8004);
@@ -156,11 +154,17 @@ bool16 Act2Station_ToggleClockPiece(void)
     return clock == ACT2_CLOCK_SOLUTION && !(VarGet(VAR_ACT2_FINALE) & ACT2_FINALE_CLOCK_SOLVED);
 }
 
-// special Act2Station_OpenClockGate: the bars in front of the stair down drop away, for good
-void Act2Station_OpenClockGate(void)
+// special Act2Station_SlideMosaic with the step in VAR_0x8004: the slab in the middle of the mosaic slides away from
+// the ladder down, halfway (1), then all the way, for good (2). The script redraws the map after each.
+void Act2Station_SlideMosaic(void)
 {
+    if (gSpecialVar_0x8004 == 1)
+    {
+        SetMetatile(STATION_MOSAIC_X, STATION_MOSAIC_Y, METATILE_RangerStation_MosaicHalf);
+        return;
+    }
     VarSet(VAR_ACT2_FINALE, VarGet(VAR_ACT2_FINALE) | ACT2_FINALE_CLOCK_SOLVED);
-    DrawClockGateOpen();
+    DrawMosaicOpen();
 }
 
 // special Act2Station_DrawFloor (each floor's ON_LOAD): what the player changed, and B1F's clock
@@ -186,7 +190,7 @@ void Act2Station_DrawFloor(void)
         for (i = 0; i < ARRAY_COUNT(sClockPieces); i++)
             DrawClockPiece(i);
         if (finale & ACT2_FINALE_CLOCK_SOLVED)
-            DrawClockGateOpen();
+            DrawMosaicOpen();
     }
 }
 

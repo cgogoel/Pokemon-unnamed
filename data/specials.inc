@@ -659,6 +659,7 @@ gSpecials::
 	def_special Act2_PartyHasType
 	def_special Act2_IsClubNight
 	def_special Act2_GiveStartingKit
+	def_special Act2_DebugLevelParty
 	def_special GameTime_GetDoomScrollState
 	def_special GameTime_IsNight
 	def_special GameTime_ScrollToOtherTime

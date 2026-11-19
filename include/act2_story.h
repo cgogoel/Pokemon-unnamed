@@ -46,6 +46,7 @@ bool16 Act2_FindTmMoveUser(void);
 void Act2_SetResearchFlag(void);
 bool16 Act2_HasResearchFlag(void);
 void Act2_ClearResearchFlag(void);
+void Act2_DebugLevelParty(void);
 void Act2_GivePlaytestParty(void);
 void Act2_StartPlaytest(void);
 void CB2_Act2PlaytestNewGame(void);

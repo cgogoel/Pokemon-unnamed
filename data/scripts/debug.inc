@@ -506,18 +506,25 @@ Debug_EventScript_BefriendGiveItems:
 @ The courses a skip jumps past leave the player with what they'd have caught there: one Pokémon of each type,
 @ species from the field trips (docs/hack/act2_story.md), so the station's FIRE and WATER puzzles can be done
 Debug_EventScript_GiveFireWaterMons:
-	givemon SPECIES_GROWLITHE, 25, ITEM_NONE
-	givemon SPECIES_PSYDUCK, 25, ITEM_NONE
+	givemon SPECIES_GROWLITHE, ACT2_DEBUG_SKIP_LEVEL, ITEM_NONE
+	givemon SPECIES_PSYDUCK, ACT2_DEBUG_SKIP_LEVEL, ITEM_NONE
+	return
+
+@ Past the final exam the player is expected to have a trained team, so whatever they were already carrying comes
+@ up to the same level as the Pokemon handed out here (Act2_DebugLevelParty); anything higher is left alone.
+Debug_EventScript_GiveCourseMonsLevelled:
+	call Debug_EventScript_GiveCourseMons
+	special Act2_DebugLevelParty
 	return
 
 Debug_EventScript_GiveCourseMons:
 	call Debug_EventScript_GiveFireWaterMons
-	givemon SPECIES_ODDISH, 25, ITEM_NONE
+	givemon SPECIES_ODDISH, ACT2_DEBUG_SKIP_LEVEL, ITEM_NONE
 	return
 
 @ The end of Act 2 (special Act2_EndAct2): "Several years later", then Act 3's start at Silph Co.
 Debug_EventScript_SkipToAct3::
-	call Debug_EventScript_GiveCourseMons
+	call Debug_EventScript_GiveCourseMonsLevelled
 	fadescreen FADE_TO_BLACK
 	special Act2_EndAct2
 	waitstate
@@ -543,7 +550,7 @@ Debug_EventScript_SkipToFinalProject::
 	setvar VAR_STORY_ACT, STORY_ACT_UNIVERSITY
 	setvar VAR_ACT1_PROGRESS, ACT1_DONE
 	setvar VAR_ACT2_PROGRESS, ACT2_GOT_TRAINER_CARD
-	call Debug_EventScript_GiveCourseMons
+	call Debug_EventScript_GiveCourseMonsLevelled
 	warp MAP_CELADON_UNIVERSITY_SCIENCE_INSTITUTE, 8, 13
 	waitstate
 	end
@@ -553,7 +560,7 @@ Debug_EventScript_SkipToPalletTown::
 	setvar VAR_STORY_ACT, STORY_ACT_UNIVERSITY
 	setvar VAR_ACT1_PROGRESS, ACT1_DONE
 	setvar VAR_ACT2_PROGRESS, ACT2_FINAL_PROJECT
-	call Debug_EventScript_GiveCourseMons
+	call Debug_EventScript_GiveCourseMonsLevelled
 	setflag FLAG_ACT2_ROUTE_OPEN
 	@ The stops behind the player, so the road home quest doesn't still point back at SAFFRON CITY
 	setvar VAR_QUEST_LOG, QUEST_LOG_ROAD_SAFFRON | QUEST_LOG_ROAD_MIDWAY | QUEST_LOG_ROAD_CAVE | QUEST_LOG_ROAD_VIRIDIAN
@@ -566,7 +573,7 @@ Debug_EventScript_SkipToStation::
 	setvar VAR_STORY_ACT, STORY_ACT_UNIVERSITY
 	setvar VAR_ACT1_PROGRESS, ACT1_DONE
 	setvar VAR_ACT2_PROGRESS, ACT2_PARENTS_TALKED
-	call Debug_EventScript_GiveCourseMons
+	call Debug_EventScript_GiveCourseMonsLevelled
 	setflag FLAG_ACT2_ROUTE_OPEN
 	warp MAP_WOODS, 5, 10
 	waitstate

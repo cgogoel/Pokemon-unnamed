@@ -15,6 +15,7 @@
 #include "task.h"
 #include "pokemon.h"
 #include "pokemon_storage_system.h"
+#include "script_pokemon_util.h"
 #include "random.h"
 #include "string_util.h"
 #include "fieldmap.h"
@@ -1320,6 +1321,29 @@ void Act2_GivePlaytestParty(void)
         Act2_GiveStartingMoves(&gPlayerParty[i]);
     }
     CalculatePlayerPartyCount();
+}
+
+// special Act2_DebugLevelParty: every Pokémon in the party up to ACT2_DEBUG_SKIP_LEVEL, for the debug skips that
+// land at Act 2's final exam or beyond - whatever the player was carrying would otherwise be far below the team
+// those skips hand out. Anything already higher is left where it is, and the party is healed for the jump.
+void Act2_DebugLevelParty(void)
+{
+    u32 i;
+
+    for (i = 0; i < PARTY_SIZE; i++)
+    {
+        struct Pokemon *mon = &gParties[B_TRAINER_PLAYER][i];
+        u32 species = GetMonData(mon, MON_DATA_SPECIES);
+        u32 exp;
+
+        if (species == SPECIES_NONE || GetMonData(mon, MON_DATA_IS_EGG)
+         || GetMonData(mon, MON_DATA_LEVEL) >= ACT2_DEBUG_SKIP_LEVEL)
+            continue;
+        exp = gExperienceTables[gSpeciesInfo[species].growthRate][ACT2_DEBUG_SKIP_LEVEL];
+        SetMonData(mon, MON_DATA_EXP, &exp);
+        CalculateMonStats(mon);
+    }
+    HealPlayerParty();
 }
 
 #ifdef ACT2_PLAYTEST

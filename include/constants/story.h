@@ -114,6 +114,10 @@
 // In Act 2, wild Pokémon are the party's average level, give or take this many (Act2_GetWildLevel)
 #define ACT2_WILD_LEVEL_SPREAD      3
 
+// The debug skips that land at the final exam or past it: the level they hand Pokémon out at, and the level they
+// bring the rest of the party up to (Act2_DebugLevelParty), so a team carried over from earlier isn't left behind
+#define ACT2_DEBUG_SKIP_LEVEL       25
+
 // Where Act 2 starts: the player's room in the Celadon University dorms (2F, the third room), beside the bed
 #define ACT2_START_MAP              MAP_CELADON_UNIVERSITY_DORM_2F
 #define ACT2_START_X                15

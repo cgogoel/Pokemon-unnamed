@@ -254,6 +254,9 @@ RangerStation_B1F_EventScript_StudyGuard::
 	specialvar VAR_RESULT, Act2Station_HasFinaleBit
 	goto_if_eq VAR_RESULT, TRUE, RangerStation_B1F_EventScript_Release
 	bufferspeciesname STR_VAR_1, VAR_0x8006
+	playse SE_LEDGE
+	applymovement VAR_TEMP_5, RangerStation_B1F_Movement_Lunge
+	waitmovement 0
 	playmoncry VAR_0x8006, CRY_MODE_ENCOUNTER
 	msgbox RangerStation_B1F_Text_StudyGuard
 	goto RangerStation_B1F_EventScript_GuardBattle
@@ -307,6 +310,11 @@ RangerStation_B1F_EventScript_JumpOutDown:
 	applymovement VAR_TEMP_5, RangerStation_B1F_Movement_JumpOutDown
 	waitmovement 0
 	return
+
+RangerStation_B1F_Movement_Lunge:
+	jump_in_place_up
+	jump_in_place_up
+	step_end
 
 RangerStation_B1F_Movement_TurnedBack:
 	walk_up

@@ -209,8 +209,9 @@ coord event, `RangerStation_B1F_EventScript_StudyDoor`) turns the player back: "
 Reading the fourth note outside it (`ACT2_STATION_NOTES_TO_WAKE`) says "You sense something has awoken.", once only
 (`ACT2_FINALE_STUDY_AWOKE`), and from then on a Haunter stands on the doorway square itself (16, 42), shown on every
 transition while `ACT2_FINALE_STUDY_GUARD` is unset, facing the corridor and blocking the way in plain sight. There's
-no ambush: talking to it starts the battle, at the same 3 levels above the station's level, and beating or catching
-it opens the study for good.
+no ambush: talking to it makes it lunge at the player on the spot (`RangerStation_B1F_Movement_Lunge`, the jump the
+lab's still makes out of hiding) and starts the battle, at the same 3 levels above the station's level; beating or
+catching it opens the study for good.
 
 **Levels.** The station is an area of its own (`Act2Road_GetAreaLevel`; its floors keep Pallet's map section for the
 region map, so `act2_road.c` keeps its level in the unused `MAPSEC_SEVII_ISLE_22` slot, and which maps are the

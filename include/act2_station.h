@@ -16,6 +16,8 @@ bool32 Act2Station_TryOvergrowthStep(void);
 bool32 Act2Station_IsFollowerGap(s16 x, s16 y);
 u32 Act2Station_GetFloodFlashLevel(void);
 bool32 Act2Station_IsEncounterFree(void);
+bool32 Act2Station_IsInStation(void);
+u32 Act2Station_GetWildLevel(void);
 
 // Specials
 void Act2Station_DrawFloor(void);

@@ -380,6 +380,10 @@ u8 ChooseWildMonLevel(const struct WildPokemon *wildPokemon, u8 wildMonIndex, en
     u8 range;
     u8 rand;
 
+    // The ranger station is where the road home ends, not a detour off it, so it scales by its own rule rather
+    // than taking the jump Act2Road_GetWildLevel puts on everywhere off the route (docs/hack/act2_finale.md)
+    if (Act2Road_IsActive() && Act2Station_IsInStation())
+        return Act2Station_GetWildLevel();
     // Act 2's final project: scaled for the road home (Act2Road_GetWildLevel)
     if (Act2Road_IsActive())
         return Act2Road_GetWildLevel();

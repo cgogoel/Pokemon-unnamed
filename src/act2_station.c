@@ -1,6 +1,7 @@
 #include "global.h"
 #include "act2_station.h"
 #include "act2_road.h"
+#include "random.h"
 #include "event_data.h"
 #include "event_object_movement.h"
 #include "field_player_avatar.h"
@@ -34,8 +35,22 @@ extern const u8 RangerStation_B3F_EventScript_Ambush[];
 
 #define DEAD_END_LEVEL_ABOVE_AREA  2
 #define GUARD_LEVEL_ABOVE_AREA     3
+// Random encounters sit just under the station's set pieces, the way the road home's wild Pokemon sit just under
+// its trainers: from this far below the station's level up to it. Without a rule of its own the station would take
+// the +15 the final project puts on anything off the road home, which is meant to keep the player from wandering
+// off it - and the station is where the road ends, not a detour (docs/hack/act2_finale.md).
+#define WILD_LEVEL_BELOW_AREA      3
 
 #define IS_ON_MAP(map) (gSaveBlock1Ptr->location.mapGroup == MAP_GROUP(map) && gSaveBlock1Ptr->location.mapNum == MAP_NUM(map))
+
+static const u16 sStationMaps[] =
+{
+    MAP_RANGER_STATION_1F,
+    MAP_RANGER_STATION_B1F,
+    MAP_RANGER_STATION_B2F,
+    MAP_RANGER_STATION_B3F,
+    MAP_RANGER_STATION_B4F,
+};
 
 static const u16 sDeadEndSpecies[] = { SPECIES_KINGDRA, SPECIES_TENTACRUEL, SPECIES_GYARADOS, SPECIES_CLOYSTER, SPECIES_STARMIE };
 static const u16 sDeadEndFlags[] = { FLAG_ACT2_DEAD_END_1, FLAG_ACT2_DEAD_END_2, FLAG_ACT2_DEAD_END_3, FLAG_ACT2_DEAD_END_4, FLAG_ACT2_DEAD_END_5 };
@@ -205,6 +220,27 @@ bool32 Act2Station_IsEncounterFree(void)
     x -= MAP_OFFSET, y -= MAP_OFFSET;
     return x >= STATION_CLOCK_X && x < STATION_CLOCK_X + STATION_CLOCK_W
         && y >= STATION_CLOCK_Y && y < STATION_CLOCK_Y + STATION_CLOCK_H;
+}
+
+// Whether the player is anywhere in the ranger station. Its floors share PALLET TOWN's map section, so the map
+// has to be named: Act2Road_GetAreaLevel uses this to give the station a level slot of its own.
+bool32 Act2Station_IsInStation(void)
+{
+    u32 i;
+    for (i = 0; i < ARRAY_COUNT(sStationMaps); i++)
+    {
+        if (IS_ON_MAP(sStationMaps[i]))
+            return TRUE;
+    }
+    return FALSE;
+}
+
+// A random encounter in the station: WILD_LEVEL_BELOW_AREA under its level up to the level itself, so the floors'
+// wild Pokémon stay below the dead ends and the doorway guards the player is meant to remember.
+u32 Act2Station_GetWildLevel(void)
+{
+    s32 level = (s32)Act2Road_GetAreaLevel() - (s32)(Random() % (WILD_LEVEL_BELOW_AREA + 1));
+    return min(max(level, 1), MAX_LEVEL);
 }
 
 // special Act2Station_CreateGuardMon with its species in VAR_0x8006, after setwildbattle: a Pokémon hiding in a room's

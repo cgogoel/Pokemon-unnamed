@@ -71,7 +71,9 @@ The code is `src/act2_road.c`.
   - On the route home: trainers' Pokémon are the area's level (`ACT2_ROUTE_TRAINER_OFFSET`); wild Pokémon are
     anywhere from 3 below (`ACT2_ROUTE_WILD_OFFSET`) up to it.
   - The area's final trainer on the route (below) is the party's average level when the battle starts.
-  - Everywhere else: both are 15 above the area's level (`ACT2_OFF_ROUTE_OFFSET`).
+  - Everywhere else: both are 15 above the area's level (`ACT2_OFF_ROUTE_OFFSET`) - the jump that keeps the player
+    from wandering off the road home. The ranger station is the exception: it's where the road ends rather than a
+    detour off it, so it scales by its own rule (below).
   - Every base-game trainer is scaled, however the battle starts (`Act2Road_IsScaledTrainer`; a trainer spotting the
     player, a script's `trainerbattle_no_intro`, doubles, rematches: they all make the party
     in `DoTrainerBattle`). The story's trainers keep their parties (`Act2_IsStoryTrainer`, and every trainer from
@@ -203,8 +205,13 @@ from, it stays out, blocking the way, and talking to it battles again (their obj
 on transition).
 
 **Levels.** The station is an area of its own (`Act2Road_GetAreaLevel`; its floors keep Pallet's map section for the
-region map, so `act2_road.c` keeps its level in the unused `MAPSEC_SEVII_ISLE_22` slot): the party's average level
-when the player first goes in. B1F's wild Pokémon, the doorway Pokémon (+3) and B2F's dead ends (+2) start from it.
+region map, so `act2_road.c` keeps its level in the unused `MAPSEC_SEVII_ISLE_22` slot, and which maps are the
+station is `Act2Station_IsInStation`): the party's average level when the player first goes in. Everything inside
+starts from it - the doorway Pokémon at +3 (`GUARD_LEVEL_ABOVE_AREA`), B2F's dead ends at +2
+(`DEAD_END_LEVEL_ABOVE_AREA`), and B1F's wild Pokémon from 3 below it up to it
+(`Act2Station_GetWildLevel`, `WILD_LEVEL_BELOW_AREA`), so the ones the player is meant to remember stay the
+hardest. Without that last rule the floors' wild Pokémon would take the final project's off-route +15 and come out
+well above every set piece in the building.
 
 | Piece | Position | Piece | Position | Piece | Position |
 |---|---|---|---|---|---|

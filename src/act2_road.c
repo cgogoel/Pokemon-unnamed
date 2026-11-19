@@ -1,5 +1,6 @@
 #include "global.h"
 #include "act2_road.h"
+#include "act2_station.h"
 #include "act2_story.h"
 #include "battle.h"
 #include "event_data.h"
@@ -156,27 +157,16 @@ static u32 GetLevelPeriod(void)
 
 // The abandoned ranger station (Act 2 finale) is an area of its own, its level set when the player first goes in,
 // like any new area. Its floors keep Pallet's map section (for the region map), so their level is kept in the slot
-// of a Kanto map section no map uses.
+// of a Kanto map section no map uses. Which maps those are is act2_station.c's business
+// (Act2Station_IsInStation), along with what the station adds on top of the area's level.
 #define RANGER_STATION_AREA MAPSEC_SEVII_ISLE_22
-
-static const u16 sRangerStationMaps[] =
-{
-    MAP_RANGER_STATION_1F,
-    MAP_RANGER_STATION_B1F,
-    MAP_RANGER_STATION_B2F,
-    MAP_RANGER_STATION_B3F,
-    MAP_RANGER_STATION_B4F,
-};
 
 // The current map's area: its region map section, or the ranger station's
 static u32 GetCurrentArea(void)
 {
-    u32 group = gSaveBlock1Ptr->location.mapGroup, num = gSaveBlock1Ptr->location.mapNum, i;
-    for (i = 0; i < ARRAY_COUNT(sRangerStationMaps); i++)
-    {
-        if (MAP_GROUP(sRangerStationMaps[i]) == group && MAP_NUM(sRangerStationMaps[i]) == num)
-            return RANGER_STATION_AREA;
-    }
+    u32 group = gSaveBlock1Ptr->location.mapGroup, num = gSaveBlock1Ptr->location.mapNum;
+    if (Act2Station_IsInStation())
+        return RANGER_STATION_AREA;
     return Overworld_GetMapHeaderByGroupAndId(group, num)->regionMapSectionId;
 }
 

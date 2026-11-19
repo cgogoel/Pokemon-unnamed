@@ -1,5 +1,6 @@
 #include "global.h"
 #include "act2_road.h"
+#include "act2_station.h"
 #include "battle.h"
 #include "battle_setup.h"
 #include "event_data.h"
@@ -382,3 +383,16 @@ TEST("Act 2 road: a trainer battle started from a script is scaled, Cerulean's R
     TearDown();
 }
 
+TEST("Act 2 road: the ranger station scales by its own rule, not the jump that keeps the player off detours")
+{
+    // The station is where the road home ends, so its wild Pokémon sit just under its own set pieces (the dead
+    // ends at +2, the doorway guards at +3) rather than taking ACT2_OFF_ROUTE_OFFSET above the area like a detour.
+    SetUpFinalProject(MAP_GROUP(MAP_RANGER_STATION_B1F), MAP_NUM(MAP_RANGER_STATION_B1F), 30);
+    EXPECT(Act2Station_IsInStation());
+    ExpectWildLevels(30 - 3, 30); // Not 45, which the off-route rule would give
+
+    // A real detour in the final project still jumps, so the station isn't just switching the rule off everywhere
+    SetUpFinalProject(MAP_GROUP(MAP_ROCK_TUNNEL_1F), MAP_NUM(MAP_ROCK_TUNNEL_1F), 30);
+    EXPECT(!Act2Station_IsInStation());
+    ExpectWildLevels(30 + ACT2_OFF_ROUTE_OFFSET, 30 + ACT2_OFF_ROUTE_OFFSET);
+}

@@ -87,10 +87,11 @@ The code is `src/act2_road.c`.
 - **Pokémon from other regions**: 30% of scaled Pokémon (`ACT2_ROAD_OTHER_REGION_CHANCE`), wild and trainers', are
   one from beyond Kanto (National Dex 152 on) with the same primary type (or else its second type) and evolution stage
   (basic, stage 1, stage 2; babies don't count, so Pikachu is basic), then evolved for the level. The pools are
-  generated: `python3 tools/hack/gen_other_region_pools.py` writes `src/data/act2_other_region_pools.h` (724
+  generated: `python3 tools/hack/gen_other_region_pools.py` writes `src/data/act2_other_region_pools.h` (707
   Pokémon). Left out: legendaries, mythicals, Ultra Beasts, paradox Pokémon, regional forms, Megas and other
-  battle forms, any form but a species' first, babies, and species defined through a macro (Unown, Vivillon's line,
-  Furfrou, Minior, Alcremie, Mothim).
+  battle forms, any form but a species' first, babies, species defined through a macro (Unown, Vivillon's line,
+  Furfrou, Minior, Alcremie, Mothim), and the lines the story gives in one place only - the glade's Morelull and
+  Act 1's five (`EXCLUDE_LINES`; docs/hack/befriending.md).
 
 The route home (`sRouteHomeMaps`; a city's buildings aren't on it):
 

@@ -116,12 +116,18 @@ They're the player's own, so Kanto never hands one out somewhere else:
 - They're in no wild encounter table (`src/data/wild_encounters.json`). The only one that was is Teddiursa, one of
   the Altering Cave's nine rotating species; it's Phanpy there now, in both Altering Caves and Hoenn's Safari Zone.
 - The road home's substitution, which can swap a wild or a trainer's Pokemon for one from another region, skips
-  them: `EXCLUDE_SPECIES` in `tools/hack/gen_other_region_pools.py`, the same list that holds the glade's Morelull.
-  Test: "the Pokémon the player befriended in Act 1 are never substituted in" (`test/act2_road.c`).
+  them: `EXCLUDE_LINES` in `tools/hack/gen_other_region_pools.py`, the same list that holds the glade's Morelull.
+  Test: "the Pokémon the player befriended in Act 1, and their evolutions, are never substituted in"
+  (`test/act2_road.c`).
 - No trainer carries one.
-- **Their evolutions are deliberately left in** - a wild Ursaring is its own Pokemon, not the player's Teddiursa.
-- The TM Database's checklist is unaffected: the five still count as findable through the Woods' `befriendbattle`
-  scripts, which is what `gen_tm_research_species.py` reads them from.
+- **Their evolutions are out too** - Dottler, Orbeetle, Eelektrik, Eelektross, Hattrem, Hatterene, Ursaring,
+  Ursaluna, Hakamo-o and Kommo-o. Each name in `EXCLUDE_LINES` stands for its whole line, worked out from the
+  species data rather than listed, so a new evolution can't quietly reappear. They have to go: the farmyard counts
+  a Pokemon as the player's own by its line (`IsFarmFamily`), so a wild Ursaring would run out to play with the
+  rest as though it had grown up there.
+- The five themselves stay on the TM Database's checklist - they're findable through the Woods' `befriendbattle`
+  scripts, which is what `gen_tm_research_species.py` reads them from. The ten evolutions leave it, the pools
+  having been the only place they could be found.
 - The gates **only drop a follower off in Act 1** (`VAR_STORY_ACT`). They used to do it in every act, so walking in or
   out of the farmyard in Act 2 moved the lead party Pokemon into the farm box.
 - Act 1's last stage is its highest, so `VAR_ACT1_PROGRESS` is set to `ACT1_DONE` when Act 2 starts (`StartAct2`,

@@ -10,8 +10,8 @@ src/data/pokemon/species_info/*.h:
   Tera or totem form; not a regional form; only a species' base form (the first in its form table), so nothing
   that needs a form change to exist.
 - Not a baby (an undiscovered-egg-group Pokémon that starts its line and evolves into one that can breed).
-- Not in EXCLUDE_SPECIES: Pokémon met only one way in the story (the glade's Morelull, and Act 1's five, which
-  are the player's own; docs/hack/act2_story.md, docs/hack/befriending.md).
+- Not in an EXCLUDE_LINES line: Pokémon met only one way in the story (the glade's Morelull, and Act 1's five,
+  which are the player's own), and everything they evolve into; docs/hack/act2_story.md, docs/hack/befriending.md.
 - Stage: 0 basic, 1 stage 1, 2 stage 2, counting pre-evolutions but not babies (so Pikachu is basic).
 
 It also writes every species' stage (sAct2RoadEvoStage), which the game uses for the Pokémon being replaced.
@@ -36,13 +36,14 @@ EXCLUDE_FLAGS = ['isRestrictedLegendary', 'isSubLegendary', 'isMythical', 'isUlt
                  'isMegaEvolution', 'isPrimalReversion', 'isUltraBurst', 'isGigantamax', 'isTeraForm',
                  'isAlolanForm', 'isGalarianForm', 'isHisuianForm', 'isPaldeanForm']
 
-# Pokémon the story gives in one place only, so never wild or a trainer's elsewhere: the glade's MORELULL (its line)
-# Pokemon met only one way in the story, so the road home must never substitute one in somewhere else:
-# the glade's Morelull line, and the five the player befriends in Act 1 and keeps on the farm
-# (sWoodsPokemon in src/act1_story.c, sFarmFamilies in src/farmyard.c; docs/hack/befriending.md).
-# Their evolutions are left in: a wild Ursaring is its own Pokemon, it isn't the player's Teddiursa.
-EXCLUDE_SPECIES = {
-    'SPECIES_MORELULL', 'SPECIES_SHIINOTIC',
+# Pokemon met only one way in the story, so the road home must never substitute one in somewhere else: the glade's
+# Morelull, and the five the player befriends in Act 1 and keeps on the farm (sWoodsPokemon in src/act1_story.c,
+# sFarmFamilies in src/farmyard.c; docs/hack/befriending.md).
+# Each name here stands for its whole line, worked out from the species data below, so an evolution can't be handed
+# out as a stand-in for one of the player's own - the farmyard counts a Pokemon as theirs by its line, so a wild
+# URSARING would run out to play with the rest as though it had grown up there.
+EXCLUDE_LINES = {
+    'SPECIES_MORELULL',
     'SPECIES_BLIPBUG', 'SPECIES_TYNAMO', 'SPECIES_HATENNA', 'SPECIES_TEDDIURSA', 'SPECIES_JANGMO_O',
 }
 
@@ -160,10 +161,22 @@ def main():
                 count += 1
         return min(count, 2)
 
+    # Every species reachable from an EXCLUDE_LINES base by evolution, the base itself included
+    excluded, queue = set(), [n for n in EXCLUDE_LINES if n in info]
+    while queue:
+        name = queue.pop()
+        if name in excluded:
+            continue
+        excluded.add(name)
+        queue.extend(t for t in info[name]['evolutions'] if t in info)
+    missing = EXCLUDE_LINES - set(info)
+    if missing:
+        raise SystemExit('EXCLUDE_LINES names no species knows: %s' % ', '.join(sorted(missing)))
+
     pools = {(t, s): [] for t in TYPES for s in range(3)}
     for name, data in info.items():
         if data['dex'] <= KANTO_DEX_COUNT or data['flags'] or not data['base_form'] or is_baby(name) \
-                or name in EXCLUDE_SPECIES:
+                or name in excluded:
             continue
         if data['types'][0] not in TYPES:
             continue

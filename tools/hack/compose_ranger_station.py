@@ -318,6 +318,13 @@ def compose_b1f(webs=True):
         g.copy_from(mansion, 27, 4, 1, 2, x, 4)
     g.copy_from(mansion, 19, 1, 6, 3, 24, 1)
     g.copy_from(mansion, 1, 17, 10, 5, 1, 44)
+    # That slice of the mansion has a doorway a column wider than the greenhouse's (its wall's left end stands over
+    # the slice's x 8, ours over x 7), so the square under our wall's left end comes across as the mansion's bare
+    # path floor with no shadow on it: a hard edge where the wall meets the floor. Shadow whatever the copy left
+    # bare under a wall.
+    for x in range(1, 11):
+        if (g[x, 43] & 0x3FF) in M_BASES and (g[x, 44] & 0x3FF) == M_FLOOR:
+            g[x, 44] = blk(M_SHADE)
     g.copy_from(mansion, 19, 26, 5, 4, 14, 45)
     # The stair up, in an alcove in the bottom right corner (Pokemon Mansion B1F's, x 33-37, y 25-31)
     g.copy_from(mansion, 33, 25, 5, 7, B1_STAIRS_UP[0] - 1, B1_STAIRS_UP[1] - 4)

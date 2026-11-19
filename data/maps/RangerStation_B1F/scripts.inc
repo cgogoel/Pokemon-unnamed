@@ -15,10 +15,20 @@ RangerStation_B1F_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, RangerStation_B1F_OnTransition
 	.byte 0
 
-@ The doorways' Pokémon stay hidden until the player steps into their doorway
+@ The lab's Pokémon stays hidden until the player steps into its doorway. The study's is hidden too until the four
+@ notes outside wake it (ACT2_FINALE_STUDY_AWOKE); from then on it's standing in the doorway in plain sight until
+@ it's beaten, so the way past it is a battle rather than a surprise.
 RangerStation_B1F_OnTransition:
 	setflag FLAG_TEMP_1
 	setflag FLAG_TEMP_2
+	setvar VAR_0x8004, ACT2_FINALE_STUDY_AWOKE
+	specialvar VAR_RESULT, Act2Station_HasFinaleBit
+	goto_if_eq VAR_RESULT, FALSE, RangerStation_B1F_EventScript_TransitionEnd
+	setvar VAR_0x8004, ACT2_FINALE_STUDY_GUARD
+	specialvar VAR_RESULT, Act2Station_HasFinaleBit
+	goto_if_eq VAR_RESULT, TRUE, RangerStation_B1F_EventScript_TransitionEnd
+	clearflag FLAG_TEMP_2
+RangerStation_B1F_EventScript_TransitionEnd:
 	end
 
 RangerStation_B1F_OnLoad:
@@ -145,9 +155,24 @@ RangerStation_B1F_EventScript_NoteRead:
 	special Act2Station_SetFinaleBit
 	specialvar VAR_RESULT, Act2Station_CountNotes
 	goto_if_eq VAR_RESULT, ACT2_STATION_NOTE_COUNT, RangerStation_B1F_EventScript_AllNotes
+	call_if_eq VAR_RESULT, ACT2_STATION_NOTES_TO_WAKE, RangerStation_B1F_EventScript_WakeStudy
 	msgbox RangerStation_B1F_Text_NotesFound
 	releaseall
 	end
+
+@ The last note outside the study: whatever has been keeping the player out of it stirs, and from here on it's
+@ standing in the doorway to be fought. Reading a note again doesn't say it twice (ACT2_FINALE_STUDY_AWOKE).
+RangerStation_B1F_EventScript_WakeStudy:
+	setvar VAR_0x8004, ACT2_FINALE_STUDY_AWOKE
+	specialvar VAR_RESULT, Act2Station_HasFinaleBit
+	goto_if_eq VAR_RESULT, TRUE, RangerStation_B1F_EventScript_WakeStudyEnd
+	special Act2Station_SetFinaleBit
+	clearflag FLAG_TEMP_2
+	addobject 2
+	playse SE_EXIT
+	msgbox RangerStation_B1F_Text_StudyAwoke
+RangerStation_B1F_EventScript_WakeStudyEnd:
+	return
 
 RangerStation_B1F_EventScript_AllNotes:
 	msgbox RangerStation_B1F_Text_AllNotes
@@ -206,10 +231,11 @@ RangerStation_B1F_EventScript_ShowNote5:
 	msgbox RangerStation_B1F_Text_Note5
 	return
 
-@ The Pokémon hiding in the doorways of the lab and the study: stepping into the doorway (coord event), it jumps out
-@ from the room's side and battles, 3 levels above the station's level (Act2Road_GetAreaLevel: an area of its own).
-@ Beaten or caught, it's gone for good (ACT2_FINALE_LAB_GUARD, _STUDY_GUARD). Run from, it stays out, blocking the
-@ way; talk to it to battle again. Their objects come first: local ids 1 and 2 (VAR_TEMP_5), hidden by FLAG_TEMP_1/2.
+@ The Pokémon hiding in the lab's doorway: stepping into it (coord event), it jumps out from the room's side and
+@ battles, 3 levels above the station's level (Act2Road_GetAreaLevel: an area of its own). Beaten or caught, it's
+@ gone for good (ACT2_FINALE_LAB_GUARD). Run from, it stays out, blocking the way; talk to it to battle again.
+@ The study's keeps the same bit (_STUDY_GUARD) but is met head on instead - see below. Their objects come first:
+@ local ids 1 and 2 (VAR_TEMP_5), hidden by FLAG_TEMP_1/2.
 RangerStation_B1F_EventScript_LabGuard::
 	lockall
 	setvar VAR_0x8006, SPECIES_MAGNETON
@@ -217,12 +243,35 @@ RangerStation_B1F_EventScript_LabGuard::
 	setvar VAR_TEMP_5, 1  @ Its local id
 	goto RangerStation_B1F_EventScript_Guard
 
+@ The study's, once the fourth note has woken it: it's standing in the doorway where the player can see it, so
+@ there's no ambush - talking to it is what starts the battle, and it stays in the way until it's beaten.
 RangerStation_B1F_EventScript_StudyGuard::
 	lockall
 	setvar VAR_0x8006, SPECIES_HAUNTER
 	setvar VAR_TEMP_4, ACT2_FINALE_STUDY_GUARD
 	setvar VAR_TEMP_5, 2
-	goto RangerStation_B1F_EventScript_Guard
+	copyvar VAR_0x8004, VAR_TEMP_4
+	specialvar VAR_RESULT, Act2Station_HasFinaleBit
+	goto_if_eq VAR_RESULT, TRUE, RangerStation_B1F_EventScript_Release
+	bufferspeciesname STR_VAR_1, VAR_0x8006
+	playmoncry VAR_0x8006, CRY_MODE_ENCOUNTER
+	msgbox RangerStation_B1F_Text_StudyGuard
+	goto RangerStation_B1F_EventScript_GuardBattle
+
+@ The study's doorway before its Pokémon is awake: nothing is there to see, and the player is turned back. Once it
+@ is awake the Pokémon itself stands on this square, so this can only run before that, or after it's beaten.
+RangerStation_B1F_EventScript_StudyDoor::
+	lockall
+	setvar VAR_0x8004, ACT2_FINALE_STUDY_AWOKE
+	specialvar VAR_RESULT, Act2Station_HasFinaleBit
+	goto_if_eq VAR_RESULT, TRUE, RangerStation_B1F_EventScript_Release
+	playse SE_M_CONFUSE_RAY
+	msgbox RangerStation_B1F_Text_UnseenPresence
+	closemessage
+	applymovement OBJ_EVENT_ID_PLAYER, RangerStation_B1F_Movement_TurnedBack
+	waitmovement 0
+	releaseall
+	end
 
 RangerStation_B1F_EventScript_Guard:
 	copyvar VAR_0x8004, VAR_TEMP_4
@@ -231,10 +280,10 @@ RangerStation_B1F_EventScript_Guard:
 	bufferspeciesname STR_VAR_1, VAR_0x8006
 	addobject VAR_TEMP_5
 	playse SE_LEDGE
-	call_if_eq VAR_TEMP_5, 1, RangerStation_B1F_EventScript_JumpOutDown
-	call_if_eq VAR_TEMP_5, 2, RangerStation_B1F_EventScript_JumpOutUp
+	call RangerStation_B1F_EventScript_JumpOutDown
 	playmoncry VAR_0x8006, CRY_MODE_ENCOUNTER
 	msgbox RangerStation_B1F_Text_Guard
+RangerStation_B1F_EventScript_GuardBattle:
 	waitmoncry
 	closemessage
 	setwildbattle SPECIES_MAGIKARP, 1  @ Replaced by the guard
@@ -259,19 +308,13 @@ RangerStation_B1F_EventScript_JumpOutDown:
 	waitmovement 0
 	return
 
-RangerStation_B1F_EventScript_JumpOutUp:
-	applymovement VAR_TEMP_5, RangerStation_B1F_Movement_JumpOutUp
-	waitmovement 0
-	return
+RangerStation_B1F_Movement_TurnedBack:
+	walk_up
+	step_end
 
 RangerStation_B1F_Movement_JumpOutDown:
 	jump_in_place_down
 	jump_in_place_down
-	step_end
-
-RangerStation_B1F_Movement_JumpOutUp:
-	jump_in_place_up
-	jump_in_place_up
 	step_end
 
 RangerStation_B1F_Text_LightAsk:
@@ -400,3 +443,13 @@ RangerStation_B1F_Text_TerminalEmpty:
 RangerStation_B1F_Text_Guard:
 	.string "A wild {STR_VAR_1} jumped out of\n"
 	.string "the dark!$"
+
+RangerStation_B1F_Text_StudyGuard:
+	.string "The {STR_VAR_1} in the doorway\n"
+	.string "rises to bar the way!$"
+
+RangerStation_B1F_Text_UnseenPresence:
+	.string "An unseen presence blocks your way.$"
+
+RangerStation_B1F_Text_StudyAwoke:
+	.string "You sense something has awoken.$"

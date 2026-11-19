@@ -198,11 +198,19 @@ their hands) says why the clock is set to four.
 
 Wild Pokémon in the rooms and corridor (`sAct2_RangerStationB1F_FireRed`: Rattata, Zubat, Gastly, Grimer, Koffing,
 Voltorb, Magnemite...; Act 2's levels), none in the clock room (`Act2Station_IsEncounterFree`, the room's square
-`STATION_CLOCK_*`). Two Pokémon hide in the doorways of the lab (Magneton) and the study (Haunter): stepping into the
-doorway ((26, 10), (16, 42); coord events) makes it jump out from the room's side ((26, 9), (16, 43)) for a battle 3
-levels above the station's level. Beaten or caught, it's gone for good (`ACT2_FINALE_LAB_GUARD`, `_STUDY_GUARD`); run
-from, it stays out, blocking the way, and talking to it battles again (their objects' flags `FLAG_TEMP_1`/`2`, set
-on transition).
+`STATION_CLOCK_*`). A Magneton hides in the lab's doorway: stepping into it ((26, 10), a coord event) makes it jump
+out from the room's side ((26, 9)) for a battle 3 levels above the station's level. Beaten or caught, it's gone for
+good (`ACT2_FINALE_LAB_GUARD`); run from, it stays out, blocking the way, and talking to it battles again (its
+object's flag `FLAG_TEMP_1`, set on transition).
+
+**The study is shut until the other four notes are read.** The last note is inside it, so it's the room the floor is
+really about, and it can't be walked into until the log around it has been. Before then its doorway ((16, 42), a
+coord event, `RangerStation_B1F_EventScript_StudyDoor`) turns the player back: "An unseen presence blocks your way."
+Reading the fourth note outside it (`ACT2_STATION_NOTES_TO_WAKE`) says "You sense something has awoken.", once only
+(`ACT2_FINALE_STUDY_AWOKE`), and from then on a Haunter stands on the doorway square itself (16, 42), shown on every
+transition while `ACT2_FINALE_STUDY_GUARD` is unset, facing the corridor and blocking the way in plain sight. There's
+no ambush: talking to it starts the battle, at the same 3 levels above the station's level, and beating or catching
+it opens the study for good.
 
 **Levels.** The station is an area of its own (`Act2Road_GetAreaLevel`; its floors keep Pallet's map section for the
 region map, so `act2_road.c` keeps its level in the unused `MAPSEC_SEVII_ISLE_22` slot, and which maps are the

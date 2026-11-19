@@ -143,7 +143,11 @@
 #define ACT2_FINALE_NOTE_4          (1 << 10)
 #define ACT2_FINALE_NOTE_5          (1 << 11)
 #define ACT2_FINALE_NOTES           (0x1F << 7)
+#define ACT2_FINALE_STUDY_AWOKE     (1 << 12) // B1F: the notes outside the study are all read, so its guard is up
 #define ACT2_STATION_NOTE_COUNT     5
+// The notes outside the study. Reading the last of them wakes what's keeping the player out of it: until then the
+// doorway turns them back, after it the study's Pokemon is standing in the way where they can see it.
+#define ACT2_STATION_NOTES_TO_WAKE  (ACT2_STATION_NOTE_COUNT - 1)
 
 // VAR_ACT2_CLOCK: bit (n - 1) for the torch at n o'clock, then the moon and sun furnaces
 #define ACT2_CLOCK_MOON             12

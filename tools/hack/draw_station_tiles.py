@@ -225,12 +225,30 @@ MB_LADDER = 0x61
 # (tv/tv_r) or the one below it (sink/sink_b). New names go on the end - furniture_id() numbers them in order, and
 # the cobwebs are numbered after them.
 FURNITURE = {
-    'bed_l': 0x18, 'bed_r': 0x19, 'shelf_l': 0x73, 'shelf_r': 0x74, 'sink': 0x31, 'stove': 0x32, 'tv': 0x75,
-    'crate_l': 0x99, 'crate_r': 0x9A, 'plant': 0x93, 'cabinet_l': 0x33, 'cabinet_r': 0x34,
-    'tv_r': 0x76, 'plant_t': 0x8B, 'sink_b': 0x39, 'stove_b': 0x3A, 'cabinet_l_b': 0x3B, 'cabinet_r_b': 0x3C,
+    'bed_l': 0x18, 'bed_r': 0x19,
+    'crate_l': 0x99, 'crate_r': 0x9A, 'plant': 0x93,
+    # The bookcase's base. FireRed draws it into the floor of whichever room the bookcase stands in rather
+    # than into the building tileset (Oak's lab, 0x283/0x284), so it is given as the four top-layer entries
+    # themselves - they are all building tiles, so they carry over - with the attribute that goes with them.
+    'shelf_base_l': ((0x20B9, 0x20BA, 0x0000, 0x0000), 0x20000000),
+    'shelf_base_r': ((0x24BA, 0x24B9, 0x0000, 0x0000), 0x20000000),
+    'plant_t': 0x8B, 'sink_b': 0x39, 'stove_b': 0x3A, 'cabinet_l_b': 0x3B, 'cabinet_r_b': 0x3C,
+    # The television's stand, the only one of its three squares that stands on the floor (see WALL_FURNITURE).
+    'tv_foot': 0x3D,
 }
 FURNITURE_FLOORS = (0x286, 0x287)  # The floor, and the floor shaded by a wall
 FURNITURE_FIRST = 0x3A3
+
+# A tall thing standing against a wall has its upper squares on the wall itself, the way the houses draw it: the
+# television's top and its screen (the square carrying MB_TELEVISION, which is how it can be told from everything
+# else in the tileset) go on the wall's face and its wainscot, with only the stand on the floor. The pair at
+# 0x75/0x76 is a set on a laboratory counter with the counter's edge drawn into the metatile, and 0x21/0x22 a
+# curtained window: neither can stand anywhere here.
+WALL_FURNITURE = {'tv_top': 0x2D, 'tv_screen': 0x35, 'cabinet_l_top': 0x33, 'cabinet_r_top': 0x34,
+                  'sink': 0x31, 'stove': 0x32, 'shelf_tl': 0x6B, 'shelf_tr': 0x6C,
+                  'shelf_l': 0x73, 'shelf_r': 0x74}
+WALL_BACKINGS = (0x2AA, 0x2B2, 0x304)  # The wall's face, its wainscot, and the wainscot of a wall's right end
+WALL_FIRST = FURNITURE_FIRST + len(FURNITURE) * len(FURNITURE_FLOORS)
 
 
 def mosaic_id(dx, dy):
@@ -241,9 +259,13 @@ def furniture_id(name, floor):
     return FURNITURE_FIRST + list(FURNITURE).index(name) * len(FURNITURE_FLOORS) + FURNITURE_FLOORS.index(floor)
 
 
+def wall_furniture_id(name, backing):
+    return WALL_FIRST + list(WALL_FURNITURE).index(name) * len(WALL_BACKINGS) + WALL_BACKINGS.index(backing)
+
+
 # Cobwebs, baked into copies of the metatiles they hang on (furniture, wall corners): (metatile, corner) where
 # corner is the web's anchor, 'TL' or 'TR'. Metatiles from gTileset_PokemonMansion or the furniture above.
-WEBBED_FIRST = FURNITURE_FIRST + len(FURNITURE) * len(FURNITURE_FLOORS)
+WEBBED_FIRST = WALL_FIRST + len(WALL_FURNITURE) * len(WALL_BACKINGS)
 WEBBED = []   # Filled in from compose_ranger_station.B1_WEBS (webbed_targets), so the list lives in one place
 
 
@@ -412,11 +434,31 @@ def draw_mansion(web_targets=()):
     building = os.path.join(ROOT, 'data/tilesets/primary/building_frlg')
     battrs = open(os.path.join(building, 'metatile_attributes.bin'), 'rb').read()
     bmeta = open(os.path.join(building, 'metatiles.bin'), 'rb').read()
+    # A piece is its source metatile's top layer; what stands behind it is whichever of the backing's own two
+    # layers is the one actually drawn on. The floor draws itself on its bottom layer and leaves its top empty;
+    # the wall draws its face and its wainscot panelling on its top layer and leaves its bottom empty. Taking the
+    # wrong one leaves the piece standing against nothing.
+    def backing(f):
+        layers = layers_of(MANSION, f)
+        return layers[:4] if any(layers[:4]) else layers[4:]
+
+    def piece(m):
+        """A piece's top layer and attribute: a metatile of the building tileset, or the entries themselves."""
+        if isinstance(m, tuple):
+            return list(m[0]), m[1]
+        return list(struct.unpack('<8H', bmeta[m * 16:m * 16 + 16]))[4:], \
+            struct.unpack('<I', battrs[m * 4:m * 4 + 4])[0]
+
     for name, m in FURNITURE.items():
-        top_layer = list(struct.unpack('<8H', bmeta[m * 16:m * 16 + 16]))[4:]
-        attr = struct.unpack('<I', battrs[m * 4:m * 4 + 4])[0]
+        top_layer, attr = piece(m)
         for f in FURNITURE_FLOORS:
-            add_metatiles(MANSION, count, [layers_of(MANSION, f)[:4] + top_layer], attr)
+            add_metatiles(MANSION, count, [backing(f) + top_layer], attr)
+            count += 1
+    assert count == WALL_FIRST - PRIMARY_METATILES
+    for name, m in WALL_FURNITURE.items():
+        top_layer, attr = piece(m)
+        for f in WALL_BACKINGS:
+            add_metatiles(MANSION, count, [backing(f) + top_layer], attr)
             count += 1
     assert count == WEBBED_FIRST - PRIMARY_METATILES
 

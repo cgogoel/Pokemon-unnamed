@@ -34,8 +34,9 @@ static const s8 sClockPieces[][2] = {
 
 // B2F: the stones at the dead ends, and the square of water beyond each where its Pokémon waits
 static const s8 sDeadEnds[][2][2] = {
-    {{9, 3}, {10, 3}},
+    {{15, 5}, {15, 6}},
     {{3, 7}, {3, 8}},
+    {{13, 7}, {14, 7}},
     {{17, 7}, {17, 6}},
     {{9, 13}, {9, 14}},
     {{15, 13}, {15, 14}},

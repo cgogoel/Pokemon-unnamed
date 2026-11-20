@@ -152,7 +152,7 @@
 #define FLAG_ACT2_KAI_DADS_SNACKS 0x0AF // Act 2 final project: KAI's dads gave the MOOMOO MILK and POKé WRAPS
 #define FLAG_TM_DATABASE_UNLOCKED 0x0B0 // The TM Database: the institute's researcher explained it (docs/hack/tm_database.md)
 #define FLAG_ACT2_VISITED_KAI_DADS 0x0B1 // Act 2 side quest: called on KAI's dads in the CELADON CONDOMINIUMS
-#define FLAG_0x0B2               0x0B2
+#define FLAG_ACT2_DEAD_END_6     0x0B2 // Act 2 finale (docs/hack/act2_finale.md)
 #define FLAG_0x0B3               0x0B3
 #define FLAG_0x0B4               0x0B4
 #define FLAG_0x0B5               0x0B5

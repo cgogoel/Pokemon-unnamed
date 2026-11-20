@@ -16,6 +16,7 @@ RangerStation_B2F_OnTransition:
 	setflag FLAG_TEMP_3
 	setflag FLAG_TEMP_4
 	setflag FLAG_TEMP_5
+	setflag FLAG_TEMP_6
 	end
 
 RangerStation_B2F_EventScript_DeadEnd1::
@@ -36,6 +37,10 @@ RangerStation_B2F_EventScript_DeadEnd4::
 
 RangerStation_B2F_EventScript_DeadEnd5::
 	setvar VAR_TEMP_1, 5
+	goto RangerStation_B2F_EventScript_DeadEnd
+
+RangerStation_B2F_EventScript_DeadEnd6::
+	setvar VAR_TEMP_1, 6
 	goto RangerStation_B2F_EventScript_DeadEnd
 
 @ On arriving on the dead end's stone (coord event): the Pokémon leaps up out of the water. Also talking to it, once

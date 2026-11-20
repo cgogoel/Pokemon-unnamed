@@ -292,7 +292,9 @@ def compose_b1f(webs=True):
     # Bottom band (rows 41-50): the greenhouse (x 1-10), the study (x 12-20), the stair hall (x 22-31, open)
     walls.across(41, 1, 20, doors=(5, 6, B1_STUDY_DOOR[0]))
     tee_outer(walls, 41)
-    walls.put(11, 40, M_POST_THROUGH)
+    # No M_POST_THROUGH above the cap: nothing runs on north of here, it's open corridor, so the floor-edge row
+    # carries straight across (shade() gives it M_EDGE). Drawing the wall through would leave a stub of wall above
+    # the junction with no shadow under it.
     walls.put(11, 41, M_CAP_TEE)
     walls.down(11, 42, H - 5)
     walls.put(11, H - 4, M_POST_THROUGH)
@@ -338,30 +340,35 @@ def compose_b1f(webs=True):
 
 # The lone ranger's things round the ring (FURNITURE, on the basement floor): (x, y, name)
 B1_FURNITURE = [
-    # The office: the ranger's shelf of field guides, a cabinet, the TV (two squares wide), crates of supplies
-    # never unpacked
-    (2, 3, 'shelf_l'), (3, 3, 'shelf_r'), (7, 3, 'tv'), (8, 3, 'tv_r'), (9, 3, 'cabinet_l'), (10, 3, 'cabinet_r'),
-    (9, 4, 'cabinet_l_b'), (10, 4, 'cabinet_r_b'),
+    # The office: the ranger's shelf of field guides, a cabinet, the television they watched the weather on, crates
+    # of supplies never unpacked
+    (2, 1, 'shelf_tl'), (3, 1, 'shelf_tr'), (2, 2, 'shelf_l'), (3, 2, 'shelf_r'),
+    (2, 3, 'shelf_base_l'), (3, 3, 'shelf_base_r'),
+    (9, 2, 'cabinet_l_top'), (10, 2, 'cabinet_r_top'), (9, 3, 'cabinet_l_b'), (10, 3, 'cabinet_r_b'),
+    (8, 1, 'tv_top'), (8, 2, 'tv_screen'), (8, 3, 'tv_foot'),
     (1, 7, 'crate_l'), (9, 7, 'crate_r'), (10, 7, 'crate_l'),
     # The statue hall: the ranger's bed, between the statues, and a plant they kept alive (its leaves against the
     # wall, its pot below)
     (15, 3, 'bed_l'), (16, 3, 'bed_r'), (12, 3, 'plant_t'), (12, 4, 'plant'),
-    # The kitchen nook in the corridor, under the office's wall: sink, stove, a cupboard - each two squares deep
-    (2, 12, 'sink'), (3, 12, 'stove'), (4, 12, 'cabinet_l'), (5, 12, 'cabinet_r'),
-    (2, 13, 'sink_b'), (3, 13, 'stove_b'), (4, 13, 'cabinet_l_b'), (5, 13, 'cabinet_r_b'),
+    # The kitchen nook in the corridor, under the office's wall: sink, stove, a cupboard. Their tops stand on the
+    # wall itself and only their fronts on the floor, so the run sits against the wall the way the houses draw it
+    # (the wall ends at x 4, which is as wide as the run can be).
+    (1, 11, 'sink'), (2, 11, 'stove'), (3, 11, 'cabinet_l_top'), (4, 11, 'cabinet_r_top'),
+    (1, 12, 'sink_b'), (2, 12, 'stove_b'), (3, 12, 'cabinet_l_b'), (4, 12, 'cabinet_r_b'),
     # The lab: cabinets, crates
-    (22, 3, 'cabinet_l'), (23, 3, 'cabinet_r'), (22, 4, 'cabinet_l_b'), (23, 4, 'cabinet_r_b'),
+    (22, 2, 'cabinet_l_top'), (23, 2, 'cabinet_r_top'), (22, 3, 'cabinet_l_b'), (23, 3, 'cabinet_r_b'),
     (30, 7, 'crate_l'), (31, 7, 'crate_r'), (31, 6, 'crate_l'),
-    # The study: a bookshelf
-    (12, 44, 'shelf_l'), (13, 44, 'shelf_r'),
+    # The study: a bookshelf, on the wall like the office's
+    (12, 42, 'shelf_tl'), (13, 42, 'shelf_tr'), (12, 43, 'shelf_l'), (13, 43, 'shelf_r'),
+    (12, 44, 'shelf_base_l'), (13, 44, 'shelf_base_r'),
     # The stair hall: supplies stacked where they were carried down
     (22, 44, 'crate_l'), (23, 44, 'crate_r'), (22, 45, 'crate_r'), (25, 49, 'crate_l'),
 ]
 # Cobwebs (x, y, corner): baked into whatever stands there (draw_station_tiles.py makes the webbed copies)
 B1_WEBS = [
     # On the furniture
-    (24, 2, 'TL'), (29, 2, 'TR'), (2, 3, 'TL'), (10, 3, 'TR'), (16, 3, 'TR'),
-    (12, 44, 'TL'), (2, 44, 'TL'), (10, 47, 'TR'), (15, 46, 'TL'), (22, 44, 'TL'), (5, 12, 'TR'), (31, 6, 'TR'),
+    (24, 2, 'TL'), (29, 2, 'TR'), (2, 2, 'TL'), (10, 3, 'TR'), (16, 3, 'TR'),
+    (2, 44, 'TL'), (10, 47, 'TR'), (15, 46, 'TL'), (22, 44, 'TL'), (4, 12, 'TR'), (31, 6, 'TR'),
     # In the corners of the walls
     (1, 1, 'TL'), (31, 1, 'TR'), (20, 1, 'TR'), (12, 1, 'TL'), (1, 42, 'TL'), (12, 42, 'TL'), (20, 42, 'TR'),
     (7, 16, 'TL'), (25, 16, 'TR'),
@@ -370,9 +377,15 @@ B1_WEBS = [
 
 def furnish_b1f(g):
     for x, y, name in B1_FURNITURE:
-        floor = g[x, y] & 0x3FF
-        assert floor in tiles.FURNITURE_FLOORS, 'B1F: %s at (%d, %d) is on 0x%X, not the floor' % (name, x, y, floor)
-        g[x, y] = blk(furniture_id(name, floor), True)
+        under = g[x, y] & 0x3FF
+        if name in tiles.WALL_FURNITURE:
+            assert under in tiles.WALL_BACKINGS, \
+                'B1F: %s at (%d, %d) is on 0x%X, not the wall' % (name, x, y, under)
+            g[x, y] = blk(tiles.wall_furniture_id(name, under), True)
+        else:
+            assert under in tiles.FURNITURE_FLOORS, \
+                'B1F: %s at (%d, %d) is on 0x%X, not the floor' % (name, x, y, under)
+            g[x, y] = blk(furniture_id(name, under), True)
 
 
 def web_targets():
@@ -447,10 +460,14 @@ def edge_water(g):
 
 # B2F: stones on a lattice two squares apart (a jump over one square of water). Rows of the lattice, top to bottom:
 # x a stone; S and E jetties off the start and end platforms (floor, so the bank along a landing runs round them
-# rather than breaking at a stone against it). Exactly five dead ends.
+# rather than breaking at a stone against it). Exactly six dead ends.
+# The stones must stay loop-free: any two side by side can be jumped between, so a stone touching two others joins
+# them and hands the player a short cut. That is what shapes the climb out of the bottom corridor - the route goes
+# up column 4 to the top row and along it, which leaves the square east of the climb (5, 2) touching nothing else,
+# so turning right there is a dead end instead of a way round.
 B2_LATTICE = [
-    'xxxx.xxE',
-    'x.x..x..',
+    'xxxxxxxE',
+    'x.x...x.',
     'x.xxxx.x',
     '....x..x',
     'xxxxxxxx',
@@ -518,7 +535,7 @@ def b2f_dead_ends(g):
         if len(ways) == 1:
             (dx, dy) = ways[0][1]
             ends.append((p, (p[0] - dx, p[1] - dy)))
-    assert len(ends) == 5, 'B2F: %d dead ends' % len(ends)
+    assert len(ends) == 6, 'B2F: %d dead ends' % len(ends)
     return ends
 
 

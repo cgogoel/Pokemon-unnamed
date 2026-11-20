@@ -52,8 +52,12 @@ static const u16 sStationMaps[] =
     MAP_RANGER_STATION_B4F,
 };
 
-static const u16 sDeadEndSpecies[] = { SPECIES_KINGDRA, SPECIES_TENTACRUEL, SPECIES_GYARADOS, SPECIES_CLOYSTER, SPECIES_STARMIE };
-static const u16 sDeadEndFlags[] = { FLAG_ACT2_DEAD_END_1, FLAG_ACT2_DEAD_END_2, FLAG_ACT2_DEAD_END_3, FLAG_ACT2_DEAD_END_4, FLAG_ACT2_DEAD_END_5 };
+// In the order sDeadEnds lists them (down the floor, then across), so the four that were already there keep
+// the Pokemon they had: LANTURN is the new one, waiting at the false right turn off the climb.
+static const u16 sDeadEndSpecies[] = { SPECIES_KINGDRA, SPECIES_TENTACRUEL, SPECIES_LANTURN, SPECIES_GYARADOS,
+                                       SPECIES_CLOYSTER, SPECIES_STARMIE };
+static const u16 sDeadEndFlags[] = { FLAG_ACT2_DEAD_END_1, FLAG_ACT2_DEAD_END_2, FLAG_ACT2_DEAD_END_3,
+                                     FLAG_ACT2_DEAD_END_4, FLAG_ACT2_DEAD_END_5, FLAG_ACT2_DEAD_END_6 };
 
 STATIC_ASSERT(ARRAY_COUNT(sDeadEndSpecies) == ARRAY_COUNT(sDeadEnds), DeadEndCount);
 STATIC_ASSERT(ARRAY_COUNT(sClockPieces) == ACT2_CLOCK_SUN + 1, ClockPieceCount);

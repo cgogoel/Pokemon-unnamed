@@ -260,17 +260,23 @@ but for a small circle round the player (flash level 5, radius 40 px: the stones
 `Act2Station_GetFloodFlashLevel`), so the way has to be found stone by stone. Ladder up (warp 0 at (1, 15)), ladder
 down at the far end (warp 1 at (19, 1)), the MEDKIT (a red first-aid case, `OBJ_EVENT_GFX_MEDKIT`,
 `tools/hack/draw_medkit.py`, at (19, 5); heals the party, any number of times). The stones form a tree with exactly
-five dead ends (the composer checks); at each, a Water Pokémon hidden under the water beyond (`FLAG_TEMP_1`-`5`)
+six dead ends (the composer checks); at each, a Water Pokémon hidden under the water beyond (`FLAG_TEMP_1`-`6`)
 leaps out and battles the player on arrival (coord event on the stone), at the station's level + 2. Beaten or
 caught: gone for good.
 
+The stones have to stay loop-free: any two side by side can be jumped between, so a stone touching two others joins
+them and opens a short cut. That is what shapes the way out - the route climbs column 11 from the bottom corridor
+to the top row and runs east along it, which leaves the stone east of the climb touching nothing else. Turning
+right there, where the way on is north, is dead end 3.
+
 | Dead end | Stone | Pokémon at | Species | Flag |
 |---|---|---|---|---|
-| 1 | (9, 3) | (10, 3) | Kingdra | `FLAG_ACT2_DEAD_END_1` |
+| 1 | (15, 5) | (15, 6) | Kingdra | `FLAG_ACT2_DEAD_END_1` |
 | 2 | (3, 7) | (3, 8) | Tentacruel | `FLAG_ACT2_DEAD_END_2` |
-| 3 | (17, 7) | (17, 6) | Gyarados | `FLAG_ACT2_DEAD_END_3` |
-| 4 | (9, 13) | (9, 14) | Cloyster | `FLAG_ACT2_DEAD_END_4` |
-| 5 | (15, 13) | (15, 14) | Starmie | `FLAG_ACT2_DEAD_END_5` |
+| 3 | (13, 7) | (14, 7) | Lanturn | `FLAG_ACT2_DEAD_END_3` |
+| 4 | (17, 7) | (17, 6) | Gyarados | `FLAG_ACT2_DEAD_END_4` |
+| 5 | (9, 13) | (9, 14) | Cloyster | `FLAG_ACT2_DEAD_END_5` |
+| 6 | (15, 13) | (15, 14) | Starmie | `FLAG_ACT2_DEAD_END_6` |
 
 **B3F: the overgrowth** (`MUS_RG_VIRIDIAN_FOREST`). An old basement room (the Mansion's walls) with a wooden plank
 floor that trees and tall grass have grown up through: its own tileset, `gTileset_RangerStationGrove`

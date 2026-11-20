@@ -338,15 +338,20 @@ def compose_b1f(webs=True):
 
 # The lone ranger's things round the ring (FURNITURE, on the basement floor): (x, y, name)
 B1_FURNITURE = [
-    # The office: the ranger's shelf of field guides, a cabinet, the TV, crates of supplies never unpacked
-    (2, 3, 'shelf_l'), (3, 3, 'shelf_r'), (8, 3, 'tv'), (9, 3, 'cabinet_l'), (10, 3, 'cabinet_r'),
+    # The office: the ranger's shelf of field guides, a cabinet, the TV (two squares wide), crates of supplies
+    # never unpacked
+    (2, 3, 'shelf_l'), (3, 3, 'shelf_r'), (7, 3, 'tv'), (8, 3, 'tv_r'), (9, 3, 'cabinet_l'), (10, 3, 'cabinet_r'),
+    (9, 4, 'cabinet_l_b'), (10, 4, 'cabinet_r_b'),
     (1, 7, 'crate_l'), (9, 7, 'crate_r'), (10, 7, 'crate_l'),
-    # The statue hall: the ranger's bed, between the statues, and a plant they kept alive
-    (15, 3, 'bed_l'), (16, 3, 'bed_r'), (12, 3, 'plant'),
-    # The kitchen nook in the corridor, under the office's wall: sink, stove, a cupboard
+    # The statue hall: the ranger's bed, between the statues, and a plant they kept alive (its leaves against the
+    # wall, its pot below)
+    (15, 3, 'bed_l'), (16, 3, 'bed_r'), (12, 3, 'plant_t'), (12, 4, 'plant'),
+    # The kitchen nook in the corridor, under the office's wall: sink, stove, a cupboard - each two squares deep
     (2, 12, 'sink'), (3, 12, 'stove'), (4, 12, 'cabinet_l'), (5, 12, 'cabinet_r'),
+    (2, 13, 'sink_b'), (3, 13, 'stove_b'), (4, 13, 'cabinet_l_b'), (5, 13, 'cabinet_r_b'),
     # The lab: cabinets, crates
-    (22, 3, 'cabinet_l'), (23, 3, 'cabinet_r'), (30, 7, 'crate_l'), (31, 7, 'crate_r'), (31, 6, 'crate_l'),
+    (22, 3, 'cabinet_l'), (23, 3, 'cabinet_r'), (22, 4, 'cabinet_l_b'), (23, 4, 'cabinet_r_b'),
+    (30, 7, 'crate_l'), (31, 7, 'crate_r'), (31, 6, 'crate_l'),
     # The study: a bookshelf
     (12, 44, 'shelf_l'), (13, 44, 'shelf_r'),
     # The stair hall: supplies stacked where they were carried down

@@ -220,9 +220,14 @@ MB_LADDER = 0x61
 
 # The lone ranger's things: FireRed's building furniture (gTileset_BuildingFrlg, drawn on its top layer) stood on
 # the basement's floor instead of the building's planks, on each of the floor pieces it may stand on
+# Several of these are halves of a bigger thing, and the rest of it has to be stood next to them or they read as cut
+# off: the building tileset lays its metatiles out eight to a row, so a piece's other half is the next one along
+# (tv/tv_r) or the one below it (sink/sink_b). New names go on the end - furniture_id() numbers them in order, and
+# the cobwebs are numbered after them.
 FURNITURE = {
     'bed_l': 0x18, 'bed_r': 0x19, 'shelf_l': 0x73, 'shelf_r': 0x74, 'sink': 0x31, 'stove': 0x32, 'tv': 0x75,
     'crate_l': 0x99, 'crate_r': 0x9A, 'plant': 0x93, 'cabinet_l': 0x33, 'cabinet_r': 0x34,
+    'tv_r': 0x76, 'plant_t': 0x8B, 'sink_b': 0x39, 'stove_b': 0x3A, 'cabinet_l_b': 0x3B, 'cabinet_r_b': 0x3C,
 }
 FURNITURE_FLOORS = (0x286, 0x287)  # The floor, and the floor shaded by a wall
 FURNITURE_FIRST = 0x3A3

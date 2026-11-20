@@ -197,7 +197,7 @@ night: the hum. The ranger pieces it together over five notes; the fourth finds 
 their hands) says why the clock is set to four.
 
 Wild Pokémon in the rooms and corridor (`sAct2_RangerStationB1F_FireRed`: Rattata, Zubat, Gastly, Grimer, Koffing,
-Voltorb, Magnemite...; Act 2's levels), none in the clock room (`Act2Station_IsEncounterFree`, the room's square
+Voltorb, Magnemite...; Act 2's levels, and its encounter rate halved to 5 like the courses' own areas), none in the clock room (`Act2Station_IsEncounterFree`, the room's square
 `STATION_CLOCK_*`). A Magneton hides in the lab's doorway: stepping into it ((26, 10), a coord event) makes it jump
 out from the room's side ((26, 9)) for a battle 3 levels above the station's level. Beaten or caught, it's gone for
 good (`ACT2_FINALE_LAB_GUARD`); run from, it stays out, blocking the way, and talking to it battles again (its

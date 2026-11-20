@@ -14572,7 +14572,7 @@
           "map": "MAP_RANGER_STATION_B1F",
           "base_label": "sAct2_RangerStationB1F_FireRed",
           "land_mons": {
-            "encounter_rate": 6,
+            "encounter_rate": 5,
             "mons": [
               {
                 "min_level": 12,
